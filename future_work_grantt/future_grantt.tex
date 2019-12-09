@@ -1,24 +1,25 @@
 \documentclass[11pt]{amsart}
+\usepackage[paperwidth=6in,paperheight=8in]{geometry}
+
 %\usepackage{rcstd}
 \renewcommand{\familydefault}{\sfdefault}
 \usepackage{url}
-\usepackage{a4wide}
 %\twocolumn
-\pagestyle{plain}
+% \pagestyle{plain}
 \sloppy
 \flushbottom
-\parindent 1em
-\leftmargini 2em
-\leftmarginv .5em
-\leftmarginvi .5em
-\oddsidemargin=-0.2cm
-\evensidemargin=-0.2cm
-\marginparwidth 48pt 
-\marginparsep 10pt 
-\topmargin=-2cm
+%\parindent 1em
+%\leftmargini 2em
+%\leftmarginv -.5em
+%\leftmarginvi .5em
+\oddsidemargin=-1.2cm
+\evensidemargin=-1.2cm
+%\marginparwidth 48pt
+%\marginparsep 10pt
+\topmargin=-8cm
 \textwidth=16.75cm
 \textheight=24.7cm
-\parskip=1ex
+%\parskip=1ex
 
 \usepackage{tikz}
 \usetikzlibrary{shapes,shadows,calc}
@@ -92,7 +93,7 @@
 
 \begin{landscape}
 \begin{center}
- \textbf{My Part 3 Project Title (Gantt Chart)}
+ \textbf{Individual project: Future work}
  \vspace{2ex}
 \end{center}
 \begin{ganttchart}[
@@ -120,7 +121,7 @@
   ]{1}{12}
   \gantttitle[
     title label node/.append style={below left=7pt and -3pt}
-  ]{MONTH:\quad1}{1}
+  ]{MONTH (From December):\quad1}{1}
   \gantttitlelist{2,...,6}{1} \\
   \ganttgroup{WP1: Code the framework}{1}{2} \\
   \ganttbar[name=api]{\textbf{Task 1.1: Code the servers and tasks} }{1}{1} \\
