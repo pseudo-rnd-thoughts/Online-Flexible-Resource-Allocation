@@ -180,33 +180,6 @@
     number = {12}
 }
 
-@book{nisan2007algorithmic_228,
-    title = {Algorithmic game theory},
-    author = {Nisan, Noam and Roughgarden, Tim and Tardos, Eva and Vazirani, Vijay V},
-    year = {2007},
-    publisher = {Cambridge university press},
-    url = "https://www.cs.cmu.edu/~sandholm/cs15-892F13/algorithmic-game-theory.pdf",
-    pages = {229}
-}
-
-@book{nisan2007algorithmic_229_230,
-    title = {Algorithmic game theory},
-    author = {Nisan, Noam and Roughgarden, Tim and Tardos, Eva and Vazirani, Vijay V},
-    year = {2007},
-    publisher = {Cambridge university press},
-    url = "https://www.cs.cmu.edu/~sandholm/cs15-892F13/algorithmic-game-theory.pdf",
-    pages = {229-230}
-}
-
-@book{nisan2007algorithmic_599,
-    title = {Algorithmic game theory},
-    author = {Nisan, Noam and Roughgarden, Tim and Tardos, Eva and Vazirani, Vijay V},
-    year = {2007},
-    publisher = {Cambridge university press},
-    url = "https://www.cs.cmu.edu/~sandholm/cs15-892F13/algorithmic-game-theory.pdf",
-    pages = {599}
-}
-
 @article{groves,
     ISSN = {00129682, 14680262},
     URL = {http://www.jstor.org/stable/1914085},
@@ -361,6 +334,44 @@
     year = 2017
 }
 
+@unpublished{FlexibleResourceAllocation,
+    author = {Mark Towers and Sebastian Stein and Fidan Mehmeti and Caroline Rubeun and Tim Norman and Tom La Porta and Geeth Demel},
+    title = {Auction-based Mechanisms for Allocating Elastic resources in Edge Clouds},
+    note = {Unpublished},
+}
+
+@Article{ANN,
+    author="McCulloch, Warren S. and Pitts, Walter",
+    title="A logical calculus of the ideas immanent in nervous activity",
+    journal="The bulletin of mathematical biophysics",
+    year="1943",
+    month="Dec",
+    day="01",
+    volume="5",
+    number="4",
+    pages="115--133",
+    abstract="Because of the ``all-or-none'' character of nervous activity, neural events and the relations among them can be treated by means of propositional logic. It is found that the behavior of every net can be described in these terms, with the addition of more complicated logical means for nets containing circles; and that for any logical expression satisfying certain conditions, one can find a net behaving in the fashion it describes. It is shown that many particular choices among possible neurophysiological assumptions are equivalent, in the sense that for every net behaving under one assumption, there exists another net which behaves under the other and gives the same results, although perhaps not in the same time. Various applications of the calculus are discussed.",
+    issn="1522-9602",
+    doi="10.1007/BF02478259",
+    url="https://doi.org/10.1007/BF02478259"
+}
+
+
+
+@article{RNN,
+    author = {Elman, Jeffrey L.},
+    title = {Finding Structure in Time},
+    journal = {Cognitive Science},
+    volume = {14},
+    number = {2},
+    pages = {179-211},
+    doi = {10.1207/s15516709cog1402\_1},
+    url = {https://onlinelibrary.wiley.com/doi/abs/10.1207/s15516709cog1402_1},
+    eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1207/s15516709cog1402_1},
+    abstract = {Time underlies many interesting human behaviors. Thus, the question of how to represent time in connectionist models is very important. One approach is to represent time implicitly by its effects on processing rather than explicitly (as in a spatial representation). The current report develops a proposal along these lines first described by Jordan (1986) which involves the use of recurrent links in order to provide networks with a dynamic memory. In this approach, hidden unit patterns are fed back to themselves: the internal representations which develop thus reflect task demands in the context of prior internal states. A set of simulations is reported which range from relatively simple problems (temporal version of XOR) to discovering syntactic/semantic features for words. The networks are able to learn interesting internal representations which incorporate task demands with memory demands: indeed, in this approach the notion of memory is inextricably bound up with task processing. These representations reveal a rich structure, which allows them to be highly context-dependent, while also expressing generalizations across classes of items. These representations suggest a method for representing lexical categories and the type/token distinction.},
+    year = {1990}
+}
+
 @article{LSTM,
     author = {Hochreiter, Sepp and Schmidhuber, Jürgen},
     title = {Long Short-Term Memory},
@@ -373,4 +384,133 @@
     URL = {https://doi.org/10.1162/neco.1997.9.8.1735},
     eprint = {https://doi.org/10.1162/neco.1997.9.8.1735},
     abstract = {Learning to store information over extended time intervals by recurrent backpropagation takes a very long time, mostly because of insufficient, decaying error backflow. We briefly review Hochreiter's (1991) analysis of this problem, then address it by introducing a novel, efficient, gradient based method called long short-term memory (LSTM). Truncating the gradient where this does not do harm, LSTM can learn to bridge minimal time lags in excess of 1000 discrete-time steps by enforcing constant error flow through constant error carousels within special units. Multiplicative gate units learn to open and close access to the constant error flow. LSTM is local in space and time; its computational complexity per time step and weight is O. 1. Our experiments with artificial data involve local, distributed, real-valued, and noisy pattern representations. In comparisons with real-time recurrent learning, back propagation through time, recurrent cascade correlation, Elman nets, and neural sequence chunking, LSTM leads to many more successful runs, and learns much faster. LSTM also solves complex, artificial long-time-lag tasks that have never been solved by previous recurrent network algorithms. }
+}
+
+@article{csaji2001approximation,
+  title={Approximation with artificial neural networks},
+  author={Cs{\'a}ji, Bal{\'a}zs Csan{\'a}d},
+  journal={Faculty of Sciences, Etvs Lornd University, Hungary},
+  volume={24},
+  pages={48},
+  year={2001},
+  publisher={Citeseer}
+}
+
+@article{GRU,
+  author    = {Junyoung Chung and
+               {\c{C}}aglar G{\"{u}}l{\c{c}}ehre and
+               KyungHyun Cho and
+               Yoshua Bengio},
+  title     = {Empirical Evaluation of Gated Recurrent Neural Networks on Sequence
+               Modeling},
+  journal   = {CoRR},
+  volume    = {abs/1412.3555},
+  year      = {2014},
+  url       = {http://arxiv.org/abs/1412.3555},
+  archivePrefix = {arXiv},
+  eprint    = {1412.3555},
+  timestamp = {Mon, 13 Aug 2018 16:47:38 +0200},
+  biburl    = {https://dblp.org/rec/bib/journals/corr/ChungGCB14},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{NTM,
+  author    = {Alex Graves and
+               Greg Wayne and
+               Ivo Danihelka},
+  title     = {Neural Turing Machines},
+  journal   = {CoRR},
+  volume    = {abs/1410.5401},
+  year      = {2014},
+  url       = {http://arxiv.org/abs/1410.5401},
+  archivePrefix = {arXiv},
+  eprint    = {1410.5401},
+  timestamp = {Mon, 13 Aug 2018 16:46:28 +0200},
+  biburl    = {https://dblp.org/rec/bib/journals/corr/GravesWD14},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DNC,
+  abstract = {Artificial neural networks are remarkably adept at sensory processing, sequence learning and reinforcement learning, but are limited in their ability to represent variables and data structures and to store data over long timescales, owing to the lack of an external memory. Here we introduce a machine learning model called a differentiable neural computer (DNC), which consists of a neural network that can read from and write to an external memory matrix, analogous to the random-access memory in a conventional computer. Like a conventional computer, it can use its memory to represent and manipulate complex data structures, but, like a neural network, it can learn to do so from data. When trained with supervised learning, we demonstrate that a DNC can successfully answer synthetic questions designed to emulate reasoning and inference problems in natural language. We show that it can learn tasks such as finding the shortest path between specified points and inferring the missing links in randomly generated graphs, and then generalize these tasks to specific graphs such as transport networks and family trees. When trained with reinforcement learning, a DNC can complete a moving blocks puzzle in which changing goals are specified by sequences of symbols. Taken together, our results demonstrate that DNCs have the capacity to solve complex, structured tasks that are inaccessible to neural networks without external read–write memory.},
+  added-at = {2017-09-19T10:02:58.000+0200},
+  author = {Graves, Alex and Wayne, Greg and Reynolds, Malcolm and Harley, Tim and Danihelka, Ivo and Grabska-Barwińska, Agnieszka and Colmenarejo, Sergio Gómez and Grefenstette, Edward and Ramalho, Tiago and Agapiou, John and Badia, Adrià Puigdomènech and Hermann, Karl Moritz and Zwols, Yori and Ostrovski, Georg and Cain, Adam and King, Helen and Summerfield, Christopher and Blunsom, Phil and Kavukcuoglu, Koray and Hassabis, Demis},
+  biburl = {https://www.bibsonomy.org/bibtex/21e067f9c481da30d7d743b9301d98b2e/hotho},
+  description = {Hybrid computing using a neural network with dynamic external memory : Nature : Nature Research},
+  interhash = {6a12ea752581b1895eca3716668df9fc},
+  intrahash = {1e067f9c481da30d7d743b9301d98b2e},
+  issn = {00280836},
+  journal = {Nature},
+  keywords = {access deep direct learning memory network neural rnn toread},
+  month = oct,
+  number = 7626,
+  pages = {471--476},
+  publisher = {Macmillan Publishers Limited, part of Springer Nature. All rights reserved.},
+  timestamp = {2017-09-19T10:02:58.000+0200},
+  title = {Hybrid computing using a neural network with dynamic external memory},
+  url = {http://dx.doi.org/10.1038/nature20101},
+  volume = 538,
+  year = 2016
+}
+
+@book{nisan2007algorithmic_critical_value,
+    title={Algorithmic game theory},
+    author={Nisan, Noam and Roughgarden, Tim and Tardos, Eva and Vazirani, Vijay V},
+    year={2007},
+    publisher={Cambridge university press},
+    url="https://www.cs.cmu.edu/~sandholm/cs15-892F13/algorithmic-game-theory.pdf",
+    pages={228}
+}
+
+@incollection{samuel1988some,
+  title={Some studies in machine learning using the game of checkers. II—recent progress},
+  author={Samuel, Arthur L},
+  booktitle={Computer Games I},
+  pages={366--400},
+  year={1988},
+  publisher={Springer}
+}
+
+@misc{ OpenAI_dota,
+    author = {OpenAI},
+    title = {OpenAI Five},
+    howpublished = {\url{https://blog.openai.com/openai-five/}}
+    year = {2018}
+}
+
+@article{starcraft2,
+  author    = {Oriol Vinyals and
+               Timo Ewalds and
+               Sergey Bartunov and
+               Petko Georgiev and
+               Alexander Sasha Vezhnevets and
+               Michelle Yeo and
+               Alireza Makhzani and
+               Heinrich K{\"{u}}ttler and
+               John Agapiou and
+               Julian Schrittwieser and
+               John Quan and
+               Stephen Gaffney and
+               Stig Petersen and
+               Karen Simonyan and
+               Tom Schaul and
+               Hado van Hasselt and
+               David Silver and
+               Timothy P. Lillicrap and
+               Kevin Calderone and
+               Paul Keet and
+               Anthony Brunasso and
+               David Lawrence and
+               Anders Ekermo and
+               Jacob Repp and
+               Rodney Tsing},
+  title     = {StarCraft {II:} {A} New Challenge for Reinforcement Learning},
+  journal   = {CoRR},
+  volume    = {abs/1708.04782},
+  year      = {2017},
+  url       = {http://arxiv.org/abs/1708.04782},
+  archivePrefix = {arXiv},
+  eprint    = {1708.04782},
+  timestamp = {Mon, 13 Aug 2018 16:47:24 +0200},
+  biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1708-04782},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
 }

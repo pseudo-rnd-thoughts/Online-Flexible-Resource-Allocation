@@ -7,10 +7,9 @@
 \usepackage{pdfpages}          % Enables PDF to be inserted into the project
 \nobibliography*               % Use bibentry for prepublished works
 \usepackage{attrib}            % Use the attrib package for quotations
-\usepackage{}
 \hypersetup{colorlinks=true}   % Set to false for black/white printing
-\input{Definitions}      % Include your abbreviations
-\pdfminorversion=7
+\input{definitions}            % Include your abbreviations
+\pdfminorversion=7             % Fixes warnings for importing pdf documents
 
 %% ----------------------------------------------------------------
 %% --------------------THESIS/DOC INFORMATION ---------------------
@@ -27,7 +26,7 @@
 \addresses  {\groupname\\\deptname\\\univname}
 \date       {\today}
 \supervisor {Dr Tim Norman}
-\examiner   {}
+\examiner   {Dr Nicholas Harris}
 \degree     {MEng Electronic Engineering}
 %% Optional Fields TODO: Replace these fields with your own data
 \qualifications{}
@@ -57,6 +56,7 @@ task prices and resource allocation determined through training an agent using r
 % \addtolom{Material Name e.g Map}
 % \addtolom{Material Name e.g CD}
 % \addtolom{Test Material}
+
 %% ---------- AUTHORSHIP DECLARATION/ ACKNOW. / DEDICATORY ----------
 %% Either include citations like below (as many as required spaced with commas or 'and').
 %% \bibentry command must be used here with prepublished papers
@@ -67,8 +67,10 @@ task prices and resource allocation determined through training an agent using r
 \acknowledgements{
 This project wouldn't have started without Dr Sebastian Stein and a team of Pennsylvania State University that has
 produced a paper investigating the static case of this problem. So I am grateful for the support they gave in kick
-starting this project.\\ Also to my housemate for surviving with me pestering them about proof reading my paper and
-this project all of the time.}
+starting this project.
+
+My housemates for surviving with me pestering them about proof reading my paper and
+this project, all of the time.}
 
 % \dedicatory{To \dots}
 %%Lightweight Definitions and Abbreviations see package:nomencl for alternative
@@ -76,243 +78,22 @@ this project all of the time.}
 % \listofsymbols{ll}{$w$ & The weight vector\\$\S$ & If relevant to discipline}
 
 % Todo citep insteads of cite for adding brackets around the citation
+% Rewrite introduction
+% Write reinforcement learning related work
 \mainmatter
 %% ------------------ MAIN MATTER (CONTENT) --------------------
-\chapter{Introduction}\label{ch:introduction}
-When computer programs are too large, difficult or time consuming to be run on a normal computer, these programs are
-often offloaded to cloud providers like Google Cloud Platform, Amazon Web Service, Microsoft Azure and many more.
-These providers all allow customers to individually request a set of resources to compute their program with. However,
-this can create a bottleneck on certain resource preventing other jobs from running with this fixed requirement model.
-This project considers the case where users don't request a set amount of resources but rather the user details the
-total requirements for the program and a deadline for when the program must be finished. This then means that the cloud
-provider can effectively balances resource demands as it has complete knowledge of its different user's requirements,
-allowing more jobs to run simultaneously and lower price as there can be a lower overall demand of individual resources.
-
-In the last few years, cloud computing~\cite{cloud_cite} has become a popular solution to run data-intensive
-applications remotely. However, in some application domains, it is not feasible to rely a remote cloud, for example when
-running highly delay-sensitive and computationally-intensive tasks, or when connectivity to the cloud is intermittent.
-To deal with such domains, \emph{mobile edge computing}~\cite{mobile_edge_survey} has emerged as a complementary
-paradigm, where computational tasks are executed at the edge of mobile networks at small data-centers, known as
-\emph{edge clouds}.
-
-Mobile edge computing is a key enabling technology for the Internet-of-Things (IoT)~\cite{mobile_edge_IoT} and in
-particular applications in smart cities~\cite{mobile_edge_smart} and disaster response
-scenarios~\cite{mobile_edge_disaster}. In these applications, low-powered devices generate computational tasks and
-data that have to be processed quickly on local edge cloud servers. More specifically, in smart cities, these devices
-could be smart intersections that collect data from road-side sensors and vehicles to produce an efficient traffic
-light sequence to minimize waiting times~\cite{smart_cities_traffic_lights}; or it could be CCTV cameras that analyse
-video feeds for suspicious behaviour, e.g., to detect a stabbing or other crime in progress~\cite{Sreenu2019}. In
-disaster response, sensor data from autonomous vehicles (including video, sonar and LIDAR) can be aggregated in real
-time to produce maps of a devastated area, search for potential victims and help first responders in focusing their
-efforts to save lives~\cite{smart_disaster_management}.
-
-To accomplish these tasks, there are typically several types of resources that are needed, including communication
-bandwidth, computational power and data storage resources~\cite{vaji_infocom}, and tasks are generally delay-sensitive,
-i.e., have a specific completion deadline. When accomplished, different tasks carry different values for their owners
-(e.g., the users of IoT devices or other stakeholders such as the police or traffic authority). This value will depend
-on the importance of the task, e.g., analysing current levels of air pollution may be less important than preventing
-a large-scale traffic jam at peak times or tracking a terrorist on the run. Given that edge clouds are often highly
-constrained in their resources~\cite{edge_limitations}, we are interested in allocating tasks to edge cloud servers
-to maximize the overall social welfare achieved (i.e., the sum of all task values). This is particularly challenging,
-because users in edge clouds are typically self-interested and may behave strategically~\cite{Bi2019} or may prefer
-not to reveal private information about their values to a central allocation mechanism~\cite{Pai2013}.
-
-An important shortcoming of existing work looking at resource allocation in edge clouds, e.g.,~\cite{vaji_infocom,
-Bi2019}, is that it assumes tasks have strict resource requirements --- that is, each task consumes a
-fixed amount of computation (CPU cycles per time), takes up a fixed amount of bandwidth to transfer data and uses up a
-fixed amount of storage on the server. However, in practice, edge cloud servers have some flexibility in how they
-allocate limited resources to each task. In more detail, to execute a task, the corresponding data and/or code first
-has to be transferred to the server it is assigned to, requiring some bandwidth. This then takes up storage on the
-server. Next, the task needs computing power from the server in terms of CPU cycles per time. Once computation is
-complete, the results have to be transferred back to the user, requiring further bandwidth. Now, while the the storage
-capacity at the server for every task is \emph{strict}, since the task cannot be run unless all the data are stored,
-the bandwidth allocation and the speed at which the task is run on the server are \emph{elastic}. The latter two depend
-on how tight the task's deadline is, and can be adjusted  accordingly, so that more tasks can receive service
-simultaneously. Allocating the elastic resources optimally is the focus of this paper where job may be arriving over
-time such for that server can redistribute their resource as new resources arrive.
-
-\chapter{Related Works}\label{ch:related-works}
-There is a considerable amount of research in the area of resource allocation and pricing in cloud computing, some of
-which use auction mechanisms to deal with competition~\cite{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
-
-\section{Related work in Cloud computing}\label{sec:related-work-cloud-computing}
-However, a majority of these approaches assume that users request a fixed amount of resources system resources and
-processing rates, with the cloud provider having no control over the speeds, only the servers that the task was
-allocated to.  In our work and appendix~\ref{sec:aamas_paper}, tasks' owners report deadlines and overall data and
-computation requirements, allowing the edge cloud server to distribute its resources more efficiently based on each
-task's requirements. But the appendix~\ref{sec:aamas_paper} considers the case where all jobs arrive at the same
-time whereas this project considers the case of tasks arriving overtime.
-
-Other closely related work on resource allocation in edge clouds~\cite{vaji_infocom} considers both the placement of
-code/data needed to run a specific task, as well as the scheduling of tasks to different edge clouds. The goal there
-is to maximize the expected rate of successfully accomplished tasks over time. Our work is different both in the setup
-and the objective function. Our objective is to maximize the value over all tasks. In terms of the setup, they assume
-that data/code can be shared and they do not consider the elasticity of resources.
-
-\section{Related work in Reinforcement learning}\label{sec:related-work-reinforcement-learning}
-Reinforcement learning has a huge amount of research~\cite{Sutton1998} allowing for an agent to be trained by engaging
-with an environment that receives reward from taking certain actions. As our environment has action that affect the
-environment and future actions, supervised and unsupervised learning are not able to be used to train the agent.
-This has primarily been used in games~\cite{atari, silver2017mastering} as it allows for agent to interact with the
-environment with an affect the environment which results in a reward. As our problem case allows the agent to interact
-with the environment that results in rewards from the actions it takes meaning that the agent can discover the best
-strategies for bidding and allocating resources instead of using heuristics predetermined by a human.
-
-\chapter{Proposed solution}\label{ch:proposed_solution}
-As the problem case has two stage that must be consider: the bidding of available jobs and the allocation of resource
-for allocated jobs. Due to each of these stages requiring and returning different variables, two different function
-approximation will be found, discussed in sections~\ref{sec:auction_solution} and~\ref{sec:resource_allocation}
-respectively.
-
-\begin{figure}
-    \centering
-    \includegraphics{extra/system_model.pdf}
-    \caption{System model}
-    \label{fig:system_model}
-\end{figure}
-
-A sketch of the system is shown in Fig.~\ref{fig:system_model}. 
-We assume that in the system there is a set of servers $I = \{1,2,\ldots,\left|I\right|\}$ servers, which could be edge
-clouds that can be accessed either through cellular base stations or WiFi access points (APs). Servers have different
-types of resources: storage for the code/data needed to run a task (e.g., measured in GB), computation capacity in
-terms of CPU cycles per time interval (e.g., measured in FLOP/s), and communication bandwidth to receive the data and
-to send back the results of the task after execution (e.g., measured in Mbit/s). We assume that the servers are
-heterogeneous in all their characteristics. More formally, we denote the storage capacity of server $i$ with $S_i$,
-computation capacity with $W_i$, and the communication capacity with $R_i$.
-
-There is a set $J = \{1,2,\ldots,\left| J \right|\}$ of  different tasks that require service from one of the servers
-in set $I = \{1,2,\ldots, \left| I \right|\}$. To run any of these tasks on a server requires storing the appropriate
-code/data on the same server. These could be, for example, a set of images, videos or CNN layers in identification
-tasks. The storage size of task $j$ is denoted as $s_j$ with the rate at which the program is transferred to the server
-$i$ at time $t$ being $s^{'}_{i,j,t}$. For a task to be computed successfully, it must fetch and execute instructions
-on a CPU. We consider the total number of CPU cycles required for the program to be $w_j$, where the rate at which the
-CPU cycles are assigned to the task on server $i$ at time $t$ is $w^{'}_{i,j,t}$. Finally, after the task is run and
-the results obtained, the latter need to be sent back to the user. The size of the results for task $j$ is denoted with
-$r_j$, and the rate at which they are sent back to the user is $r^{'}_{i,j,t}$ on server $i$ at time $t$. Every task
-has a beginning time, denoted by $b_j$ and a deadline, denoted by $d_j$. This is the maximum time for the task to be
-completed in order for the user to derive its value. This time includes: the time required to send the data/code to the
-server, run it on the server, and get back the results. Therefore for the task to be successfully completed, it must
-completed fulfill the constraint in equation~\eqref{eq:deadline}. These operations must occur in order as a server
-couldn't compute a task that was not fully loaded on the machine therefore the whole of the loading stage must be
-completed before moving onto the compute stage and likewise for the sending of results.
-
-\begin{align}
-    \frac{s_j}{\sum^{d_j}_{t=b_j} s^{'}_{i,j,t}} + \frac{w_j}{\sum^{d_j}_{t=b_j} w^{'}_{i,j,t}}  +
-    \frac{r_j}{\sum^{d_j}_{t=b_j} r^{'}_{i,j,t}} \leq d_j && \forall{j \in J}  \label{eq:deadline}
-\end{align}
-
-As server have limited capacity, the total resource usages for all tasks running on a server must be capped to the
-resource capacity. The storage constraint (equation~\eqref{eq:server_storage_capacity}) is unique as the previous amount
-loaded in kept till the end of a program on server. While the computation capacity
-(equation~\eqref{eq:server_computation_capacity} is the sum of compute used by all of the tasks on a server and the
-bandwidth capacity (equation~\eqref{eq:server_bandwidth_capacity}) is the sum of loading and sending usages by tasks.
-\begin{align}
-    \sum_{j \in J} \left(\sum^{d_j}_{t=b_j} s^{'}_{i,j,t} \right) \leq S_i, && \forall{i \in I} \label{eq:server_storage_capacity} \\
-    \sum_{j \in J} w^{'}_{i,j,t} \leq W_i, && \forall{i \in I, t \in T} \label{eq:server_computation_capacity} \\
-    \sum_{j \in J} s^{'}_{i,j,t} + r^{'}_{i,j,t} \leq R_i, && \forall{i \in I, t \in T} \label{eq:server_bandwidth_capacity} \\
-\end{align}
-
-\section{Auction solution}\label{sec:auction_solution}
-If an agent wish to run on task on the cloud, the task can be put forward with its requirements of required storage,
-computation, results data and deadline. In order for fast and truthful, a reverse of the Vickrey auction~\cite{vickrey}
-will be used as it is a second-price sealed-bid auction. Bidders all submit their bid for the task,
-that is a single indivisible item being sold, where all bidders are incentive to bid their true valuation as the winner
-with the lowest price actually pays the second lowest price. Making truthful bidding the dominant strategy for bidding
-on a task preventing the need for agent to learn how to outbid another agent as it only needs to consider its
-evaluation. As there is also only a single round of bidding compared to alternative auctions like English or Dutch
-auctions allowing fast auctioning of task no matter the number of possible servers and can be done in parallel with
-other jobs being allocated. % If to use a reserve price is unknown at this time
-
-In order to calculate the price of the task for a server requires a understanding the resource requirements of the task,
-the future supply and demand for tasks and the resource requirements of currently allocated tasks. Due to the complexity
-in creating a heuristic that can accurately use this information and the amount of memory required for a table based
-approach. Therefore function approximator will be used to approximate the value of the task to the server with
-Long/Short Term Memory (LSTM) neural network~\cite{LSTM}. The justified for the use of this network over other models
-is explained in section~\ref{sec:just_auction}.
-
-\section{Resource allocation solution}\label{sec:resource_allocation}
-In previous work (appendix~\ref{sec:aamas_paper}), that utilised a single shot problem case where jobs wouldnt arrive
-over time meant that resource speed had a fixed speed and assumed that a task loading, computing and sending result
-occurred concurrently. However due to the addition of time means that the task contains stages for the loading,
-computing and sending of results thus requiring for the resources allocated to a task must change over time.
-Therefore at each time step, a server needs to reallocate all of its resource to its currently allocated tasks as
-some tasks will have completely one of its stages.
-
-In order to select how to allocate resource to tasks, this problem doesn't seem as complex as the pricing in
-section~\ref{sec:auction_solution} therefore simple heuristic and long/short term memory neural network will be
-implemented. This is justified in section~\ref{sec:just_resource_allocation}.
-
-
-% Justiifcation of the network type
-% Justification of the learning method (reinforcement, unsupervised, supervised)
-\begin{table}[]
-    \centering
-    \begin{tabular}{|l|c|c|}
-        Neural Network & Advantages & Disadvantages \\ \hline
-        Artificial neural networks (ANN)
-        Long/Short Term Memory (LSTM) & & \\ \hline
-        Recurrent neural network (RNN) & & \\ \hline
-        Gated Recurrent unit (GRU) & & \\ \hline
-        Convolutional neural network (CNN) & & \\ \hline
-        Differentiable neural computer (DNC) & & \\ \hline
-        Neural Turing Machine (NTM) & & \\ \hline
-    \end{tabular}
-    \caption{Neural network zoo}
-    \label{tab:neural_networks}
-\end{table}
-
-\chapter{Justification of the approach}\label{ch:justification-of-the-approach}
-The proposed solution in section~\ref{ch:proposed_solution} has been chosen due to a variety of reasons.
-
-\section{Justification for the auction} \label{sec:just_auction}
-The vickrey auction (~\cite{vickrey}) has been chosen as it a dominant strategy for agents is to truthfully report
-the their true evaluation of a task to it. This project will require to reverse as it is the server are selling their
-resources and buying the tasks for a price with the lowest price winning instead of the standard pricing model where
-the  highest price winning the item. However dispute this change of swapping the pricing model, the dominant strategy
-is truthful reporting as if server report negative prices for a task then the highest negative number is equal to the
-lowest positive number.
-
-\section{Justification for resource allocation} \label{sec:just_resource_allocation}
-Because it is the best idea
-
-
-\chapter{Work requirements}\label{ch:work-requirements}
-An estimate of any support required to complete the project
-* Only Iridis 4 with GPU (currently have access to Iridis 4)
-
-\section{Work to date}\label{sec:work-to-date}
-As this project is an extension to previous work done in the Agent, Interaction and Complexity research labs that has
-produced the paper in Section~\ref{sec:aamas_paper}. The majority of this research occurred over the summer of 2019
-with the paper that is currently under peer review done from October 2019 to 15th November 2019. The paper produced
-was done with support from Dr Fidan Mehmeti and Dr Sebastian Stein with myself being the primary author.
-
-For the remaining time, I have studied reinforcement learning that is the primary technological additional that will
-be used in the proposed solution (section~\ref{ch:proposed_solution}) and described in
-Section~\ref{sec:related-work-reinforcement-learning}.
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{past_work_grantt/past_grantt.pdf}
-    \caption{Work that has been done to date}
-    \label{fig:past_grantt}
-\end{figure}
-
-\section{Plan of the remaining work}
-Due to this term having been completing the paper (Section~\ref{sec:aamas_paper}), I have not done any programming
-towards the project. Therefore the begin of the next term will be build a framework for which different pricing and
-resource allocation heuristics can be applied and compared. Once this has been completed, analysis and comparison of
-the heuristic will be done with different server and task models.
-\begin{figure}
-    \centering
-    \includegraphics[width=\linewidth]{future_work_grantt/future_grantt}
-    \caption{}
-    \label{fig:future_grantt}
-\end{figure}
+\input{body.tex}
 
 \backmatter
 
 \appendix
-\section*{}\label{sec:aamas_paper} % Insert the AAMAS paper
+\chapter*{Appendices}
+\section*{Appendix A: Paper} \label{sec:aamas_paper} % Insert the AAMAS paper
+This paper has been submitted to the International Conference on Autonomous Agents and Multiagent Systems (AAMAS)
+2020 at the University of Auckland. The paper is under peer-review with the authors being myself, Sebastian Stein,
+Tim Norman, Fidan Mehmeti, Tom La Porta, Caroline Rubein and Geeth Demel and within this project is referred to
+as~\cite{FlexibleResourceAllocation}. A copy of the paper is found below.
+
 \includepdf[pages={1}, offset=-25mm -20mm]{extra/aamas_2020}
 \includepdf[pages={2}, offset= 25mm -20mm]{extra/aamas_2020}
 \includepdf[pages={3}, offset=-25mm -20mm]{extra/aamas_2020}
@@ -324,5 +105,6 @@ the heuristic will be done with different server and task models.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
+
 \end{document}
 %% ----------------------------------------------------------------
