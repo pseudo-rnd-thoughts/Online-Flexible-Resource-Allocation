@@ -1,0 +1,38 @@
+\chapter{Related Work}\label{ch:background-literature} %% TODO Rewrite completely
+Due to the novel approach for resource allocation in cloud computing, there are few papers that consider flexible
+resource allocation. However there is a considerable amount of research in the area of resource allocation and
+pricing in cloud computing, some of which use auction mechanisms to deal with
+competition~\cite{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
+
+In Section~\ref{sec:related-work-cloud-computing} considers the previously related work for flexible resource
+allocation in cloud computing and Section~\ref{sec:related-work-reinforcement-learning} consider recent
+work in the field of reinforcement learning.
+
+\section{Related Work in Cloud Computing}\label{sec:related-work-in-cloud-computing}
+A majority of the approaches for pricing and resource allocation in cloud computing require users to request a
+fixed amount of certain resource with the cloud provider having no control over the resources only the servers that the
+task was allocated to~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}. The flexible approach that this project
+assumed has only been considered in~\cite{FlexibleResourceAllocation} that allows the server to distribute its resources
+more efficiently based on each task's requirements. The primary difference between this project and that paper is that this
+project considers the addition of time allowing for resource speed to change over time and that there are task stages.
+
+Previous work by~\cite{FlexibleResourceAllocation} considers three solutions to a single-shot problem case,
+a greedy algorithm to quickly approximate a solution to maximise the social welfare and two auction mechanisms as server
+are normally paid for usage of their resources. The greedy algorithm is a polynomial time algorithm that will find solution
+within $\frac{1}{n}$ of the optimal social welfare.
+This is done through the use of modular heuristics for ordering the task by density then for each task, select a server
+based on available resource on each servers then to allocate resources that minimises a resource heuristics.
+Using certain heuristics, the greedy algorithm achieves at least 90\% of the optimal solution and 20\% more than optimal
+solution for fixed resource equivalent problems. A new distributed iterative auction was developed that use a reverse vcg
+principle to calculate a task price that meant that a task didnt need to reveal its private value also that the
+auction could be run in a decentralised way. This means that the auction is budget balanced however it is not
+economically efficient or incentive compatible. The third algorithm is an implementation of a single parameter
+auctions~\citep{nisan2007algorithmic_critical_value} using the greedy algorithm to find the critical value of a task.
+Using this mechanism with a monotonic value density heuristic means that the auction is incentive compatible.
+
+Other closely related work on resource allocation in edge clouds~\cite{vaji_infocom} considers both the placement of
+code/data needed to run a specific task, as well as the scheduling of tasks to different edge clouds. The goal there
+is to maximize the expected rate of successfully accomplished tasks over time. Our work is different both in the setup
+and the objective function. Our objective is to maximize the value over all tasks. In terms of the setup, they assume
+that data/code can be shared and they do not consider the elasticity of resources.
+\section{Related Work in Machine Learning}\label{sec:related-work-in-machine-learning}

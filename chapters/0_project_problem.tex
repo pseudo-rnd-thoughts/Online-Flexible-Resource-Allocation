@@ -1,0 +1,41 @@
+\chapter{Project problem}\label{ch:project-problem}
+Google Cloud Platform, Amazon Web Service and Microsoft Azure provide a service to users with computer programs that
+are too large, difficult or time consuming to be run on standard computer. User can request a fixed amount of resources
+to run the program, e.g.\ cpu cores, RAM, hard drive space, bandwidth, etc. However,
+this can create bottlenecks on certain resources due to large numbers of resource requests preventing other jobs from
+running. This problem is particularly relevant in edge cloud computing as servers
+are small thus making the demand on resources much greater. This project considers the case where the user states
+the total resource requirements for the program instead of the standard procedure that user request a fixed
+amount of resources. This allows the cloud provider the ability to balance resource demand as it has
+complete knowledge of all user's requirements and can flexibly change the amount of resources allocated to each
+task. This can prevent bottlenecks through proper balances of resources allowing more tasks to run simultaneously
+and can also lower the price due to there being a lower overall demand on resources.
+
+Recently, cloud computing~\citep{cloud_cite} has become a popular solution for remotely running data-intensive
+applications. But for some problem domains, it is not possible to use large cloud providers, for example running highly
+delay-sensitive tasks or where connectivity to the cloud is intermittent.
+Mobile edge computing~\citep{mobile_edge_survey} has emerged as a complementary paradigm to allow for small
+data-centers, close to users, to execute tasks. These data centers are known as edge clouds.
+
+Disaster response, smart cities and Internet-of-things (IoT) are popular technologies that utilise mobile edge
+computing due to the use of ability to process small programs locally with low latency. For smart cities, this
+allows for the possibly of smart intersections with the use of road-side sensors or smart traffic lights based
+on cameras to minimise the waiting times~\citep{smart_cities_traffic_lights}. Or for the police to analysis
+CCTV footage to spot suspicious behaviour or to track people between cameras~\citep{Sreenu2019}. In the case
+of disaster response, maps can be produced using autonomous vehicles sensors to be used in the search for potential
+victims and support responders~\citep{smart_disaster_management}.
+
+To compute these task, several types of resources are required included communication bandwidth, computational power
+and data storage resources~\citep{vaji_infocom}. Tasks will have a deadline such that the program must be completed
+before this point and a private value. This value is depend on the program itself and its value to the owner,
+.e.g analysis air pollution is less important than preventing traffic jams at rush hour or tracking a criminal on the
+run. This project is interestedin allocated task to servers to maximise the social welfare (sum of all allocated
+task values) over time. But due to users being self-interested, they may behave strategically~\citep{Bi2019} or prefer
+to not reveal their value publicity~\citep{Pai2013}.
+
+The shortcoming of existing work for resource allocation in edge cloud computing~\citep{vaji_infocom, Bi2019}
+has the assumption that tasks have fixed resource requirements. However, flexibility is possible in practise
+with how resources are allocaed to each task. For example, the allocated bandwidth for loading the program is
+proportional to the time taken to load the program. This is true of also the computational requirements and
+for sending results back to the user. This project investigates flexible allocation of resource and pricing
+mechanisms when task arrive over time and have private values.
