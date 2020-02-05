@@ -2,6 +2,8 @@
 
 from enum import Enum, auto
 
+from core.server import Server
+
 
 class TaskStage(Enum):
     """
@@ -21,12 +23,12 @@ class Task(object):
 
     stage: TaskStage = TaskStage.NOT_ASSIGN  # The current stage that the task is in
 
-    allocated_agent: Agent = None  # The allocated agent of the task
-    price: int  # The price that the server is bought at
+    server: Server = None  # The allocated server of the task
+    price: float  # The price that the server is bought at
 
-    loading_progress: int = 0  # The current progress in loading the task into memory
-    compute_progress: int = 0  # The current progress in computing the task
-    sending_results_progress: int = 0  # The current progress in sending the results data
+    loading_progress: float = 0  # The current progress in loading the task into memory
+    compute_progress: float = 0  # The current progress in computing the task
+    sending_results_progress: float = 0  # The current progress in sending the results data
 
     def __init__(self, name: str, release_time: int, start_time: int, deadline_time: int,
                  required_storage: int, required_computation: int, required_results_data: int,
@@ -43,22 +45,40 @@ class Task(object):
 
         self.value: int = value  # The private value of the task
 
-    def allocate_server(self, server: Server, price: int):
+    def normalise_task_progress(self, server, time_step):
+        return [self.required_storage / server.storage_capacity,
+                self.required_storage / server.bandwidth_capacity,
+                self.required_computation / server.computational_capacity,
+                self.required_results_data / server.bandwidth_capacity,
+
+                self.loading_progress / self.required_storage,
+                self.compute_progress / self.required_computation,
+                self.sending_results_progress / self.required_results_data,
+                self.deadline_time - time_step]
+
+    def normalise_new_task(self, server, time_step):
+        return [self.required_storage / server.storage_capacity,
+                self.required_storage / server.bandwidth_capacity,
+                self.required_computation / server.computational_capacity,
+                self.required_results_data / server.bandwidth_capacity,
+                self.deadline_time - time_step]
+
+    def allocate_server(self, server: Server, price: float):
         """
         Allocates a server and price for the task
         """
 
         # Check that the task is not allocated already
-        assert self.allocated_server is None, \
+        assert self.server is None, \
             "Task {} is already allocated a server {} while trying to allocate {}"\
-                .format(self.name, self.allocated_server.name, server.name)
+                .format(self.name, self.server.name, server.name)
 
         assert self.stage == TaskStage.NOT_ASSIGN, \
             "Task {} stage is {} while trying to allocate a server {}"\
-                .format(self.name, self.allocated_server.name, server.name)
+                .format(self.name, self.server.name, server.name)
 
         # Set the server, stage and price variables
-        self.allocated_server = server
+        self.server = server
         self.stage = TaskStage.LOADING
         self.price = price
 
@@ -68,7 +88,7 @@ class Task(object):
         :param loading_speed: The loading speed for the task
         """
 
-        assert self.allocated_server is not None
+        assert self.server is not None
         assert self.stage == TaskStage.LOADING
         assert 0 <= loading_speed <= self.required_storage - self.loading_progress
 
@@ -82,7 +102,7 @@ class Task(object):
         :param compute_speed: The compute speed for the task
         """
 
-        assert self.allocated_server is not None
+        assert self.server is not None
         assert self.stage == TaskStage.COMPUTING
         assert 0 <= compute_speed <= self.required_computation - self.compute_progress
 
@@ -96,7 +116,7 @@ class Task(object):
         :param sending_speed: The sending speed for the task
         """
 
-        assert self.allocated_server is not None
+        assert self.server is not None
         assert self.stage == TaskStage.SENDING
         assert 0 <= sending_speed <= self.required_results_data - self.sending_results_progress
 
