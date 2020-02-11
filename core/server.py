@@ -1,15 +1,16 @@
-"""
-Implementation of a server with a fix amount of available resources at each time step
-"""
+"""Implementation of a server with a fix amount of available resources at each time step"""
 
 from typing import List, Dict
 
 from agents.resource_weighting_agent import ResourceWeightingAgent
 from agents.task_pricing_agent import TaskPricingAgent
+import core.log as log
 from core.task import Task, TaskStage
 
 
 class Server(object):
+    """Server simulation class"""
+
     tasks: List[Task] = []
 
     storage_capacity: float = 0
@@ -19,8 +20,8 @@ class Server(object):
     pricing_agent: TaskPricingAgent = None
     resource_weighting_agent: ResourceWeightingAgent = None
 
-    def __init__(self, storage_capacity: float, computational_capacity: float, bandwidth_capacity: float):
-        self.name: str = "1"
+    def __init__(self, name: str, storage_capacity: float, computational_capacity: float, bandwidth_capacity: float):
+        self.name: str = name
         self.storage_capacity = storage_capacity
         self.computational_capacity = computational_capacity
         self.bandwidth_capacity = bandwidth_capacity
@@ -29,24 +30,27 @@ class Server(object):
         self.pricing_agent = pricing_agent
         self.resource_weighting_agent = resource_weighting_agent
 
-    def price_task(self, task: Task) -> float:
+    def price_task(self, task: Task, time_step: int) -> float:
         assert self.pricing_agent is not None
 
-        return self.pricing_agent.price_task(task, self.tasks, self)
+        return self.pricing_agent.price_task(task, self.tasks, self, time_step)
 
     def allocate_task(self, task, second_min_price):
         self.tasks.append(task)
 
         self.pricing_agent.task_allocated(task, second_min_price)
 
-    def allocate_resources(self):
+    def allocate_resources(self, time_step: int, greedy: bool = True):
+        log.debug('\tServer {} resource weighting'.format(self.name))
         loading_weights: Dict[Task, float] = {}
         compute_weights: Dict[Task, float] = {}
         sending_weights: Dict[Task, float] = {}
 
         # Stage 1: Finding the weighting for each of the tasks
         for task in self.tasks:
-            weighting = self.resource_weighting_agent.weight_task(task)
+            weighting = self.resource_weighting_agent.weight_task(
+                task, [_task for _task in self.tasks if task is not _task], self, time_step, greedy)
+            log.debug('\t\tTask {} {}: {}'.format(task.name, task.stage, weighting))
 
             if task.stage == TaskStage.LOADING:
                 loading_weights[task] = weighting
@@ -69,31 +73,29 @@ class Server(object):
                 if task.required_computation - task.compute_progress <= weight * compute_unit:
                     compute_resources: float = task.required_computation - task.compute_progress
 
-                    task.allocate_compute_resources(compute_resources)
-
+                    task.allocate_compute_resources(compute_resources, time_step)
                     available_computation -= compute_resources
                     available_storage -= task.loading_progress
 
                     completed_compute_stage = True
-
                     compute_weights.pop(task)
 
         if compute_weights:
             compute_unit = available_computation / sum(compute_weights.values())
             for task, weight in compute_weights.items():
-                task.allocate_compute_resources(compute_unit * weight)
+                task.allocate_compute_resources(compute_unit * weight, time_step)
 
         # Stage 3: Allocate the bandwidth resources to task
         completed_bandwidth_stage: bool = True
         while completed_bandwidth_stage and (loading_weights or sending_weights):
             bandwidth_unit: float = available_bandwidth / (
-                        sum(loading_weights.values()) + sum(sending_weights.values()))
+                    sum(loading_weights.values()) + sum(sending_weights.values()))
             completed_bandwidth_stage = False
 
             for task, weight in sending_weights.items():
                 if task.required_results_data - task.sending_results_progress <= weight * bandwidth_unit:
                     sending_resources: float = task.required_results_data - task.sending_results_progress
-                    task.allocate_sending_resources(sending_resources)
+                    task.allocate_sending_resources(sending_resources, time_step)
 
                     available_bandwidth -= sending_resources
                     available_storage -= task.loading_progress
@@ -107,7 +109,7 @@ class Server(object):
                         task.loading_progress + min(task.required_storage - task.loading_progress,
                                                     weight * bandwidth_unit) <= available_storage:
                     loading_resources: float = task.required_storage - task.loading_progress
-                    task.allocate_loading_resources(loading_resources)
+                    task.allocate_loading_resources(loading_resources, time_step)
 
                     available_bandwidth -= loading_resources
                     available_storage -= task.loading_progress
@@ -118,11 +120,11 @@ class Server(object):
 
         if loading_weights or sending_weights:
             bandwidth_unit: float = available_bandwidth / (
-                            sum(loading_weights.values()) + sum(sending_weights.values()))
+                    sum(loading_weights.values()) + sum(sending_weights.values()))
             if loading_weights:
                 for task, weight in loading_weights.items():
-                    task.allocate_loading_resources(bandwidth_unit * weight)
+                    task.allocate_loading_resources(bandwidth_unit * weight, time_step)
 
             if sending_weights:
                 for task, weight in sending_weights.items():
-                    task.allocate_sending_resources(bandwidth_unit * weight)
+                    task.allocate_sending_resources(bandwidth_unit * weight, time_step)

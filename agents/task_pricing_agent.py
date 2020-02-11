@@ -1,42 +1,64 @@
-from random import randint, random
+"""Task pricing agent"""
+
+import random as rnd
 from typing import List
 
-from tensorflow import keras
-from numpy import argmax as np_argmax
+import numpy as np
+import tensorflow as tf
 
-from agents.replay_buffer import ReplayBuffer
+from agents.dqn_agent import DqnAgent, Trajectory
 from core.server import Server
 from core.task import Task
 
 
-class TaskPricingAgent:
+class TaskPricingNetwork(tf.keras.Model):
+    """Task Pricing network with a LSTM layer, ReLU layer and Linear layer"""
 
-    num_outputs = 26
-    epsilon = 0.5
-    replay_buffer = ReplayBuffer(1024)
+    def __init__(self, lstm_connections: int = 10, relu_connections: int = 20, num_outputs: int = 25):
+        super().__init__()
 
-    def __init__(self):
-        self.network: keras.Sequential = keras.Sequential()
-        self.network.add(keras.layers.Bidirectional(keras.layers.LSTM(40)))
-        self.network.add(keras.layers.Dense(30, activation='relu'))
-        self.network.add(keras.layers.Dense(self.num_outputs, activation='linear'))
+        self.task_layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(lstm_connections))
+        self.relu_layer = tf.keras.layers.Dense(relu_connections, activation='relu')
+        self.q_layer = tf.keras.layers.Dense(num_outputs, activation='linear')
 
-    def price_task(self, new_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
+    def call(self, inputs, training=None, mask=None):
+        task_output = self.task_layer(inputs)
+        relu_output = self.relu_layer(task_output)
+        return self.q_layer(relu_output)
+
+
+class TaskPricingAgent(DqnAgent):
+
+    def __init__(self, agent_num: int, num_prices: int = 26,
+                 discount_factor: float = 0.9, default_reward: float = -0.1):
+        super().__init__('Task Pricing agent {}'.format(agent_num), TaskPricingNetwork, num_prices)
+        self.discount_factor = discount_factor
+        self.default_reward = default_reward
+
+    def price_task(self, new_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
+                   greedy_policy: bool = True) -> float:
         new_task_observation = new_task.normalise_new_task(server, time_step)
         observation = [
             new_task_observation + task.normalise_task_progress(server, time_step)
             for task in allocated_tasks
         ]
 
-        if random() < self.epsilon:
-            random_action = randint(0, self.num_outputs)
-            self.replay_buffer.push(observation, random_action, 0, observation)
+        if server in self.last_server_trajectory:
+            self.last_server_trajectory[server].next_state = observation
+            self.last_server_trajectory.pop(server)  # Possibly not needed
+
+        if greedy_policy and rnd.random() < self.epsilon:
+            action = rnd.randint(0, self.num_outputs)
         else:
-            action_q_values = self.network.call(observation)
-            max_q_action = np_argmax(action_q_values)[0]
+            action_q_values = self.network_model.call(observation)
+            action = np.argmax(action_q_values)[0]
 
-            self.replay_buffer.push(observation, max_q_action, 0, observation)
-            return -1 if max_q_action == 0 else max_q_action
+        trajectory = Trajectory(observation, action, self.default_reward, None)
+        self.last_server_trajectory[server] = trajectory
+        self.replay_buffer.append(trajectory)
 
-    def task_allocated(self, task, price):
-        self.replay_buffer.update_observation(task, price)
+        return action
+
+    def task_allocated(self, server, price):
+        self.last_server_trajectory[server].reward = price
+        return self.last_server_trajectory[server]
