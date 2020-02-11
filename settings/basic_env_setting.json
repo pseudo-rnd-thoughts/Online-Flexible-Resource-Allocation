@@ -1,0 +1,26 @@
+{
+  "name": "basic",
+
+  "min total time steps": 50, "max total time steps": 75,
+
+  "min total servers": 3, "max total servers": 6,
+  "server settings": [
+    {
+      "name": "basic",
+      "min storage capacity": 10, "max storage capacity": 18,
+      "min computational capacity": 15, "max computational capacity": 25,
+      "min bandwidth capacity": 5, "max bandwidth capacity": 12
+    }
+  ],
+
+  "min total tasks": 20, "max total tasks": 40,
+  "task settings": [
+    {
+      "name": "basic",
+      "min deadline": 6, "max deadline": 12,
+      "min required storage": 80, "max required storage": 120,
+      "min required computation": 25, "max required computation": 60,
+      "min required results data": 10, "max required results data": 30
+    }
+  ]
+}
