@@ -54,13 +54,16 @@ class Task:
 
     def __str__(self):
         if self.stage == TaskStage.NOT_ASSIGN:
-            return f'Task {self.name} - auction time: {self.auction_time}, deadline: {self.deadline}, ' \
-                   f'storage: {self.required_storage}, computational: {self.required_computation}, results data: {self.required_results_data}'
+            return f'{self.name} Task - stage: {self.stage}, auction time: {self.auction_time}, deadline: {self.deadline}, ' \
+                   f'storage: {self.required_storage}, comp: {self.required_computation}, results data: {self.required_results_data}'
+        elif self.stage == TaskStage.LOADING:
+            return f'{self.name} Task - auction time: {self.auction_time}, deadline: {self.deadline}, loading: {self.loading_progress / self.required_storage:.3f}'
+        elif self.stage == TaskStage.COMPUTING:
+            return f'{self.name} Task - auction time: {self.auction_time}, deadline: {self.deadline}, compute: {self.compute_progress / self.required_computation:.3f}'
+        elif self.stage == TaskStage.SENDING:
+            return f'{self.name} Task - auction time: {self.auction_time}, deadline: {self.deadline}, sending: {self.sending_results_progress / self.required_results_data:.3f}'
         else:
-            return f'Task {self.name} - deadline: {self.deadline}, server: {self.server.name}, stage: {self.stage}, ' \
-                   f'loading: {self.loading_progress / self.required_storage}, ' \
-                   f'compute: {self.compute_progress / self.required_computation}, ' \
-                   f'sending: {self.sending_results_progress / self.required_results_data}'
+            return f'{self.name} Task - stage: {self.stage}, auction time: {self.auction_time}, deadline: {self.deadline}'
 
     def _repr_pretty_(self, p, cycle):
         p.text(self.__str__())
