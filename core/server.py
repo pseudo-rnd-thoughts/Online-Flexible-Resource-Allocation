@@ -1,5 +1,6 @@
 """Implementation of a server with a fix amount of available resources at each time step"""
 
+from __future__ import annotations
 from typing import List, Dict, TYPE_CHECKING
 
 import core.log as log
@@ -28,10 +29,10 @@ class Server:
         self.computational_capacity = computational_capacity
         self.bandwidth_capacity = bandwidth_capacity
 
-    def __str__(self) -> str:
-        return f"{self.name} Server - Storage cap: {self.storage_capacity}, Computational cap: {self.computational_capacity}, " \
-               f"Bandwidth cap: {self.bandwidth_capacity}, task pricing agent: {self.task_pricing_agent.name}, " \
-               f"resource weighting agent: {self.resource_weighting_agent.name}, allocated tasks: {', '.join([task.name for task in self.tasks])}"
+    def _repr_pretty_(self, p, cycle):
+        p.text(f'{self.name} Server - Storage cap: {self.storage_capacity}, Comp cap: {self.computational_capacity}, '
+               f'Bandwidth cap: {self.bandwidth_capacity}, TP agent: {self.task_pricing_agent.name}, '
+               f"RW agent: {self.resource_weighting_agent.name}, tasks: {', '.join([task.name for task in self.tasks])}")
 
     def price_task(self, task: Task, time_step: int) -> float:
         assert self.task_pricing_agent is not None
@@ -60,6 +61,7 @@ class Server:
             elif task.stage == TaskStage.SENDING:
                 task.allocate_sending_resources(
                     min(self.bandwidth_capacity, task.required_results_data - task.sending_results_progress), time_step)
+            return
 
         loading_weights: Dict[Task, float] = {}
         compute_weights: Dict[Task, float] = {}

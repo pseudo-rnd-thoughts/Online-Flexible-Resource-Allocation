@@ -1,5 +1,6 @@
 """Task class"""
 
+from __future__ import annotations
 from enum import Enum, auto
 from typing import Optional, Tuple, List, TYPE_CHECKING
 
@@ -51,17 +52,17 @@ class Task:
         self.required_computation: int = required_computation  # The amount of computation required
         self.required_results_data: int = required_results_data  # The amount of results data to send back
 
-    def __str__(self) -> str:
+    def _repr_pretty_(self, p, cycle):
         if self.stage == TaskStage.NOT_ASSIGN:
-            return f'Task {self.name} - auction time: {self.auction_time}, deadline: {self.deadline}, ' \
-                   f'storage: {self.required_storage}, computational: {self.required_computation}, results data: {self.required_results_data}'
+            p.text(f'Task {self.name} - auction time: {self.auction_time}, deadline: {self.deadline}, '
+                   f'storage: {self.required_storage}, computational: {self.required_computation}, results data: {self.required_results_data}')
         else:
-            return f'Task {self.name} - deadline: {self.deadline}, server: {self.server.name}, stage: {self.stage}, ' \
-                   f'loading: {self.loading_progress / self.required_storage}, ' \
-                   f'compute: {self.compute_progress / self.required_computation}, ' \
-                   f'sending: {self.sending_results_progress / self.required_results_data}'
+            p.text(f'Task {self.name} - deadline: {self.deadline}, server: {self.server.name}, stage: {self.stage}, '
+                   f'loading: {self.loading_progress / self.required_storage}, '
+                   f'compute: {self.compute_progress / self.required_computation}, '
+                   f'sending: {self.sending_results_progress / self.required_results_data}')
 
-    def normalise_task_progress(self, server, time_step):
+    def normalise_task_info(self, server, time_step):
         return [self.required_storage / server.storage_capacity,
                 self.required_storage / server.bandwidth_capacity,
                 self.required_computation / server.computational_capacity,
@@ -70,13 +71,6 @@ class Task:
                 self.loading_progress / self.required_storage,
                 self.compute_progress / self.required_computation,
                 self.sending_results_progress / self.required_results_data,
-                self.deadline - time_step]
-
-    def normalise_new_task(self, server, time_step):
-        return [self.required_storage / server.storage_capacity,
-                self.required_storage / server.bandwidth_capacity,
-                self.required_computation / server.computational_capacity,
-                self.required_results_data / server.bandwidth_capacity,
                 self.deadline - time_step]
 
     def allocate_server(self, server: Server, price: float, time_step: int):

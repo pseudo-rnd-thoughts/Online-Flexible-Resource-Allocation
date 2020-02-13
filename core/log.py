@@ -1,5 +1,6 @@
 """Logging of a message to either the console or file"""
 
+from __future__ import annotations
 from enum import Enum, auto
 
 

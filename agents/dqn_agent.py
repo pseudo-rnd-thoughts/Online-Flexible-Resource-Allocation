@@ -1,5 +1,6 @@
 """Implementation of a deep q-learning network agent"""
 
+from __future__ import annotations
 import random as rnd
 from collections import namedtuple, deque
 from typing import Dict, TYPE_CHECKING

@@ -2,6 +2,7 @@
 Environment for online flexible resource allocation
 """
 
+from __future__ import annotations
 from math import inf
 from random import choice
 from typing import List, TYPE_CHECKING
@@ -35,11 +36,11 @@ class Environment:
         self.time_step: int = 0
         self.total_time_steps: int = total_time_steps
 
-    def __str__(self) -> str:
+    def _repr_pretty_(self, p, cycle):
         string_tasks = '\t' + '\n\t'.join([str(task) for task in self.tasks]) + '\n'
         string_servers = '\t' + '\n'.join([str(server) for server in self.servers]) + '\n'
-        return f"{self.name} Environment - Time Step: {self.time_step}, Total Time Steps: {self.total_time_steps}\n" \
-               f"{string_tasks}{string_servers}"
+        p.text(f'{self.name} Environment - Time Step: {self.time_step}, Total Time Steps: {self.total_time_steps}\n'
+               f'{string_tasks}\n{string_servers}')
 
     def set_agents(self, resource_weighting_agents: List[ResourceWeightingAgent],
                    task_pricing_agents: List[TaskPricingAgent]):
