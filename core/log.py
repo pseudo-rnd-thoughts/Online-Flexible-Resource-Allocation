@@ -25,14 +25,14 @@ def log_message(message: str, debug_level: DebugLevel, newline: bool = True):
     :param debug_level: The debug level
     :param newline: If to append a new line to end of the message
     """
-    if file_debug_level.value < debug_level.value:
+    if debug_level.value <= file_debug_level.value:
         with open(debug_filename, 'w') as file:
             if newline:
                 file.write(message + '\n')
             else:
                 file.write(message)
 
-    if console_debug_level < debug_level:
+    if debug_level.value <= console_debug_level.value:
         if newline:
             print(message)
         else:
