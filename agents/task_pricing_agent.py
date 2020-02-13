@@ -1,5 +1,6 @@
 """Task pricing agent"""
 
+from __future__ import annotations
 import random as rnd
 from typing import List, TYPE_CHECKING
 
@@ -43,9 +44,9 @@ class TaskPricingAgent(DqnAgent):
 
     def price_task(self, new_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
                    greedy_policy: bool = True) -> float:
-        new_task_observation = new_task.normalise_new_task(server, time_step)
-        observation = [
-            new_task_observation + task.normalise_task_progress(server, time_step)
+
+        observation = [new_task.normalise_task_info(server, time_step) + [1]] + [
+            task.normalise_task_info(server, time_step) + [0]
             for task in allocated_tasks
         ]
 

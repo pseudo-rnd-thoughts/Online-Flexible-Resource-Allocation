@@ -1,5 +1,6 @@
 """Resource weighting agent"""
 
+from __future__ import annotations
 import random as rnd
 from typing import Optional, List, Dict, TYPE_CHECKING
 
@@ -46,9 +47,9 @@ class ResourceWeightingAgent(DqnAgent):
 
     def weight_task(self, task: Task, other_tasks: List[Task], server: Server, time_step: int,
                     greedy_policy: bool = True) -> float:
-        task_observation = task.normalise_new_task(server, time_step)
+        task_observation = task.normalise_task_info(server, time_step)
         observation = [
-            task_observation + task.normalise_task_progress(server, time_step)
+            task_observation + task.normalise_task_info(server, time_step)
             for task in other_tasks
         ]
 
@@ -67,13 +68,14 @@ class ResourceWeightingAgent(DqnAgent):
 
     def update_next_state(self, task: Task, other_tasks: List[Task], server: Server, time_step: int,
                           task_reward: int, other_task_reward: Dict[Task, int]):
-        self.last_server_trajectory[server].reward = task_reward + self.discount_other_task_reward * sum(other_task_reward.values())
+        self.last_server_trajectory[server].reward = task_reward + self.discount_other_task_reward * sum(
+            other_task_reward.values())
         self.last_server_trajectory[server].next_state = self.task_observation(task, other_tasks, server, time_step)
 
     def task_observation(self, task: Task, other_tasks: List[Task], server: Server, time_step: int):
-        task_observation = task.normalise_new_task(server, time_step)
+        task_observation = task.normalise_task_info(server, time_step)
         observation = [
-            task_observation + task.normalise_task_progress(server, time_step)
+            task_observation + task.normalise_task_info(server, time_step)
             for task in other_tasks
         ]
         return observation
