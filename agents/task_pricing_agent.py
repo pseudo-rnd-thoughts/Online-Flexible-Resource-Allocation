@@ -1,14 +1,16 @@
 """Task pricing agent"""
 
 import random as rnd
-from typing import List
+from typing import List, TYPE_CHECKING
 
 import numpy as np
 import tensorflow as tf
 
 from agents.dqn_agent import DqnAgent, Trajectory
-from core.server import Server
-from core.task import Task
+
+if TYPE_CHECKING:
+    from core.server import Server
+    from core.task import Task
 
 
 class TaskPricingNetwork(tf.keras.Model):
@@ -29,11 +31,15 @@ class TaskPricingNetwork(tf.keras.Model):
 
 class TaskPricingAgent(DqnAgent):
 
-    def __init__(self, agent_num: int, num_prices: int = 26,
+    def __init__(self, name: str, num_prices: int = 26,
                  discount_factor: float = 0.9, default_reward: float = -0.1):
-        super().__init__('Task Pricing agent {}'.format(agent_num), TaskPricingNetwork, num_prices)
+        super().__init__(name, TaskPricingNetwork, num_prices)
         self.discount_factor = discount_factor
         self.default_reward = default_reward
+
+    def __str__(self) -> str:
+        return f'{self.name} - Num prices: {self.num_outputs}, discount factor: {self.discount_factor}, ' \
+               f'default reward: {self.default_reward}'
 
     def price_task(self, new_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
                    greedy_policy: bool = True) -> float:

@@ -4,11 +4,15 @@ Environment for online flexible resource allocation
 
 from math import inf
 from random import choice
-from typing import List
+from typing import List, TYPE_CHECKING
 
 import core.log as log
-from core.server import Server
-from core.task import Task
+
+if TYPE_CHECKING:
+    from agents.resource_weighting_agent import ResourceWeightingAgent
+    from agents.task_pricing_agent import TaskPricingAgent
+    from core.server import Server
+    from core.task import Task
 
 
 class Environment:
@@ -31,16 +35,42 @@ class Environment:
         self.time_step: int = 0
         self.total_time_steps: int = total_time_steps
 
-    def tick(self):
+    def __str__(self) -> str:
+        string_tasks = '\t' + '\n\t'.join([str(task) for task in self.tasks]) + '\n'
+        string_servers = '\t' + '\n'.join([str(server) for server in self.servers]) + '\n'
+        return f"{self.name} Environment - Time Step: {self.time_step}, Total Time Steps: {self.total_time_steps}\n" \
+               f"{string_tasks}{string_servers}"
+
+    def set_agents(self, resource_weighting_agents: List[ResourceWeightingAgent],
+                   task_pricing_agents: List[TaskPricingAgent]):
+        if len(resource_weighting_agents) == len(self.servers):
+            for server, resource_weighting_agent in zip(self.servers, resource_weighting_agents):
+                server.resource_weighting_agent = resource_weighting_agent
+        else:
+            for server in self.servers:
+                server.resource_weighting_agent = choice(resource_weighting_agents)
+
+        if len(task_pricing_agents) == len(self.servers):
+            for server, task_pricing_agent in zip(self.servers, task_pricing_agents):
+                server.task_pricing_agent = task_pricing_agent
+        else:
+            for server in self.servers:
+                server.task_pricing_agent = choice(task_pricing_agents)
+
+    def run(self):
+        while self.time_step < self.total_time_steps:
+            self.step()
+
+    def step(self):
         """Simulates a time step of the environment with both stages (sub-environments) of the problem"""
-        log.info('Environment - Time Step: {}'.format(self.time_step))
+        log.info(f'Environment - Time Step: {self.time_step}')
 
         # Stage 1: auction the unallocated tasks
         auction_tasks = [task for task in self.unallocated_tasks if self.time_step <= task.auction_time]
 
         log.info('Auction tasks')
         for task in auction_tasks:
-            log.info('\t{}'.format(task))
+            log.info(f'\t{task}')
 
             # Implementation of a Vickrey auction
             min_price: float = inf
@@ -49,7 +79,7 @@ class Environment:
 
             for server in self.servers:
                 price = server.price_task(task, self.time_step)
-                log.debug('\t\tServer {} price: {}'.format(server.name, price))
+                log.debug(f'\t\t{server.name} Server price: {price}')
 
                 if price == -1:  # If a server doesnt wish to bid on a task then just returns -1
                     continue
@@ -67,8 +97,8 @@ class Environment:
                 task.allocate_server(server, second_min_price, self.time_step)
                 self.unallocated_tasks.remove(task)
 
-                log.info('\tMin Price: {}, Winning Server: {}, Second min price: {}'
-                         .format(min_price, server.name, second_min_price))
+                log.info(
+                    f'\tMin Price: {min_price}, Winning Server: {server.name}, Second min price: {second_min_price}')
             else:
                 log.info('\tNo minimum price')
 

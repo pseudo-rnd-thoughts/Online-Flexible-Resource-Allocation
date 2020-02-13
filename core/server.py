@@ -1,14 +1,16 @@
 """Implementation of a server with a fix amount of available resources at each time step"""
 
-from typing import List, Dict
+from typing import List, Dict, TYPE_CHECKING
 
-from agents.resource_weighting_agent import ResourceWeightingAgent
-from agents.task_pricing_agent import TaskPricingAgent
 import core.log as log
-from core.task import Task, TaskStage
+
+if TYPE_CHECKING:
+    from agents.resource_weighting_agent import ResourceWeightingAgent
+    from agents.task_pricing_agent import TaskPricingAgent
+    from core.task import Task, TaskStage
 
 
-class Server(object):
+class Server:
     """Server simulation class"""
 
     tasks: List[Task] = []
@@ -17,7 +19,7 @@ class Server(object):
     computational_capacity: float = 0
     bandwidth_capacity: float = 0
 
-    pricing_agent: TaskPricingAgent = None
+    task_pricing_agent: TaskPricingAgent = None
     resource_weighting_agent: ResourceWeightingAgent = None
 
     def __init__(self, name: str, storage_capacity: float, computational_capacity: float, bandwidth_capacity: float):
@@ -26,22 +28,39 @@ class Server(object):
         self.computational_capacity = computational_capacity
         self.bandwidth_capacity = bandwidth_capacity
 
-    def set_agents(self, pricing_agent, resource_weighting_agent):
-        self.pricing_agent = pricing_agent
-        self.resource_weighting_agent = resource_weighting_agent
+    def __str__(self) -> str:
+        return f"{self.name} Server - Storage cap: {self.storage_capacity}, Computational cap: {self.computational_capacity}, " \
+               f"Bandwidth cap: {self.bandwidth_capacity}, task pricing agent: {self.task_pricing_agent.name}, " \
+               f"resource weighting agent: {self.resource_weighting_agent.name}, allocated tasks: {', '.join([task.name for task in self.tasks])}"
 
     def price_task(self, task: Task, time_step: int) -> float:
-        assert self.pricing_agent is not None
+        assert self.task_pricing_agent is not None
 
-        return self.pricing_agent.price_task(task, self.tasks, self, time_step)
+        return self.task_pricing_agent.price_task(task, self.tasks, self, time_step)
 
     def allocate_task(self, task, second_min_price):
         self.tasks.append(task)
 
-        self.pricing_agent.task_allocated(task, second_min_price)
+        self.task_pricing_agent.task_allocated(task, second_min_price)
 
     def allocate_resources(self, time_step: int, greedy: bool = True):
-        log.debug('\tServer {} resource weighting'.format(self.name))
+        log.debug(f'\tServer {self.name} resource weighting')
+
+        if len(self.tasks) == 0:
+            return
+        elif len(self.tasks) == 1:
+            task = self.tasks[0]
+            if task.stage == TaskStage.LOADING:
+                task.allocate_loading_resources(
+                    min(self.bandwidth_capacity, task.required_storage - task.loading_progress, self.storage_capacity),
+                    time_step)
+            elif task.stage == TaskStage.COMPUTING:
+                task.allocate_compute_resources(
+                    min(self.computational_capacity, task.required_computation - task.compute_progress), time_step)
+            elif task.stage == TaskStage.SENDING:
+                task.allocate_sending_resources(
+                    min(self.bandwidth_capacity, task.required_results_data - task.sending_results_progress), time_step)
+
         loading_weights: Dict[Task, float] = {}
         compute_weights: Dict[Task, float] = {}
         sending_weights: Dict[Task, float] = {}
@@ -50,7 +69,7 @@ class Server(object):
         for task in self.tasks:
             weighting = self.resource_weighting_agent.weight_task(
                 task, [_task for _task in self.tasks if task is not _task], self, time_step, greedy)
-            log.debug('\t\tTask {} {}: {}'.format(task.name, task.stage, weighting))
+            log.debug(f'\t\tTask {task.name} {task.stage}: {weighting}')
 
             if task.stage == TaskStage.LOADING:
                 loading_weights[task] = weighting

@@ -1,11 +1,13 @@
 """Task class"""
 
 from enum import Enum, auto
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, TYPE_CHECKING
 
-from agents.dqn_agent import Trajectory
 import core.log as log
-from core.server import Server
+
+if TYPE_CHECKING:
+    from core.server import Server
+    from agents.dqn_agent import Trajectory
 
 
 class TaskStage(Enum):
@@ -20,7 +22,7 @@ class TaskStage(Enum):
     INCOMPLETE = auto()  # The task is incomplete within the time limit
 
 
-class Task(object):
+class Task:
     """
     Task class for encasing required resources and stage progress
     """
@@ -51,15 +53,13 @@ class Task(object):
 
     def __str__(self) -> str:
         if self.stage == TaskStage.NOT_ASSIGN:
-            return 'Task {} - auction time: {}, deadline: {}, storage: {}, computational: {}, results data: {}' \
-                .format(self.name, self.auction_time, self.deadline, self.required_storage, self.required_computation,
-                        self.required_results_data)
+            return f'Task {self.name} - auction time: {self.auction_time}, deadline: {self.deadline}, ' \
+                   f'storage: {self.required_storage}, computational: {self.required_computation}, results data: {self.required_results_data}'
         else:
-            return 'Task {} - deadline: {}, server: {}, stage: {}, loading: {}, compute: {}, sending: {}' \
-                .format(self.name, self.deadline, self.server.name, self.stage,
-                        self.loading_progress / self.required_storage,
-                        self.compute_progress / self.required_computation,
-                        self.sending_results_progress / self.required_results_data)
+            return f'Task {self.name} - deadline: {self.deadline}, server: {self.server.name}, stage: {self.stage}, ' \
+                   f'loading: {self.loading_progress / self.required_storage}, ' \
+                   f'compute: {self.compute_progress / self.required_computation}, ' \
+                   f'sending: {self.sending_results_progress / self.required_results_data}'
 
     def normalise_task_progress(self, server, time_step):
         return [self.required_storage / server.storage_capacity,

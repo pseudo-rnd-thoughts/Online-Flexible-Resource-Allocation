@@ -2,13 +2,15 @@
 
 import random as rnd
 from collections import namedtuple, deque
-from typing import Dict
+from typing import Dict, TYPE_CHECKING
 
 import numpy as np
 import tensorflow as tf
 
-from core.server import Server
 import core.log as log
+
+if TYPE_CHECKING:
+    from core.server import Server
 
 Trajectory = namedtuple('trajectory', ('state', 'action', 'reward', 'next_state'))
 
@@ -66,6 +68,6 @@ class DqnAgent:
 
             error = tf.reduce_mean(0.5 * tf.square(target_values))
 
-        log.info('Training {} agent with error {}'.format(self.name, error))
+        log.info(f'Training {self.name} agent with error {error}')
         network_gradients = tape.gradient(error, network_variables)
         self.optimiser.apply_gradients(zip(network_gradients, network_variables))

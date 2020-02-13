@@ -1,14 +1,16 @@
 """Resource weighting agent"""
 
 import random as rnd
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, TYPE_CHECKING
 
 import numpy as np
 import tensorflow as tf
 
 from agents.dqn_agent import DqnAgent, Trajectory
-from core.server import Server
-from core.task import Task
+
+if TYPE_CHECKING:
+    from core.server import Server
+    from core.task import Task
 
 
 class ResourceWeightingNetwork(tf.keras.Model):
@@ -38,8 +40,8 @@ class ResourceWeightingAgent(DqnAgent):
 
     last_trajectory: Optional[Trajectory] = None
 
-    def __init__(self, agent_num, num_weights: int = 10, discount_other_task_reward: float = 0.2):
-        super().__init__('Resource Weighting agent {}'.format(agent_num), ResourceWeightingNetwork, num_weights)
+    def __init__(self, name: str, num_weights: int = 10, discount_other_task_reward: float = 0.2):
+        super().__init__(name, ResourceWeightingNetwork, num_weights)
         self.discount_other_task_reward = discount_other_task_reward
 
     def weight_task(self, task: Task, other_tasks: List[Task], server: Server, time_step: int,
