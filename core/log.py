@@ -1,19 +1,20 @@
 """Logging of a message to either the console or file"""
 
 from __future__ import annotations
-from enum import Enum, auto
+
+from enum import Enum
 
 
 class DebugLevel(Enum):
     """Debug level enum"""
-    DEBUG = auto()
-    INFO = auto()
-    WARNING = auto()
-    CRITICAL = auto()
+    DEBUG = 1
+    INFO = 2
+    WARNING = 3
+    CRITICAL = 4
 
 
-debug_filename: str = "log.file"
-file_debug_level: DebugLevel = DebugLevel.CRITICAL
+debug_filename: str = "debug.log"
+file_debug_level: DebugLevel = DebugLevel.DEBUG
 console_debug_level: DebugLevel = DebugLevel.INFO
 
 
@@ -24,7 +25,7 @@ def log_message(message: str, debug_level: DebugLevel, newline: bool = True):
     :param debug_level: The debug level
     :param newline: If to append a new line to end of the message
     """
-    if file_debug_level < debug_level:
+    if file_debug_level.value < debug_level.value:
         with open(debug_filename, 'w') as file:
             if newline:
                 file.write(message + '\n')
