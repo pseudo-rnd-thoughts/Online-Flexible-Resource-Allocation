@@ -37,10 +37,13 @@ class Environment:
         self.total_time_steps: int = total_time_steps
 
     def _repr_pretty_(self, p, cycle):
+        p.text(self.__str__())
+
+    def __str__(self):
         string_tasks = '\t' + '\n\t'.join([str(task) for task in self.tasks]) + '\n'
-        string_servers = '\t' + '\n'.join([str(server) for server in self.servers]) + '\n'
-        p.text(f'{self.name} Environment - Time Step: {self.time_step}, Total Time Steps: {self.total_time_steps}\n'
-               f'{string_tasks}\n{string_servers}')
+        string_servers = '\t' + '\n\t'.join([str(server) for server in self.servers]) + '\n'
+        return f'{self.name} Environment - Time Step: {self.time_step}, Total Time Steps: {self.total_time_steps}\n' \
+               f'{string_tasks}\n{string_servers}'
 
     def set_agents(self, resource_weighting_agents: List[ResourceWeightingAgent],
                    task_pricing_agents: List[TaskPricingAgent]):

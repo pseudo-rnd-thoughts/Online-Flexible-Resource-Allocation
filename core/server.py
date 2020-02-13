@@ -30,9 +30,12 @@ class Server:
         self.bandwidth_capacity = bandwidth_capacity
 
     def _repr_pretty_(self, p, cycle):
-        p.text(f'{self.name} Server - Storage cap: {self.storage_capacity}, Comp cap: {self.computational_capacity}, '
-               f'Bandwidth cap: {self.bandwidth_capacity}, TP agent: {self.task_pricing_agent.name}, '
-               f"RW agent: {self.resource_weighting_agent.name}, tasks: {', '.join([task.name for task in self.tasks])}")
+        p.text(self.__str__())
+
+    def __str__(self):
+        return f'{self.name} Server - Storage cap: {self.storage_capacity}, Comp cap: {self.computational_capacity}, ' \
+               f'Bandwidth cap: {self.bandwidth_capacity}, TP agent: {self.task_pricing_agent.name}, ' \
+               f"RW agent: {self.resource_weighting_agent.name}, tasks: {', '.join([task.name for task in self.tasks])}"
 
     def price_task(self, task: Task, time_step: int) -> float:
         assert self.task_pricing_agent is not None

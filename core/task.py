@@ -52,15 +52,18 @@ class Task:
         self.required_computation: int = required_computation  # The amount of computation required
         self.required_results_data: int = required_results_data  # The amount of results data to send back
 
-    def _repr_pretty_(self, p, cycle):
+    def __str__(self):
         if self.stage == TaskStage.NOT_ASSIGN:
-            p.text(f'Task {self.name} - auction time: {self.auction_time}, deadline: {self.deadline}, '
-                   f'storage: {self.required_storage}, computational: {self.required_computation}, results data: {self.required_results_data}')
+            return f'Task {self.name} - auction time: {self.auction_time}, deadline: {self.deadline}, ' \
+                   f'storage: {self.required_storage}, computational: {self.required_computation}, results data: {self.required_results_data}'
         else:
-            p.text(f'Task {self.name} - deadline: {self.deadline}, server: {self.server.name}, stage: {self.stage}, '
-                   f'loading: {self.loading_progress / self.required_storage}, '
-                   f'compute: {self.compute_progress / self.required_computation}, '
-                   f'sending: {self.sending_results_progress / self.required_results_data}')
+            return f'Task {self.name} - deadline: {self.deadline}, server: {self.server.name}, stage: {self.stage}, ' \
+                   f'loading: {self.loading_progress / self.required_storage}, ' \
+                   f'compute: {self.compute_progress / self.required_computation}, ' \
+                   f'sending: {self.sending_results_progress / self.required_results_data}'
+
+    def _repr_pretty_(self, p, cycle):
+        p.text(self.__str__())
 
     def normalise_task_info(self, server, time_step):
         return [self.required_storage / server.storage_capacity,
