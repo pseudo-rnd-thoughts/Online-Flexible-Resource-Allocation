@@ -74,8 +74,8 @@ class OnlineFlexibleResourceAllocationEnv:
             
             rewards = {
                 server: {
-                    task: task[9] if task[10] == 4 else -task[9] if task[10] == 5 else 0
-                    for task in tasks
+                    task: task[9] if task[10] == 4 else -task[9]  # Else task[10] = 5
+                    for task in tasks if task[10] < 4
                 }
                 for server, tasks in self.state
             }
@@ -86,3 +86,7 @@ class OnlineFlexibleResourceAllocationEnv:
 
     def _assert_auction_actions(self, actions):
         pass
+
+def run():
+    task_pricing_agents = {}
+    
