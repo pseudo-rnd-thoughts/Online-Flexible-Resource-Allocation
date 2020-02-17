@@ -3,6 +3,7 @@ Environment for online flexible resource allocation
 """
 
 from __future__ import annotations
+
 from math import inf
 from random import choice
 from typing import List, TYPE_CHECKING
@@ -67,10 +68,13 @@ class Environment:
 
     def step(self):
         """Simulates a time step of the environment with both stages (sub-environments) of the problem"""
+        assert self.time_step < self.total_time_steps, "Out of time step bounds"
+        assert all(server.task_pricing_agent is not None and server.resource_weighting_agent is not None
+                   for server in self.servers), "Some of the servers agents are not set"
         log.info(f'Environment - Time Step: {self.time_step}')
 
         # Stage 1: auction the unallocated tasks
-        auction_tasks = [task for task in self.unallocated_tasks if self.time_step <= task.auction_time]
+        auction_tasks = [task for task in self.unallocated_tasks if task.auction_time <= self.time_step]
 
         log.info('Auction tasks')
         for task in auction_tasks:
@@ -97,17 +101,21 @@ class Environment:
             # If a min server is found then choice one of the minimum servers and allocate the task
             if len(min_server):
                 server = choice(min_server)
-                server.allocate_task(task, second_min_price)
-                task.allocate_server(server, second_min_price, self.time_step)
                 self.unallocated_tasks.remove(task)
 
-                log.info(
-                    f'\tMin Price: {min_price}, Winning Server: {server.name}, Second min price: {second_min_price}')
+                if second_min_price == inf:
+                    server.allocate_task(task, min_price)
+                    task.allocate_server(server, min_price, self.time_step)
+                    log.info(f'\tMin Price: {min_price}, Winning Server: {server.name}\n')
+                else:
+                    server.allocate_task(task, second_min_price)
+                    task.allocate_server(server, second_min_price, self.time_step)
+                    log.info(f'\tMin Price: {min_price}, Winning Server: {server.name}, Second min price: {second_min_price}\n')
             else:
-                log.info('\tNo minimum price')
+                log.info('\tNo minimum price\n')
 
         # Stage 2: allocate the resources for each server
-        log.info('\nAllocate the resources')
+        log.info('\nAllocate the resources', False)
         for server in self.servers:
             server.allocate_resources(self.time_step)
 

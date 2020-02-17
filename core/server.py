@@ -1,25 +1,19 @@
 """Implementation of a server with a fix amount of available resources at each time step"""
 
 from __future__ import annotations
+
 from typing import List, Dict, TYPE_CHECKING
 
 import core.log as log
+from core.task_stage import TaskStage
 
 if TYPE_CHECKING:
     from agents.resource_weighting_agent import ResourceWeightingAgent
     from agents.task_pricing_agent import TaskPricingAgent
-    from core.task import Task, TaskStage
+    from core.task import Task
 
 
 class Server:
-    """Server simulation class"""
-
-    tasks: List[Task] = []
-
-    storage_capacity: float = 0
-    computational_capacity: float = 0
-    bandwidth_capacity: float = 0
-
     task_pricing_agent: TaskPricingAgent = None
     resource_weighting_agent: ResourceWeightingAgent = None
 
@@ -29,41 +23,40 @@ class Server:
         self.computational_capacity = computational_capacity
         self.bandwidth_capacity = bandwidth_capacity
 
-    def _repr_pretty_(self, p, cycle):
-        p.text(self.__str__())
+        self.tasks: List[Task] = []
 
     def __str__(self):
         return f'{self.name} Server - Storage cap: {self.storage_capacity}, Comp cap: {self.computational_capacity}, ' \
                f'Bandwidth cap: {self.bandwidth_capacity}, TP agent: {self.task_pricing_agent.name}, ' \
-               f"RW agent: {self.resource_weighting_agent.name}, tasks: [{', '.join([task.name for task in self.tasks])}]"
+               f"RW agent: {self.resource_weighting_agent.name}, Tasks: [{', '.join([task.name for task in self.tasks])}]"
+
+    def _repr_pretty_(self, p, cycle):
+        p.text(self.__str__())
 
     def price_task(self, task: Task, time_step: int) -> float:
         assert self.task_pricing_agent is not None
-
         return self.task_pricing_agent.price_task(task, self.tasks, self, time_step)
 
     def allocate_task(self, task, second_min_price):
         self.tasks.append(task)
-
-        self.task_pricing_agent.task_allocated(task, second_min_price)
+        self.task_pricing_agent.task_allocated(self, second_min_price)
 
     def allocate_resources(self, time_step: int, greedy: bool = True):
-        log.debug(f'\tServer {self.name} resource weighting')
+        log.info(f"\n\t{self.name} Server with tasks: [{', '.join([task.name for task in self.tasks])}]")
 
         if len(self.tasks) == 0:
             return
         elif len(self.tasks) == 1:
             task = self.tasks[0]
-            if task.stage == TaskStage.LOADING:
-                task.allocate_loading_resources(
-                    min(self.bandwidth_capacity, task.required_storage - task.loading_progress, self.storage_capacity),
-                    time_step)
-            elif task.stage == TaskStage.COMPUTING:
-                task.allocate_compute_resources(
-                    min(self.computational_capacity, task.required_computation - task.compute_progress), time_step)
-            elif task.stage == TaskStage.SENDING:
-                task.allocate_sending_resources(
-                    min(self.bandwidth_capacity, task.required_results_data - task.sending_results_progress), time_step)
+            if task.stage is TaskStage.LOADING:
+                task.allocate_loading_resources(min(self.bandwidth_capacity, task.required_storage - task.loading_progress, self.storage_capacity), time_step)
+            elif task.stage is TaskStage.COMPUTING:
+                task.allocate_compute_resources(min(self.computational_capacity, task.required_computation - task.compute_progress), time_step)
+            elif task.stage is TaskStage.SENDING:
+                task.allocate_sending_resources(min(self.bandwidth_capacity, task.required_results_data - task.sending_results_progress), time_step)
+            else:
+                raise Exception(f'Unexpected task stage: {task.stage}')
+
             return
 
         loading_weights: Dict[Task, float] = {}
@@ -76,11 +69,11 @@ class Server:
                 task, [_task for _task in self.tasks if task is not _task], self, time_step, greedy)
             log.debug(f'\t\tTask {task.name} {task.stage}: {weighting}')
 
-            if task.stage == TaskStage.LOADING:
+            if task.stage is TaskStage.LOADING:
                 loading_weights[task] = weighting
-            elif task.stage == TaskStage.COMPUTING:
+            elif task.stage is TaskStage.COMPUTING:
                 compute_weights[task] = weighting
-            elif task.stage == TaskStage.SENDING:
+            elif task.stage is TaskStage.SENDING:
                 sending_weights[task] = weighting
 
         available_storage: float = self.storage_capacity
