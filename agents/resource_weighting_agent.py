@@ -1,12 +1,14 @@
 """Resource weighting agent"""
 
 from __future__ import annotations
+
 import random as rnd
 from typing import Optional, List, Dict, TYPE_CHECKING
 
 import numpy as np
 import tensorflow as tf
 
+import core.log as log
 from agents.dqn_agent import DqnAgent, Trajectory
 
 if TYPE_CHECKING:
@@ -20,7 +22,7 @@ class ResourceWeightingNetwork(tf.keras.Model):
     def __init__(self, lstm_connections: int = 10, relu_connections: int = 20, num_outputs: int = 25):
         super().__init__()
 
-        self.task_layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(lstm_connections))
+        self.task_layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(lstm_connections), input_shape=tf.TensorShape([None, 8]))
         self.relu_layer = tf.keras.layers.Dense(relu_connections, activation='relu')
         self.q_layer = tf.keras.layers.Dense(num_outputs, activation='linear')
 
@@ -48,16 +50,20 @@ class ResourceWeightingAgent(DqnAgent):
     def weight_task(self, task: Task, other_tasks: List[Task], server: Server, time_step: int,
                     greedy_policy: bool = True) -> float:
         task_observation = task.normalise_task_info(server, time_step)
-        observation = [
+        observation = np.array([[
             task_observation + task.normalise_task_info(server, time_step)
             for task in other_tasks
-        ]
+        ]]).astype(np.float32)
+        log.neural_network('RWA Obs', observation)
 
         if greedy_policy and rnd.random() < self.epsilon:
             action = rnd.randint(0, self.num_outputs)
+            log.debug(f'\tGreedy action: {action}')
         else:
             action_q_values = self.network_model.call(observation)
-            action = np.argmax(action_q_values)[0]
+            log.neural_network('TPA Action Q Value', action_q_values)
+            action = np.argmax(action_q_values)
+            log.debug(f'\tArgmax action: {action}')
 
         trajectory = Trajectory(observation, action, 0, None)
         self.last_server_trajectory[server] = trajectory
@@ -72,7 +78,8 @@ class ResourceWeightingAgent(DqnAgent):
             other_task_reward.values())
         self.last_server_trajectory[server].next_state = self.task_observation(task, other_tasks, server, time_step)
 
-    def task_observation(self, task: Task, other_tasks: List[Task], server: Server, time_step: int):
+    @staticmethod
+    def task_observation(task: Task, other_tasks: List[Task], server: Server, time_step: int):
         task_observation = task.normalise_task_info(server, time_step)
         observation = [
             task_observation + task.normalise_task_info(server, time_step)
