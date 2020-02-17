@@ -2,8 +2,6 @@
 
 from enum import Enum, auto
 
-from agent import Agent
-
 
 class TaskStage(Enum):
     """
