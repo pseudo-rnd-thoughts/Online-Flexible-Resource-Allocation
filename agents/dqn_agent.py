@@ -1,19 +1,19 @@
 """Implementation of a deep q-learning network agent"""
 
 from __future__ import annotations
+
 import random as rnd
-from collections import namedtuple, deque
+from collections import deque
 from typing import Dict, TYPE_CHECKING
 
 import numpy as np
 import tensorflow as tf
 
 import core.log as log
+from agents.trajectory import Trajectory
 
 if TYPE_CHECKING:
     from core.server import Server
-
-Trajectory = namedtuple('trajectory', ('state', 'action', 'reward', 'next_state'))
 
 
 class DqnAgent:
