@@ -1,15 +1,16 @@
 """Setting module for loading and saving environment and loading environment settings"""
 
+from __future__ import annotations
+
 import json
 from random import randint, choice
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from core.environment import Environment
-from core.server import Server
-from core.task import Task
+if TYPE_CHECKING:
+    from core.environment import OnlineFlexibleResourceAllocationEnv
 
 
-def load_environment(filename: str) -> Environment:
+def load_environment(filename: str) -> OnlineFlexibleResourceAllocationEnv:
     """
     Loads an environment from a file
     :param filename: The filename to load the environment from
@@ -26,23 +27,22 @@ def load_environment(filename: str) -> Environment:
     with open(filename) as file:
         json_data = json.load(file)
 
-        env_name: str = json_data['name']
         total_time_steps: int = json_data['total time steps']
-        servers: List[Server] = [
-            Server(server_data['name'], server_data['storage capacity'], server_data['computational capacity'],
+        servers: List[Task] = [
+            (server_data['name'], server_data['storage capacity'], server_data['computational capacity'],
                    server_data['bandwidth capacity'])
             for server_data in json_data['servers']
         ]
         tasks: List[Task] = [
-            Task(task_data['name'], task_data['auction time'], task_data['deadline'],
+            (task_data['name'], task_data['auction time'], task_data['deadline'],
                  task_data['required storage'], task_data['required computational'], task_data['required results data'])
             for task_data in json_data['tasks']
         ]
 
-    return Environment(env_name, servers, tasks, total_time_steps)
+    return servers, tasks, total_time_steps
 
 
-def save_environment(environment: Environment, filename: str):
+def save_environment(environment: OnlineFlexibleResourceAllocationEnv, filename: str):
     """
     Saves an environment to a file
     :param environment: The environment to save
@@ -55,20 +55,21 @@ def save_environment(environment: Environment, filename: str):
      "tasks": [{"name": "", "required storage": 0, "required computation": 0, "required results data": 0,
                 "auction time": 0, "deadline": 0}, ...]}
     """
+    assert environment.time_step == 0
 
     environment_json_data = {
-        'name': environment.name,
+        'name': environment.current_env_setting,
         'total time steps': environment.total_time_steps,
         'servers': [
             {'name': server.name, 'storage capacity': server.storage_capacity,
              'computational capacity': server.computational_capacity, 'bandwidth capacity': server.bandwidth_capacity}
-            for server in environment.servers
+            for server in environment.state.keys()
         ],
         'tasks': [
             {'name': task.name, 'required storage': task.required_storage,
              'required computational': task.required_computation, 'required results data': task.required_results_data,
              'auction time': task.auction_time, 'deadline': task.deadline}
-            for task in environment.tasks
+            for task in environment.unallocated_tasks
         ]
     }
 
@@ -76,7 +77,7 @@ def save_environment(environment: Environment, filename: str):
         json.dump(environment_json_data, file)
 
 
-def load_environment_settings(filename: str, num_envs: int) -> List[Environment]:
+def load_environment_settings(filename: str, num_envs: int) -> List[OnlineFlexibleResourceAllocationEnv]:
     """
     Load an environment settings from a file with a number of environments
     :param filename: The filename to loads the settings from
@@ -106,7 +107,7 @@ def load_environment_settings(filename: str, num_envs: int) -> List[Environment]
     }
     """
 
-    environments: List[Environment] = []
+    environments: List[OnlineFlexibleResourceAllocationEnv] = []
     with open(filename) as file:
         env_setting_json = json.load(file)
 
