@@ -277,4 +277,8 @@ TSWLatexianTemp*
 # Makeindex log files
 *.lpz
 
+# Custom ignores
 .idea/*
+tutorials/*.mp4
+tutorials/checkpoint/*
+tutorials/policy/*
