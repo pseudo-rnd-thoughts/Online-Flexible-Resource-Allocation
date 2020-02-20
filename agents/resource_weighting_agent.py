@@ -3,45 +3,19 @@
 from __future__ import annotations
 
 import random as rnd
-from typing import Optional, List, Dict, TYPE_CHECKING
+from typing import List
 
 import numpy as np
-import tensorflow as tf
 
 import core.log as log
-from agents.dqn_agent import DqnAgent, Trajectory
-
-if TYPE_CHECKING:
-    from core.server import Server
-    from core.task import Task
-
-
-class ResourceWeightingNetwork(tf.keras.Model):
-    """Resource weighting network using three layer network - LSTM tasks, ReLU layer, linear layer"""
-
-    def __init__(self, lstm_connections: int = 10, relu_connections: int = 20, num_outputs: int = 25):
-        super().__init__()
-
-        self.task_layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(lstm_connections), input_shape=tf.TensorShape([None, 8]))
-        self.relu_layer = tf.keras.layers.Dense(relu_connections, activation='relu')
-        self.q_layer = tf.keras.layers.Dense(num_outputs, activation='linear')
-
-    def call(self, inputs, training=None, mask=None):
-        """
-        Propagates the forward-call of the network
-        :param inputs: The inputs
-        :param training: Unused variable
-        :param mask: Unused variable
-        """
-        task_output = self.task_layer(inputs)
-        relu_output = self.relu_layer(task_output)
-        return self.q_layer(relu_output)
+from agents.dqn_agent import DqnAgent
+from agents.resource_weighting_network import ResourceWeightingNetwork
+from env.server import Server
+from env.task import Task
 
 
 class ResourceWeightingAgent(DqnAgent):
     """Resource weighting agent using a resource weighting network"""
-
-    last_trajectory: Optional[Trajectory] = None
 
     def __init__(self, name: str, num_weights: int = 10, discount_other_task_reward: float = 0.2):
         super().__init__(name, ResourceWeightingNetwork, num_weights)
@@ -49,40 +23,41 @@ class ResourceWeightingAgent(DqnAgent):
 
     def weight_task(self, task: Task, other_tasks: List[Task], server: Server, time_step: int,
                     greedy_policy: bool = True) -> float:
-        task_observation = task.normalise_task_info(server, time_step)
-        observation = np.array([[
-            task_observation + task.normalise_task_info(server, time_step)
-            for task in other_tasks
-        ]]).astype(np.float32)
-        log.neural_network('RWA Obs', observation)
+        """
+        Get the action weight for the task
+        :param task: The task to calculate the weight for
+        :param other_tasks: The other tasks to consider
+        :param server: The server of the tasks
+        :param time_step: The current time step
+        :param greedy_policy: If to get the policy greedly
+        :return: The action weight
+        """
+        observation = self.network_observation(task, other_tasks, server, time_step)
 
         if greedy_policy and rnd.random() < self.epsilon:
             action = rnd.randint(0, self.num_outputs)
             log.debug(f'\tGreedy action: {action}')
         else:
             action_q_values = self.network_model.call(observation)
-            log.neural_network('TPA Action Q Value', action_q_values)
-            action = np.argmax(action_q_values)
+            action = np.argmax(action_q_values) + 1
             log.debug(f'\tArgmax action: {action}')
-
-        trajectory = Trajectory(observation, action, 0, None)
-        self.last_server_trajectory[server] = trajectory
-
-        self.replay_buffer.append(trajectory)
 
         return action
 
-    def update_next_state(self, task: Task, other_tasks: List[Task], server: Server, time_step: int,
-                          task_reward: int, other_task_reward: Dict[Task, int]):
-        self.last_server_trajectory[server].reward = task_reward + self.discount_other_task_reward * sum(
-            other_task_reward.values())
-        self.last_server_trajectory[server].next_state = self.task_observation(task, other_tasks, server, time_step)
-
     @staticmethod
-    def task_observation(task: Task, other_tasks: List[Task], server: Server, time_step: int):
-        task_observation = task.normalise_task_info(server, time_step)
-        observation = [
-            task_observation + task.normalise_task_info(server, time_step)
+    def network_observation(task: Task, other_tasks: List[Task], server: Server, time_step: int):
+        """
+        The network observation
+        :param task: The weighting task
+        :param other_tasks: The other tasks
+        :param server: The allocated server
+        :param time_step: The current time step
+        :return: Network observation
+        """
+        task_observation = task.normalise(server, time_step)
+        observation = np.array([[
+            task_observation + task.normalise(server, time_step)
             for task in other_tasks
-        ]
+        ]]).astype(np.float32)
+
         return observation
