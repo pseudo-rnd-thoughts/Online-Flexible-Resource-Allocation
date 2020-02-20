@@ -7,7 +7,7 @@
   "server settings": [
     {
       "name": "Basic",
-      "min storage capacity": 300, "max storage capacity": 450,
+      "min storage capacity": 200, "max storage capacity": 300,
       "min computational capacity": 15, "max computational capacity": 30,
       "min bandwidth capacity": 15, "max bandwidth capacity": 25
     }
@@ -18,7 +18,7 @@
     {
       "name": "Basic",
       "min deadline": 6, "max deadline": 12,
-      "min required storage": 80, "max required storage": 120,
+      "min required storage": 50, "max required storage": 80,
       "min required computation": 25, "max required computation": 60,
       "min required results data": 10, "max required results data": 30
     }
