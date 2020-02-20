@@ -13,7 +13,7 @@ import core.log as log
 from agents.trajectory import Trajectory
 
 if TYPE_CHECKING:
-    from core.server import Server
+    from env.server import Server
 
 
 class DqnAgent:
@@ -41,6 +41,7 @@ class DqnAgent:
 
         self.network_model: tf.keras.Model = neural_network(num_outputs)
         self.network_target: tf.keras.Model = neural_network(num_outputs)
+        self.network_target.set_weights(self.network_model.get_weights())
 
         self.optimiser = tf.keras.optimizers.RMSprop(lr=learning_rate)
 
