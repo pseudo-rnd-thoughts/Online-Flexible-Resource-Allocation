@@ -41,20 +41,45 @@ def log_message(message: str, debug_level: DebugLevel, newline: bool = True):
 
 
 def debug(message: str, newline: bool = True):
+    """
+    Log message at debug level
+    :param message: The message
+    :param newline: If to have a newline at the end of the message
+    """
     log_message(message, DebugLevel.DEBUG, newline)
 
 
 def info(message: str, newline: bool = True):
+    """
+    Log message at info level
+    :param message: The message
+    :param newline: If to have a newline at the end of the message
+    """
     log_message(message, DebugLevel.INFO, newline)
 
 
 def warning(message: str, newline: bool = True):
+    """
+    Log message at warning level
+    :param message: The message
+    :param newline: If to have a newline at the end of the message
+    """
     log_message(message, DebugLevel.WARNING, newline)
 
 
 def critical(message: str, newline: bool = True):
+    """
+    Log message at critical level
+    :param message: The message
+    :param newline: If to have a newline at the end of the message
+    """
     log_message(message, DebugLevel.CRITICAL, newline)
 
 
 def neural_network(agent: str, message):
+    """
+    Log message at neural network level
+    :param agent: The agent name
+    :param message: The message
+    """
     log_message(f'{agent}: {str(message)}', DebugLevel.NEURAL_NETWORK)
