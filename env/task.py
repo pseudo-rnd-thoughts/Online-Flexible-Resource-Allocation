@@ -36,20 +36,23 @@ class Task(NamedTuple):
                 self.required_comp / server.comp_cap, self.required_results_data / server.bandwidth_cap,
                 self.deadline - time_step, self.loading_progress, self.compute_progress, self.sending_progress]
 
-    def loading(self, loading_resources) -> Task:
+    def loading(self, loading_resources, time_step: int) -> Task:
         updated_loading_progress = self.loading_progress + loading_resources
         updated_stage = TaskStage.LOADING if updated_loading_progress < self.required_storage else TaskStage.COMPUTING
+        updated_stage = updated_stage if time_step < self.deadline else TaskStage.FAILED
         return self._replace(loading_progress=updated_loading_progress, stage=updated_stage)
 
-    def compute(self, compute_resources) -> Task:
+    def compute(self, compute_resources, time_step: int) -> Task:
         updated_compute_progress = self.compute_progress + compute_resources
         updated_stage = TaskStage.COMPUTING if updated_compute_progress < self.required_comp else TaskStage.SENDING
+        updated_stage = updated_stage if time_step < self.deadline else TaskStage.FAILED
         return self._replace(compute_progress=updated_compute_progress, stage=updated_stage)
 
-    def sending(self, sending_resources) -> Task:
+    def sending(self, sending_resources, time_step: int) -> Task:
         updated_sending_progress = self.sending_progress + sending_resources
-        update_stage = TaskStage.SENDING if updated_sending_progress < self.required_results_data else TaskStage.COMPLETED
-        return self._replace(sending_progress=updated_sending_progress, stage=update_stage)
+        updated_stage = TaskStage.SENDING if updated_sending_progress < self.required_results_data else TaskStage.COMPLETED
+        updated_stage = TaskStage.FAILED if time_step == self.deadline and updated_stage is not TaskStage.COMPLETED else updated_stage
+        return self._replace(sending_progress=updated_sending_progress, stage=updated_stage)
 
     def __str__(self) -> str:
         # The task is unassigned therefore there is no progress on stages
@@ -75,3 +78,6 @@ class Task(NamedTuple):
         elif self.stage is TaskStage.INCOMPLETE:
             return f'{self.name} Task ({hex(id(self))}) - Failed, Storage: {self.required_storage}, Comp: {self.required_comp}, ' \
                    f'Results data: {self.required_results_data}, Auction time: {self.auction_time}, Deadline: {self.deadline}'
+
+    def __eq__(self, o: object) -> bool:
+        return type(o) is Task and o.name == self.name

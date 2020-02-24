@@ -16,7 +16,7 @@ class DebugLevel(Enum):
 
 debug_filename: str = "debug.log"
 file_debug_level: DebugLevel = DebugLevel.DEBUG
-console_debug_level: DebugLevel = DebugLevel.INFO
+console_debug_level: DebugLevel = DebugLevel.CRITICAL
 
 
 def log_message(message: str, debug_level: DebugLevel, newline: bool = True):
