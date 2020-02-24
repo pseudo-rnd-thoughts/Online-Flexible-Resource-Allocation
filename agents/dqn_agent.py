@@ -4,25 +4,17 @@ from __future__ import annotations
 
 import random as rnd
 from collections import deque
-from typing import Dict, TYPE_CHECKING
 
 import numpy as np
 import tensorflow as tf
 
 import core.log as log
-from agents.trajectory import Trajectory
-
-if TYPE_CHECKING:
-    from env.server import Server
 
 
 class DqnAgent:
     """
     Dqn Agent that can be allocated to multiple servers
     """
-
-    # Enables the use of the same agent on multiple servers by saving the last server observation trajectory
-    last_server_trajectory: Dict[Server, Trajectory] = {}
 
     def __init__(self, name: str, neural_network, num_outputs: int, minibatch_size: int = 32,
                  discount_factor: float = 0.8, replay_buffer_length: int = 8048, learning_rate: float = 0.01,
@@ -63,10 +55,9 @@ class DqnAgent:
 
                 if next_state:
                     max_next_value = np.max(self.network_target(next_state))
-                    target_values[pos][action] = reward + self.discount_factor * max_next_value - target_values[pos][
-                        action]
+                    target_values[pos][action] -= reward + self.discount_factor * max_next_value
                 else:
-                    target_values[pos][action] = reward - target_values[pos][action]
+                    target_values[pos][action] -= reward
 
             error = tf.reduce_mean(0.5 * tf.square(target_values))
 

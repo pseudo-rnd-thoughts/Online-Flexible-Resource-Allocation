@@ -10,6 +10,8 @@ import numpy as np
 import core.log as log
 from agents.dqn_agent import DqnAgent
 from agents.task_pricing_network import TaskPricingNetwork
+from agents.trajectory import Trajectory
+from env.task_stage import TaskStage
 
 if TYPE_CHECKING:
     from env.server import Server
@@ -20,16 +22,18 @@ class TaskPricingAgent(DqnAgent):
     """Task pricing agent"""
 
     def __init__(self, name: str, num_prices: int = 26,
-                 discount_factor: float = 0.9, default_reward: float = -0.1, greedy_policy: bool = True):
+                 discount_factor: float = 0.9, failed_auction_reward: float = -0.1, greedy_policy: bool = True,
+                 failed_reward_multiplier: float = 1.5):
         super().__init__(name, TaskPricingNetwork, num_prices)
 
         self.discount_factor = discount_factor
-        self.default_reward = default_reward
+        self.failed_auction_reward = failed_auction_reward
         self.greedy_policy = greedy_policy
+        self.failed_reward_multiplier = failed_reward_multiplier
 
     def __str__(self) -> str:
         return f'{self.name} - Num prices: {self.num_outputs}, Discount factor: {self.discount_factor}, ' \
-               f'Default reward: {self.default_reward}'
+               f'Failed auction reward: {self.failed_auction_reward}'
 
     def price(self, auction_task: Task, server: Server, allocated_tasks: List[Task], time_step: int) -> float:
         """
@@ -53,11 +57,17 @@ class TaskPricingAgent(DqnAgent):
         return action
 
     @staticmethod
-    def network_observation(auction_task: Task, allocated_tasks: List[Task], server: Server,
-                            time_step: int) -> np.Array:
+    def network_observation(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.Array:
         observation = np.array([[auction_task.normalise(server, time_step) + [1.0]] + [
             task.normalise(server, time_step) + [0.0]
             for task in allocated_tasks
         ]]).astype(np.float32)
 
         return observation
+
+    def add_finished_task(self, observation: np.Array, action: float, reward_task: Task, next_observation: np.Array):
+        reward = reward_task.price if reward_task.stage is TaskStage.COMPLETED else self.failed_reward_multiplier * reward_task.price
+        self.replay_buffer.append(Trajectory(observation, action, reward, next_observation))
+
+    def add_failed_auction_task(self, observation: np.Array, action: float, next_observation: np.Array):
+        self.replay_buffer.append(Trajectory(observation, action, self.failed_auction_reward, next_observation))

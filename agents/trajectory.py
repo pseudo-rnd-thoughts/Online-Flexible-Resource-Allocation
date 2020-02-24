@@ -1,7 +1,14 @@
+"""Trajectory"""
 
-class Trajectory:
-    def __init__(self, state, action, reward, next_state):
-        self.state = state
-        self.action = action
-        self.reward = reward
-        self.next_state = next_state
+from __future__ import annotations
+
+from typing import NamedTuple, Optional
+
+import numpy as np
+
+
+class Trajectory(NamedTuple):
+    observation: np.Array
+    action: float
+    reward: float
+    next_observation: Optional[np.Array]
