@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import NamedTuple, TYPE_CHECKING
 
 from env.task_stage import TaskStage
+import core.log as log
 
 if TYPE_CHECKING:
     from env.server import Server
@@ -41,19 +42,25 @@ class Task(NamedTuple):
         updated_loading_progress = self.loading_progress + loading_resources
         updated_stage = TaskStage.LOADING if updated_loading_progress < self.required_storage else TaskStage.COMPUTING
         updated_stage = updated_stage if time_step < self.deadline else TaskStage.FAILED
-        return self._replace(loading_progress=updated_loading_progress, stage=updated_stage)
+        return self._replace(loading_progress=updated_loading_progress, stage=self.has_failed(updated_stage, time_step))
 
     def compute(self, compute_resources, time_step: int) -> Task:
         updated_compute_progress = self.compute_progress + compute_resources
         updated_stage = TaskStage.COMPUTING if updated_compute_progress < self.required_comp else TaskStage.SENDING
         updated_stage = updated_stage if time_step < self.deadline else TaskStage.FAILED
-        return self._replace(compute_progress=updated_compute_progress, stage=updated_stage)
+        return self._replace(compute_progress=updated_compute_progress, stage=self.has_failed(updated_stage, time_step))
 
     def sending(self, sending_resources, time_step: int) -> Task:
         updated_sending_progress = self.sending_progress + sending_resources
         updated_stage = TaskStage.SENDING if updated_sending_progress < self.required_results_data else TaskStage.COMPLETED
-        updated_stage = TaskStage.FAILED if time_step == self.deadline and updated_stage is not TaskStage.COMPLETED else updated_stage
-        return self._replace(sending_progress=updated_sending_progress, stage=updated_stage)
+        return self._replace(sending_progress=updated_sending_progress, stage=self.has_failed(updated_stage, time_step))
+
+    def has_failed(self, updated_stage: TaskStage, time_step: int) -> TaskStage:
+        if self.deadline <= time_step and updated_stage is not TaskStage.COMPLETED:
+            log.debug(f'{self.name} Task has failed')
+            return TaskStage.FAILED
+        else:
+            return updated_stage
 
     def __str__(self) -> str:
         # The task is unassigned therefore there is no progress on stages
@@ -81,4 +88,5 @@ class Task(NamedTuple):
                    f'Results data: {self.required_results_data}, Auction time: {self.auction_time}, Deadline: {self.deadline}'
 
     def __eq__(self, o: object) -> bool:
+        # noinspection PyUnresolvedReferences
         return type(o) is Task and o.name == self.name
