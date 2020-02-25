@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import NamedTuple, Dict, TYPE_CHECKING, Tuple, List
+from typing import NamedTuple, TYPE_CHECKING
 
 import core.log as log
 from env.task_stage import TaskStage
 
 if TYPE_CHECKING:
     from env.task import Task
+    from typing import Dict, Tuple, List
 
 
 class Server(NamedTuple):

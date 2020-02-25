@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import random as rnd
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -16,6 +16,7 @@ from env.task_stage import TaskStage
 if TYPE_CHECKING:
     from env.server import Server
     from env.task import Task
+    from typing import List
 
 
 class TaskPricingAgent(DqnAgent):

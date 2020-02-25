@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import NamedTuple, TYPE_CHECKING, List
+from typing import NamedTuple, TYPE_CHECKING
 
 from env.task_stage import TaskStage
 
 if TYPE_CHECKING:
     from env.server import Server
+    from typing import List
 
 
 class Task(NamedTuple):

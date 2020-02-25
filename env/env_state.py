@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
     from env.task import Task
     from env.server import Server
+    from typing import Dict, List, Optional
 
 
 class EnvState(NamedTuple):

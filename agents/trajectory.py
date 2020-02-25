@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
-from typing import NamedTuple, Optional
+from typing import NamedTuple, TYPE_CHECKING
 
-import numpy as np
+if TYPE_CHECKING:
+    from typing import Optional
+    import numpy as np
 
 
 class Trajectory(NamedTuple):

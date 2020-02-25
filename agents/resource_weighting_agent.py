@@ -3,17 +3,21 @@
 from __future__ import annotations
 
 import random as rnd
-from typing import List, Optional
 
+from typing import TYPE_CHECKING
 import numpy as np
 
 import core.log as log
 from agents.dqn_agent import DqnAgent
 from agents.resource_weighting_network import ResourceWeightingNetwork
 from agents.trajectory import Trajectory
-from env.server import Server
-from env.task import Task
+
 from env.task_stage import TaskStage
+
+if TYPE_CHECKING:
+    from typing import List, Optional
+    from env.server import Server
+    from env.task import Task
 
 
 class ResourceWeightingAgent(DqnAgent):
@@ -72,13 +76,16 @@ class ResourceWeightingAgent(DqnAgent):
 
         return observation
 
-    def add_incomplete_task_observation(self, observation: np.Array, action: float, next_observation: Optional[np.Array], rewards: List[Task]):
-        reward = sum(self.successful_task_reward if reward_task.stage is TaskStage.COMPLETED else self.failed_task_reward
-                     for reward_task in rewards)
+    def add_incomplete_task_observation(self, observation: np.Array, action: float,
+                                        next_observation: Optional[np.Array], rewards: List[Task]):
+        reward = sum(
+            self.successful_task_reward if reward_task.stage is TaskStage.COMPLETED else self.failed_task_reward
+            for reward_task in rewards)
 
         self.replay_buffer.append(Trajectory(observation, action, reward, next_observation))
 
-    def add_finished_task(self, observation: np.Array, action: float, finished_task: Optional[np.Array], rewards: List[Task]):
+    def add_finished_task(self, observation: np.Array, action: float, finished_task: Optional[np.Array],
+                          rewards: List[Task]):
         reward = self.successful_task_reward * self.task_multiplier if finished_task.stage is TaskStage.COMPLETED else self.failed_task_reward * self.task_multiplier
         for reward_task in rewards:
             if reward_task.name != finished_task.name:

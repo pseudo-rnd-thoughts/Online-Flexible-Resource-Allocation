@@ -10,9 +10,9 @@ class TaskStage(Enum):
 
     UNASSIGNED = auto()  # Not server allocated yet
 
-    LOADING = auto()     # Loads the task
-    COMPUTING = auto()   # Computes the task
-    SENDING = auto()     # Sends the results back
+    LOADING = auto()  # Loads the task
+    COMPUTING = auto()  # Computes the task
+    SENDING = auto()  # Sends the results back
 
-    COMPLETED = auto()   # The task is complete
-    FAILED = auto()      # The task is incomplete within the time limit
+    COMPLETED = auto()  # The task is complete
+    FAILED = auto()  # The task is incomplete within the time limit
