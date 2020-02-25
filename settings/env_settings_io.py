@@ -7,9 +7,9 @@ import operator
 from typing import TYPE_CHECKING
 
 from env.env_state import EnvState
+from env.environment import OnlineFlexibleResourceAllocationEnv
 
 if TYPE_CHECKING:
-    from env.environment import OnlineFlexibleResourceAllocationEnv
     from env.server import Server
     from env.task import Task
     from typing import List
