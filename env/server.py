@@ -25,9 +25,31 @@ class Server(NamedTuple):
         return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.comp_cap}, Bandwidth cap: {self.bandwidth_cap}'
 
     def allocate_resources(self, resource_weights: Dict[Task, float], time_step: int) -> Tuple[List[Task], List[Task]]:
-        if resource_weights:
-            task_resource_usage: Dict[Task, Tuple[float, float, float]] = {}  # The resource allocated to the task
+        assert all(task.stage is TaskStage.LOADING or task.stage is TaskStage.COMPUTING or task.stage is TaskStage.SENDING
+                   for task in resource_weights.keys()), f'Failed {self.name} server task stage assert - Tasks: [' + \
+                                                         ', '.join([f'{task.name} Task ({task.stage})' for task in resource_weights.keys()]) + ']'
+        assert all(weight > 0 for weight in resource_weights.values()), f'Failed {self.name} server resource weight assert - Tasks: [' + \
+                                                         ', '.join([f'{task.name} Task ({weight})' for task, weight in resource_weights.items()]) + ']'
 
+        task_resource_usage: Dict[Task, Tuple[float, float, float]] = {}  # The resource allocated to the task
+
+        if len(resource_weights) == 0:
+            log.debug(f'{self.name} Server - There is no resource weights provided')
+            return [], []
+        elif len(resource_weights) == 1:
+            log.debug(f'{self.name} Server - There is a single task')
+
+            task = next(_task for _task in resource_weights.keys())
+            if task.stage is TaskStage.LOADING:
+                loading_resources = min(self.storage_cap - task.loading_progress, self.bandwidth_cap, task.required_storage - task.loading_progress)
+                task_resource_usage[task.loading(loading_resources, time_step)] = (task.loading_progress + loading_resources, 0, loading_resources)
+            elif task.stage is TaskStage.COMPUTING:
+                compute_resources = min(self.comp_cap - task.compute_progress, task.required_comp - task.compute_progress)
+                task_resource_usage[task.compute(compute_resources, time_step)] = (task.required_storage, compute_resources, 0)
+            elif task.stage is TaskStage.SENDING:
+                sending_resources = min(self.bandwidth_cap - task.sending_progress, task.required_results_data - task.sending_progress)
+                task_resource_usage[task.loading(sending_resources, time_step)] = (task.required_storage, 0, sending_resources)
+        else:
             loading_weights: Dict[Task, float] = {}
             compute_weights: Dict[Task, float] = {}
             sending_weights: Dict[Task, float] = {}
@@ -59,7 +81,8 @@ class Server(NamedTuple):
                         available_computation -= compute_resources
 
                         completed_compute_stage = True
-                        compute_weights.pop(task)
+                compute_weights = {task: weight for task, weight in compute_weights.items()
+                                   if task not in list(task_resource_usage.keys())}
 
             if compute_weights:
                 compute_unit = available_computation / sum(compute_weights.values())
@@ -84,7 +107,8 @@ class Server(NamedTuple):
                         available_bandwidth -= sending_resources
 
                         completed_bandwidth_stage = True
-                        sending_weights.pop(task)
+                sending_weights = {task: weight for task, weight in sending_weights.items()
+                                   if task not in list(task_resource_usage.keys())}
 
                 for task, weight in loading_weights.items():
                     if task.required_storage - task.loading_progress <= weight * bandwidth_unit and \
@@ -97,7 +121,8 @@ class Server(NamedTuple):
                         available_storage -= loading_resources
 
                         completed_bandwidth_stage = True
-                        loading_weights.pop(task)
+                loading_weights = {task: weight for task, weight in loading_weights.items()
+                                   if task not in list(task_resource_usage.keys())}
 
             if loading_weights or sending_weights:
                 bandwidth_unit: float = available_bandwidth / (
@@ -115,20 +140,32 @@ class Server(NamedTuple):
                         task.required_storage, 0, sending_resources)
                     available_bandwidth -= sending_resources
 
-            assert sum(resources_usage[0] for resources_usage in task_resource_usage.values()) <= self.storage_cap
-            assert sum(resources_usage[1] for resources_usage in task_resource_usage.values()) <= self.comp_cap
-            assert sum(resources_usage[2] for resources_usage in task_resource_usage.values()) <= self.bandwidth_cap
+        assert sum(resources_usage[0] for resources_usage in task_resource_usage.values()) <= self.storage_cap
+        assert sum(resources_usage[1] for resources_usage in task_resource_usage.values()) <= self.comp_cap
+        assert sum(resources_usage[2] for resources_usage in task_resource_usage.values()) <= self.bandwidth_cap
 
-            log.debug(f'{self.name} Server resource usage -> ' + ', '.join(
-                [f'{task.name} Task: ({storage_usage:.3f}, {compute_usage:.3f}, {bandwidth_usage:.3f})'
-                 for task, (storage_usage, compute_usage, bandwidth_usage) in task_resource_usage.items()]))
+        log.debug(f'{self.name} Server resource usage -> {{' + ', '.join(
+            [f'{task.name} Task: ({storage_usage:.3f}, {compute_usage:.3f}, {bandwidth_usage:.3f})'
+             for task, (storage_usage, compute_usage, bandwidth_usage) in task_resource_usage.items()]) + '}')
+        log.debug(f'{self.name} Server task changes - {{', newline=False)
+        for task in resource_weights.keys():
+            modified_task = next(_task for _task in task_resource_usage.keys() if task == _task)
+            if task.stage is TaskStage.LOADING:
+                log.debug(
+                    f'{task.name} Task: loading progress {task.loading_progress:.3f} -> {modified_task.loading_progress:.3f} '
+                    f'({modified_task.stage}),', newline=False)
+            elif task.stage is TaskStage.COMPUTING:
+                log.debug(
+                    f'{task.name} Task: compute progress {task.compute_progress:.3f} -> {modified_task.compute_progress:.3f} '
+                    f'({modified_task.stage}),', newline=False)
+            elif task.stage is TaskStage.SENDING:
+                log.debug(
+                    f'{task.name} Task: sending progress {task.sending_progress:.3f} -> {modified_task.sending_progress:.3f} '
+                    f'({modified_task.stage}),', newline=False)
+        log.debug('}')
 
-            unfinished_tasks = [task for task in task_resource_usage.keys() if
-                                task.stage is not TaskStage.COMPLETED or task.stage is not TaskStage.FAILED]
-            completed_tasks = [task for task in task_resource_usage.keys() if
-                               task.stage is TaskStage.COMPLETED or task.stage is TaskStage.FAILED]
-
-            return unfinished_tasks, completed_tasks
-        else:
-            # There are no task therefore nothing to allocate resources to
-            return [], []
+        unfinished_tasks = [task for task in task_resource_usage.keys()
+                            if not (task.stage is TaskStage.COMPLETED or task.stage is TaskStage.FAILED)]
+        completed_tasks = [task for task in task_resource_usage.keys()
+                           if task.stage is TaskStage.COMPLETED or task.stage is TaskStage.FAILED]
+        return unfinished_tasks, completed_tasks
