@@ -282,3 +282,4 @@ TSWLatexianTemp*
 tutorials/*.mp4
 tutorials/checkpoint/*
 tutorials/policy/*
+*.pyc
