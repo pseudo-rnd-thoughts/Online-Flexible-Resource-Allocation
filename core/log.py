@@ -5,7 +5,7 @@ from __future__ import annotations
 from enum import Enum
 
 
-class DebugLevel(Enum):
+class LogLevel(Enum):
     """Debug level enum"""
     NEURAL_NETWORK = 0
     DEBUG = 1
@@ -14,12 +14,12 @@ class DebugLevel(Enum):
     CRITICAL = 4
 
 
-debug_filename: str = "debug.log"
-file_debug_level: DebugLevel = DebugLevel.DEBUG
-console_debug_level: DebugLevel = DebugLevel.CRITICAL
+debug_filename: str = 'debug.log'
+file_debug_level: LogLevel = LogLevel.DEBUG
+console_debug_level: LogLevel = LogLevel.CRITICAL
 
 
-def log_message(message: str, debug_level: DebugLevel, newline: bool = True):
+def log_message(message: str, debug_level: LogLevel, newline: bool = True):
     """
     Debug the message to either console or files
     :param message: The string message
@@ -27,7 +27,7 @@ def log_message(message: str, debug_level: DebugLevel, newline: bool = True):
     :param newline: If to append a new line to end of the message
     """
     if file_debug_level.value <= debug_level.value:
-        with open(debug_filename, 'w') as file:
+        with open(debug_filename, 'a') as file:
             if newline:
                 file.write(message + '\n')
             else:
@@ -46,7 +46,7 @@ def debug(message: str, newline: bool = True):
     :param message: The message
     :param newline: If to have a newline at the end of the message
     """
-    log_message(message, DebugLevel.DEBUG, newline)
+    log_message(message, LogLevel.DEBUG, newline)
 
 
 def info(message: str, newline: bool = True):
@@ -55,7 +55,7 @@ def info(message: str, newline: bool = True):
     :param message: The message
     :param newline: If to have a newline at the end of the message
     """
-    log_message(message, DebugLevel.INFO, newline)
+    log_message(message, LogLevel.INFO, newline)
 
 
 def warning(message: str, newline: bool = True):
@@ -64,7 +64,7 @@ def warning(message: str, newline: bool = True):
     :param message: The message
     :param newline: If to have a newline at the end of the message
     """
-    log_message(message, DebugLevel.WARNING, newline)
+    log_message(message, LogLevel.WARNING, newline)
 
 
 def critical(message: str, newline: bool = True):
@@ -73,7 +73,7 @@ def critical(message: str, newline: bool = True):
     :param message: The message
     :param newline: If to have a newline at the end of the message
     """
-    log_message(message, DebugLevel.CRITICAL, newline)
+    log_message(message, LogLevel.CRITICAL, newline)
 
 
 def neural_network(agent: str, message):
@@ -82,4 +82,4 @@ def neural_network(agent: str, message):
     :param agent: The agent name
     :param message: The message
     """
-    log_message(f'{agent}: {str(message)}', DebugLevel.NEURAL_NETWORK)
+    log_message(f'{agent}: {str(message)}', LogLevel.NEURAL_NETWORK)
