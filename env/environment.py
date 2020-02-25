@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 from copy import deepcopy as copy
 
 from env.env_state import EnvState
+from env.task_stage import TaskStage
 from settings import env_io
 
 if TYPE_CHECKING:
@@ -77,8 +78,7 @@ class OnlineFlexibleResourceAllocationEnv:
         return self.unallocated_tasks.pop(0) if self.unallocated_tasks and self.unallocated_tasks[
             0].auction_time == self.time_step else None
 
-    def step(self, actions: Dict[Server, Union[float, Dict[Task, float]]]) -> Tuple[
-        EnvState, Dict[Server, Union[float, List[Task]]], bool, Dict[str, str]]:
+    def step(self, actions: Dict[Server, Union[float, Dict[Task, float]]]) -> Tuple[EnvState, Dict[Server, Union[float, List[Task]]], bool, Dict[str, str]]:
         info: Dict[str, str] = {}
 
         # If there is an auction task then the actions must be auction
@@ -108,7 +108,8 @@ class OnlineFlexibleResourceAllocationEnv:
                         rewards[winning_server] = second_min_price
                     else:
                         rewards[winning_server] = min_price
-                    next_state.server_tasks[winning_server].append(self.state.auction_task)
+                    next_state.server_tasks[winning_server].append(
+                        self.state.auction_task._replace(stage=TaskStage.LOADING))
             else:
                 info['min servers'] = 'failed'
 
