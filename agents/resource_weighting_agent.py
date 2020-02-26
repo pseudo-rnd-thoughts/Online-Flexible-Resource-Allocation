@@ -48,11 +48,11 @@ class ResourceWeightingAgent(DqnAgent):
 
             if greedy_policy and rnd.random() < self.epsilon:
                 action = rnd.randint(0, self.num_outputs)
-                log.debug(f'\tGreedy action: {action}')
+                log.debug(f'\t{self.name} RWA - {server.name} Server and {task.name} Task has greedy action: {action}')
             else:
                 action_q_values = self.network_model.call(observation)
                 action = np.argmax(action_q_values) + 1
-                log.debug(f'\tArgmax action: {action}')
+                log.debug(f'\t{self.name} TPA - {server.name} Server and {task.name} Task has argmax action: {action}')
 
             return action
         else:

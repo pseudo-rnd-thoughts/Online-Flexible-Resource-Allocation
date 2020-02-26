@@ -49,11 +49,11 @@ class TaskPricingAgent(DqnAgent):
 
         if self.greedy_policy and rnd.random() < self.epsilon:
             action = rnd.randint(0, self.num_outputs)
-            log.debug(f'\tGreedy action: {action}')
+            log.debug(f'\t{self.name} TPA - {server.name} Server has greedy action: {action}')
         else:
             action_q_values = self.network_model.call(observation)
             action = np.argmax(action_q_values)
-            log.debug(f'\tArgmax action: {action}')
+            log.debug(f'\t{self.name} TPA - {server.name} Server has argmax action: {action}')
 
         return action
 
