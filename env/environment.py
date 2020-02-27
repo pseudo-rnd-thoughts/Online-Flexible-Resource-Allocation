@@ -106,10 +106,12 @@ class OnlineFlexibleResourceAllocationEnv:
                 if min_servers:
                     if len(min_servers) == 1 and second_min_price < inf:
                         rewards[winning_server] = second_min_price
+                        next_state.server_tasks[winning_server].append(
+                            self.state.auction_task._replace(stage=TaskStage.LOADING, price=second_min_price))
                     else:
                         rewards[winning_server] = min_price
-                    next_state.server_tasks[winning_server].append(
-                        self.state.auction_task._replace(stage=TaskStage.LOADING))
+                        next_state.server_tasks[winning_server].append(
+                            self.state.auction_task._replace(stage=TaskStage.LOADING, price=min_price))
             else:
                 info['min servers'] = 'failed'
 
