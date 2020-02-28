@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from typing import Dict, Tuple, List
 
 
-rounding = 4
+rounding = 0.0001
 
 
 class Server(NamedTuple):
@@ -26,6 +26,9 @@ class Server(NamedTuple):
 
     def __str__(self) -> str:
         return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.comp_cap}, Bandwidth cap: {self.bandwidth_cap}'
+
+    def round_down(self, value):
+        return value - value % rounding
 
     def allocate_resources(self, resource_weights: Dict[Task, float], time_step: int) -> Tuple[List[Task], List[Task]]:
         assert all(task.stage is TaskStage.LOADING or task.stage is TaskStage.COMPUTING or task.stage is
@@ -74,12 +77,12 @@ class Server(NamedTuple):
             # Stage 2: Allocate the compute resources to tasks
             completed_compute_stage: bool = True
             while completed_compute_stage and compute_weights:
-                compute_unit: float = round(available_computation / sum(compute_weights.values()), rounding)
+                compute_unit: float = available_computation / sum(compute_weights.values())
                 completed_compute_stage = False
 
                 for task, weight in compute_weights.items():
                     if task.required_comp - task.compute_progress <= weight * compute_unit:
-                        compute_resources: float = task.required_storage - task.compute_progress
+                        compute_resources: float = task.required_comp - task.compute_progress
 
                         task_resource_usage[task.compute(compute_resources, time_step)] = (task.required_storage, compute_resources, 0)
                         available_computation -= compute_resources
@@ -90,17 +93,17 @@ class Server(NamedTuple):
                                    if task not in list(task_resource_usage.keys())}
 
             if compute_weights:
-                compute_unit = round(available_computation / sum(compute_weights.values()), rounding)
+                compute_unit = self.round_down(available_computation / sum(compute_weights.values()))
                 for task, weight in compute_weights.items():
-                    compute_resources = round(compute_unit * weight, rounding)
+                    compute_resources = self.round_down(compute_unit * weight)
 
                     task_resource_usage[task.compute(compute_resources, time_step)] = (task.required_storage, compute_resources, 0)
-                    available_storage -= task.required_storage
+                    available_computation -= compute_resources
 
             # Stage 3: Allocate the bandwidth resources to task
             completed_bandwidth_stage: bool = True
             while completed_bandwidth_stage and (loading_weights or sending_weights):
-                bandwidth_unit: float = round(available_bandwidth / (sum(loading_weights.values()) + sum(sending_weights.values())), rounding)
+                bandwidth_unit: float = self.round_down(available_bandwidth / (sum(loading_weights.values()) + sum(sending_weights.values())))
                 completed_bandwidth_stage = False
 
                 for task, weight in sending_weights.items():
@@ -131,9 +134,9 @@ class Server(NamedTuple):
                                    if task not in list(task_resource_usage.keys())}
 
             if loading_weights or sending_weights:
-                bandwidth_unit: float = round(available_bandwidth / (sum(loading_weights.values()) + sum(sending_weights.values())), rounding)
+                bandwidth_unit: float = self.round_down(available_bandwidth / (sum(loading_weights.values()) + sum(sending_weights.values())))
                 for task, weight in loading_weights.items():
-                    loading_resources = round(bandwidth_unit * weight, rounding)
+                    loading_resources = self.round_down(bandwidth_unit * weight)
 
                     task_resource_usage[task.loading(loading_resources, time_step)] = (task.loading_progress + loading_resources, 0, loading_resources)
 
@@ -141,21 +144,11 @@ class Server(NamedTuple):
                     available_bandwidth -= loading_resources
 
                 for task, weight in sending_weights.items():
-                    sending_resources = round(bandwidth_unit * weight, rounding)
+                    sending_resources = self.round_down(bandwidth_unit * weight)
 
                     task_resource_usage[task.loading(sending_resources, time_step)] = (task.required_storage, 0, sending_resources)
 
                     available_bandwidth -= sending_resources
-
-        assert sum(resources_usage[0] for resources_usage in task_resource_usage.values()) <= self.storage_cap, \
-            f'{self.name} Server storage cap ({self.storage_cap}) failed -> {{' + \
-            ', '.join([f'{task.name} Task: {storage_usage}' for task, (storage_usage, _, _) in task_resource_usage.items()]) + '}'
-        assert sum(resources_usage[1] for resources_usage in task_resource_usage.values()) <= self.comp_cap, \
-            f'{self.name} Server computational cap ({self.comp_cap}) failed -> {{' + \
-            ', '.join([f'{task.name} Task: {compute_usage}' for task, (_, compute_usage, _) in task_resource_usage.items()]) + '}'
-        assert sum(resources_usage[2] for resources_usage in task_resource_usage.values()) <= self.bandwidth_cap, \
-            f'{self.name} Server bandwidth cap ({self.bandwidth_cap}) failed -> {{' + \
-            ', '.join([f'{task.name} Task: {bandwidth_usage}' for task, (_, _, bandwidth_usage) in task_resource_usage.items()]) + '}'
 
         log.debug(f'{self.name} Server resource usage -> {{' + ', '.join(
             [f'{task.name} Task: ({storage_usage:.3f}, {compute_usage:.3f}, {bandwidth_usage:.3f})'
@@ -176,6 +169,16 @@ class Server(NamedTuple):
                     f'{task.name} Task: sending progress {task.sending_progress:.3f} -> {modified_task.sending_progress:.3f} '
                     f'({modified_task.stage}),', newline=False)
         log.debug('}')
+
+        assert sum(resources_usage[0] for resources_usage in task_resource_usage.values()) <= self.storage_cap, \
+            f'{self.name} Server storage cap ({self.storage_cap}) failed -> {{' + \
+            ', '.join([f'{task.name} Task: {storage_usage}' for task, (storage_usage, _, _) in task_resource_usage.items()]) + '}'
+        assert sum(resources_usage[1] for resources_usage in task_resource_usage.values()) <= self.comp_cap, \
+            f'{self.name} Server computational cap ({self.comp_cap}) failed -> {{' + \
+            ', '.join([f'{task.name} Task: {compute_usage}' for task, (_, compute_usage, _) in task_resource_usage.items()]) + '}'
+        assert sum(resources_usage[2] for resources_usage in task_resource_usage.values()) <= self.bandwidth_cap, \
+            f'{self.name} Server bandwidth cap ({self.bandwidth_cap}) failed -> {{' + \
+            ', '.join([f'{task.name} Task: {bandwidth_usage}' for task, (_, _, bandwidth_usage) in task_resource_usage.items()]) + '}'
 
         assert all(task.stage is TaskStage.LOADING or task.stage is TaskStage.COMPUTING or task.stage is TaskStage.SENDING or
                    task.stage is TaskStage.COMPLETED or task.stage is TaskStage.FAILED for task in task_resource_usage.keys())
