@@ -61,6 +61,6 @@ class DqnAgent:
 
             error = tf.reduce_mean(0.5 * tf.square(target_values))
 
-        log.info(f'Training {self.name} agent with error {error}')
+        log.warning(f'Training {self.name} agent with error {error}')
         network_gradients = tape.gradient(error, network_variables)
         self.optimiser.apply_gradients(zip(network_gradients, network_variables))
