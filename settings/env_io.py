@@ -13,10 +13,10 @@ if TYPE_CHECKING:
     from env.environment import OnlineFlexibleResourceAllocationEnv
 
 
-def save_environment(environment: OnlineFlexibleResourceAllocationEnv, filename: str):
+def save_environment(env: OnlineFlexibleResourceAllocationEnv, filename: str):
     """
     Saves an environment to a file
-    :param environment: The environment to save
+    :param env: The environment to save
     :param filename: The filename to save the environment to
 
                 Template
@@ -26,21 +26,21 @@ def save_environment(environment: OnlineFlexibleResourceAllocationEnv, filename:
      "tasks": [{"name": "", "required storage": 0, "required computation": 0, "required results data": 0,
                 "auction time": 0, "deadline": 0}, ...]}
     """
-    assert environment.time_step == 0
+    assert env.state.time_step == 0
 
     environment_json_data = {
-        'env name': environment.env_name,
-        'total time steps': environment.total_time_steps,
+        'env name': env.env_name,
+        'total time steps': env.total_time_steps,
         'servers': [
             {'name': server.name, 'storage capacity': server.storage_cap, 'computational capacity': server.comp_cap,
              'bandwidth capacity': server.bandwidth_cap}
-            for server in environment.state.server_tasks.keys()
+            for server in env.state.server_tasks.keys()
         ],
         'tasks': [
             {'name': task.name, 'required storage': task.required_storage,
              'required computational': task.required_comp, 'required results data': task.required_results_data,
              'auction time': task.auction_time, 'deadline': task.deadline}
-            for task in environment.unallocated_tasks
+            for task in env.unallocated_tasks
         ]
     }
 
@@ -88,12 +88,12 @@ def load_setting(filename: str) -> Tuple[str, List[Server], List[Task], int]:
                                         env_setting_json['max total servers'])):
             server_json_data = choice(env_setting_json['server settings'])
             servers.append(Server(name='{} {}'.format(server_json_data['name'], server_num),
-                                  storage_cap=randint(server_json_data['min storage capacity'],
-                                                      server_json_data['max storage capacity']),
-                                  comp_cap=randint(server_json_data['min computational capacity'],
-                                                   server_json_data['max computational capacity']),
-                                  bandwidth_cap=randint(server_json_data['min bandwidth capacity'],
-                                                        server_json_data['max bandwidth capacity'])))
+                                  storage_cap=float(randint(server_json_data['min storage capacity'],
+                                                            server_json_data['max storage capacity'])),
+                                  comp_cap=float(randint(server_json_data['min computational capacity'],
+                                                         server_json_data['max computational capacity'])),
+                                  bandwidth_cap=float(randint(server_json_data['min bandwidth capacity'],
+                                                              server_json_data['max bandwidth capacity']))))
 
         tasks: List[Task] = []
         for task_num in range(randint(env_setting_json['min total tasks'],
@@ -103,11 +103,11 @@ def load_setting(filename: str) -> Tuple[str, List[Server], List[Task], int]:
             tasks.append(Task(name='{} {}'.format(task_json_data['name'], task_num), auction_time=auction_time,
                               deadline=auction_time + randint(task_json_data['min deadline'],
                                                               task_json_data['max deadline']),
-                              required_storage=randint(task_json_data['min required storage'],
-                                                       task_json_data['max required storage']),
-                              required_comp=randint(task_json_data['min required computation'],
-                                                    task_json_data['max required computation']),
-                              required_results_data=randint(task_json_data['min required results data'],
-                                                            task_json_data['max required results data'])))
+                              required_storage=float(randint(task_json_data['min required storage'],
+                                                             task_json_data['max required storage'])),
+                              required_comp=float(randint(task_json_data['min required computation'],
+                                                          task_json_data['max required computation'])),
+                              required_results_data=float(randint(task_json_data['min required results data'],
+                                                                  task_json_data['max required results data']))))
 
     return env_name, servers, tasks, total_time_steps
