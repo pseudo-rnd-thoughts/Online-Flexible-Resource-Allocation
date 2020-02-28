@@ -28,15 +28,13 @@ def run_env(env: OnlineFlexibleResourceAllocationEnv, server_task_pricing_agents
     state = env.state
     log.info(f'Initial state: {str(state)}')
 
-    log.info(
-        f"Task Pricing agents - {{{', '.join([f'{server.name} Server: {task_pricing_agent.name}' for server, task_pricing_agent in server_task_pricing_agents.items()])}}}")
-    log.info(
-        f"Resource allocation agents - {{{', '.join([f'{server.name} Server: {resource_weighting_agent.name}' for server, resource_weighting_agent in server_resource_allocation_agents.items()])}}}")
+    log.info(f"Task Pricing agents - {{{', '.join([f'{server.name} Server: {task_pricing_agent.name}' for server, task_pricing_agent in server_task_pricing_agents.items()])}}}")
+    log.info(f"Resource allocation agents - {{{', '.join([f'{server.name} Server: {resource_weighting_agent.name}' for server, resource_weighting_agent in server_resource_allocation_agents.items()])}}}")
 
     total_price, num_completed_tasks, num_failed_tasks = 0.0, 0, 0
     server_auction_observations: Dict[Server, Optional[Tuple[np.Array, float, Optional[Task]]]] = {
         server: None for server in state.server_tasks.keys()}
-    auction_trajectory: List[Tuple[Task, Server, np.Array, float, Optional[np.Array]]] = []
+    auction_trajectories: List[Tuple[Task, Server, np.Array, float, Optional[np.Array]]] = []
     done = False
     log.info(f'Initial State: {str(state)}')
     while not done:
@@ -49,36 +47,28 @@ def run_env(env: OnlineFlexibleResourceAllocationEnv, server_task_pricing_agents
             log.info('Auction prices -> ' + ', '.join([f'{server.name}: {price}' for server, price in actions.items()]))
 
             next_state, rewards, done, info = env.step(actions)
-            log.info(
-                f"Auction Rewards - {', '.join([f'{server.name} Server: {price}' for server, price in rewards.items()])}")
+            log.info(f"Auction Rewards - {', '.join([f'{server.name} Server: {price}' for server, price in rewards.items()])}")
             log.info(f'Next State: {str(next_state)}\n')
 
             if update_agent_experience_replay:
                 for server in state.server_tasks.keys():
                     if server_auction_observations[server]:
                         observation, action, auction_task = server_auction_observations[server]
-                        next_observation = server_task_pricing_agents[server]. \
-                            network_observation(state.auction_task, state.server_tasks[server], server, state.time_step)
+                        next_observation = server_task_pricing_agents[server].network_observation(state.auction_task, state.server_tasks[server], server, state.time_step)
 
                         if auction_task:
                             log.debug(f'Added auction task ({auction_task.name}) to auction trajectory')
-                            auction_trajectory.append((auction_task, server, observation, action, next_observation))
+                            auction_trajectories.append((auction_task, server, observation, action, next_observation))
                         else:
                             log.debug(f'Add failed auction task trajectory for {server.name} server')
                             server_task_pricing_agents[server].add_failed_auction_task(observation, action, next_observation)
 
                     if server in rewards:
-                        log.debug(
-                            f'Updating {server.name} server auction observations with {state.auction_task.name} auction task')
-                        server_auction_observations[server] = (
-                        server_task_pricing_agents[server].price(state.auction_task, server, state.server_tasks[server],
-                                                                 state.time_step),
-                        actions[server], state.auction_task)
+                        log.debug(f'Updating {server.name} server auction observations with {state.auction_task.name} auction task')
+                        server_auction_observations[server] = (server_task_pricing_agents[server].network_observation(state.auction_task, state.server_tasks[server], server, state.time_step), actions[server], state.auction_task)
                     else:
                         log.debug(f'Updating {server.name} server auction observations without auction task')
-                        server_auction_observations[server] = (
-                        server_task_pricing_agents[server].price(state.auction_task, server, state.server_tasks[server], state.time_step),
-                        actions[server], None)
+                        server_auction_observations[server] = (server_task_pricing_agents[server].network_observation(state.auction_task, state.server_tasks[server], server, state.time_step), actions[server], None)
 
             state = next_state
         else:
@@ -103,8 +93,9 @@ def run_env(env: OnlineFlexibleResourceAllocationEnv, server_task_pricing_agents
             if update_agent_experience_replay:
                 for server, reward_tasks in rewards.items():
                     for reward_task in reward_tasks:
-                        log.debug(f'Auction trajectories ({len(auction_trajectory)}): [' + ','.join([at[0].name for at in auction_trajectory]) + ']')
-                        task_trajectory = next(_task_trajectory for _task_trajectory in auction_trajectory if _task_trajectory[0] == reward_task)
+                        log.debug(f'Auction trajectories ({len(auction_trajectories)}): [' +
+                                  ','.join([auction_trajectory[0].name for auction_trajectory in auction_trajectories]) + ']')
+                        task_trajectory = next(_task_trajectory for _task_trajectory in auction_trajectories if _task_trajectory[0] == reward_task)
                         task, server, observation, action, next_observation = task_trajectory
                         server_task_pricing_agents[server].add_finished_task(observation, action, reward_task, next_observation)
 
@@ -161,7 +152,7 @@ def eval_env(training_envs: List[str], task_pricing_agents: List[TaskPricingAgen
 
 def allocate_agents(env: OnlineFlexibleResourceAllocationEnv, task_pricing_agents: List[TaskPricingAgent],
                     resource_weighting_agents: List[ResourceWeightingAgent]):
-    assert env.time_step == 0
+    assert env.state.time_step == 0
     assert len(task_pricing_agents) > 0
     assert len(resource_weighting_agents) > 0
 
@@ -195,20 +186,20 @@ if "__main__" == __name__:
         env_io.save_environment(_env, f'../settings/eval_envs/eval_env_{training_env_num}.json')
 
     # Loop over the episodes
-    for episode in range(1):
+    for episode in range(100):
         log.info(f'Episode: {episode}')
         _env.reset()
 
         _server_task_pricing_agents, _server_resource_allocation_agents = allocate_agents(_env, _task_pricing_agents, _resource_weighting_agents)
         _total_price, _num_completed_tasks, _num_failed_tasks = run_env(_env, _server_task_pricing_agents, _server_resource_allocation_agents)
-        log.warning(f'Total Price: {_total_price}, Num Completed Task: {_num_completed_tasks}, Num Failed Tasks: {_num_failed_tasks}')
+        log.warning(f'Episode {episode} - Total Price: {_total_price}, Num Completed Task: {_num_completed_tasks}, Num Failed Tasks: {_num_failed_tasks}')
 
         # Every 3 episodes, the agents are trained
         if episode % 3 == 0:
-            for task_pricing_agent in _server_task_pricing_agents.values():
-                task_pricing_agent.train()
-            for resource_weighting_agent in _server_resource_allocation_agents.values():
-                resource_weighting_agent.train()
+            for _task_pricing_agent in _server_task_pricing_agents.values():
+                _task_pricing_agent.train()
+            for _resource_weighting_agent in _server_resource_allocation_agents.values():
+                _resource_weighting_agent.train()
 
         # Every 15 episodes, the agents are evaluated
         if episode % 15 == 0:
