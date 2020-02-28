@@ -33,7 +33,6 @@ class OnlineFlexibleResourceAllocationEnv:
     unallocated_tasks: List[Task]
     state: EnvState
 
-    time_step: int = 0
     total_time_steps: int = 0
 
     def __init__(self, environment_settings: List[str]):
@@ -70,13 +69,13 @@ class OnlineFlexibleResourceAllocationEnv:
 
         # Current state
         self.unallocated_tasks: List[Task] = sorted(new_tasks, key=operator.attrgetter('auction_time'))
-        self.state = EnvState({server: [] for server in new_servers}, self.next_auction_task(), 0)
+        auction_task = self.unallocated_tasks.pop(0) if self.unallocated_tasks[0].auction_time == 0 else None
+        self.state = EnvState({server: [] for server in new_servers}, auction_task, 0)
 
         return self.state
 
     def next_auction_task(self):
-        return self.unallocated_tasks.pop(0) if self.unallocated_tasks and self.unallocated_tasks[
-            0].auction_time == self.time_step else None
+        return self.unallocated_tasks.pop(0) if self.unallocated_tasks and self.unallocated_tasks[0].auction_time == self.state.time_step else None
 
     def step(self, actions: Dict[Server, Union[float, Dict[Task, float]]]) -> Tuple[EnvState, Dict[Server, Union[float, List[Task]]], bool, Dict[str, str]]:
         info: Dict[str, str] = {}
@@ -94,7 +93,7 @@ class OnlineFlexibleResourceAllocationEnv:
                     elif price == min_price:
                         min_servers.append(server)
 
-            next_state: EnvState = EnvState(copy(self.state.server_tasks), self.next_auction_task(), self.time_step)
+            next_state: EnvState = EnvState(copy(self.state.server_tasks), self.next_auction_task(), self.state.time_step)
             rewards: Dict[Server, float] = {}
             if min_servers:
                 winning_server: Server = rnd.choice(min_servers)
@@ -124,15 +123,14 @@ class OnlineFlexibleResourceAllocationEnv:
             next_server_tasks: Dict[Server, List[Task]] = {}
             rewards: Dict[Server, List[Task]] = {}
             for server, action_weights in actions.items():
-                next_tasks, completed_tasks = server.allocate_resources(action_weights, self.time_step)
-                next_server_tasks[server] = next_tasks
+                unfinished_tasks, completed_tasks = server.allocate_resources(action_weights, self.state.time_step)
+                next_server_tasks[server] = unfinished_tasks
                 rewards[server] = completed_tasks
 
-            self.time_step += 1
-            next_state = EnvState(next_server_tasks, self.next_auction_task(), self.time_step)
+            next_state = EnvState(next_server_tasks, self.next_auction_task(), self.state.time_step + 1)
 
         self.state = next_state
-        return self.state, rewards, self.time_step == self.total_time_steps, info
+        return self.state, rewards, self.state.time_step == self.total_time_steps, info
 
     def _assert_auction_actions(self, actions):
         pass
