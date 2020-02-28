@@ -86,7 +86,8 @@ class ResourceWeightingAgent(DqnAgent):
 
     def add_finished_task(self, observation: np.Array, action: float, finished_task: Optional[np.Array],
                           rewards: List[Task]):
-        reward = self.successful_task_reward * self.task_multiplier if finished_task.stage is TaskStage.COMPLETED else self.failed_task_reward * self.task_multiplier
+        reward = self.successful_task_reward * self.task_multiplier if finished_task.stage is TaskStage.COMPLETED else \
+            self.failed_task_reward * self.task_multiplier
         for reward_task in rewards:
             if reward_task.name != finished_task.name:
                 reward += self.successful_task_reward if reward_task.stage is TaskStage.COMPLETED else self.failed_task_reward

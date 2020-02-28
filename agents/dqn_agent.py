@@ -50,14 +50,15 @@ class DqnAgent:
 
             target_values = np.zeros((self.minibatch_size, self.num_outputs))
             minibatch = rnd.sample(self.replay_buffer, self.minibatch_size)
-            for pos, (state, action, reward, next_state) in enumerate(minibatch):
-                target_values[pos] = self.network_model(state)
+            for pos, trajectory in enumerate(minibatch):
+                observation, action, reward, next_observation = trajectory
+                target_values[pos] = self.network_model(observation)
 
-                if next_state:
-                    max_next_value = np.max(self.network_target(next_state))
-                    target_values[pos][action] -= reward + self.discount_factor * max_next_value
+                if next_observation:
+                    max_next_value = np.max(self.network_target(next_observation))
+                    target_values[pos][action] = reward + self.discount_factor * max_next_value - target_values[pos][action]
                 else:
-                    target_values[pos][action] -= reward
+                    target_values[pos][action] = reward - target_values[pos][action]
 
             error = tf.reduce_mean(0.5 * tf.square(target_values))
 
