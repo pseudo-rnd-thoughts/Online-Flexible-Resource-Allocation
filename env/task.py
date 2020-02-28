@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import NamedTuple, TYPE_CHECKING
 
+from core.core import assert_resource_allocation
 from env.task_stage import TaskStage
 import core.log as log
 
@@ -19,9 +20,9 @@ class Task(NamedTuple):
 
     name: str
 
-    required_storage: int
-    required_comp: int
-    required_results_data: int
+    required_storage: float
+    required_comp: float
+    required_results_data: float
 
     auction_time: int
     deadline: int
@@ -39,18 +40,37 @@ class Task(NamedTuple):
                 self.deadline - time_step, self.loading_progress, self.compute_progress, self.sending_progress]
 
     def loading(self, loading_resources, time_step: int) -> Task:
+        assert_resource_allocation(self.stage is TaskStage.LOADING)
+        assert_resource_allocation(self.loading_progress < self.required_storage)
+        assert_resource_allocation(self.compute_progress == 0)
+        assert_resource_allocation(self.sending_progress == 0)
+        assert_resource_allocation(time_step <= self.deadline)
+
         updated_loading_progress = self.loading_progress + loading_resources
         updated_stage = TaskStage.LOADING if updated_loading_progress < self.required_storage else TaskStage.COMPUTING
         updated_stage = updated_stage if time_step < self.deadline else TaskStage.FAILED
         return self._replace(loading_progress=updated_loading_progress, stage=self.has_failed(updated_stage, time_step))
 
     def compute(self, compute_resources, time_step: int) -> Task:
+        assert_resource_allocation(self.stage is TaskStage.COMPUTING)
+        assert_resource_allocation(self.loading_progress >= self.required_storage)
+        assert_resource_allocation(self.compute_progress < self.required_comp)
+        assert_resource_allocation(self.sending_progress == 0)
+        assert_resource_allocation(time_step <= self.deadline)
+
         updated_compute_progress = self.compute_progress + compute_resources
         updated_stage = TaskStage.COMPUTING if updated_compute_progress < self.required_comp else TaskStage.SENDING
         updated_stage = updated_stage if time_step < self.deadline else TaskStage.FAILED
+        print(f'Updated {self.name} task compute progress: {updated_compute_progress}, {updated_compute_progress < self.required_comp}, stage: {updated_stage}')
         return self._replace(compute_progress=updated_compute_progress, stage=self.has_failed(updated_stage, time_step))
 
     def sending(self, sending_resources, time_step: int) -> Task:
+        assert_resource_allocation(self.stage is TaskStage.SENDING)
+        assert_resource_allocation(self.loading_progress >= self.required_storage)
+        assert_resource_allocation(self.compute_progress >= self.required_comp)
+        assert_resource_allocation(self.sending_progress < self.required_results_data)
+        assert_resource_allocation(time_step <= self.deadline)
+
         updated_sending_progress = self.sending_progress + sending_resources
         updated_stage = TaskStage.SENDING if updated_sending_progress < self.required_results_data else TaskStage.COMPLETED
         return self._replace(sending_progress=updated_sending_progress, stage=self.has_failed(updated_stage, time_step))
