@@ -32,7 +32,7 @@ def save_environment(env: OnlineFlexibleResourceAllocationEnv, filename: str):
         'env name': env.env_name,
         'total time steps': env.total_time_steps,
         'servers': [
-            {'name': server.name, 'storage capacity': server.storage_cap, 'computational capacity': server.comp_cap,
+            {'name': server.name, 'storage capacity': server.storage_cap, 'computational capacity': server.computational_comp,
              'bandwidth capacity': server.bandwidth_cap}
             for server in env.state.server_tasks.keys()
         ],
@@ -90,8 +90,8 @@ def load_setting(filename: str) -> Tuple[str, List[Server], List[Task], int]:
             servers.append(Server(name='{} {}'.format(server_json_data['name'], server_num),
                                   storage_cap=float(randint(server_json_data['min storage capacity'],
                                                             server_json_data['max storage capacity'])),
-                                  comp_cap=float(randint(server_json_data['min computational capacity'],
-                                                         server_json_data['max computational capacity'])),
+                                  computational_comp=float(randint(server_json_data['min computational capacity'],
+                                                                   server_json_data['max computational capacity'])),
                                   bandwidth_cap=float(randint(server_json_data['min bandwidth capacity'],
                                                               server_json_data['max bandwidth capacity']))))
 
