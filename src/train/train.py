@@ -17,8 +17,9 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.task_stage import TaskStage
 
 if TYPE_CHECKING:
-    from env.server import Server
     import numpy as np
+
+    from env.server import Server
     from env.task import Task
 
 

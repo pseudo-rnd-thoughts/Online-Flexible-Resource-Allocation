@@ -187,7 +187,7 @@ class Server(NamedTuple):
             # Try to allocate resources for loading te
             for task, weight in loading_weights.items():
                 # Calculate the loading resources available to the task
-                loading_resources = min(round_float(available_bandwidth / bandwidth_total_weights * weight), available_storage)
+                loading_resources = round_float(min(round_float(available_bandwidth / bandwidth_total_weights * weight), available_storage))
 
                 updated_task = task.loading(loading_resources, time_step)
                 task_resource_usage[updated_task] = (updated_task.loading_progress, 0, loading_resources)
@@ -216,9 +216,9 @@ class Server(NamedTuple):
                 sending_weights = {task: weight for task, weight in sending_weights.items() if task not in list(task_resource_usage.keys())}
 
             if sending_weights:
-                bandwidth_unit = available_bandwidth / bandwidth_total_weights
+                bandwidth_unit = round_float(available_bandwidth / bandwidth_total_weights)
                 for task, weight in sending_weights.items():
-                    sending_resources = bandwidth_unit * weight
+                    sending_resources = round_float(bandwidth_unit * weight)
                     task_resource_usage[task.sending(sending_resources, time_step)] = (task.required_storage, 0, sending_resources)
 
         return task_resource_usage

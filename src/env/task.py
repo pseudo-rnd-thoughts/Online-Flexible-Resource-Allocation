@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from typing import List
 
 
+# noinspection DuplicatedCode
 class Task(NamedTuple):
     """
     Task class that has a named, price, required resources, auction and deadline time step and the progress of resources

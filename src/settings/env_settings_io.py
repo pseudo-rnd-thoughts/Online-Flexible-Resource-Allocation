@@ -10,9 +10,9 @@ from env.env_state import EnvState
 from env.environment import OnlineFlexibleResourceAllocationEnv
 
 if TYPE_CHECKING:
+    from typing import List
     from env.server import Server
     from env.task import Task
-    from typing import List
 
 
 def load_environment(filename: str) -> OnlineFlexibleResourceAllocationEnv:

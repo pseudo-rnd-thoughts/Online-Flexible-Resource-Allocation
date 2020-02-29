@@ -12,7 +12,7 @@ from copy import deepcopy as copy
 
 from env.env_state import EnvState
 from env.task_stage import TaskStage
-from settings import env_io
+import settings.env_io as env_io
 
 if TYPE_CHECKING:
     from env.server import Server

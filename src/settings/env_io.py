@@ -32,7 +32,8 @@ def save_environment(env: OnlineFlexibleResourceAllocationEnv, filename: str):
         'env name': env.env_name,
         'total time steps': env.total_time_steps,
         'servers': [
-            {'name': server.name, 'storage capacity': server.storage_cap, 'computational capacity': server.computational_comp,
+            {'name': server.name, 'storage capacity': server.storage_cap,
+             'computational capacity': server.computational_comp,
              'bandwidth capacity': server.bandwidth_cap}
             for server in env.state.server_tasks.keys()
         ],

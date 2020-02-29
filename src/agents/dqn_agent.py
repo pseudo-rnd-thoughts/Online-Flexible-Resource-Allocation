@@ -56,7 +56,8 @@ class DqnAgent:
 
                 if next_observation:
                     max_next_value = np.max(self.network_target(next_observation))
-                    target_values[pos][action] = reward + self.discount_factor * max_next_value - target_values[pos][action]
+                    target_values[pos][action] = reward + self.discount_factor * max_next_value - target_values[pos][
+                        action]
                 else:
                     target_values[pos][action] = reward - target_values[pos][action]
 
