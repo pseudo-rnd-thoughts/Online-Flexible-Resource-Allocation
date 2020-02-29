@@ -82,7 +82,6 @@ class OnlineFlexibleResourceAllocationEnv:
 
         # If there is an auction task then the actions must be auction
         if self.state.auction_task is not None:  # Auction action = Dict[Server, float])
-            self._assert_auction_actions(actions)
             info['step type'] = 'auction'
 
             min_price, min_servers, second_min_price = inf, [], inf
@@ -117,26 +116,20 @@ class OnlineFlexibleResourceAllocationEnv:
         else:
             # Resource allocation (Action = Dict[Server, Dict[Task, float]])
             # Convert weights to resources
-            self._assert_resource_allocation_actions(actions)
             info['step type'] = 'resource allocation'
 
             next_server_tasks: Dict[Server, List[Task]] = {}
             rewards: Dict[Server, List[Task]] = {}
             for server, action_weights in actions.items():
-                unfinished_tasks, completed_tasks = server.allocate_resources(action_weights, self.state.time_step)
-                next_server_tasks[server] = unfinished_tasks
-                rewards[server] = completed_tasks
+                if self.state.server_tasks[server]:
+                    unfinished_tasks, completed_tasks = server.allocate_resources(action_weights, self.state.time_step)
+                    next_server_tasks[server] = unfinished_tasks
+                    rewards[server] = completed_tasks
 
             next_state = EnvState(next_server_tasks, self.next_auction_task(), self.state.time_step + 1)
 
         self.state = next_state
         return self.state, rewards, self.state.time_step == self.total_time_steps, info
-
-    def _assert_auction_actions(self, actions):
-        pass
-
-    def _assert_resource_allocation_actions(self, actions):
-        pass
 
     def __str__(self) -> str:
         if self.total_time_steps == 0:
