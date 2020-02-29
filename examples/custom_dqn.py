@@ -25,7 +25,7 @@ class DQN(Model):
         self.layer2 = Dense(64, activation='relu')
         self.value = Dense(num_action)
 
-    def call(self, state):
+    def call(self, state, **kwargs):
         layer1 = self.layer1(state)
         layer2 = self.layer2(layer1)
         value = self.value(layer2)
@@ -98,6 +98,7 @@ class DQNtrain:
             target_val = np.array(target_val)
 
             for i in range(self.batch_size):
+                # noinspection PyArgumentList
                 next_v = np.array(target_val[i]).max()
                 if dones[i]:
                     target[i][actions[i]] = rewards[i]

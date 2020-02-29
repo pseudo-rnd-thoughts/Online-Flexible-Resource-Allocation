@@ -74,7 +74,8 @@ class Server(NamedTuple):
 
         return unfinished_tasks, completed_tasks
 
-    def allocate_compute_resources(self, compute_weights: Dict[Task, float], available_computation: float, time_step: int) -> Dict[Task, Tuple[float, float, float]]:
+    @staticmethod
+    def allocate_compute_resources(compute_weights: Dict[Task, float], available_computation: float, time_step: int) -> Dict[Task, Tuple[float, float, float]]:
         """
         Allocate computational resources to tasks
         :param compute_weights: A dictionary of tasks (at computing stage) to weightings
@@ -126,7 +127,8 @@ class Server(NamedTuple):
 
         return task_resource_usage
 
-    def allocate_bandwidth_resources(self, loading_weights: Dict[Task, float], sending_weights: Dict[Task, float],
+    @staticmethod
+    def allocate_bandwidth_resources(loading_weights: Dict[Task, float], sending_weights: Dict[Task, float],
                                      available_storage: float, available_bandwidth: float,
                                      time_step: int) -> Dict[Task, Tuple[float, float, float]]:
         """

@@ -25,5 +25,6 @@ class EnvState(NamedTuple):
                f'\tAuction Task -> {auction_task_str}\n' \
                f'\tServers -> {server_tasks_str}'
 
+    # noinspection PyUnusedLocal
     def _repr_pretty_(self, p, cycle):
         p.text(self.__str__())

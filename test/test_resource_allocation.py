@@ -35,7 +35,7 @@ def test_allocate_compute_resources():
 def test_allocate_bandwidth_resources():
     tasks = [
         Task('Test 1', 56.0, 55.0, 15.0, 0, 9, stage=TaskStage.LOADING, loading_progress=15),
-        Task('Test 2', 75.0, 39.0, 18.0, 0, 12,stage=TaskStage.LOADING, loading_progress=50),
+        Task('Test 2', 75.0, 39.0, 18.0, 0, 12, stage=TaskStage.LOADING, loading_progress=50),
         Task('Test 3', 52.0, 30.0, 26.0, 0, 9, stage=TaskStage.LOADING, loading_progress=25),
         Task('Test 4', 60.0, 52.0, 18.0, 0, 12, stage=TaskStage.SENDING, loading_progress=60.0, compute_progress=52.0),
         Task('Test 5', 57.0, 56.0, 15.0, 0, 10, stage=TaskStage.SENDING, loading_progress=57.0, compute_progress=56.0, sending_progress=10.0),

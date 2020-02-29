@@ -38,7 +38,8 @@ def load_environment(filename: str) -> OnlineFlexibleResourceAllocationEnv:
         # Load the servers list
         servers: List[Server] = [
             Server(name=server_data['name'], storage_cap=server_data['storage capacity'],
-                   comp_cap=server_data['computational capacity'], bandwidth_cap=server_data['bandwidth capacity'])
+                   computational_comp=server_data['computational capacity'],
+                   bandwidth_cap=server_data['bandwidth capacity'])
             for server_data in json_data['servers']
         ]
 

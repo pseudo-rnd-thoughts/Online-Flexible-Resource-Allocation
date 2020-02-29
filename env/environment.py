@@ -7,7 +7,7 @@ from __future__ import annotations
 import operator
 import random as rnd
 from math import inf
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from copy import deepcopy as copy
 
 from env.env_state import EnvState
@@ -54,7 +54,10 @@ class OnlineFlexibleResourceAllocationEnv:
             return OnlineFlexibleResourceAllocationEnv([settings])
 
     def reset(self) -> EnvState:
-        # regenerate the environment based on one of the random environment settings saved
+        """
+        Resets the environment using one of the environment settings that is randomly chosen
+        :return: The new environment state
+        """
         assert len(self.environment_settings) > 0
 
         # Select the env setting and load the environment settings
@@ -74,26 +77,41 @@ class OnlineFlexibleResourceAllocationEnv:
 
         return self.state
 
-    def next_auction_task(self):
+    def next_auction_task(self) -> Optional[Task]:
+        """
+        Gets the next auction task if a task with auction time == current time step exists in the unallocated tasks
+        :return: The auction task
+        """
         return self.unallocated_tasks.pop(0) if self.unallocated_tasks and self.unallocated_tasks[0].auction_time == self.state.time_step else None
 
     def step(self, actions: Dict[Server, Union[float, Dict[Task, float]]]) -> Tuple[EnvState, Dict[Server, Union[float, List[Task]]], bool, Dict[str, str]]:
+        """
+        An environment step that is either an auction step or a resource allocation step
+        :param actions: The actions can be for auction or resource allocation meaning the data structure changes
+        :return: A tuple of environment state, rewards, if done and information
+        """
         info: Dict[str, str] = {}
 
         # If there is an auction task then the actions must be auction
         if self.state.auction_task is not None:  # Auction action = Dict[Server, float])
             info['step type'] = 'auction'
 
+            # Vickrey auction, the server wins with the minimum price but only pays the second minimum price
+            #  If multiple servers all price the same price then the server pays the minimum price (not second minimum price)
             min_price, min_servers, second_min_price = inf, [], inf
             for server, price in actions.items():
-                if price > 0:
+                if price > 0:  # If the price is zero, then the bid is ignored
                     if price < min_price:
                         min_price, min_servers, second_min_price = price, [server], second_min_price
                     elif price == min_price:
                         min_servers.append(server)
 
+            # Creates the next environment state by copying the server task info, get the next auction task and the time step doesnt change
             next_state: EnvState = EnvState(copy(self.state.server_tasks), self.next_auction_task(), self.state.time_step)
+            # The reward dictionary of server to price (this is only for the server that won)
             rewards: Dict[Server, float] = {}
+
+            # Select the winning server and update the next state with the auction task
             if min_servers:
                 winning_server: Server = rnd.choice(min_servers)
                 info['min price servers'] = f"[{', '.join(server.name for server in min_servers)}]"
@@ -102,32 +120,33 @@ class OnlineFlexibleResourceAllocationEnv:
                 info['winning server'] = winning_server.name
 
                 if min_servers:
-                    if len(min_servers) == 1 and second_min_price < inf:
-                        rewards[winning_server] = second_min_price
-                        next_state.server_tasks[winning_server].append(
-                            self.state.auction_task._replace(stage=TaskStage.LOADING, price=second_min_price))
-                    else:
-                        rewards[winning_server] = min_price
-                        next_state.server_tasks[winning_server].append(
-                            self.state.auction_task._replace(stage=TaskStage.LOADING, price=min_price))
+                    price = second_min_price if len(min_servers) == 1 and second_min_price < inf else min_price
+                    rewards[winning_server] = price
+                    next_state.server_tasks[winning_server].append(self.state.auction_task._replace(stage=TaskStage.LOADING, price=price))
             else:
-                info['min servers'] = 'failed'
+                info['min servers'] = 'failed, no server won'
 
         else:
             # Resource allocation (Action = Dict[Server, Dict[Task, float]])
             # Convert weights to resources
             info['step type'] = 'resource allocation'
 
+            # The updated server tasks and the resulting rewards
             next_server_tasks: Dict[Server, List[Task]] = {}
             rewards: Dict[Server, List[Task]] = {}
-            for server, action_weights in actions.items():
+
+            # For each server, if the server has tasks then allocate resources using the task weights
+            for server, task_resource_weights in actions.items():
                 if self.state.server_tasks[server]:
-                    unfinished_tasks, completed_tasks = server.allocate_resources(action_weights, self.state.time_step)
+                    # Allocate resources returns two lists, one of unfinished tasks and the other of finished tasks
+                    unfinished_tasks, completed_tasks = server.allocate_resources(task_resource_weights, self.state.time_step)
                     next_server_tasks[server] = unfinished_tasks
                     rewards[server] = completed_tasks
 
+            # The updated state
             next_state = EnvState(next_server_tasks, self.next_auction_task(), self.state.time_step + 1)
 
+        # Update the state, and return the next state, the action rewards, if done and any additional info
         self.state = next_state
         return self.state, rewards, self.state.time_step == self.total_time_steps, info
 
@@ -138,5 +157,6 @@ class OnlineFlexibleResourceAllocationEnv:
             unallocated_task_str = '\n\t'.join([task.__str__() for task in self.unallocated_tasks])
             return f'{self.state.__str__()}\nUnallocated tasks\n\t{unallocated_task_str}\n'
 
+    # noinspection PyUnusedLocal
     def _repr_pretty_(self, p, cycle):
         p.text(self.__str__())
