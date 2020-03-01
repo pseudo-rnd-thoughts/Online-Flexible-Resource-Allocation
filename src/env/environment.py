@@ -68,9 +68,8 @@ class OnlineFlexibleResourceAllocationEnv:
         self.env_setting = env_setting
         self.env_name = env_name
 
-        self.total_time_steps = new_total_time_steps
-
         # Current state
+        self.total_time_steps = new_total_time_steps
         self.unallocated_tasks: List[Task] = sorted(new_tasks, key=operator.attrgetter('auction_time'))
         auction_task = self.unallocated_tasks.pop(0) if self.unallocated_tasks[0].auction_time == 0 else None
         self.state = EnvState({server: [] for server in new_servers}, auction_task, 0)
