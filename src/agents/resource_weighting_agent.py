@@ -24,7 +24,8 @@ class ResourceWeightingAgent(DqnAgent):
     """Resource weighting agent using a resource weighting network"""
 
     def __init__(self, name: str, num_weights: int = 10, discount_other_task_reward: float = 0.2,
-                 successful_task_reward: float = 1, failed_task_reward: float = -2, task_multiplier: float = 2.0):
+                 successful_task_reward: float = 1, failed_task_reward: float = -2,
+                 task_multiplier: float = 2.0):
         super().__init__(name, ResourceWeightingNetwork, num_weights)
 
         self.discount_other_task_reward = discount_other_task_reward
@@ -40,7 +41,7 @@ class ResourceWeightingAgent(DqnAgent):
         :param other_tasks: The other tasks to consider
         :param server: The server of the tasks
         :param time_step: The current time step
-        :param greedy_policy: If to get the policy greedly
+        :param greedy_policy: If to get the policy greedy
         :return: The action weight
         """
         if other_tasks:
@@ -60,32 +61,23 @@ class ResourceWeightingAgent(DqnAgent):
 
     @staticmethod
     def network_observation(task: Task, other_tasks: List[Task], server: Server, time_step: int):
-        """
-        The network observation
-        :param task: The weighting task
-        :param other_tasks: The other tasks
-        :param server: The allocated server
-        :param time_step: The current time step
-        :return: Network observation
-        """
+        assert any(_task != task for _task in other_tasks)
+
         task_observation = task.normalise(server, time_step)
         observation = np.array([[
             task_observation + task.normalise(server, time_step)
-            for task in other_tasks
+            for task in other_tasks if other_tasks != task
         ]]).astype(np.float32)
 
         return observation
 
-    def add_incomplete_task_observation(self, observation: np.Array, action: float,
-                                        next_observation: Optional[np.Array], rewards: List[Task]):
-        reward = sum(
-            self.successful_task_reward if reward_task.stage is TaskStage.COMPLETED else self.failed_task_reward
-            for reward_task in rewards)
+    def add_incomplete_task_observation(self, observation: np.Array, action: float, next_observation: Optional[np.Array], rewards: List[Task]):
+        reward = sum(self.successful_task_reward if reward_task.stage is TaskStage.COMPLETED else self.failed_task_reward
+                     for reward_task in rewards)
 
         self.replay_buffer.append(Trajectory(observation, action, reward, next_observation))
 
-    def add_finished_task(self, observation: np.Array, action: float, finished_task: Optional[np.Array],
-                          rewards: List[Task]):
+    def add_finished_task(self, observation: np.Array, action: float, finished_task: Task, rewards: List[Task]):
         reward = self.successful_task_reward * self.task_multiplier if finished_task.stage is TaskStage.COMPLETED else \
             self.failed_task_reward * self.task_multiplier
         for reward_task in rewards:
