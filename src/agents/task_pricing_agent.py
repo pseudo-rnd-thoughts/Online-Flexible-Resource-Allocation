@@ -71,4 +71,7 @@ class TaskPricingAgent(DqnAgent):
         self.replay_buffer.append(Trajectory(observation, action, reward, next_observation))
 
     def add_failed_auction_task(self, observation: np.Array, action: float, next_observation: np.Array):
-        self.replay_buffer.append(Trajectory(observation, action, self.failed_auction_reward, next_observation))
+        if action == 0:
+            self.replay_buffer.append(Trajectory(observation, action, 0, next_observation))
+        else:
+            self.replay_buffer.append(Trajectory(observation, action, self.failed_auction_reward, next_observation))
