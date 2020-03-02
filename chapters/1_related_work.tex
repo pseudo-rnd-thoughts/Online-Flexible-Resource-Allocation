@@ -1,14 +1,16 @@
-\chapter{Related Work}\label{ch:background-literature} %% TODO Rewrite completely
+\chapter{Related Work}\label{ch:background-literature}
 Due to the novel approach for resource allocation in cloud computing, there are few papers that consider flexible
 resource allocation. However there is a considerable amount of research in the area of resource allocation and
 pricing in cloud computing, some of which use auction mechanisms to deal with
-competition~\cite{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
+competition~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
 
-In Section~\ref{sec:related-work-cloud-computing} considers the previously related work for flexible resource
-allocation in cloud computing and Section~\ref{sec:related-work-reinforcement-learning} consider recent
-work in the field of reinforcement learning.
+Section~\ref{sec:related-work-in-cloud-computing} considers the related work in pricing and resource allocation in
+edge cloud computing and how this project builds upon it providing novel advancements.
+Section~\ref{sec:related-work-in-machine-learning} considers the recent work in the field of machine learning,
+din particular reinforcement learning. This is important as it relates to the proposed solution and how this
+project aims to solve the optimisation problem in section~\ref{sec:optimisation-problem}.
 
-\section{Related Work in Cloud Computing}\label{sec:related-work-in-cloud-computing}
+\section{Related Work in Cloud Computing}\label{sec:related-work-in-cloud-computing} %% Todo rewrite
 A majority of the approaches for pricing and resource allocation in cloud computing require users to request a
 fixed amount of certain resource with the cloud provider having no control over the resources only the servers that the
 task was allocated to~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}. The flexible approach that this project
@@ -35,4 +37,5 @@ code/data needed to run a specific task, as well as the scheduling of tasks to d
 is to maximize the expected rate of successfully accomplished tasks over time. Our work is different both in the setup
 and the objective function. Our objective is to maximize the value over all tasks. In terms of the setup, they assume
 that data/code can be shared and they do not consider the elasticity of resources.
-\section{Related Work in Machine Learning}\label{sec:related-work-in-machine-learning}
+
+\section{Related Work in Machine Learning}\label{sec:related-work-in-machine-learning}  %% Todo write

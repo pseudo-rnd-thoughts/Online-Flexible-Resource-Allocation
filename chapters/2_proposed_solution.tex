@@ -1,9 +1,24 @@
+%! Suppress = MissingImport
 \chapter{Proposed Solution to problem}\label{ch:proposed-solution-to-problem}
-The problem case presented in Chapter~\ref{ch:introduction} has two stages: auction and resource allocation.
-These stages are discussed in sections~\ref{sec:auction_solution} and~\ref{sec:resource_allocation}
-respectively.
+In chapter~\ref{ch:project-problem}, the program case was outlined describing the general idea and reasoning for the
+project. This chapter builds upon that giving a mathematical description of the problem (\ref{sec:optimisation-problem}),
+which allows the problem to be separated into two sub-problems: task auctioning (sections~\ref{sec:task-auctioning})
+and resource allocation (\ref{sec:resource-allocation-solution}) that are each discussed with solution proposed.
 
 \section{Optimisation problem}\label{sec:optimisation-problem}
+%% Todo not sure how to start this section
+%% The information that I wish to transfer is:
+
+%% Todo add this section somewhere
+The principle of flexibility for resource allocation, that is described in chapter~\ref{ch:project-problem}, is that
+for certain resources, the time taken for an operation to occur, e.g.\ loading of a program, computing the program and
+sending of results, etc, is proportional to the amount of resources allocated to completed the operation.
+\footnote{This principle is not always true, for example, video decompression is a generally a single
+thread operation thus this assumption doesnt work. However for this project we only consider operations that can be
+parallelised effectively.}
+Using this principle, a modified version of a standard resource allocation formulation can be described.
+
+%% Todo original text
 A sketch of the system is shown in Fig.~\ref{fig:system_model}.
 We assume that in the system there is a set of $I = \{1,2,\ldots,\left|I\right|\}$ servers are heterogeneous in all
 characters. Each server has a fixed availability of resources: storage for the code/data needed to run a task
@@ -13,7 +28,7 @@ We denote these resources for server $i$: the storage capacity as $S_i$, computa
 
 \begin{figure}
     \centering
-    \includegraphics{extra/system_model.pdf}
+    \includegraphics{figures/system_model.pdf}
     \caption{System model}
     \label{fig:system_model}
 \end{figure}
@@ -64,7 +79,7 @@ the future supply and demand for tasks and the resource requirements of currentl
 in creating a heuristic that can accurately use this information and the amount of memory required for a table based
 approach. Because of this, a long/short term memory (LSTM) will be implemented~\citep{LSTM}  for evaluating the price
 of a task. The justified for the use of this network over other neural network models is explained in
-Section~\ref{sec:auction_justification}. The network would take as input, the currently
+Section~\ref{sec:justification-for-task-auctioning}. The network would take as input, the currently
 allocated tasks requirements, the possible task requirements and the server resource capacity, outputting just a single
 value representing the price of the task, normalised between 0 and 100.
 
@@ -77,12 +92,11 @@ Therefore at each time step, a server needs to reallocate all of its resource to
 some tasks will have completely one of its stages.
 
 In order to select how to allocate resource to tasks, this problem doesn't seem as complex as the pricing in
-section~\ref{sec:auction_solution} therefore simple heuristic and long/short term memory neural network will be
-implemented and compared. This is justified in section~\ref{sec:just_resource_allocation}. The LSTM will take as input, all of
+section~\ref{sec:task-auctioning} therefore simple heuristic and long/short term memory neural network will be
+implemented and compared. This is justified in section~\ref{sec:justification-for-task-auctioning}. The LSTM will take as input, all of
 the currently allocated tasks that are at a particular stages resource requirements and the task's resource requirement
 returning a single value between 1 to 100. Once this is completed for each job, the percentage of the total values will
 be assigned to each task.
 
 \section{Environment problem}\label{sec:markov-decision-process-description}
-%% TODO
-
+%% Todo write about MDP

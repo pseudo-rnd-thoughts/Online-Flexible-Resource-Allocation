@@ -1,6 +1,6 @@
 \chapter{Justification of the solution}\label{ch:justification-of-the-solution}
-The proposed solution in Chapter~\ref{ch:proposed_solution} as two parts explained in
-section~\ref{sec:auction_solution} and \ref{sec:resource_allocation}. This chapter explains the reason for why each
+The proposed solution in Chapter~\ref{ch:proposed-solution-to-problem} as two parts explained in
+section~\ref{sec:task-auctioning} and~\ref{sec:resource-allocation-solution}. This chapter explains the reason for why each
 section is being solved in its particular way.
 
 As the approaches to pricing and resource allocation heuristics are using neural networks to find the optimal function,
@@ -42,7 +42,7 @@ table~\ref{tab:neural_network_description} has a description of how the networks
 \end{longtable}
 
 \section{Justification for Task Auctioning}\label{sec:justification-for-task-auctioning}
-The auction stage (discussed in Section~\ref{sec:auction_solution}) has two considerations, the auction type and the pricing method.
+The auction stage (discussed in Section~\ref{sec:task-auctioning}) has two considerations, the auction type and the pricing method.
 
 In auction theory, there are numerous types of auctions that have different properties and uses in different areas.
 The area in which this project is interested in is single indivisible items as while the item has multiple resource
@@ -107,8 +107,8 @@ to show that a reverse Vickrey auction is still incentive compatible.
 
 The second part of the auction solution is the pricing heuristic. I believe that the pricing heuristic would be too complex to encoded into
 an algorithm if by hand due its need to understand: future resource allocation of currently allocated jobs and the resource requirements
-of the task. Therefore due to neural network being able to approximate any function \citep{csaji2001approximation} and reinforcement learning
-methods to training without truth data (Section~\ref{sec:related-work-reinforcement-learning}). I have outlined in Table~\ref{tab:neural_network_description} the properties of popular neural
+of the task. Therefore due to neural network being able to approximate any function~\citep{csaji2001approximation} and reinforcement learning
+methods to training without truth data (Section~\ref{sec:related-work-in-machine-learning}). I have outlined in Table~\ref{tab:neural_network_description} the properties of popular neural
 network architectures that would allow for a variable amount of inputs (except for ANN). This is due to having to input to the network
 the currently allocated tasks to a server that till compute time is of unknown length. Of the available architecture, I predict the
 Long/Short term memory model is the simplest model that will require the least training but still with the complexity to encode the
@@ -119,7 +119,7 @@ they are possibly not complex enough for the pricing heuristic.
 
 \section{Justification for Resource allocation}\label{sec:justification-for-resource-allocation}
 The justification for the resource allocation neural network choice is very similar justification to the previous section
-(section~\ref{sec:auction_justification}). Long/short term memory architecture should be complex enough for the resource allocation
+(section~\ref{sec:justification-for-task-auctioning}). Long/short term memory architecture should be complex enough for the resource allocation
 but it is possible that the abilily to use external storage of Neural Turing machine and Differentiable Neural network to store the
 allocation of resource to previous tasks. But I don't believe that this additional complexity will allow for the heuristic to do
 later better but it could be investigated in future work.
