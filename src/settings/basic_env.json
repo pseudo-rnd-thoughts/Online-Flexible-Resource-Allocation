@@ -1,7 +1,7 @@
 {
   "name": "Basic",
 
-  "min total time steps": 50, "max total time steps": 65,
+  "min total time steps": 60, "max total time steps": 75,
 
   "min total servers": 3, "max total servers": 6,
   "server settings": [
@@ -13,7 +13,7 @@
     }
   ],
 
-  "min total tasks": 100, "max total tasks": 140,
+  "min total tasks": 100, "max total tasks": 135,
   "task settings": [
     {
       "name": "Basic",
