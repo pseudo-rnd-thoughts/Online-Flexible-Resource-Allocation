@@ -64,6 +64,9 @@ class OnlineFlexibleResourceAllocationEnv:
         env_setting: str = rnd.choice(self.environment_settings)
         env_name, new_servers, new_tasks, new_total_time_steps = env_io.load_setting(env_setting)
 
+        assert len(new_tasks) > 0
+        assert len(new_servers) > 0
+
         # Update the environment variables
         self.env_setting = env_setting
         self.env_name = env_name
@@ -76,12 +79,16 @@ class OnlineFlexibleResourceAllocationEnv:
 
         return self.state
 
-    def next_auction_task(self) -> Optional[Task]:
+    def next_auction_task(self, time_step: int) -> Optional[Task]:
         """
         Gets the next auction task if a task with auction time == current time step exists in the unallocated tasks
         :return: The auction task
         """
-        return self.unallocated_tasks.pop(0) if self.unallocated_tasks and self.unallocated_tasks[0].auction_time == self.state.time_step else None
+        assert time_step >= 0
+        if self.unallocated_tasks:
+            assert self.unallocated_tasks[0].auction_time >= time_step, \
+                f'Top unallocated task auction time {self.unallocated_tasks[0].auction_time} at time step: {time_step}'
+            return self.unallocated_tasks.pop(0) if self.unallocated_tasks[0].auction_time == time_step else None
 
     def step(self, actions: Dict[Server, Union[float, Dict[Task, float]]]) -> Tuple[EnvState, Dict[Server, Union[float, List[Task]]], bool, Dict[str, str]]:
         """
@@ -106,7 +113,9 @@ class OnlineFlexibleResourceAllocationEnv:
                         min_servers.append(server)
 
             # Creates the next environment state by copying the server task info, get the next auction task and the time step doesnt change
-            next_state: EnvState = EnvState(copy(self.state.server_tasks), self.next_auction_task(), self.state.time_step)
+            next_state: EnvState = EnvState(copy(self.state.server_tasks),
+                                            self.next_auction_task(self.state.time_step),
+                                            self.state.time_step)
             # The reward dictionary of server to price (this is only for the server that won)
             rewards: Dict[Server, float] = {}
 
@@ -118,6 +127,7 @@ class OnlineFlexibleResourceAllocationEnv:
                 info['second min price'] = str(second_min_price)
                 info['winning server'] = winning_server.name
 
+                # Update the next state servers with the auction task
                 if min_servers:
                     price = second_min_price if len(min_servers) == 1 and second_min_price < inf else min_price
                     rewards[winning_server] = price
@@ -141,13 +151,20 @@ class OnlineFlexibleResourceAllocationEnv:
                     unfinished_tasks, completed_tasks = server.allocate_resources(task_resource_weights, self.state.time_step)
                     next_server_tasks[server] = unfinished_tasks
                     rewards[server] = completed_tasks
+                else:
+                    next_server_tasks[server] = []
 
             # The updated state
-            next_state = EnvState(next_server_tasks, self.next_auction_task(), self.state.time_step + 1)
+            next_state = EnvState(next_server_tasks,
+                                  self.next_auction_task(self.state.time_step + 1),
+                                  self.state.time_step + 1)
 
         # Update the state, and return the next state, the action rewards, if done and any additional info
+        assert all(server in next_state.server_tasks.keys() for server in self.state.server_tasks.keys())
+        assert all(id(task) != id(_task) for server, state_tasks in self.state.server_tasks.items()
+                   for task in state_tasks for _task in next_state.server_tasks[server])
         self.state = next_state
-        return self.state, rewards, self.state.time_step == self.total_time_steps, info
+        return self.state, rewards, self.total_time_steps < self.state.time_step, info
 
     def __str__(self) -> str:
         if self.total_time_steps == 0:
