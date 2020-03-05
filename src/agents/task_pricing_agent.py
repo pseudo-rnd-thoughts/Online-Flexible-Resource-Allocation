@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 class TaskPricingAgent(DqnAgent):
     """Task pricing agent"""
 
-    def __init__(self, name: str, num_prices: int = 26,
+    def __init__(self, name: str, num_prices: int = 11,
                  discount_factor: float = 0.9, failed_auction_reward: float = -0.1, greedy_policy: bool = True,
                  failed_reward_multiplier: float = 1.5):
         super().__init__(name, TaskPricingNetwork, num_prices)
@@ -48,12 +48,15 @@ class TaskPricingAgent(DqnAgent):
         observation = self.network_observation(auction_task, allocated_tasks, server, time_step)
 
         if self.greedy_policy and rnd.random() < self.epsilon:
-            action = rnd.randint(0, self.num_outputs)
+            action = rnd.randint(0, self.num_outputs-1)
             log.debug(f'\t{self.name} TPA - {server.name} Server has greedy action: {action}')
+            assert 0 <= action < self.num_outputs, 'greedy'
         else:
             action_q_values = self.network_model.call(observation)
+            assert len(action_q_values[0]) == self.num_outputs
             action = np.argmax(action_q_values)
             log.debug(f'\t{self.name} TPA - {server.name} Server has argmax action: {action}')
+            assert 0 <= action < self.num_outputs, 'argmax'
 
         return action
 
@@ -67,10 +70,19 @@ class TaskPricingAgent(DqnAgent):
         return observation
 
     def add_finished_task(self, observation: np.Array, action: float, reward_task: Task, next_observation: np.Array):
+        assert all(len(ob) == self.network_model.input_width for ob in observation[0])
+        assert 0 <= action < self.num_outputs, action
+        assert reward_task.stage is TaskStage.COMPLETED or reward_task.stage is TaskStage.FAILED
+        assert next_observation is None or all(len(ob) == self.network_model.input_width for ob in next_observation[0]), next_observation
+
         reward = reward_task.price if reward_task.stage is TaskStage.COMPLETED else self.failed_reward_multiplier * reward_task.price
         self.replay_buffer.append(Trajectory(observation, action, reward, next_observation))
 
     def add_failed_auction_task(self, observation: np.Array, action: float, next_observation: np.Array):
+        assert all(len(ob) == self.network_model.input_width for ob in observation[0])
+        assert 0 <= action < self.num_outputs, action
+        assert next_observation is None or all(len(ob) == self.network_model.input_width for ob in next_observation[0]), next_observation
+
         if action == 0:
             self.replay_buffer.append(Trajectory(observation, action, 0, next_observation))
         else:
