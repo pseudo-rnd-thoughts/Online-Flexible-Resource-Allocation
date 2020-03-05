@@ -31,8 +31,8 @@ class DqnAgent:
         self.epsilon_min: float = epsilon_min
         self.epsilon_decay: float = epsilon_decay
 
-        self.network_model: tf.keras.Model = neural_network(num_outputs)
-        self.network_target: tf.keras.Model = neural_network(num_outputs)
+        self.network_model: tf.keras.Model = neural_network(num_outputs=num_outputs)
+        self.network_target: tf.keras.Model = neural_network(num_outputs=num_outputs)
         self.network_target.set_weights(self.network_model.get_weights())
 
         self.optimiser = tf.keras.optimizers.RMSprop(lr=learning_rate)
@@ -42,6 +42,7 @@ class DqnAgent:
         Trains the agent using an experience replay buffer and a target number
         Example:
         """
+        log.info(f'Training of {self.name} agent, experience replay length: {len(self.replay_buffer)}')
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
 
         network_variables = self.network_model.trainable_variables
@@ -54,7 +55,7 @@ class DqnAgent:
                 observation, action, reward, next_observation = trajectory
                 target_values[pos] = self.network_model(observation)
 
-                if next_observation:
+                if next_observation is not None:
                     max_next_value = np.max(self.network_target(next_observation))
                     target_values[pos][action] = reward + self.discount_factor * max_next_value - target_values[pos][
                         action]
