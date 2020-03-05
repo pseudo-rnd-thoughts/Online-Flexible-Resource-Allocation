@@ -1,3 +1,5 @@
+"""Task pricing network"""
+
 from __future__ import annotations
 
 import tensorflow as tf
@@ -6,10 +8,13 @@ import tensorflow as tf
 class TaskPricingNetwork(tf.keras.Model):
     """Task Pricing network with a LSTM layer, ReLU layer and Linear layer"""
 
+    input_width = 9
+
     def __init__(self, lstm_connections: int = 10, relu_connections: int = 20, num_outputs: int = 25):
         super().__init__()
 
-        self.task_layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(lstm_connections), input_shape=[None, 9])
+        self.task_layer = tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(lstm_connections),
+                                                        input_shape=[None, self.input_width])
         self.relu_layer = tf.keras.layers.Dense(relu_connections, activation='relu')
         self.q_layer = tf.keras.layers.Dense(num_outputs, activation='linear')
 
