@@ -55,5 +55,5 @@ def load_environment(filename: str) -> OnlineFlexibleResourceAllocationEnv:
     env.env_name = name
     env.total_time_steps = total_time_steps
     env.unallocated_tasks = sorted(tasks, key=operator.attrgetter('auction_time'))
-    env.state = EnvState({server: [] for server in servers}, env.next_auction_task(), 0)
+    env.state = EnvState({server: [] for server in servers}, env.next_auction_task(0), 0)
     return env

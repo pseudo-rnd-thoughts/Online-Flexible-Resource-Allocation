@@ -22,14 +22,12 @@ if TYPE_CHECKING:
 class TaskPricingAgent(DqnAgent):
     """Task pricing agent"""
 
-    def __init__(self, name: str, num_prices: int = 11,
-                 discount_factor: float = 0.9, failed_auction_reward: float = -0.1, greedy_policy: bool = True,
-                 failed_reward_multiplier: float = 1.5):
+    def __init__(self, name: str, num_prices: int = 11, discount_factor: float = 0.9,
+                 failed_auction_reward: float = -0.1, failed_reward_multiplier: float = 1.5):
         super().__init__(name, TaskPricingNetwork, num_prices)
 
         self.discount_factor = discount_factor
         self.failed_auction_reward = failed_auction_reward
-        self.greedy_policy = greedy_policy
         self.failed_reward_multiplier = failed_reward_multiplier
 
     def __str__(self) -> str:

@@ -37,33 +37,40 @@ class DqnAgent:
 
         self.optimiser = tf.keras.optimizers.RMSprop(lr=learning_rate)
 
+        self.greedy_policy: bool = True
+
     def train(self):
         """
-        Trains the agent using an experience replay buffer and a target number
-        Example:
+        Trains the agent using an experience replay buffer and a target model
         """
         log.info(f'Training of {self.name} agent, experience replay length: {len(self.replay_buffer)}')
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.epsilon_min)
+        log.debug(f'Updated epsilon to {self.epsilon}')
 
         network_variables = self.network_model.trainable_variables
         with tf.GradientTape() as tape:
             tape.watch(network_variables)
 
-            target_values = np.zeros((self.minibatch_size, self.num_outputs))
+            model_val = np.zeros((self.minibatch_size, self.num_outputs))
+            target_val = np.zeros((self.minibatch_size, self.num_outputs))
+
             minibatch = rnd.sample(self.replay_buffer, self.minibatch_size)
             for pos, trajectory in enumerate(minibatch):
                 observation, action, reward, next_observation = trajectory
-                target_values[pos] = self.network_model(observation)
+
+                model_val[pos] = np.array(self.network_model(observation))
+                target_val[pos] = np.array(self.network_model(observation))
 
                 if next_observation is not None:
                     max_next_value = np.max(self.network_target(next_observation))
-                    target_values[pos][action] = reward + self.discount_factor * max_next_value - target_values[pos][
-                        action]
+                    model_val[pos][action] = reward + self.discount_factor * max_next_value
                 else:
-                    target_values[pos][action] = reward - target_values[pos][action]
+                    model_val[pos][action] = reward
 
-            error = tf.reduce_mean(0.5 * tf.square(target_values))
+            error = tf.square(target_val - model_val)
+            error = tf.reduce_mean(0.5 * error)
 
         log.warning(f'Training {self.name} agent with error {error}')
         network_gradients = tape.gradient(error, network_variables)
+        log.warning(f'Network gradients are {network_gradients}')
         self.optimiser.apply_gradients(zip(network_gradients, network_variables))

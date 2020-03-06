@@ -33,26 +33,24 @@ class ResourceWeightingAgent(DqnAgent):
         self.failed_task_reward = failed_task_reward
         self.task_multiplier = task_multiplier
 
-    def weight(self, task: Task, other_tasks: List[Task], server: Server, time_step: int,
-               greedy_policy: bool = True) -> float:
+    def weight(self, task: Task, other_tasks: List[Task], server: Server, time_step: int) -> float:
         """
         Get the action weight for the task
         :param task: The task to calculate the weight for
         :param other_tasks: The other tasks to consider
         :param server: The server of the tasks
         :param time_step: The current time step
-        :param greedy_policy: If to get the policy greedy
         :return: The action weight
         """
         if len(other_tasks) > 1:
             observation = self.network_observation(task, other_tasks, server, time_step)
 
-            if greedy_policy and rnd.random() < self.epsilon:
+            if self.greedy_policy and rnd.random() < self.epsilon:
                 action = rnd.randint(1, self.num_outputs)
                 log.debug(f'\t{self.name} RWA - {server.name} Server and {task.name} Task has greedy action: {action}')
                 assert 0 < action <= self.num_outputs, 'greedy'
             else:
-                action_q_values = self.network_model.call(observation)
+                action_q_values = self.network_model(observation)
                 assert len(action_q_values[0]) == self.num_outputs, f'{str(action_q_values)} {self.num_outputs} {len(action_q_values)}'
                 action = np.argmax(action_q_values) + 1
                 log.debug(f'\t{self.name} TPA - {server.name} Server and {task.name} Task has argmax action: {action}')

@@ -184,6 +184,11 @@ def eval_env(training_envs: List[str], task_pricing_agents: List[TaskPricingAgen
     log.warning('Evaluate environments')
     total_price, num_completed_tasks, num_failed_tasks = 0, 0, 0
 
+    for task_pricing_agent in task_pricing_agents:
+        task_pricing_agent.greedy_policy = False
+    for resource_weighting_agent in resource_weighting_agents:
+        resource_weighting_agent.greedy_policy = False
+
     for training_env in training_envs:
         log.info(f'Training env: {training_env}')
         env = env_settings_io.load_environment(training_env)
@@ -194,6 +199,11 @@ def eval_env(training_envs: List[str], task_pricing_agents: List[TaskPricingAgen
         total_price += env_total_price
         num_completed_tasks += env_num_completed_tasks
         num_failed_tasks += env_num_failed_tasks
+
+    for task_pricing_agent in task_pricing_agents:
+        task_pricing_agent.greedy_policy = True
+    for resource_weighting_agent in resource_weighting_agents:
+        resource_weighting_agent.greedy_policy = True
 
     log.warning(f'Eval - Total price: {total_price}, Completed Tasks: {num_completed_tasks}, Failed Tasks: {num_failed_tasks}')
     plt.plot(total_price, label='Total price')
