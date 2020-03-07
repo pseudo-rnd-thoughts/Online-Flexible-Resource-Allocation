@@ -48,29 +48,31 @@ class DqnAgent:
         log.debug(f'Updated epsilon to {self.epsilon}')
 
         network_variables = self.network_model.trainable_variables
-        with tf.GradientTape() as tape:
-            tape.watch(network_variables)
 
-            model_val = np.zeros((self.minibatch_size, self.num_outputs))
-            target_val = np.zeros((self.minibatch_size, self.num_outputs))
+        minibatch = rnd.sample(self.replay_buffer, 2)
+        gradients = []
+        losses = []
+        for trajectory in minibatch:
+            observation, action, reward, next_observation = trajectory
+            assert 0 <= action < self.num_outputs
 
-            minibatch = rnd.sample(self.replay_buffer, self.minibatch_size)
-            for pos, trajectory in enumerate(minibatch):
-                observation, action, reward, next_observation = trajectory
+            with tf.GradientTape() as tape:
+                tape.watch(network_variables)
 
-                model_val[pos] = np.array(self.network_model(observation))
-                target_val[pos] = np.array(self.network_model(observation))
-
-                if next_observation is not None:
-                    max_next_value = np.max(self.network_target(next_observation))
-                    model_val[pos][action] = reward + self.discount_factor * max_next_value
+                target = np.array(self.network_model(observation))
+                if next_observation is None:
+                    target[0][action] = reward
                 else:
-                    model_val[pos][action] = reward
+                    target[0][action] = reward + np.max(self.network_target(next_observation))
 
-            error = tf.square(target_val - model_val)
-            error = tf.reduce_mean(0.5 * error)
+                loss = tf.square(target - self.network_model(observation))
+                gradients.append(tape.gradient(loss, network_variables))
+                losses.append(tf.reduce_max(loss))
 
-        log.warning(f'Training {self.name} agent with error {error}')
-        network_gradients = tape.gradient(error, network_variables)
-        log.warning(f'Network gradients are {network_gradients}')
-        self.optimiser.apply_gradients(zip(network_gradients, network_variables))
+        total_gradients = [sum(grad[var] for grad in gradients) for var in range(len(gradients[0]))]
+        self.optimiser.apply_gradients(zip(total_gradients, network_variables))
+
+        log.debug(f"Losses: [{', '.join(str(loss) for loss in losses)}]")
+
+    def update_target(self):
+        self.network_target.set_weights(self.network_model.get_weights())
