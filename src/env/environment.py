@@ -27,16 +27,16 @@ class OnlineFlexibleResourceAllocationEnv:
         to maximise the social welfare of the system.
     """
 
-    env_setting: str = ''
-    env_name: str = ''
-
-    unallocated_tasks: List[Task]
-    state: EnvState
-
-    total_time_steps: int = 0
-
     def __init__(self, environment_settings: List[str]):
         self.environment_settings: List[str] = environment_settings
+
+        self.env_setting: str = ''
+        self.env_name: str = ''
+
+        self.unallocated_tasks: List[Task] = []
+        self.state: EnvState = EnvState({}, None, -1)
+
+        self.total_time_steps: int = 0
 
     @staticmethod
     def make(settings: Union[List[str], str]) -> OnlineFlexibleResourceAllocationEnv:
