@@ -82,7 +82,7 @@ class ResourceWeightingAgent(DqnAgent):
 
         reward = sum(self.successful_task_reward if reward_task.stage is TaskStage.COMPLETED else self.failed_task_reward
                      for reward_task in rewards)
-        self.replay_buffer.append(Trajectory(observation, action+1, reward, next_observation))
+        self.replay_buffer.append(Trajectory(observation, action-1, reward, next_observation))
 
     def add_finished_task(self, observation: np.Array, action: float, finished_task: Task, rewards: List[Task]):
         assert all(len(ob) == self.network_model.input_width for ob in observation[0]), observation
@@ -97,4 +97,4 @@ class ResourceWeightingAgent(DqnAgent):
             if reward_task.name != finished_task.name:
                 reward += self.successful_task_reward if reward_task.stage is TaskStage.COMPLETED else self.failed_task_reward
 
-        self.replay_buffer.append(Trajectory(observation, action+1, reward, None))
+        self.replay_buffer.append(Trajectory(observation, action-1, reward, None))
