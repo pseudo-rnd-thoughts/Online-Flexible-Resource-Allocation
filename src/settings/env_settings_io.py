@@ -8,11 +8,11 @@ from typing import TYPE_CHECKING
 
 from env.env_state import EnvState
 from env.environment import OnlineFlexibleResourceAllocationEnv
+from env.server import Server
+from env.task import Task
 
 if TYPE_CHECKING:
     from typing import List
-    from env.server import Server
-    from env.task import Task
 
 
 def load_environment(filename: str) -> OnlineFlexibleResourceAllocationEnv:
