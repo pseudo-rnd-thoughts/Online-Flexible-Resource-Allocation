@@ -134,14 +134,6 @@ def run_env(env: OnlineFlexibleResourceAllocationEnv, server_task_pricing_agents
                         # Update the task pricing agent with the finished auction task
                         server_task_pricing_agents[server].add_finished_task(observation, action, reward_task, next_observation)
 
-                        # Update the global environment variables of the total price, num completed tasks and num failed tasks
-                        if reward_task.stage is TaskStage.COMPLETED:
-                            total_price += reward_task.price
-                            num_completed_tasks += 1
-                        else:
-                            total_price -= reward_task.price
-                            num_failed_tasks += 1
-
                 # Add the experience for the resource allocation agent
                 for server, tasks in state.server_tasks.items():
                     if len(tasks) > 1:
@@ -173,6 +165,16 @@ def run_env(env: OnlineFlexibleResourceAllocationEnv, server_task_pricing_agents
                                 server_resource_allocation_agents[server]. \
                                     add_finished_task(observation, actions[server][task], finished_task, rewards[server])
 
+            # Update the global environment variables of the total price, num completed tasks and num failed tasks
+            for server, reward_tasks in rewards.items():
+                for reward_task in reward_tasks:
+                    if reward_task.stage is TaskStage.COMPLETED:
+                        total_price += reward_task.price
+                        num_completed_tasks += 1
+                    else:
+                        total_price -= reward_task.price
+                        num_failed_tasks += 1
+
             # Update the state with the next state
             state = next_state
     # return the resulting information for the total price, number of completed tasks and number of failed tasks
@@ -181,7 +183,7 @@ def run_env(env: OnlineFlexibleResourceAllocationEnv, server_task_pricing_agents
 
 def eval_env(training_envs: List[str], task_pricing_agents: List[TaskPricingAgent],
              resource_weighting_agents: List[ResourceWeightingAgent]):
-    log.warning('Evaluate environments')
+    log.debug('Evaluate environments')
     total_price, num_completed_tasks, num_failed_tasks = 0, 0, 0
 
     for task_pricing_agent in task_pricing_agents:
@@ -190,12 +192,14 @@ def eval_env(training_envs: List[str], task_pricing_agents: List[TaskPricingAgen
         resource_weighting_agent.greedy_policy = False
 
     for training_env in training_envs:
-        log.info(f'Training env: {training_env}')
         env = env_settings_io.load_environment(training_env)
 
-        server_task_pricing_agents, server_resource_allocation_agents = allocate_agents(_env, task_pricing_agents, resource_weighting_agents)
+        server_task_pricing_agents, server_resource_allocation_agents = allocate_agents(env, task_pricing_agents, resource_weighting_agents)
         env_total_price, env_num_completed_tasks, env_num_failed_tasks = run_env(env, server_task_pricing_agents, server_resource_allocation_agents,
                                                                                  update_agent_experience_replay=False)
+        log.info(f'Training env: {training_env} - Total price: {env_total_price}, '
+                 f'Completed Tasks: {env_num_completed_tasks}, Failed Tasks: {env_num_failed_tasks}')
+
         total_price += env_total_price
         num_completed_tasks += env_num_completed_tasks
         num_failed_tasks += env_num_failed_tasks
@@ -206,15 +210,15 @@ def eval_env(training_envs: List[str], task_pricing_agents: List[TaskPricingAgen
         resource_weighting_agent.greedy_policy = True
 
     log.warning(f'Eval - Total price: {total_price}, Completed Tasks: {num_completed_tasks}, Failed Tasks: {num_failed_tasks}')
-    plt.plot(total_price, label='Total price')
-    plt.plot(num_completed_tasks, label='Completed tasks')
-    plt.plot(num_failed_tasks, label='Failed tasks')
-    plt.legend()
+    # plt.plot(total_price, label='Total price')
+    # plt.plot(num_completed_tasks, label='Completed tasks')
+    # plt.plot(num_failed_tasks, label='Failed tasks')
+    # plt.legend()
 
 
 def allocate_agents(env: OnlineFlexibleResourceAllocationEnv, task_pricing_agents: List[TaskPricingAgent],
                     resource_weighting_agents: List[ResourceWeightingAgent]):
-    assert env.state.time_step == 0
+    assert env.state.time_step == 0, env.state.time_step
     assert len(task_pricing_agents) > 0
     assert len(resource_weighting_agents) > 0
 
@@ -230,7 +234,8 @@ def allocate_agents(env: OnlineFlexibleResourceAllocationEnv, task_pricing_agent
 
 
 if "__main__" == __name__:
-    log.console_debug_level = log.LogLevel.INFO
+    log.console_debug_level = log.LogLevel.WARNING
+    log.file_debug_level = log.LogLevel.WARNING
     log.debug_filename = 'training.log'
 
     # Setup the environment
@@ -247,20 +252,26 @@ if "__main__" == __name__:
         env_io.save_environment(_env, f'../settings/eval_envs/eval_env_{training_env_num}.json')
 
     # Loop over the episodes
-    for episode in range(1):
-        log.info(f'Episode: {episode}')
+    for episode in range(10000):
         _env.reset()
 
         _server_task_pricing_agents, _server_resource_allocation_agents = allocate_agents(_env, _task_pricing_agents, _resource_weighting_agents)
         _total_price, _num_completed_tasks, _num_failed_tasks = run_env(_env, _server_task_pricing_agents, _server_resource_allocation_agents)
-        log.warning(f'Episode {episode} - Total Price: {_total_price}, Num Completed Task: {_num_completed_tasks}, Num Failed Tasks: {_num_failed_tasks}')
+        log.info(f'Episode: {episode} - Total price: {_total_price}, '
+                 f'Completed Tasks: {_num_completed_tasks}, Failed Tasks: {_num_failed_tasks}')
 
         # Every 3 episodes, the agents are trained
-        if episode % 3 == 0:
+        if episode % 2 == 0:
             for _task_pricing_agent in _server_task_pricing_agents.values():
                 _task_pricing_agent.train()
             for _resource_weighting_agent in _server_resource_allocation_agents.values():
                 _resource_weighting_agent.train()
+
+        elif episode % 10 == 0:
+            for _task_pricing_agent in _task_pricing_agents:
+                _task_pricing_agent.update_target()
+            for _resource_weighting_agent in _resource_weighting_agents:
+                _resource_weighting_agent.update_target()
 
         # Every 15 episodes, the agents are evaluated
         if episode % 15 == 0:
