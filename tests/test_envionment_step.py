@@ -6,9 +6,9 @@ from tqdm import tqdm
 from env.environment import OnlineFlexibleResourceAllocationEnv
 
 
-def test_env_step_action_rnd():
+def test_env_step_rnd_action():
     print()
-    env = OnlineFlexibleResourceAllocationEnv.make('../src/settings/basic_env.json')
+    env = OnlineFlexibleResourceAllocationEnv.make('../src/env_settings/basic_env.json')
 
     for _ in tqdm(range(20)):
         state = env.reset()

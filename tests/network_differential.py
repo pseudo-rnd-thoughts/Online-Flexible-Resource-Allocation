@@ -1,5 +1,4 @@
 from agents.task_pricing_agent import TaskPricingAgent
-from agents.task_pricing_network import TaskPricingNetwork
 from env.server import Server
 from env.task import Task
 from env.task_stage import TaskStage

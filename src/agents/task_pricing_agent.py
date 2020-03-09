@@ -1,87 +1,63 @@
-"""Task pricing agent"""
+"""
+Abstract task pricing agent with the abstract method _get_action function to choice how to a select a price
+"""
 
 from __future__ import annotations
 
-import random as rnd
-from typing import TYPE_CHECKING
+import abc
+from typing import List
 
-import numpy as np
-
-import core.log as log
-from agents.dqn_agent import DqnAgent
-from agents.task_pricing_network import TaskPricingNetwork
-from agents.trajectory import Trajectory
+from env.server import Server
+from env.task import Task
 from env.task_stage import TaskStage
 
-if TYPE_CHECKING:
-    from env.server import Server
-    from env.task import Task
-    from typing import List
 
+# noinspection DuplicatedCode
+class TaskPricingAgent(abc.ABC):
+    """
+    Task pricing agent used in Online Flexible Resource Allocation Env in order to price tasks being being auctioned
+    """
 
-class TaskPricingAgent(DqnAgent):
-    """Task pricing agent"""
+    def __init__(self, name):
+        self.name = name
 
-    def __init__(self, name: str, num_prices: int = 11, discount_factor: float = 0.9,
-                 failed_auction_reward: float = -0.1, failed_reward_multiplier: float = 1.5):
-        super().__init__(name, TaskPricingNetwork, num_prices)
-
-        self.discount_factor = discount_factor
-        self.failed_auction_reward = failed_auction_reward
-        self.failed_reward_multiplier = failed_reward_multiplier
-
-    def __str__(self) -> str:
-        return f'{self.name} - Num prices: {self.num_outputs}, Discount factor: {self.discount_factor}, ' \
-               f'Failed auction reward: {self.failed_auction_reward}'
-
-    def price(self, auction_task: Task, server: Server, allocated_tasks: List[Task], time_step: int) -> float:
+    def auction(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
         """
-        Get the action price for the auction task
-        :param auction_task: The auction task
-        :param server: The server
-        :param allocated_tasks: The other allocated tasks
-        :param time_step: The current time steps
-        :return: the price for the task being auctioned
-        """
-        observation = self.network_observation(auction_task, allocated_tasks, server, time_step)
+        Auctions of a task for a server with a list of already allocated tasks at time step
+        Args:
+            auction_task: The task being auctioned
+            allocated_tasks: The already allocated tasks to the server
+            server: The server bidding on the task
+            time_step: The time step of the environment
 
-        if self.greedy_policy and rnd.random() < self.epsilon:
-            action = rnd.randint(0, self.num_outputs-1)
-            log.debug(f'\t{self.name} TPA - {server.name} Server has greedy action: {action}')
-            assert 0 <= action < self.num_outputs, 'greedy'
-        else:
-            action_q_values = self.network_model.call(observation)
-            assert len(action_q_values[0]) == self.num_outputs
-            action = np.argmax(action_q_values)
-            log.debug(f'\t{self.name} TPA - {server.name} Server has argmax action: {action}')
-            assert 0 <= action < self.num_outputs, 'argmax'
+        Returns: The bid value for the task
+
+        """
+        # Assert that the task input variables are valid
+        assert auction_task.stage is TaskStage.UNASSIGNED
+        assert auction_task.auction_time == time_step
+        assert all(allocated_task.stage is not TaskStage.UNASSIGNED or allocated_task.stage is not TaskStage.FAILED or
+                   allocated_task.stage is not TaskStage.COMPLETED for allocated_task in allocated_tasks)
+        assert all(allocated_task.auction_time <= time_step <= allocated_task.deadline
+                   for allocated_task in allocated_tasks)
+
+        action = self._get_action(auction_task, allocated_tasks, server, time_step)
+        # Assert that the resulting action is valid
+        assert 0 <= action
 
         return action
 
-    @staticmethod
-    def network_observation(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.Array:
-        observation = np.array([[auction_task.normalise(server, time_step) + [1.0]] + [
-            task.normalise(server, time_step) + [0.0]
-            for task in allocated_tasks
-        ]]).astype(np.float32)
+    @abc.abstractmethod
+    def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
+        """
+        An abstract method that takes an auction task, a list of allocated tasks, a server and the current time step to return a bid price
+        Args:
+            auction_task: The task being auctioned
+            allocated_tasks: The already allocated tasks to the server
+            server: The server bidding on the task
+            time_step: The time step of the environment
 
-        return observation
+        Returns: The bid value for the task
 
-    def add_finished_task(self, observation: np.Array, action: float, reward_task: Task, next_observation: np.Array):
-        assert all(len(ob) == self.network_model.input_width for ob in observation[0])
-        assert 0 <= action < self.num_outputs, action
-        assert reward_task.stage is TaskStage.COMPLETED or reward_task.stage is TaskStage.FAILED
-        assert next_observation is None or all(len(ob) == self.network_model.input_width for ob in next_observation[0]), next_observation
-
-        reward = reward_task.price if reward_task.stage is TaskStage.COMPLETED else self.failed_reward_multiplier * reward_task.price
-        self.replay_buffer.append(Trajectory(observation, action, reward, next_observation))
-
-    def add_failed_auction_task(self, observation: np.Array, action: float, next_observation: np.Array):
-        assert all(len(ob) == self.network_model.input_width for ob in observation[0])
-        assert 0 <= action < self.num_outputs, action
-        assert next_observation is None or all(len(ob) == self.network_model.input_width for ob in next_observation[0]), next_observation
-
-        if action == 0:
-            self.replay_buffer.append(Trajectory(observation, action, 0, next_observation))
-        else:
-            self.replay_buffer.append(Trajectory(observation, action, self.failed_auction_reward, next_observation))
+        """
+        pass
