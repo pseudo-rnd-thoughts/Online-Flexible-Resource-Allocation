@@ -4,12 +4,10 @@ from __future__ import annotations
 
 from typing import NamedTuple, TYPE_CHECKING
 
-import core.log as log
-from core.core import round_float
 from env.task_stage import TaskStage
 
 if TYPE_CHECKING:
-    from env.server import Server
+    from env.server import Server, round_float
     from typing import List
 
 
@@ -35,11 +33,6 @@ class Task(NamedTuple):
 
     price: float = -1
 
-    def normalise(self, server: Server, time_step: int) -> List[float]:
-        return [self.required_storage / server.storage_cap, self.required_storage / server.bandwidth_cap,
-                self.required_comp / server.computational_comp, self.required_results_data / server.bandwidth_cap,
-                self.deadline - time_step, self.loading_progress, self.compute_progress, self.sending_progress]
-
     def loading(self, loading_resources, time_step: int) -> Task:
         assert self.stage is TaskStage.LOADING and self.loading_progress < self.required_storage
         updated_loading_progress = round_float(self.loading_progress + loading_resources)
@@ -61,7 +54,6 @@ class Task(NamedTuple):
     def has_failed(self, updated_stage: TaskStage, time_step: int) -> TaskStage:
         assert time_step <= self.deadline
         if self.deadline == time_step and updated_stage is not TaskStage.COMPLETED:
-            log.debug(f'{self.name} Task has failed')
             return TaskStage.FAILED
         else:
             return updated_stage

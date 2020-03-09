@@ -1,20 +1,29 @@
-"""Immutable server class"""
+"""
+Immutable server class that has storage, computational and storage capacity
+"""
 
 from __future__ import annotations
 
 from typing import NamedTuple, TYPE_CHECKING
 
-import core.log as log
-from core.core import round_float
 from env.task_stage import TaskStage
 
 if TYPE_CHECKING:
     from env.task import Task
     from typing import Dict, Tuple, List
+    
+
+def round_float(value: float) -> float:
+    """
+    Rounds a number to four decimal places, this is important for the task and server classes in resource allocation
+    :param value: The number that is normally a float
+    :return: Rounded number to four decimal places
+    """
+    return round(value, 4)
 
 
 class Server(NamedTuple):
-    """Server class with a name and resource capacity"""
+    """Server class that takes a name and resource capacity for storage, computation and bandwidth"""
 
     name: str
 
@@ -57,8 +66,6 @@ class Server(NamedTuple):
 
         # Join the compute and bandwidth resource allocation
         task_resource_usage = {**compute_task_resource_usage, **bandwidth_task_resource_usage}
-
-        self.log_task_resource_usage(resource_weights, task_resource_usage)
 
         # Assert that the updated task are still valid
         for task in task_resource_usage.keys():
@@ -163,7 +170,7 @@ class Server(NamedTuple):
 
                     update_task = True
 
-            # Update the sending weights for tasks that havent had resources allocated (this cant happen during the loop with dictionaries)
+            # Update the sending weights for tasks that haven't had resources allocated (this cant happen during the loop with dictionaries)
             sending_weights = {task: weight for task, weight in sending_weights.items() if task not in list(task_resource_usage.keys())}
 
             # The repeat the same process for tasks being loaded
@@ -212,7 +219,7 @@ class Server(NamedTuple):
 
                         update_task = True
 
-                    # Update the sending weights for tasks that havent had resources allocated (this cant happen during the loop with dictionaries)
+                    # Update the sending weights for tasks that haven't had resources allocated (this cant happen during the loop with dictionaries)
                 sending_weights = {task: weight for task, weight in sending_weights.items() if task not in list(task_resource_usage.keys())}
 
             if sending_weights:
@@ -222,20 +229,3 @@ class Server(NamedTuple):
                     task_resource_usage[task.sending(sending_resources, time_step)] = (task.required_storage, 0, sending_resources)
 
         return task_resource_usage
-
-    def log_task_resource_usage(self, resource_weights: Dict[Task, float], task_resource_usage: Dict[Task, Tuple[float, float, float]]):
-        log.debug(f'{self.name} Server resource usage -> {{' + ', '.join(
-            [f'{task.name} Task: ({storage_usage:.3f}, {compute_usage:.3f}, {bandwidth_usage:.3f})'
-             for task, (storage_usage, compute_usage, bandwidth_usage) in task_resource_usage.items()]) + '}')
-        log.debug(f'{self.name} Server task changes - {{', newline=False)
-        for task in resource_weights.keys():
-            modified_task = next(_task for _task in task_resource_usage.keys() if task == _task)
-            if task.stage is TaskStage.LOADING:
-                log.debug(
-                    f'{task.name} Task: loading progress {task.loading_progress:.3f} -> {modified_task.loading_progress:.3f} ({modified_task.stage}), ', newline=False)
-            elif task.stage is TaskStage.COMPUTING:
-                log.debug(f'{task.name} Task: compute progress {task.compute_progress:.3f} -> {modified_task.compute_progress:.3f} ({modified_task.stage}), ', newline=False)
-            elif task.stage is TaskStage.SENDING:
-                log.debug(
-                    f'{task.name} Task: sending progress {task.sending_progress:.3f} -> {modified_task.sending_progress:.3f} ({modified_task.stage}), ', newline=False)
-        log.debug('}')
