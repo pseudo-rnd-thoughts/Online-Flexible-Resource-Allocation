@@ -8,6 +8,7 @@ import os
 from typing import List, Dict, Tuple, Optional, TYPE_CHECKING
 import random as rnd
 import tensorflow as tf
+import datetime as dt
 
 from env.env_state import EnvState
 from env.environment import OnlineFlexibleResourceAllocationEnv
@@ -269,6 +270,7 @@ def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: L
     """
     # Loop over the episodes
     for episode in range(total_episodes):
+        print(f'Episode: {episode} at {dt.datetime.now().strftime("%H:%M:%S")}')
         set_policy(task_pricing_agents, resource_weighting_agents, False)
         train_agent(training_env, task_pricing_agents, resource_weighting_agents)
 
