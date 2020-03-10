@@ -1,16 +1,16 @@
 """Checks that neural networks can be differentiated using DQN loss function"""
 
-from agents.rl_agents.neural_networks.dqn_network import dqn_lstm_network
+import tensorflow as tf
+
+from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork
 from agents.rl_agents.rl_agent import TaskPricingRLAgent
 from env.server import Server
 from env.task import Task
 from env.task_stage import TaskStage
 
-import tensorflow as tf
 
-
-def network_differential():
-    network = dqn_lstm_network(9, 10)
+def test_network_gradients():
+    network = DqnLstmNetwork(9, 10)
 
     server = Server('Test', 220.0, 35.0, 22.0)
     auction_task = Task('Test 4', 69.0, 35.0, 10.0, 0, 12)
@@ -38,6 +38,3 @@ def network_differential():
     optimiser.apply_gradients(zip(network_gradients, network_variables))
     print(f'Loss: {loss}')
     print(f'Network Gradients: {network_gradients}')
-
-
-network_differential()

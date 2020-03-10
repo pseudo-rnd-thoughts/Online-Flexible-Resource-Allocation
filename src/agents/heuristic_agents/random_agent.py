@@ -24,6 +24,7 @@ class RandomTaskPricingAgent(TaskPricingAgent):
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
         """
         Implements the action by randomly selecting an integer price between 0 and the upper price bound
+
         Args:
             auction_task: Ignored
             allocated_tasks: Ignored
@@ -50,6 +51,7 @@ class RandomResourceWeightingAgent(ResourceWeightingAgent):
     def _get_action(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
         """
         Implements the action by randomly selecting an integer weight between 1 and the upper weight bound
+
         Args:
             weight_task: Ignored
             allocated_tasks: Ignored
