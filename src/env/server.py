@@ -16,8 +16,12 @@ if TYPE_CHECKING:
 def round_float(value: float) -> float:
     """
     Rounds a number to four decimal places, this is important for the task and server classes in resource allocation
-    :param value: The number that is normally a float
-    :return: Rounded number to four decimal places
+
+    Args:
+        value: The number that is normally a float
+
+    Returns:Rounded number to four decimal places
+
     """
     return round(value, 4)
 
@@ -35,13 +39,19 @@ class Server(NamedTuple):
         return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.computational_comp}, ' \
                f'Bandwidth cap: {self.bandwidth_cap}'
 
-    def allocate_resources(self, resource_weights: Dict[Task, float], time_step: int, error_term: float = 0.1) -> Tuple[List[Task], List[Task]]:
+    def allocate_resources(self, resource_weights: Dict[Task, float],
+                           time_step: int, error_term: float = 0.1) -> Tuple[List[Task], List[Task]]:
         """
         Allocate resources to tasks by converting a weighting (importance) to an actual resource
-        :param resource_weights: A dictionary of task to weighting
-        :param time_step: The current time step
-        :param error_term: The error term to account for rounding effectively
-        :return: Two list, the first being the list of completed or failed task, the second being tasks that are still ongoing
+
+        Args:
+            resource_weights: A dictionary of task to weighting
+            time_step: The current time step
+            error_term: The error term to account for rounding effectively
+
+        Returns: Two list, the first being the list of completed or failed task,
+                    the second being tasks that are still ongoing
+
         """
 
         assert len(resource_weights) > 0
@@ -82,13 +92,18 @@ class Server(NamedTuple):
         return unfinished_tasks, completed_tasks
 
     @staticmethod
-    def allocate_compute_resources(compute_weights: Dict[Task, float], available_computation: float, time_step: int) -> Dict[Task, Tuple[float, float, float]]:
+    def allocate_compute_resources(compute_weights: Dict[Task, float], available_computation: float,
+                                   time_step: int) -> Dict[Task, Tuple[float, float, float]]:
         """
         Allocate computational resources to tasks
-        :param compute_weights: A dictionary of tasks (at computing stage) to weightings
-        :param available_computation: The total available computation (= server.computational_cap)
-        :param time_step: The current time step
-        :return: A dictionary of tasks to their resource usage (storage, compute, bandwidth)
+
+        Args:
+            compute_weights: A dictionary of tasks (at computing stage) to weightings
+            available_computation: The total available computation (= server.computational_cap)
+            time_step: The current time step
+
+        Returns: A dictionary of tasks to their resource usage (storage, compute, bandwidth)
+
         """
 
         task_resource_usage: Dict[Task, Tuple[float, float, float]] = {}
@@ -140,12 +155,16 @@ class Server(NamedTuple):
                                      time_step: int) -> Dict[Task, Tuple[float, float, float]]:
         """
         Allocate bandwidth (and storage) resources to task at Loading or Sending stages
-        :param loading_weights: A dictionary of task (at loading stage) to weights
-        :param sending_weights: A dictionary of task (at sending stage) to weights
-        :param available_storage: The available storage of the server
-        :param available_bandwidth: The available bandwidth of the server
-        :param time_step: The current time step
-        :return: A dictionary of tasks to resources used
+
+        Args:
+            loading_weights: A dictionary of task (at loading stage) to weights
+            sending_weights: A dictionary of task (at sending stage) to weights
+            available_storage: The available storage of the server
+            available_bandwidth: The available bandwidth of the server
+            time_step: The current time step
+
+        Returns: A dictionary of tasks to resources used
+
         """
 
         task_resource_usage: Dict[Task, Tuple[float, float, float]] = {}

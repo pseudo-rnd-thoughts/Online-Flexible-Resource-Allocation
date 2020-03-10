@@ -11,7 +11,10 @@ if TYPE_CHECKING:
 
 
 class EnvState(NamedTuple):
-    """The environment state"""
+    """
+    The environment state that contains a dictionary of server to list of tasks, the task being auctioned
+        and the time step
+    """
 
     server_tasks: Dict[Server, List[Task]]
     auction_task: Optional[Task]

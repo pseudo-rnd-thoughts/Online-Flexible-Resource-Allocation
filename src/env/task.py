@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from typing import NamedTuple, TYPE_CHECKING
+from typing import NamedTuple
 
+from env.server import round_float
 from env.task_stage import TaskStage
-
-if TYPE_CHECKING:
-    from env.server import Server, round_float
-    from typing import List
 
 
 # noinspection DuplicatedCode
@@ -33,25 +30,80 @@ class Task(NamedTuple):
 
     price: float = -1
 
-    def loading(self, loading_resources, time_step: int) -> Task:
+    def assign(self, price: float, time_step: int) -> Task:
+        """
+        The process of assigning the task to the server
+
+        Args:
+            price: The price that the task is won at
+            time_step: The time step when the task is won
+
+        Returns: The updated task
+
+        """
+        assert 0 < price
+        assert self.auction_time == time_step
+        return self._replace(price=price, stage=TaskStage.LOADING)
+
+    def loading(self, loading_resources: float, time_step: int) -> Task:
+        """
+        The loading of task on a server that increases the loading process with loading_resources at time_step
+
+        Args:
+            loading_resources: The loading resources applied to the task
+            time_step: The time step that the resources are applied at
+
+        Returns: The updated task
+
+        """
         assert self.stage is TaskStage.LOADING and self.loading_progress < self.required_storage
         updated_loading_progress = round_float(self.loading_progress + loading_resources)
         updated_stage = TaskStage.LOADING if updated_loading_progress < self.required_storage else TaskStage.COMPUTING
         return self._replace(loading_progress=updated_loading_progress, stage=self.has_failed(updated_stage, time_step))
 
-    def compute(self, compute_resources, time_step: int) -> Task:
+    def compute(self, compute_resources: float, time_step: int) -> Task:
+        """
+        The computing of the task on a server that increase the computing process with compute_resources at time_step
+
+        Args:
+            compute_resources: The compute resources applied to the task
+            time_step: The time step that the resources are applied at
+
+        Returns: The updated task
+
+        """
         assert self.stage is TaskStage.COMPUTING and self.compute_progress < self.required_comp
         updated_compute_progress = round_float(self.compute_progress + compute_resources)
         updated_stage = TaskStage.COMPUTING if updated_compute_progress < self.required_comp else TaskStage.SENDING
         return self._replace(compute_progress=updated_compute_progress, stage=self.has_failed(updated_stage, time_step))
 
-    def sending(self, sending_resources, time_step: int) -> Task:
+    def sending(self, sending_resources: float, time_step: int) -> Task:
+        """
+        The sending of the task on a server that increase the sending process with sending_resources at time_step
+
+        Args:
+            sending_resources: The sending resources applied to the task
+            time_step: The time step that the resources are applied at
+
+        Returns: The updated task
+
+        """
         assert self.stage is TaskStage.SENDING and self.sending_progress < self.required_results_data
         updated_sending_progress = round_float(self.sending_progress + sending_resources)
         updated_stage = TaskStage.SENDING if updated_sending_progress < self.required_results_data else TaskStage.COMPLETED
         return self._replace(sending_progress=updated_sending_progress, stage=self.has_failed(updated_stage, time_step))
 
     def has_failed(self, updated_stage: TaskStage, time_step: int) -> TaskStage:
+        """
+        Check if the task has failed if the time step is greater than deadline
+
+        Args:
+            updated_stage: The current stage of the task
+            time_step: The current time step
+
+        Returns: The updated task stage of the task
+
+        """
         assert time_step <= self.deadline
         if self.deadline == time_step and updated_stage is not TaskStage.COMPLETED:
             return TaskStage.FAILED
@@ -59,6 +111,9 @@ class Task(NamedTuple):
             return updated_stage
 
     def assert_valid(self):
+        """
+        Assert if the task is valid
+        """
         if self.stage is not TaskStage.FAILED:
             if self.stage is TaskStage.LOADING:
                 assert self.loading_progress < self.required_storage and self.compute_progress == 0 and self.sending_progress == 0
