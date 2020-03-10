@@ -13,6 +13,7 @@ from env.task import Task
 from env.task_stage import TaskStage
 
 
+# noinspection DuplicatedCode
 class ResourceWeightingAgent(abc.ABC):
     """
     Resource Weighting agent used in Online Flexible Resource Allocation Env in order to weight tasks
@@ -24,6 +25,7 @@ class ResourceWeightingAgent(abc.ABC):
     def weight(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
         """
         Weights a task on the server with a list of already allocated tasks at time step
+
         Args:
             weight_task: The task being weighted
             allocated_tasks: The already allocated tasks to the server (includes the weighted task as well)
@@ -44,7 +46,7 @@ class ResourceWeightingAgent(abc.ABC):
             action = self._get_action(weight_task, allocated_tasks, server, time_step)
             assert 0 < action
 
-            return action
+            return float(action)
         else:
             # If the weight task is only task allocated to the server
             assert weight_task == allocated_tasks[0]
@@ -54,7 +56,9 @@ class ResourceWeightingAgent(abc.ABC):
     @abc.abstractmethod
     def _get_action(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         """
-        An abstract method that takes an task, a list of allocated tasks, a server and the current time step to return the weight for the task
+        An abstract method that takes an task, a list of allocated tasks, a server
+            and the current time step to return the weight for the task
+
         Args:
             weight_task: The task being weighted
             allocated_tasks: The already allocated tasks to the server (includes the weighted task as well)

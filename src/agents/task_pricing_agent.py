@@ -21,9 +21,10 @@ class TaskPricingAgent(abc.ABC):
     def __init__(self, name):
         self.name = name
 
-    def auction(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
+    def bid(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
         """
         Auctions of a task for a server with a list of already allocated tasks at time step
+
         Args:
             auction_task: The task being auctioned
             allocated_tasks: The already allocated tasks to the server
@@ -45,12 +46,14 @@ class TaskPricingAgent(abc.ABC):
         # Assert that the resulting action is valid
         assert 0 <= action
 
-        return action
+        return float(action)
 
     @abc.abstractmethod
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         """
-        An abstract method that takes an auction task, a list of allocated tasks, a server and the current time step to return a bid price
+        An abstract method that takes an auction task, a list of allocated tasks, a server
+            and the current time step to return a bid price
+
         Args:
             auction_task: The task being auctioned
             allocated_tasks: The already allocated tasks to the server
