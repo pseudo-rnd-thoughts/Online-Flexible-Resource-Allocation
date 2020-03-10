@@ -24,7 +24,7 @@ if __name__ == "__main__":
         for agent_num in range(3)
     ]
 
-    run_training(env, eval_envs, 5000, task_pricing_dqn_agents, resource_weighting_dqn_agents, 10)
+    run_training(env, eval_envs, 5000, task_pricing_dqn_agents, resource_weighting_dqn_agents, 5)
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_dqn_agents) + '}')
     print('RW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_dqn_agents) + '}')
