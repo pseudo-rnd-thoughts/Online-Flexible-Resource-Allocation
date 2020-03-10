@@ -5,12 +5,11 @@ Double DQN agent implemented based on Deep Reinforcement Learning with Double Q-
 from __future__ import annotations
 
 from abc import ABC
-from typing import Callable
 
 import gin.tf
-import tensorflow as tf
 
-from agents.rl_agents.dqn import DqnAgent, ResourceWeightingDQN, TaskPricingDQN
+from agents.rl_agents.dqn import DqnAgent, TaskPricingDqnAgent, ResourceWeightingDqnAgent
+from agents.rl_agents.neural_networks.network import Network
 
 
 @gin.configurable
@@ -19,10 +18,8 @@ class DdqnAgent(DqnAgent, ABC):
     Implementation of a double deep q network agent
     """
 
-    def __init__(self, network_input_width: int, network_num_outputs: int,
-                 build_network: Callable[[int], tf.keras.Sequential],
-                 **kwargs):
-        DqnAgent.__init__(network_input_width, network_num_outputs, build_network, **kwargs)
+    def __init__(self, network: Network, **kwargs):
+        DqnAgent.__init__(self, network, **kwargs)
 
     def _train(self) -> float:
         # Todo
@@ -30,21 +27,23 @@ class DdqnAgent(DqnAgent, ABC):
 
 
 @gin.configurable
-class TaskPricingDDQN(DdqnAgent, TaskPricingDQN):
+class TaskPricingDdqnAgent(DdqnAgent, TaskPricingDqnAgent):
     """
-    Todo
+    Task pricing double dqn agent
     """
-    def __init__(self, network_input_width: int, network_num_outputs: int,
-                 build_network: Callable[[int], tf.keras.Sequential], **kwargs):
-        super().__init__(network_input_width, network_num_outputs, build_network, **kwargs)
+    def __init__(self, agent_num: int, network: Network, **kwargs):
+        DdqnAgent.__init__(self, network, **kwargs)
+        TaskPricingDqnAgent.__init__(self, agent_num, network, **kwargs)
+        self.name = f'DDQN TP {agent_num}'
 
 
 @gin.configurable
-class ResourceWeightingDDQN(DdqnAgent, ResourceWeightingDQN):
+class ResourceWeightingDdqnAgent(DdqnAgent, ResourceWeightingDqnAgent):
     """
-    Todo
+    Resource weighting double dqn agent
     """
-    def __init__(self, network_input_width: int, network_num_outputs: int,
-                 build_network: Callable[[int], tf.keras.Sequential], **kwargs):
-        DdqnAgent.__init__(network_input_width, network_num_outputs, build_network, **kwargs)
-        ResourceWeightingDQN.__init__(self)
+
+    def __init__(self, agent_num: int, network: Network, **kwargs):
+        DdqnAgent.__init__(self, network, **kwargs)
+        ResourceWeightingDqnAgent.__init__(self, agent_num, network, **kwargs)
+        self.name = f'DDQN RW {agent_num}'
