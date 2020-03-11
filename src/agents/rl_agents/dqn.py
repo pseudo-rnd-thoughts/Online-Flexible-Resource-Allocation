@@ -107,9 +107,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
                 loss = tf.square(target - self.model_network(obs))
 
                 # Add the gradient and loss to the relative lists
-                gradient = tape.gradient(loss, network_variables)
-                assert all(grad is not None for grad in gradient)
-                gradients.append(gradient)
+                gradients.append(tape.gradient(loss, network_variables))
                 losses.append(tf.reduce_max(loss))
 
         # Calculate the mean gradient change between the losses (I believe this is equivalent to mean-square bellman error)

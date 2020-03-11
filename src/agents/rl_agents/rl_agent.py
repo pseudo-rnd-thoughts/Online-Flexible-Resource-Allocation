@@ -47,7 +47,7 @@ class ReinforcementLearningAgent(ABC):
 
     def __init__(self, network_input_width, max_action_value,
                  batch_size: int = 32, learning_rate: float = 0.001, replay_buffer_length: int = 10000,
-                 update_frequency: int = 4, training_replay_start_size: int = 2500):
+                 update_frequency: int = 4, log_frequency: int = 80, training_replay_start_size: int = 2500):
         """
         Constructor of the reinforcement learning base class where the argument will be used in all subclasses
 
@@ -78,6 +78,7 @@ class ReinforcementLearningAgent(ABC):
         # Training observations
         self.total_obs = 0
         self.update_frequency = update_frequency
+        self.log_frequency = log_frequency
         self.training_replay_start_size = training_replay_start_size
 
         self.eval_policy: bool = False
@@ -111,7 +112,8 @@ class ReinforcementLearningAgent(ABC):
         Trains the reinforcement learning agent and logs the training loss
         """
         training_loss = self._train()
-        tf.summary.scalar(f'{self.name} training loss', training_loss, step=self.total_obs)
+        if self.total_obs % self.log_frequency == 0:
+            tf.summary.scalar(f'{self.name} training loss', training_loss, step=self.total_obs)
 
     @abc.abstractmethod
     def _train(self) -> float:
