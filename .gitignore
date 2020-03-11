@@ -1,5 +1,7 @@
-.idea/*
+.idea/
 
 *.pyc
-auxil/*
-out/*
+auxil/
+out/
+
+papers/
