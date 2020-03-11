@@ -1,0 +1,42 @@
+"""Dueling DQN Networks"""
+
+import tensorflow as tf
+import tensorflow.keras.layers as tf_layers
+
+from agents.rl_agents.neural_networks.network import Network
+
+
+class DuelingDqnLstmNetwork(Network):
+    """
+    Dueling DQN LSTM network
+    """
+
+    def __init__(self, input_width: int, num_actions: int, lstm_width: int = 40, relu_width: int = 20):
+        super().__init__('Dueling Lstm', input_width, num_actions)
+
+        self.lstm_layer = tf_layers.LSTM(lstm_width, input_shape=[None, input_width])
+        self.relu_layer = tf_layers.ReLU(relu_width)
+
+        self.advantage_layer = tf_layers.Dense(num_actions)
+        self.value_layer = tf_layers.Dense(1)
+
+    def call(self, inputs, training=None, mask=None):
+        """
+        Forward propagation through the neural network
+
+        Args:
+            inputs: numpy ndarray input observation for the network
+            training: Ignored
+            mask: Ignored
+
+        Returns: Single dimensional array action output
+
+        """
+        lstm = self.lstm_layer(inputs)
+        relu = self.relu_layer(lstm)
+
+        advantage = self.advantage_layer(relu)
+        value = self.value_layer(relu)
+
+        action_q_value = value + (advantage - tf.reduce_mean(advantage, axis=1, keep_dims=True))
+        return action_q_value
