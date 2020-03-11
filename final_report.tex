@@ -1,0 +1,98 @@
+%% ----------------------------------------------------------------
+%% Project.tex
+%% ----------------------------------------------------------------
+\documentclass[sotoncolour]{extra/uos_project}     % Use the Project Style with custom link colour
+\usepackage[round]{natbib}     % Use Natbib style for the refs.
+\usepackage{bibentry}          % Use bibentry for prepublished works
+\usepackage{pdfpages}          % Enables PDF to be inserted into the project
+\nobibliography*               % Use bibentry for prepublished works
+\usepackage{attrib}            % Use the attrib package for quotations
+\hypersetup{colorlinks=true}   % Set to false for black/white printing
+\input{extra/definitions}            % Include your abbreviations
+\pdfminorversion=7             % Fixes warnings for importing pdf documents
+
+%% ----------------------------------------------------------------
+%% --------------------THESIS/DOC INFORMATION ---------------------
+\department  {School of Electronics and Computer Science}
+\DEPARTMENT  {\MakeUppercase{\deptname}}
+\group       {}
+\GROUP       {\MakeUppercase{\groupname}}
+\faculty     {Faculty of Physical Engineering and Science}
+\FACULTY     {\MakeUppercase{\facname}}
+\title       {Auctions for online elastic resource allocation in cloud computing}
+\authors     {\texorpdfstring
+             {\href{mailto:mt5g17@soton.ac.uk}{Mark Towers}}
+             {Mark Towers}}
+\addresses  {\groupname\\\deptname\\\univname}
+\date       {\today}
+\supervisor {Dr Tim Norman}
+\examiner   {Dr Nicholas Harris}
+\degree     {MEng Electronic Engineering}
+%% Optional Fields TODO: Replace these fields with your own data
+\qualifications{}
+\subject    {}
+\keywords   {Edge Cloud Computing, Auctions, Resource Allocation, Reinforcement Learning}
+
+\begin{document}
+%% ------------------ FRONT MATTER ORGANISATION -------------------
+\frontmatter
+\maketitle
+\begin{abstract}
+Edge clouds enable computational tasks to be completed at the edge of the network, without relying on access to remote
+data centres. A key challenge in these settings is that limited computational resources often need to be allocated to
+many self-interested users. Here, existing resource allocation approaches usually assume that tasks have inelastic
+resource requirements (i.e., a fixed amount of compute time, bandwidth and storage), which may result in inefficient
+resource use. In this paper, we expand previous work to an online setting such that job will arrive over time with the
+task prices and resource allocation determined through training an agent using reinforcement learning.
+\end{abstract}
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents
+% \listoffigures
+% \listoftables
+%% The List of listings does not, by default, appear in the ToC, so....
+\addtotoc{Listings}
+% \lstlistoflistings
+% \listofaddmaterial
+% \addtolom{Material Name e.g Map}
+% \addtolom{Material Name e.g CD}
+% \addtolom{Test Material}
+
+%% ---------- AUTHORSHIP DECLARATION/ ACKNOW. / DEDICATORY ----------
+%% Either include citations like below (as many as required spaced with commas or 'and').
+%% \bibentry command must be used here with prepublished papers
+\authorshipdeclaration{\bibentry{Gunn:2001:pdflatex}\newline\bibentry{Lovell:2011:updated}\newline\bibentry{Gunn:2011:updated2}}
+%% Or state no citations like below
+%% \authorshipdeclaration{}
+%% -----------------------
+\acknowledgements{ %% Todo rewrite
+This project wouldn't have started without Dr Sebastian Stein and a team of Pennsylvania State University that has
+produced a paper investigating the static case of this problem. So I am grateful for the support they gave in kick
+starting this project.
+
+My housemates for surviving with me pestering them about proof reading my paper and this project, all of the time.}
+
+% \dedicatory{To \dots}
+%%Lightweight Definitions and Abbreviations see package:nomencl for alternative
+%% Include if relevant to discipline
+% \listofsymbols{ll}{$w$ & The weight vector\\$\S$ & If relevant to discipline}
+
+\mainmatter
+%% ------------------ MAIN MATTER (CONTENT) --------------------
+\include{chapters/0_project_problem}
+\include{chapters/1_related_work}
+\include{chapters/2_proposed_solution}
+\include{chapters/3_justification}
+\include{chapters/4_implementation}
+\include{chapters/5_testing}
+\include{chapters/6_evaluation}
+\include{chapters/7_conclusion}
+
+\backmatter
+\appendix
+\include{chapters/8_appendix}
+
+\bibliographystyle{plainnat}
+\bibliography{extra/references}
+
+\end{document}
+%% ----------------------------------------------------------------
