@@ -1,2 +1,25 @@
 \chapter{Implementation of the solution}\label{ch:implementation-of-the-solution}
-%% Todo write
+Using the proposed solution in chapter~\ref{ch:proposed-solution-to-problem}, we can simulate edge cloud computing
+environment and then train agents to bid on tasks and allocate resources. This has three sections to it, first the
+simulation that is referred to as the environment (section~\ref{sec:simulating-the-environment}),
+second to define the agents (section~\ref{sec:agent-definition}) and three to train the agents on the
+environment (section~\ref{sec:training-of-agents}).
+
+The implementation discussed below as written in Python and available to download on Github at
+\url{https://github.com/stringtheorys/Online-Flexible-Resource-Allocation}
+
+\section{Simulating the Environment}\label{sec:simulating-the-environment}
+As the aim of the environment is to train agents to learn how to action optimally then the way that agents
+interact with the environments matters. OpenAI~\cite{}, an independent research organisation, have create a large
+number of open source popular reinforcement learning environment using the python module gym~\cite{}.
+Due to the wide scale use and developing of agents to interact with environment using the OpenAI environment
+specification, I have likewise programmed this environment to follow the same specification. %% todo this is a horrible sentence, to fix
+
+\section{Agent definition}\label{sec:agent-definition}
+There are two types of agents that need to be considered: task pricing agent and resource weighting agent that server
+has one of each.
+
+Tensorflow
+
+\section{Training of agents}\label{sec:training-of-agents}
+Hyperparamters
