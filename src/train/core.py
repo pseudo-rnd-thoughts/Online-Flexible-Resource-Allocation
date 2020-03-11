@@ -10,6 +10,8 @@ import random as rnd
 import tensorflow as tf
 import datetime as dt
 
+from tensorflow_core.python.ops.summary_ops_v2 import ResourceSummaryWriter
+
 from env.env_state import EnvState
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.task_stage import TaskStage
@@ -306,7 +308,7 @@ def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals:
     return eval_files
 
 
-def setup_tensorboard(folder: str):
+def setup_tensorboard(folder: str) -> ResourceSummaryWriter:
     """
     Setups the tensorboard for the training and evaluation results
 
@@ -314,4 +316,4 @@ def setup_tensorboard(folder: str):
         folder: The folder for the tensorboard
 
     """
-    tf.summary.create_file_writer(folder)
+    return tf.summary.create_file_writer(folder)

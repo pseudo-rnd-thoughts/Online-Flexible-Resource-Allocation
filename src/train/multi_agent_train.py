@@ -6,7 +6,7 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 from train.core import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
-    setup_tensorboard('basic_training_logs')
+    writer = setup_tensorboard('logs/multi_agents')
 
     env = OnlineFlexibleResourceAllocationEnv.make('../env_settings/basic_env.json')
     eval_envs = generate_eval_envs(env, 5, 'basic_training_eval_envs')
@@ -24,7 +24,8 @@ if __name__ == "__main__":
         for agent_num in range(3)
     ]
 
-    run_training(env, eval_envs, 5000, task_pricing_dqn_agents, resource_weighting_dqn_agents, 5)
+    with writer.as_default():
+        run_training(env, eval_envs, 250, task_pricing_dqn_agents, resource_weighting_dqn_agents, 5)
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_dqn_agents) + '}')
     print('RW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_dqn_agents) + '}')
