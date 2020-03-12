@@ -42,7 +42,7 @@ class DqnLstmNetwork(Network):
     def __init__(self, input_width: int, action_width: int, lstm_width: int = 40, relu_width: int = 20):
         Network.__init__(self, 'Lstm', input_width, action_width)
 
-        self.lstm = tf.LSTM(lstm_width, input_shape=[None, input_width])
+        self.lstm = tf.LSTM(lstm_width, input_shape=(None, input_width))
         self.relu = tf.ReLU(relu_width)
         self.q_value_layer = tf.Dense(action_width)
 
