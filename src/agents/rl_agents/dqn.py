@@ -28,7 +28,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
     def __init__(self, network: Network, target_update_frequency: int = 2500,
                  initial_exploration: float = 1, final_exploration: float = 0.1, final_exploration_frame: int = 100000,
-                 **kwargs):
+                 loss_func: tf.keras.losses.Loss = tf.keras.losses.Huber, clip_loss: bool = True, **kwargs):
         """
         Constructor for the DQN agent
 
@@ -53,6 +53,9 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         self.final_exploration = final_exploration
         self.exploration_gradient = (self.final_exploration - self.initial_exploration) / final_exploration_frame
         self.exploration = self.initial_exploration
+
+        self.loss_func = loss_func
+        self.clip_loss = clip_loss
 
     @staticmethod
     @abstractmethod
@@ -100,17 +103,18 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
                 if next_agent_state is None:
                     target[0][action] = reward
                 else:
-                    next_obs = self.network_obs(next_agent_state.task, next_agent_state.tasks, next_agent_state.server, next_agent_state.time_step)
+                    next_obs = self.network_obs(next_agent_state.task, next_agent_state.tasks,
+                                                next_agent_state.server, next_agent_state.time_step)
                     target[0][action] = reward + np.max(self.target_network(next_obs))
 
-                # Loss function (todo update to use the huber loss function)
-                loss = tf.square(target - self.model_network(obs))
+                if self.clip_loss:
+                    loss = tf.clip_by_value(self.loss_func(target, self.model_network(obs)), -1, +1)
+                else:
+                    loss = self.loss_func(target, self.model_network(obs))
 
                 # Add the gradient and loss to the relative lists
-                gradient = tape.gradient(loss, network_variables)
-                assert all(grad is not None for grad in gradient)
-                gradients.append(gradient)
-                losses.append(tf.reduce_max(loss))
+                gradients.append(tape.gradient(loss, network_variables))
+                losses.append(np.max(loss))
 
         # Calculate the mean gradient change between the losses (I believe this is equivalent to mean-square bellman error)
         mean_gradient = np.mean(gradients, axis=0)
@@ -131,6 +135,10 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         Updates the target network with the model network every target_update_frequency observations
         """
         self.target_network.set_weights(self.model_network.get_weights())
+
+    def _save(self):
+        print('Saving model')
+        self.model_network.save(f'checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}')
 
 
 @gin.configurable
@@ -170,8 +178,8 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
         if not self.eval_policy and rnd.random() < self.exploration:
             return rnd.randint(0, self.max_action_value - 1)
         else:
-            action_q_value = self.network_obs(auction_task, allocated_tasks, server, time_step)
-            return np.argmax(self.model_network(action_q_value))
+            obs = self.network_obs(auction_task, allocated_tasks, server, time_step)
+            return np.argmax(self.model_network(obs))
 
 
 @gin.configurable
@@ -209,7 +217,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
 
     def _get_action(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         if not self.eval_policy and rnd.random() < self.exploration:
-            return rnd.randint(1, self.max_action_value)
+            return rnd.randint(0, self.max_action_value - 1)
         else:
-            action_q_values = self.network_obs(weight_task, allocated_tasks, server, time_step)
-            return np.argmax(self.model_network(action_q_values)) + 1
+            obs = self.network_obs(weight_task, allocated_tasks, server, time_step)
+            return np.argmax(self.model_network(obs))

@@ -191,7 +191,7 @@ class OnlineFlexibleResourceAllocationEnv:
             # Resource allocation (Action = Dict[Server, Dict[Task, float]])
             # Convert weights to resources
             info['step type'] = 'resource allocation'
-            assert all(type(actions[server][task]) is float and 0 < actions[server][task]
+            assert all(type(actions[server][task]) is float and 0 <= actions[server][task]
                        for server, tasks in self._state.server_tasks.items() for task in tasks)
 
             # The updated server tasks and the resulting rewards
@@ -212,10 +212,12 @@ class OnlineFlexibleResourceAllocationEnv:
                                   self._next_auction_task(self._state.time_step + 1),
                                   self._state.time_step + 1)
 
-        # Update the state, and return the next state, the action rewards, if done and any additional info
-        assert all(server in next_state.server_tasks.keys() for server in self._state.server_tasks.keys())
-        assert all(id(task) != id(_task) for server, state_tasks in self._state.server_tasks.items()
-                   for task in state_tasks for _task in next_state.server_tasks[server])
+        assert all(task.auction_time <= next_state.time_step <= task.deadline
+                   for _, tasks in next_state.server_tasks.items() for task in tasks), next_state
+        # Painful to execute O(n^2) but just checks that tasks that are modified dont get passed through
+        assert all(id(task) != id(_task)
+                   for tasks in self._state.server_tasks.values() for task in tasks
+                   for _tasks in next_state.server_tasks.values() for _task in _tasks)
 
         self._state = next_state
         return self._state, rewards, self._total_time_steps < self._state.time_step, info

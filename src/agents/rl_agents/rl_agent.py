@@ -4,8 +4,7 @@ Generic Reinforcement learning agent
 
 from __future__ import annotations
 
-import abc
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections import deque
 from typing import List, Optional, NamedTuple
 
@@ -45,9 +44,9 @@ class ReinforcementLearningAgent(ABC):
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
-    def __init__(self, network_input_width, max_action_value,
+    def __init__(self, network_input_width, max_action_value, save_frequency: int = 25000, save_folder: str = 'unknown',
                  batch_size: int = 32, learning_rate: float = 0.001, replay_buffer_length: int = 10000,
-                 update_frequency: int = 4, training_replay_start_size: int = 2500):
+                 update_frequency: int = 4, log_frequency: int = 80, training_replay_start_size: int = 2500):
         """
         Constructor of the reinforcement learning base class where the argument will be used in all subclasses
 
@@ -77,9 +76,19 @@ class ReinforcementLearningAgent(ABC):
 
         # Training observations
         self.total_obs = 0
-        self.update_frequency = update_frequency
         self.training_replay_start_size = training_replay_start_size
 
+        # Observation frequency
+        assert log_frequency % update_frequency == 0, \
+            f'Log Freq: {log_frequency}, Update Freq: {update_frequency}, reminder: {log_frequency % update_frequency}'
+        assert save_frequency % update_frequency == 0, \
+            f'Save Freq: {save_frequency}, Update Freq: {update_frequency}, reminder: {save_frequency % update_frequency}'
+        self.update_frequency = update_frequency
+        self.log_frequency = log_frequency
+        self.save_frequency = save_frequency
+        self.save_folder = save_folder
+
+        # Policy
         self.eval_policy: bool = False
 
     @staticmethod
@@ -111,12 +120,22 @@ class ReinforcementLearningAgent(ABC):
         Trains the reinforcement learning agent and logs the training loss
         """
         training_loss = self._train()
-        tf.summary.scalar(f'{self.name} training loss', training_loss, step=self.total_obs)
+        if self.total_obs % self.log_frequency == 0:
+            tf.summary.scalar(f'{self.name} training loss', training_loss, step=self.total_obs)
+        if self.total_obs % self.save_frequency == 0:
+            self._save()
 
-    @abc.abstractmethod
+    @abstractmethod
     def _train(self) -> float:
         """
         An abstract function to train the reinforcement learning agent
+        """
+        pass
+
+    @abstractmethod
+    def _save(self):
+        """
+        Saves a copy of the current agent neural network models
         """
         pass
 
@@ -246,16 +265,16 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             finished_tasks: List of tasks that finished during that round of resource allocation
         """
         # Check that the arguments are valid
-        assert 0 < action <= self.max_action_value
+        assert 0 <= action < self.max_action_value
         assert all(finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
                    for finished_task in finished_tasks)
 
         # If the next obs is not none or if can access empty next obs then save observation
         if next_agent_state is not None or not self.ignore_empty_next_obs:
             # Calculate the action reward
-            reward = sum(self.successful_task_reward if finished_task.stage is TaskStage.COMPLETED else
-                         self.failed_task_reward for finished_task in finished_tasks)
-            self.replay_buffer.append(Trajectory(agent_state, action - 1, reward, next_agent_state))
+            reward = sum(self.successful_task_reward if finished_task.stage is TaskStage.COMPLETED
+                         else self.failed_task_reward for finished_task in finished_tasks)
+            self.replay_buffer.append(Trajectory(agent_state, action, reward, next_agent_state))
 
             # Check if to train the agent
             self.total_obs += 1
@@ -274,7 +293,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             finished_tasks: List of tasks that finished during that round of resource allocation
         """
         # Check that the arguments are valid
-        assert 0 < action <= self.max_action_value
+        assert 0 <= action < self.max_action_value
         assert finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
         assert all(finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
                    for finished_task in finished_tasks)
@@ -285,7 +304,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             (self.task_multiplier if finished_task.stage is TaskStage.COMPLETED else 1)
             for finished_task in finished_tasks)
         # Add the trajectory to the replay buffer
-        self.replay_buffer.append(Trajectory(agent_state, action - 1, reward, None))
+        self.replay_buffer.append(Trajectory(agent_state, action, reward, None))
 
         # Check if to train the agent
         self.total_obs += 1

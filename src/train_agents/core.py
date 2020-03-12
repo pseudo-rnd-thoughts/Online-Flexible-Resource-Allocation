@@ -10,6 +10,8 @@ import random as rnd
 import tensorflow as tf
 import datetime as dt
 
+from tensorflow_core.python.ops.summary_ops_v2 import ResourceSummaryWriter
+
 from env.env_state import EnvState
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.task_stage import TaskStage
@@ -35,7 +37,6 @@ def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent]
 
     Returns: A tuple of dictionaries, one for the server, task pricing agents and
         the other, server, resource weighting agents
-
     """
     server_task_pricing_agents: Dict[Server, TaskPricingAgent] = {
         server: rnd.choice(task_pricing_agents)
@@ -59,7 +60,6 @@ def eval_agent(env_filenames: List[str], episode: int,
         episode: The episode of evaluation
         task_pricing_agents: List of task pricing agents
         resource_weighting_agents: List of resource weighting agents
-
     """
 
     total_task_prices, completed_tasks, failed_tasks = 0, 0, 0
@@ -109,7 +109,6 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, task_pricing_
         training_env: Training environment used
         task_pricing_agents: A list of reinforcement learning task pricing agents
         resource_weighting_agents: A list of reinforcement learning resource weighting agents
-
     """
     # Reset the environment getting a new training environment for this episode
     state = training_env.reset()
@@ -240,13 +239,22 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, task_pricing_
                             server_resource_allocation[server].finished_task_obs(last_agent_state, last_action,
                                                                                  finished_task,
                                                                                  finished_server_tasks[server])
-
+        assert all(task.auction_time <= next_state.time_step <= task.deadline
+                   for _, tasks in next_state.server_tasks.items() for task in tasks)
         # Update the state with the next state
         state = next_state
 
 
 def set_policy(task_pricing_agents: List[TaskPricingRLAgent],
                resource_weighting_agents: List[ResourceWeightingRLAgent], policy: bool):
+    """
+    Sets the action selection policy either epsilon greedy or argmax
+
+    Args:
+        task_pricing_agents: List of task pricing agents
+        resource_weighting_agents: List of resource weighting agents
+        policy: Action selection policy
+    """
     for task_pricing_agent in task_pricing_agents:
         task_pricing_agent.eval_policy = policy
     for resource_weighting_agent in resource_weighting_agents:
@@ -266,18 +274,23 @@ def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: L
         task_pricing_agents: The task pricing agents
         resource_weighting_agents: The resource weighting agents
         eval_frequency: The evaluation frequency
-
     """
     # Loop over the episodes
     for episode in range(total_episodes):
         print(f'Episode: {episode} at {dt.datetime.now().strftime("%H:%M:%S")}')
         set_policy(task_pricing_agents, resource_weighting_agents, False)
-        train_agent(training_env, task_pricing_agents, resource_weighting_agents)
+        # train_agent(training_env, task_pricing_agents, resource_weighting_agents)
 
         # Every eval_frequency episodes, the agents are evaluated
         if episode % eval_frequency == 0:
             set_policy(task_pricing_agents, resource_weighting_agents, True)
             eval_agent(eval_envs, episode, task_pricing_agents, resource_weighting_agents)
+
+            print('\tTP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
+            print('\tRW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agents) + '}')
+            print('\tTP exploration Obs: {' + ', '.join(f'{agent.name}: {agent.exploration}' for agent in task_pricing_agents) + '}')
+            print('\tRW exploration Obs: {' + ', '.join(f'{agent.name}: {agent.exploration}' for agent in resource_weighting_agents) + '}')
+            print()
 
 
 def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals: int, folder: str,
@@ -292,8 +305,9 @@ def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals:
         overwrite: If to overwrite previous environments saved
 
     Returns: A list of environment file paths
-
     """
+    if not os.path.exists(folder):
+        os.mkdir(folder)
 
     eval_files = []
     for eval_num in range(num_evals):
@@ -306,12 +320,11 @@ def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals:
     return eval_files
 
 
-def setup_tensorboard(folder: str):
+def setup_tensorboard(folder: str) -> ResourceSummaryWriter:
     """
     Setups the tensorboard for the training and evaluation results
 
     Args:
         folder: The folder for the tensorboard
-
     """
-    tf.summary.create_file_writer(folder)
+    return tf.summary.create_file_writer(folder)

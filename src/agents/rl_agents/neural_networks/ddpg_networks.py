@@ -13,6 +13,10 @@ class DdpgActor(Network):
     def __init__(self, input_width, max_action_value):
         Network.__init__(self, 'DDPG Actor', input_width, max_action_value)
 
+    def call(self, inputs, training=None, mask=None):
+        # todo
+        pass
+
 
 class DdpgCritic(Network):
     """
@@ -21,3 +25,7 @@ class DdpgCritic(Network):
 
     def __init__(self, input_width, max_action_value):
         Network.__init__(self, 'DDPG Critic', input_width, max_action_value)
+
+    def call(self, inputs, training=None, mask=None):
+        # todo
+        pass

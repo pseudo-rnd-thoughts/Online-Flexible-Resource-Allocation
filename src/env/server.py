@@ -54,15 +54,18 @@ class Server(NamedTuple):
 
         """
 
-        assert len(resource_weights) > 0
+        assert 0 < len(resource_weights)
         # Assert that all tasks are at the correct stage
         assert all(task.stage is TaskStage.LOADING or task.stage is TaskStage.COMPUTING or task.stage is TaskStage.SENDING for task in resource_weights.keys())
         # Assert that all weights are greater than zero
-        assert all(weight > 0 for weight in resource_weights.values())
+        assert all(0 <= weight for weight in resource_weights.values())
         # Group the tasks by stage
-        loading_weights: Dict[Task, float] = {task: weight for task, weight in resource_weights.items() if task.stage is TaskStage.LOADING}
-        compute_weights: Dict[Task, float] = {task: weight for task, weight in resource_weights.items() if task.stage is TaskStage.COMPUTING}
-        sending_weights: Dict[Task, float] = {task: weight for task, weight in resource_weights.items() if task.stage is TaskStage.SENDING}
+        loading_weights: Dict[Task, float] = {task: weight for task, weight in resource_weights.items()
+                                              if task.stage is TaskStage.LOADING and 0 < weight}
+        compute_weights: Dict[Task, float] = {task: weight for task, weight in resource_weights.items()
+                                              if task.stage is TaskStage.COMPUTING and 0 < weight}
+        sending_weights: Dict[Task, float] = {task: weight for task, weight in resource_weights.items()
+                                              if task.stage is TaskStage.SENDING and 0 < weight}
 
         # Resource available, storage is special because some storage is already used due to the previous stage
         available_storage: float = self.storage_cap - sum(task.loading_progress for task in resource_weights.keys())
@@ -73,13 +76,19 @@ class Server(NamedTuple):
         compute_task_resource_usage = self.allocate_compute_resources(compute_weights, available_computation, time_step)
         # Allocate bandwidth resources (and storage) to the tasks at loading and sending stage
         bandwidth_task_resource_usage = self.allocate_bandwidth_resources(loading_weights, sending_weights, available_storage, available_bandwidth, time_step)
+        # If task has weights of zero then allocate resource of only loadings
+        no_weights = {
+            task._replace(stage=task.has_failed(task.stage, time_step)): (task.loading_progress, 0, 0)
+            for task, weight in resource_weights.items() if weight == 0
+        }
 
         # Join the compute and bandwidth resource allocation
-        task_resource_usage = {**compute_task_resource_usage, **bandwidth_task_resource_usage}
+        task_resource_usage = {**compute_task_resource_usage, **bandwidth_task_resource_usage, **no_weights}
 
         # Assert that the updated task are still valid
         for task in task_resource_usage.keys():
             task.assert_valid()
+            assert task in list(resource_weights.keys())
         # Assert that the resources used are less than available resources
         assert sum(storage_usage for (storage_usage, _, _) in task_resource_usage.values()) <= self.storage_cap + error_term
         assert sum(compute_usage for (_, compute_usage, _) in task_resource_usage.values()) <= self.computational_comp + error_term
@@ -109,7 +118,7 @@ class Server(NamedTuple):
         task_resource_usage: Dict[Task, Tuple[float, float, float]] = {}
 
         assert all(task.stage is TaskStage.COMPUTING for task in compute_weights.keys())
-        assert all(weight > 0 for weight in compute_weights.values())
+        assert all(0 < weight for weight in compute_weights.values())
 
         # Todo update such that this makes more sense
         # It is possible that the percentage of computational resources that could be allocated to a task is greater
@@ -170,9 +179,9 @@ class Server(NamedTuple):
         task_resource_usage: Dict[Task, Tuple[float, float, float]] = {}
 
         assert all(task.stage is TaskStage.LOADING for task in loading_weights.keys())
-        assert all(weight > 0 for weight in loading_weights.values())
+        assert all(0 < weight for weight in loading_weights.values())
         assert all(task.stage is TaskStage.SENDING for task in sending_weights.keys())
-        assert all(weight > 0 for weight in sending_weights.values())
+        assert all(0 < weight for weight in sending_weights.values())
 
         # Todo explain idea
         update_task: bool = True

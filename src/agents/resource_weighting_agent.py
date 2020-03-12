@@ -44,7 +44,7 @@ class ResourceWeightingAgent(abc.ABC):
                        for allocated_task in allocated_tasks)
 
             action = self._get_action(weight_task, allocated_tasks, server, time_step)
-            assert 0 < action
+            assert 0 <= action
 
             return float(action)
         else:
