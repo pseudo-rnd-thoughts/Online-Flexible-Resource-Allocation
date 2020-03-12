@@ -12,7 +12,7 @@ from env.task_stage import TaskStage
 
 def test_env_step_rnd_action():
     print()
-    env = OnlineFlexibleResourceAllocationEnv.make('../src/env_settings/basic_env.json')
+    env = OnlineFlexibleResourceAllocationEnv.make('../src/train_agents/env_settings/basic_env.json')
     random_task_pricing = RandomTaskPricingAgent(0)
     random_resource_weighting = RandomResourceWeightingAgent(0)
 
@@ -49,6 +49,8 @@ def test_env_step_rnd_action():
                 # print(f'\tResource allocation')
             # print(f'Step, time step: {env.state.time_step}')
             state, reward, done, info = env.step(actions)
+            assert all(task.auction_time <= state.time_step <= task.deadline
+                       for _, tasks in state.server_tasks.items() for task in tasks)
 
         # print(f'Num unallocated tasks: {num_tasks}, auctioned tasks: {auctioned_tasks}\n')
         assert num_tasks == auctioned_tasks
