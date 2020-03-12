@@ -16,20 +16,20 @@ if __name__ == "__main__":
     eval_envs = generate_eval_envs(env, 5, f'../eval_envs/{folder}/')
 
     task_pricing_dqn_agents = [
-        TaskPricingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 9, 10), save_frequency=260, save_folder=folder,
+        TaskPricingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 9, 10), save_frequency=25000, save_folder=folder,
                             replay_buffer_length=50000, training_replay_start_size=20000,
                             target_update_frequency=10000, final_exploration_frame=100000)
-        for agent_num in range(1)
+        for agent_num in range(3)
     ]
     resource_weighting_dqn_agents = [
-        ResourceWeightingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 10, 10), save_frequency=260, save_folder=folder,
+        ResourceWeightingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 10, 10), save_frequency=25000, save_folder=folder,
                                   replay_buffer_length=50000, training_replay_start_size=20000,
                                   target_update_frequency=10000, final_exploration_frame=100000)
-        for agent_num in range(1)
+        for agent_num in range(3)
     ]
 
     with writer.as_default():
-        run_training(env, eval_envs, 6, task_pricing_dqn_agents, resource_weighting_dqn_agents, 5)
+        run_training(env, eval_envs, 100, task_pricing_dqn_agents, resource_weighting_dqn_agents, 5)
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_dqn_agents) + '}')
     print('RW Total Obs: {' + ', '.join(
