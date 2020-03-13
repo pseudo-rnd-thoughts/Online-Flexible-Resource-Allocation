@@ -4,18 +4,18 @@ Core function for training of agents
 
 from __future__ import annotations
 
-import os
-from typing import List, Dict, Tuple, Optional, TYPE_CHECKING
-import random as rnd
-import tensorflow as tf
 import datetime as dt
+import os
+import random as rnd
+from typing import List, Dict, Tuple, Optional, TYPE_CHECKING
 
+import tensorflow as tf
 from tensorflow_core.python.ops.summary_ops_v2 import ResourceSummaryWriter
 
+from agents.rl_agents.rl_agent import AgentState
 from env.env_state import EnvState
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.task_stage import TaskStage
-from agents.rl_agents.rl_agent import AgentState
 
 if TYPE_CHECKING:
     from env.server import Server
@@ -38,15 +38,14 @@ def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent]
     Returns: A tuple of dictionaries, one for the server, task pricing agents and
         the other, server, resource weighting agents
     """
-    server_task_pricing_agents: Dict[Server, TaskPricingAgent] = {
-        server: rnd.choice(task_pricing_agents)
-        for server in state.server_tasks.keys()
+    server_task_pricing_agents = {
+        server: rnd.choice(task_pricing_agents) for server in state.server_tasks.keys()
     }
-    server_resource_allocation_agents: Dict[Server, ResourceWeightingAgent] = {
-        server: rnd.choice(resource_weighting_agents)
-        for server in state.server_tasks.keys()
+    server_resource_weighting_agents = {
+        server: rnd.choice(resource_weighting_agents) for server in state.server_tasks.keys()
     }
-    return server_task_pricing_agents, server_resource_allocation_agents
+
+    return server_task_pricing_agents, server_resource_weighting_agents
 
 
 def eval_agent(env_filenames: List[str], episode: int,
@@ -94,7 +93,8 @@ def eval_agent(env_filenames: List[str], episode: int,
                         else:
                             failed_tasks += 1
 
-    print(f'Eval {episode} - total price: {total_task_prices}, completed tasks: {completed_tasks}, failed tasks: {failed_tasks}')
+    print(f'Eval episode {episode} - total price: {total_task_prices}, '
+          f'completed tasks: {completed_tasks}, failed tasks: {failed_tasks}')
     tf.summary.scalar('Eval total price', total_task_prices, step=episode)
     tf.summary.scalar('Eval total completed tasks', completed_tasks, step=episode)
     tf.summary.scalar('Eval total failed tasks', failed_tasks, step=episode)
@@ -114,10 +114,10 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, task_pricing_
     state = training_env.reset()
 
     # Allocate the servers with their random task pricing and resource weighting agents
-    server_task_pricing: Dict[Server, TaskPricingRLAgent] = {
+    server_task_pricing_agents: Dict[Server, TaskPricingRLAgent] = {
         server: rnd.choice(task_pricing_agents) for server in state.server_tasks.keys()
     }
-    server_resource_allocation: Dict[Server, ResourceWeightingRLAgent] = {
+    server_resource_weighting_agents: Dict[Server, ResourceWeightingRLAgent] = {
         server: rnd.choice(resource_weighting_agents) for server in state.server_tasks.keys()
     }
 
@@ -138,7 +138,7 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, task_pricing_
         if state.auction_task:
             # Get the bids for each server
             auction_prices = {
-                server: server_task_pricing[server].bid(state.auction_task, server_tasks, server, state.time_step)
+                server: server_task_pricing_agents[server].bid(state.auction_task, server_tasks, server, state.time_step)
                 for server, server_tasks in state.server_tasks.items()
             }
 
@@ -162,8 +162,8 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, task_pricing_
                     else:
                         # Else add the agent state to the agent's replay buffer as a failed auction bid
                         # Else add the observation as a failure to the task pricing rl_agents
-                        server_task_pricing[server].failed_auction_bid(previous_agent_state, previous_action,
-                                                                       current_agent_state)
+                        server_task_pricing_agents[server].failed_auction_bid(previous_agent_state, previous_action,
+                                                                              current_agent_state)
 
                 # Update the server auction agent states with the current agent state
                 server_auction_agent_states[server] = (current_agent_state, auction_prices[server], server in rewards)
@@ -171,7 +171,7 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, task_pricing_
             # For each server and each server task calculate its relative weighting
             resource_weighting_actions = {
                 server: {
-                    task: server_resource_allocation[server].weight(task, server_tasks, server, state.time_step)
+                    task: server_resource_weighting_agents[server].weight(task, server_tasks, server, state.time_step)
                     for task in server_tasks
                 }
                 for server, server_tasks in state.server_tasks.items()
@@ -195,8 +195,8 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, task_pricing_
                     auction_agent_state, bid_action, next_agent_state = successful_auction
 
                     # Add the winning auction bid info to the agent
-                    server_task_pricing[server].winning_auction_bid(auction_agent_state, bid_action,
-                                                                    finished_task, next_agent_state)
+                    server_task_pricing_agents[server].winning_auction_bid(auction_agent_state, bid_action,
+                                                                           finished_task, next_agent_state)
 
             # Add the agent states for resource allocation
             for server, tasks in state.server_tasks.items():
@@ -223,22 +223,22 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, task_pricing_
                                                               next_state.time_step)
 
                                 # Add the task observation with the rewards of other tasks completed
-                                server_resource_allocation[server].allocation_obs(last_agent_state, last_action,
-                                                                                  next_agent_state,
-                                                                                  finished_server_tasks[server])
+                                server_resource_weighting_agents[server].allocation_obs(last_agent_state, last_action,
+                                                                                        next_agent_state,
+                                                                                        finished_server_tasks[server])
                             else:
                                 # Add the task observation but without the next observations
-                                server_resource_allocation[server].allocation_obs(last_agent_state, last_action, None,
-                                                                                  finished_server_tasks[server])
+                                server_resource_weighting_agents[server].allocation_obs(last_agent_state, last_action, None,
+                                                                                        finished_server_tasks[server])
                         else:
                             # The weighted task was finished so using the finished task in the finished_server_tasks dictionary
                             finished_task = next(finished_task for finished_task in finished_server_tasks[server]
                                                  if finished_task == weighted_task)
 
                             # Update the resource allocation with teh finished task observation
-                            server_resource_allocation[server].finished_task_obs(last_agent_state, last_action,
-                                                                                 finished_task,
-                                                                                 finished_server_tasks[server])
+                            server_resource_weighting_agents[server].finished_task_obs(last_agent_state, last_action,
+                                                                                       finished_task,
+                                                                                       finished_server_tasks[server])
         assert all(task.auction_time <= next_state.time_step <= task.deadline
                    for _, tasks in next_state.server_tasks.items() for task in tasks)
         # Update the state with the next state
@@ -279,7 +279,7 @@ def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: L
     for episode in range(total_episodes):
         print(f'Episode: {episode} at {dt.datetime.now().strftime("%H:%M:%S")}')
         set_policy(task_pricing_agents, resource_weighting_agents, False)
-        # train_agent(training_env, task_pricing_agents, resource_weighting_agents)
+        train_agent(training_env, task_pricing_agents, resource_weighting_agents)
 
         # Every eval_frequency episodes, the agents are evaluated
         if episode % eval_frequency == 0:
@@ -327,4 +327,4 @@ def setup_tensorboard(folder: str) -> ResourceSummaryWriter:
     Args:
         folder: The folder for the tensorboard
     """
-    return tf.summary.create_file_writer(folder)
+    return tf.summary.create_file_writer(f'logs/{folder}_{dt.datetime.now().strftime("%m-%d_%H-%M-%S")}')
