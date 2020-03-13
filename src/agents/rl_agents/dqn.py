@@ -4,20 +4,22 @@ Deep Q Network based on Playing Atari with Deep Reinforcement Learning (https://
 
 from __future__ import annotations
 
+import os
+import pickle
+import random as rnd
 from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import List
-import tensorflow as tf
-import numpy as np
-import random as rnd
+
 import gin
+import numpy as np
+import tensorflow as tf
 
 from agents.rl_agents.neural_networks.network import Network
-from env.server import Server
-from env.task import Task
-
 from agents.rl_agents.rl_agent import ReinforcementLearningAgent, ResourceWeightingRLAgent, TaskPricingRLAgent, \
     Trajectory, AgentState
+from env.server import Server
+from env.task import Task
 
 
 @gin.configurable
@@ -26,9 +28,10 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
     Deep Q Network agent
     """
 
-    def __init__(self, network: Network, target_update_frequency: int = 2500,
-                 initial_exploration: float = 1, final_exploration: float = 0.1, final_exploration_frame: int = 100000,
-                 loss_func: tf.keras.losses.Loss = tf.keras.losses.Huber, clip_loss: bool = True, **kwargs):
+    def __init__(self, network: Network, target_update_frequency: int = 2500, initial_exploration: float = 1,
+                 final_exploration: float = 0.1, final_exploration_frame: int = 100000,
+                 exploration_frequency: int = 1000, discount: float = 0.9,
+                 loss_func: tf.keras.losses.Loss = tf.keras.losses.Huber(), clip_loss: bool = True, **kwargs):
         """
         Constructor for the DQN agent
 
@@ -46,16 +49,21 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         self.target_network = deepcopy(network)
 
         # The target network update frequency called from the _train function
+        assert target_update_frequency % self.update_frequency == 0
         self.target_update_frequency = target_update_frequency
 
         # Exploration variables for when to choice a random action
         self.initial_exploration = initial_exploration
         self.final_exploration = final_exploration
-        self.exploration_gradient = (self.final_exploration - self.initial_exploration) / final_exploration_frame
         self.exploration = self.initial_exploration
+        self.final_exploration_frame = final_exploration_frame
+        assert exploration_frequency % self.update_frequency == 0
+        self.exploration_frequency = exploration_frequency
 
         self.loss_func = loss_func
         self.clip_loss = clip_loss
+
+        self.discount = discount
 
     @staticmethod
     @abstractmethod
@@ -105,7 +113,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
                 else:
                     next_obs = self.network_obs(next_agent_state.task, next_agent_state.tasks,
                                                 next_agent_state.server, next_agent_state.time_step)
-                    target[0][action] = reward + np.max(self.target_network(next_obs))
+                    target[0][action] = reward + self.discount * np.max(self.target_network(next_obs))
 
                 if self.clip_loss:
                     loss = tf.clip_by_value(self.loss_func(target, self.model_network(obs)), -1, +1)
@@ -116,16 +124,18 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
                 gradients.append(tape.gradient(loss, network_variables))
                 losses.append(np.max(loss))
 
-        # Calculate the mean gradient change between the losses (I believe this is equivalent to mean-square bellman error)
-        mean_gradient = np.mean(gradients, axis=0)
+        # Calculate the mean gradient change between the losses (therefore the mean square bellmen loss)
+        mean_gradient = 1/self.batch_size * np.mean(gradients, axis=0)
 
         # Apply the mean gradient to the network model
         self.optimiser.apply_gradients(zip(mean_gradient, network_variables))
 
         if self.total_obs % self.target_update_frequency == 0:
             self._update_target_network()
-        self.exploration = min(self.final_exploration,
-                               self.total_obs * self.exploration_gradient + self.initial_exploration)
+        if self.total_obs % self.exploration_frequency == 0:
+            self.exploration = min(self.final_exploration,
+                                   self.total_obs / self.final_exploration_frame * (
+                                               self.final_exploration - self.initial_exploration) + self.initial_exploration)
 
         # noinspection PyTypeChecker
         return np.mean(losses)
@@ -134,11 +144,15 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         """
         Updates the target network with the model network every target_update_frequency observations
         """
+        # print(f'Update {self.name} target network {self.model_network.name}')
         self.target_network.set_weights(self.model_network.get_weights())
 
     def _save(self):
-        print('Saving model')
-        self.model_network.save(f'checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}')
+        path = f'{os.getcwd()}\\checkpoint\\{self.save_folder}\\{self.name.replace(" ", "_")}'
+        if not os.path.exists(path):
+            os.makedirs(path)
+        with open(path + f'\\model_{self.total_obs}.pickle', 'wb') as file:
+            pickle.dump(self.model_network.trainable_variables, file)
 
 
 @gin.configurable
@@ -149,7 +163,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
 
     def __init__(self, agent_num: int, network: Network, **kwargs):
         DqnAgent.__init__(self, network, **kwargs)
-        TaskPricingRLAgent.__init__(self, f'DQN TP {agent_num}', 9, network.max_action_value)
+        TaskPricingRLAgent.__init__(self, f'DQN TP {agent_num}', 9, network.max_action_value, **kwargs)
 
     @staticmethod
     def network_obs(pricing_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
@@ -182,6 +196,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
             return np.argmax(self.model_network(obs))
 
 
+# noinspection DuplicatedCode
 @gin.configurable
 class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
     """
@@ -190,12 +205,13 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
 
     def __init__(self, agent_num: int, network: Network, **kwargs):
         DqnAgent.__init__(self, network, **kwargs)
-        ResourceWeightingRLAgent.__init__(self, f'DQN RW {agent_num}', 10, network.max_action_value)
+        ResourceWeightingRLAgent.__init__(self, f'DQN RW {agent_num}', 10, network.max_action_value, **kwargs)
 
     @staticmethod
     def network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
         """
         Network observation for the Q network
+
         Args:
             weighting_task: The weighing task
             allocated_tasks: The allocated tasks
