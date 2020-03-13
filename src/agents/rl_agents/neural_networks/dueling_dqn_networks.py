@@ -14,7 +14,7 @@ class DuelingDqnLstmNetwork(Network):
     def __init__(self, input_width: int, num_actions: int, lstm_width: int = 40, relu_width: int = 20):
         super().__init__('Dueling Lstm', input_width, num_actions)
 
-        self.lstm_layer = tf_layers.LSTM(lstm_width, input_shape=[None, input_width])
+        self.lstm_layer = tf_layers.LSTM(lstm_width, input_shape=(None, input_width))
         self.relu_layer = tf_layers.ReLU(relu_width)
 
         self.advantage_layer = tf_layers.Dense(num_actions)
