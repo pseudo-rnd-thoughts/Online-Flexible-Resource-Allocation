@@ -7,7 +7,7 @@ from __future__ import annotations
 import json
 import operator
 import random as rnd
-from copy import deepcopy as copy
+from copy import deepcopy
 from math import inf
 from typing import TYPE_CHECKING, Optional
 
@@ -164,7 +164,7 @@ class OnlineFlexibleResourceAllocationEnv:
                         min_servers.append(server)
 
             # Creates the next environment state by copying the server task info, get the next auction task and the time step doesnt change
-            next_state: EnvState = EnvState(copy(self._state.server_tasks),
+            next_state: EnvState = EnvState(deepcopy(self._state.server_tasks),
                                             self._next_auction_task(self._state.time_step),
                                             self._state.time_step)
             # The reward dictionary of server to price (this is only for the server that won)
