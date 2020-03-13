@@ -2,13 +2,13 @@
 Agent that randoms choose the price or weight of a task
 """
 
-from typing import List
 import random as rnd
+from typing import List
 
-from env.server import Server
-from env.task import Task
 from agents.resource_weighting_agent import ResourceWeightingAgent
 from agents.task_pricing_agent import TaskPricingAgent
+from env.server import Server
+from env.task import Task
 
 
 class RandomTaskPricingAgent(TaskPricingAgent):
