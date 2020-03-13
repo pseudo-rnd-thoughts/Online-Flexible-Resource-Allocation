@@ -7,14 +7,14 @@ from __future__ import annotations
 import json
 import operator
 import random as rnd
+from copy import deepcopy as copy
 from math import inf
 from typing import TYPE_CHECKING, Optional
-from copy import deepcopy as copy
 
 from env.env_state import EnvState
-from env.task_stage import TaskStage
 from env.server import Server
 from env.task import Task
+from env.task_stage import TaskStage
 
 if TYPE_CHECKING:
     from typing import List, Dict, Union, Tuple
