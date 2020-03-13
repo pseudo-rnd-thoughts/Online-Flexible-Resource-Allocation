@@ -8,14 +8,14 @@ from abc import ABC, abstractmethod
 from collections import deque
 from typing import List, Optional, NamedTuple
 
-import tensorflow as tf
 import gin.tf
+import tensorflow as tf
 
+from agents.resource_weighting_agent import ResourceWeightingAgent
+from agents.task_pricing_agent import TaskPricingAgent
 from env.server import Server
 from env.task import Task
 from env.task_stage import TaskStage
-from agents.resource_weighting_agent import ResourceWeightingAgent
-from agents.task_pricing_agent import TaskPricingAgent
 
 
 class AgentState(NamedTuple):
@@ -44,9 +44,10 @@ class ReinforcementLearningAgent(ABC):
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
-    def __init__(self, network_input_width, max_action_value, save_frequency: int = 25000, save_folder: str = 'unknown',
-                 batch_size: int = 32, learning_rate: float = 0.001, replay_buffer_length: int = 10000,
-                 update_frequency: int = 4, log_frequency: int = 80, training_replay_start_size: int = 2500):
+    def __init__(self, network_input_width: int, max_action_value: int,
+                 save_frequency: int = 25000, save_folder: str = 'test', batch_size: int = 32,
+                 learning_rate: float = 0.001, replay_buffer_length: int = 10000,
+                 update_frequency: int = 4, log_frequency: int = 80, training_replay_start_size: int = 2500, **kwargs):
         """
         Constructor of the reinforcement learning base class where the argument will be used in all subclasses
 
@@ -115,15 +116,17 @@ class ReinforcementLearningAgent(ABC):
             task.sending_progress
         ]
 
-    def train(self):
+    def train(self, print_training: bool = True):
         """
         Trains the reinforcement learning agent and logs the training loss
         """
+        if print_training:
+            print(f'Training {self.name} agent with {self.total_obs} obs')
         training_loss = self._train()
         if self.total_obs % self.log_frequency == 0:
             tf.summary.scalar(f'{self.name} training loss', training_loss, step=self.total_obs)
         if self.total_obs % self.save_frequency == 0:
-            self._save()
+            self.save()
 
     @abstractmethod
     def _train(self) -> float:
@@ -131,6 +134,14 @@ class ReinforcementLearningAgent(ABC):
         An abstract function to train the reinforcement learning agent
         """
         pass
+
+    def save(self):
+        """
+        Saves a copy of the reinforcement learning agent models at this current total obs
+        """
+        assert self.name != 'unknown'
+        print(f'Saving {self.name} agent models')
+        self._save()
 
     @abstractmethod
     def _save(self):
@@ -148,7 +159,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
     """
 
     def __init__(self, name, network_input_width, max_action_value,
-                 failed_auction_reward: float = -0.05, failed_reward_multiplier: float = 1.5):
+                 failed_auction_reward: float = -0.05, failed_reward_multiplier: float = 1.5, **kwargs):
         """
         Constructor of the task pricing reinforcement learning agent
 
@@ -160,7 +171,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
             failed_reward_multiplier: Failed reward multiplier
         """
         TaskPricingAgent.__init__(self, name)
-        ReinforcementLearningAgent.__init__(self, network_input_width, max_action_value)
+        ReinforcementLearningAgent.__init__(self, network_input_width, max_action_value, **kwargs)
 
         # Reward variable
         self.failed_auction_reward = failed_auction_reward
