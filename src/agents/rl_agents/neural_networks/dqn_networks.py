@@ -2,7 +2,7 @@
 DQN Networks
 """
 
-import tensorflow.keras.layers as tf
+import tensorflow as tf
 
 from agents.rl_agents.neural_networks.network import Network
 
@@ -15,9 +15,10 @@ class DqnBidirectionalLstmNetwork(Network):
     def __init__(self, input_width: int, action_width: int, lstm_width: int = 40, relu_width: int = 20):
         Network.__init__(self, 'Bidirectional Lstm', input_width, action_width)
 
-        self.bidirectional_lstm = tf.Bidirectional(tf.LSTM(lstm_width, input_shape=[None, input_width]))
-        self.relu = tf.ReLU(relu_width)
-        self.q_value_layer = tf.Dense(action_width)
+        self.bidirectional_lstm = tf.keras.layers.Bidirectional(
+            tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width)))
+        self.relu = tf.keras.layers.ReLU(relu_width)
+        self.q_value_layer = tf.keras.layers.Dense(action_width)
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -42,9 +43,9 @@ class DqnLstmNetwork(Network):
     def __init__(self, input_width: int, action_width: int, lstm_width: int = 40, relu_width: int = 20):
         Network.__init__(self, 'Lstm', input_width, action_width)
 
-        self.lstm = tf.LSTM(lstm_width, input_shape=(None, input_width))
-        self.relu = tf.ReLU(relu_width)
-        self.q_value_layer = tf.Dense(action_width)
+        self.lstm = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
+        self.relu = tf.keras.layers.ReLU(relu_width)
+        self.q_value_layer = tf.keras.layers.Dense(action_width)
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -69,9 +70,9 @@ class DqnGruNetwork(Network):
     def __init__(self, input_width: int, action_width: int, lstm_width: int = 40, relu_width: int = 20):
         Network.__init__(self, 'Gru', input_width, action_width)
 
-        self.gru = tf.GRU(lstm_width, input_shape=[None, input_width])
-        self.relu = tf.ReLU(relu_width)
-        self.q_value_layer = tf.Dense(action_width)
+        self.gru = tf.keras.layers.GRU(lstm_width, input_shape=(None, input_width))
+        self.relu = tf.keras.layers.ReLU(relu_width)
+        self.q_value_layer = tf.keras.layers.Dense(action_width)
 
     def call(self, inputs, training=None, mask=None):
         """
