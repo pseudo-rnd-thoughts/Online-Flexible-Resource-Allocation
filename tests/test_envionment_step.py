@@ -1,5 +1,7 @@
 """Testing the environment step function"""
 
+from __future__ import annotations
+
 from tqdm import tqdm
 
 from agents.heuristic_agents.human_agent import HumanTaskPricing, HumanResourceWeighting

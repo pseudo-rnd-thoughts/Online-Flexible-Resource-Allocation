@@ -1,5 +1,7 @@
 """Tests the resource allocation in the server class"""
 
+from __future__ import annotations
+
 import random as rnd
 
 from env.server import Server

@@ -1,17 +1,21 @@
 """Checks that neural networks can be differentiated using DQN loss function"""
 
+from __future__ import annotations
+
+import numpy as np
 import tensorflow as tf
 
 from agents.rl_agents.dqn import TaskPricingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork
-from agents.rl_agents.rl_agent import TaskPricingRLAgent
 from env.server import Server
 from env.task import Task
 from env.task_stage import TaskStage
 
 
+# noinspection DuplicatedCode
 def test_network_gradients():
-    network = DqnLstmNetwork(9, 10)
+    print()
+    network = DqnLstmNetwork(9, 4)
 
     server = Server('Test', 220.0, 35.0, 22.0)
     auction_task = Task('Test 4', 69.0, 35.0, 10.0, 0, 12)
@@ -22,23 +26,24 @@ def test_network_gradients():
         Task('Test 3', 72.0, 47.0, 20.0, 0, 7, stage=TaskStage.COMPUTING, loading_progress=72.0, compute_progress=25.0)
     ]
     optimiser = tf.keras.optimizers.RMSprop(lr=0.001)
+    loss_func = tf.keras.losses.MeanSquaredError()
 
-    observation = TaskPricingRLAgent.network_observation(auction_task, allocated_tasks, server, 0)
-    network(observation)
+    obs = TaskPricingDqnAgent.network_obs(auction_task, allocated_tasks, server, 0)
+    network(obs)
 
     network_variables = network.trainable_variables
     with tf.GradientTape() as tape:
-        observation = TaskPricingRLAgent.network_observation(auction_task, allocated_tasks, server, 0)
+        obs = TaskPricingDqnAgent.network_obs(auction_task, allocated_tasks, server, 0)
 
-        action_q_values = network(observation)
+        action_q_values = network(obs)
         print(f'Action Q Values: {action_q_values}')
 
-        loss = tf.reduce_mean(0.5 * tf.square(action_q_values))
+        loss = loss_func(np.array([[0, 0, 0, 0]]), action_q_values)
+        print(f'Loss: {loss}')
 
     network_gradients = tape.gradient(loss, network_variables)
-    optimiser.apply_gradients(zip(network_gradients, network_variables))
-    print(f'Loss: {loss}')
     print(f'Network Gradients: {network_gradients}')
+    optimiser.apply_gradients(zip(network_gradients, network_variables))
 
 
 # noinspection DuplicatedCode
@@ -61,6 +66,8 @@ def test_network_obs():
         obs = network(agent.network_obs(auction_task, allocated_tasks[:pos], server, 0))
         print(obs)
 
+
+# noinspection DuplicatedCode
 def test_network_input_shape():
     print()
 
