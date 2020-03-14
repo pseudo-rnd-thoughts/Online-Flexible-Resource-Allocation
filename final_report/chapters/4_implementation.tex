@@ -15,11 +15,53 @@ number of open source popular reinforcement learning environment using the pytho
 Due to the wide scale use and developing of agents to interact with environment using the OpenAI environment
 specification, I have likewise programmed this environment to follow the same specification. %% todo this is a horrible sentence, to fix
 
-\section{Agent definition}\label{sec:agent-definition}
-There are two types of agents that need to be considered: task pricing agent and resource weighting agent that server
-has one of each.
+Therefore each server is forced to have a individual agents for both of the subproblems making the overall problem
+particularly interesting for multi-agent reinforcement learning environment. \\
+This is because the overall aim of the environment is cooperative (to maximise the social welfare) but the servers
+in competition during the auctions in order to maximise their profit.
+But then the server must be cooperative in allocating of resources to each task as the server wish to complete as
+many tasks as they can.
 
-Tensorflow
+\section{Task pricing and resource weighting policy}\label{sec:agent-definition}
+Using the problem definition from chapter~\ref{ch:project-problem}, the overall problem of flexible resource allocation
+is be separated into two subproblems: the auctioning of tasks and the allocating of resources to tasks that each server
+must do. Because of this, each server has to have a unique policy for bidding on tasks and allocating resources.
+Even those the state space and action space are exactly the same, the optimal policies for task pricing and
+resource allocation are completely different.
+
+These policies are referred to as the task pricing agent, for bidding on tasks and the resource weighting agent,
+for allocating of resources. However determining these policies is a difficult due to the complexity and the interaction
+of task attributes and the server resources. Because of this, the ability of reinforcement learning to interact
+an environment and learn a policy in order to maximise its reward over time. Therefore a range of different
+policies have been implemented as Table~\ref{tab:policies} in order to evaluate the performance of different policies
+learning methods.
+
+\begin{tabular}
+    \begin{table}
+        Policy type | Explanation \\
+        %% todo
+    \end{table}
+    \label{tab:policies}
+    \caption{Table of policy types}
+\end{tabular}
 
 \section{Training of agents}\label{sec:training-of-agents}
-Hyperparamters
+In order to train the agents
+
+\begin{tabular}
+    \begin{table}
+        Hyperparameter | Value \\
+        %% todo
+    \end{table}
+    \label{tab:dqn_hyperparameter}
+    \caption{Table of Deep Q Networks training hyperparameters}
+\end{tabular}
+
+\begin{tabular}
+    \begin{table}
+        Hyperparameter | Value \\
+        %% todo
+    \end{table}
+    \label{tab:ddpg_hyperparameter}
+    \caption{Table of Deep Deterministic Policy Gradient hyperparameters}
+\end{tabular}
