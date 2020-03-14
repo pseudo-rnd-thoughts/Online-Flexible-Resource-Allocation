@@ -11,27 +11,24 @@ if __name__ == "__main__":
     folder = 'standard_multi_agents'
     writer = setup_tensorboard(folder)
 
-    env = OnlineFlexibleResourceAllocationEnv.make('../env_settings/basic_env.json')
-    eval_envs = generate_eval_envs(env, 5, f'../eval_envs/{folder}/')
+    env = OnlineFlexibleResourceAllocationEnv.make('./train_agents/env_settings/basic_env.json')
+    eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
 
     task_pricing_ddqn_agents = [
         TaskPricingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 9, 10), save_frequency=25000, save_folder=folder,
-                            replay_buffer_length=50000, training_replay_start_size=500,
-                            target_update_frequency=100, final_exploration_frame=100000)
+                            replay_buffer_length=50000, training_replay_start_size=15000,
+                            target_update_frequency=10000, final_exploration_frame=100000)
         for agent_num in range(3)
     ]
     resource_weighting_ddqn_agents = [
         ResourceWeightingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 10, 10), save_frequency=25000,
-                                  save_folder=folder, replay_buffer_length=50000, training_replay_start_size=500,
-                                  target_update_frequency=100, final_exploration_frame=100000)
+                                  save_folder=folder, replay_buffer_length=50000, training_replay_start_size=15000,
+                                  target_update_frequency=10000, final_exploration_frame=100000)
         for agent_num in range(3)
     ]
 
-    print('TP Agents: [' + ', '.join(agent.name for agent in task_pricing_ddqn_agents) + ']')
-    print('RW Agents: [' + ', '.join(agent.name for agent in resource_weighting_ddqn_agents) + ']')
-
     with writer.as_default():
-        run_training(env, eval_envs, 150, task_pricing_ddqn_agents, resource_weighting_ddqn_agents, 5)
+        run_training(env, eval_envs, 100, task_pricing_ddqn_agents, resource_weighting_ddqn_agents, 5)
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_ddqn_agents) + '}')
     print('RW Total Obs: {' + ', '.join(
