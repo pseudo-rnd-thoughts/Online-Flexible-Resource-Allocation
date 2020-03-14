@@ -5,12 +5,15 @@ Agent that randoms choose the price or weight of a task
 import random as rnd
 from typing import List
 
+import gin
+
 from agents.resource_weighting_agent import ResourceWeightingAgent
 from agents.task_pricing_agent import TaskPricingAgent
 from env.server import Server
 from env.task import Task
 
 
+@gin.configurable
 class RandomTaskPricingAgent(TaskPricingAgent):
     """
     A random task pricing agent
@@ -38,6 +41,7 @@ class RandomTaskPricingAgent(TaskPricingAgent):
         return rnd.randint(0, self.upper_price_bound)
 
 
+@gin.configurable
 class RandomResourceWeightingAgent(ResourceWeightingAgent):
     """
     A random resource weighting agent

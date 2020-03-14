@@ -16,8 +16,6 @@ class HumanTaskPricing(TaskPricingAgent):
     """
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
-        print(f'Auction task: {str(auction_task)}')
-        print(f'Server: {str(server)}')
         for allocated_task in allocated_tasks:
             print(f'\t\t{str(allocated_task)}')
 
@@ -40,8 +38,6 @@ class HumanResourceWeighting(ResourceWeightingAgent):
     """
 
     def _get_action(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
-        print(f'Weight task: {str(weight_task)}')
-        print(f'Server: {str(server)}')
         for allocated_task in allocated_tasks:
             print(f'\t\t{str(allocated_task)}')
 

@@ -2,11 +2,13 @@
 DQN Networks
 """
 
+import gin.tf
 import tensorflow as tf
 
 from agents.rl_agents.neural_networks.network import Network
 
 
+@gin.configurable
 class DqnBidirectionalLstmNetwork(Network):
     """
     DQN Bidirectional Lstm Network
@@ -35,6 +37,7 @@ class DqnBidirectionalLstmNetwork(Network):
         return self.q_value_layer(self.relu(self.bidirectional_lstm(inputs)))
 
 
+@gin.configurable
 class DqnLstmNetwork(Network):
     """
     DQN Lstm Network
@@ -62,6 +65,7 @@ class DqnLstmNetwork(Network):
         return self.q_value_layer(self.relu(self.lstm(inputs)))
 
 
+@gin.configurable
 class DqnGruNetwork(Network):
     """
     DQN Gru Network

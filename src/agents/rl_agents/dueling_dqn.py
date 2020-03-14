@@ -4,10 +4,13 @@ Dueling DQN agent based on Dueling Network Architectures for Deep Reinforcement 
 
 from abc import ABC
 
+import gin.tf
+
 from agents.rl_agents.dqn import DqnAgent, TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.network import Network
 
 
+@gin.configurable
 class DuelingDQN(DqnAgent, ABC):
     """
     Implementations of a dueling DQN agent
@@ -19,6 +22,7 @@ class DuelingDQN(DqnAgent, ABC):
                           final_exploration_frame, **kwargs)
 
 
+@gin.configurable
 class TaskPricingDuelingDqnAgent(DuelingDQN, TaskPricingDqnAgent):
     """
     Task pricing dueling DQN agent
@@ -30,6 +34,7 @@ class TaskPricingDuelingDqnAgent(DuelingDQN, TaskPricingDqnAgent):
         self.name = f'Dueling DQN TP {agent_num}'
 
 
+@gin.configurable
 class ResourceWeightingDuelingDqnAgent(DuelingDQN, ResourceWeightingDqnAgent):
     """
     Resource Weighting Dueling DQN agent

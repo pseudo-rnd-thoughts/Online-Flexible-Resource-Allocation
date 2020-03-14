@@ -2,11 +2,13 @@
 Deep Deterministic Policy Gradient networks (actor and critic)
 """
 
+import gin.tf
 import tensorflow as tf
 
 from agents.rl_agents.neural_networks.network import Network
 
 
+@gin.configurable
 class DdpgLstmActor(Network):
     """
     DDPG actor with LSTM as the primary layer
@@ -32,7 +34,7 @@ class DdpgLstmActor(Network):
         """
         return self.action_layer(self.relu_layer(self.lstm_layer(inputs)))
 
-
+@gin.configurable
 class DdpgLstmCritic(Network):
     """
     DDPG Critic with LSTM as the primary layer
