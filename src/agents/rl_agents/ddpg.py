@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import List
 
-import gin
+import gin.tf
 import numpy as np
 import tensorflow as tf
 
