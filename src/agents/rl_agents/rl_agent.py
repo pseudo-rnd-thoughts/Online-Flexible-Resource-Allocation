@@ -116,7 +116,7 @@ class ReinforcementLearningAgent(ABC):
             task.sending_progress
         ]
 
-    def train(self, print_training: bool = True):
+    def train(self, print_training: bool = False):
         """
         Trains the reinforcement learning agent and logs the training loss
         """
