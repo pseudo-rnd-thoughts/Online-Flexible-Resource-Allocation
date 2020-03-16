@@ -9,7 +9,7 @@ import pickle
 import random as rnd
 from abc import ABC, abstractmethod
 from copy import deepcopy
-from typing import List
+from typing import List, Tuple
 
 import gin.tf
 import numpy as np
@@ -93,32 +93,14 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
         # Loop over the trajectories finding the loss and gradient
         for trajectory in training_batch:
-            trajectory: Trajectory
-
-            agent_state: AgentState = trajectory.state
-            action: float = trajectory.action
-            reward: float = trajectory.reward
-            next_agent_state: AgentState = trajectory.next_state
-
             with tf.GradientTape() as tape:
                 tape.watch(network_variables)
 
-                # Calculate the bellman update for the action
-                obs = self.network_obs(agent_state.task, agent_state.tasks, agent_state.server, agent_state.time_step)
-                target = np.array(self.model_network(obs))
-                action = int(action)
-
-                if next_agent_state is None:
-                    target[0][action] = reward
-                else:
-                    next_obs = self.network_obs(next_agent_state.task, next_agent_state.tasks,
-                                                next_agent_state.server, next_agent_state.time_step)
-                    target[0][action] = reward + self.discount * np.max(self.target_network(next_obs))
-
+                true_target, predicted_target = self._loss(trajectory)
                 if self.clip_loss:
-                    loss = tf.clip_by_value(self.loss_func(target, self.model_network(obs)), -1, +1)
+                    loss = tf.clip_by_value(self.loss_func(true_target, predicted_target), -1, +1)
                 else:
-                    loss = self.loss_func(target, self.model_network(obs))
+                    loss = self.loss_func(true_target, predicted_target)
 
                 # Add the gradient and loss to the relative lists
                 gradients.append(tape.gradient(loss, network_variables))
@@ -139,6 +121,22 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
         # noinspection PyTypeChecker
         return np.mean(losses)
+
+    def _loss(self, trajectory: Trajectory) -> Tuple[np.ndarray, np.ndarray]:
+        # Calculate the bellman update for the action
+        obs = self.network_obs(trajectory.state.task, trajectory.state.tasks,
+                               trajectory.state.server, trajectory.state.time_step)
+        target = np.array(self.model_network(obs))
+        action = int(trajectory.action)
+
+        if trajectory.next_state is None:
+            target[0][action] = trajectory.reward
+        else:
+            next_obs = self.network_obs(trajectory.next_state.task, trajectory.next_state.tasks,
+                                        trajectory.next_state.server, trajectory.next_state.time_step)
+            target[0][action] = trajectory.reward + self.discount * np.max(self.target_network(next_obs))
+
+        return target, self.model_network(obs)
 
     def _update_target_network(self):
         """
