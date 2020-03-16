@@ -11,13 +11,13 @@ from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import List, Tuple
 
+import tensorflow as tf
 import gin.tf
 import numpy as np
-import tensorflow as tf
 
 from agents.rl_agents.neural_networks.network import Network
 from agents.rl_agents.rl_agent import ReinforcementLearningAgent, ResourceWeightingRLAgent, TaskPricingRLAgent, \
-    Trajectory, AgentState
+    Trajectory
 from env.server import Server
 from env.task import Task
 
