@@ -307,7 +307,7 @@ def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals:
     Returns: A list of environment file paths
     """
     if not os.path.exists(folder):
-        os.mkdir(folder)
+        os.makedirs(folder)
 
     eval_files = []
     for eval_num in range(num_evals):
