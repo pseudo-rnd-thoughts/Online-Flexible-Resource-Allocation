@@ -2,6 +2,8 @@
 Deep Deterministic Policy Gradient networks (actor and critic)
 """
 
+from __future__ import annotations
+
 import gin.tf
 import tensorflow as tf
 

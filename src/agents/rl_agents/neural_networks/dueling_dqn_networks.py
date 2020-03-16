@@ -1,5 +1,7 @@
 """Dueling DQN Networks"""
 
+from __future__ import annotations
+
 import gin.tf
 import tensorflow as tf
 
