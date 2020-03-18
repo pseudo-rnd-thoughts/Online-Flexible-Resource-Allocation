@@ -36,6 +36,7 @@ class DdpgLstmActor(Network):
         """
         return self.action_layer(self.relu_layer(self.lstm_layer(inputs)))
 
+
 @gin.configurable
 class DdpgLstmCritic(Network):
     """

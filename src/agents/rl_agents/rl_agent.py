@@ -116,15 +116,14 @@ class ReinforcementLearningAgent(ABC):
             task.sending_progress
         ]
 
-    def train(self, print_training: bool = False):
+    def train(self):
         """
         Trains the reinforcement learning agent and logs the training loss
         """
-        if print_training:
-            print(f'Training {self.name} agent with {self.total_obs} obs')
         training_loss = self._train()
+
         if self.total_obs % self.log_frequency == 0:
-            tf.summary.scalar(f'{self.name} training loss', training_loss, step=self.total_obs)
+            tf.summary.scalar(f'{self.name} agent training loss', training_loss, step=self.total_obs)
         if self.total_obs % self.save_frequency == 0:
             self.save()
 

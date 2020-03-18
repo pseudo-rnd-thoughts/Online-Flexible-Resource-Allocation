@@ -12,7 +12,7 @@ import numpy as np
 
 from agents.rl_agents.dqn import DqnAgent, TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.network import Network
-from agents.rl_agents.rl_agent import Trajectory, AgentState
+from agents.rl_agents.rl_agent import Trajectory
 
 
 @gin.configurable
@@ -25,7 +25,7 @@ class DdqnAgent(DqnAgent, ABC):
         DqnAgent.__init__(self, network, **kwargs)
 
     def _loss(self, trajectory: Trajectory) -> Tuple[np.ndarray, np.ndarray]:
-        # Calculate the bellman update for the action
+        # Calculate the double bellman update for the action
         obs = self.network_obs(trajectory.state.task, trajectory.state.tasks,
                                trajectory.state.server, trajectory.state.time_step)
         target = np.array(self.model_network(obs))
@@ -36,7 +36,7 @@ class DdqnAgent(DqnAgent, ABC):
         else:
             next_obs = self.network_obs(trajectory.next_state.task, trajectory.next_state.tasks,
                                         trajectory.next_state.server, trajectory.next_state.time_step)
-            target[0][action] = trajectory.reward + self.discount * self.target_network(next_obs)[np.argmax(self.model_network(next_obs))]
+            target[0][action] = trajectory.reward + self.discount * self.target_network(next_obs)[0][np.argmax(self.model_network(next_obs))]
 
         return target, self.model_network(obs)
 

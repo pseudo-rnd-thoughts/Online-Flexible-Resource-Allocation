@@ -107,7 +107,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
                 losses.append(np.max(loss))
 
         # Calculate the mean gradient change between the losses (therefore the mean square bellmen loss)
-        mean_gradient = 1/self.batch_size * np.mean(gradients, axis=0)
+        mean_gradient = np.mean(gradients, axis=0)
 
         # Apply the mean gradient to the network model
         self.optimiser.apply_gradients(zip(mean_gradient, network_variables))
@@ -115,9 +115,9 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         if self.total_obs % self.target_update_frequency == 0:
             self._update_target_network()
         if self.total_obs % self.exploration_frequency == 0:
-            self.exploration = min(self.final_exploration,
-                                   self.total_obs / self.final_exploration_frame * (
-                                               self.final_exploration - self.initial_exploration) + self.initial_exploration)
+            updated_exploration = self.total_obs * (self.final_exploration - self.initial_exploration) / self.final_exploration_frame + self.initial_exploration
+            self.exploration = min(self.final_exploration, updated_exploration)
+            tf.summary.scalar(f'{self.name} agent exploration', self.exploration, self.total_obs)
 
         # noinspection PyTypeChecker
         return np.mean(losses)
@@ -146,10 +146,10 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         self.target_network.set_weights(self.model_network.get_weights())
 
     def _save(self):
-        path = f'{os.getcwd()}\\checkpoint\\{self.save_folder}\\{self.name.replace(" ", "_")}'
+        path = f'{os.getcwd()}/checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}'
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + f'\\model_{self.total_obs}.pickle', 'wb') as file:
+        with open(f'{path}/model_{self.total_obs}.pickle', 'wb') as file:
             pickle.dump(self.model_network.trainable_variables, file)
 
 

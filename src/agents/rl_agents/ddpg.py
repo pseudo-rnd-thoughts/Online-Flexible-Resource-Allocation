@@ -154,7 +154,14 @@ class DeepDeterministicPolicyGradientAgent(ReinforcementLearningAgent, ABC):
 
         return np.loss(critic_losses)
 
-    def update_target_weights(self, model_network: Network, target_network: Network):
+    def soft_update_target_weights(self, model_network: Network, target_network: Network):
+        """
+        Update the target weights
+
+        Args:
+            model_network: The model network
+            target_network: The target network
+        """
         model_weights = model_network.get_weights()
         target_weights = target_network.get_weights()
         for pos in range(len(model_weights)):
@@ -162,13 +169,13 @@ class DeepDeterministicPolicyGradientAgent(ReinforcementLearningAgent, ABC):
         target_network.set_weights(target_weights)
 
     def _save(self):
-        path = f'{os.getcwd()}\\checkpoint\\{self.save_folder}\\{self.name.replace(" ", "_")}'
+        path = f'{os.getcwd()}/checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}'
         print(path)
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + f'\\model_{self.total_obs}_actor.pickle', 'wb') as file:
+        with open(f'{path}/model_{self.total_obs}_actor.pickle', 'wb') as file:
             pickle.dump(self.model_actor_network.trainable_variables, file)
-        with open(path + f'\\model_{self.total_obs}_critic.pickle', 'wb') as file:
+        with open(f'{path}/model_{self.total_obs}_critic.pickle', 'wb') as file:
             pickle.dump(self.model_critic_network.trainable_variables, file)
 
 
