@@ -28,7 +28,7 @@ if __name__ == "__main__":
     ]
 
     with writer.as_default():
-        run_training(env, eval_envs, 100, task_pricing_ddqn_agents, resource_weighting_ddqn_agents, 5)
+        run_training(env, eval_envs, 150, task_pricing_ddqn_agents, resource_weighting_ddqn_agents, 5)
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_ddqn_agents) + '}')
     print('RW Total Obs: {' + ', '.join(

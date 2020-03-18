@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from agents.rl_agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
-from agents.rl_agents.dueling_dqn import TaskPricingDuelingDqnAgent, ResourceWeightingDuelingDqnAgent
-from agents.rl_agents.neural_networks.dqn_networks import DqnBidirectionalLstmNetwork, DqnLstmNetwork
+from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from train_agents.core import generate_eval_envs, run_training, setup_tensorboard
 
