@@ -5,26 +5,45 @@ project. This chapter builds upon that giving a mathematical description of the 
 which allows the problem to be separated into two sub-problems: task auctioning (sections~\ref{sec:task-auctioning})
 and resource allocation (\ref{sec:resource-allocation-solution}) that are each discussed with solution proposed.
 
-\section{Optimisation problem}\label{sec:optimisation-problem}
-%% Todo not sure how to start this section
-%% The information that I wish to transfer is:
+\section{Motivation for the solution}
+Resource allocation traditionally been an area of applied mathematics originally design to running multiple
+programs in parallel by actually allocating small slices of time inwhich the task would run before switching to a new
+task. Because of the origins of the research, the program is normally described using formal mathematics. Therefore
+this section proposed a mathematical model to describe the proposed flexible resource allocation mechanisms.
 
-%% Todo add this section somewhere
-The principle of flexibility for resource allocation, that is described in chapter~\ref{ch:project-problem}, is that
-for certain resources, the time taken for an operation to occur, e.g.\ loading of a program, computing the program and
-sending of results, etc, is proportional to the amount of resources allocated to completed the operation.
+The primary novel change to standard resource allocation models is of flexibility in resource requirements. In cloud
+computing, user would request a fix amount of resources, e.g. 2 cpu cores, 8GB ram, 10GB hard drive, etc, that is then
+set aside for the user who will pay by the minute for the allocation of the resources. However this standard cloud
+computing allocation model works effectively where the available resources to distribute are virtually unlimited and so
+the cloud provider does not consider to who and how resources are being distributed. Because of this, edge cloud
+computing which has significantly fewer resources must take the questions of resource allocation much more seriously.
+
+Therefore in previous work by~\cite{FlexibleResourceAllocation} proposed a principle of task flexibility allow for
+more flexible allocation mechanism in low resource capable environment with the aim of maximising the usage of
+available resources. The principle is that for certain resources, the time taken for a operation to occur,
+e.g.\ loading of a program, computing the program and sending of results, etc, is proportional to the amount of
+resources allocated to completed the operation.
 \footnote{This principle is not always true, for example, video decompression is a generally a single
-thread operation thus this assumption doesnt work. However for this project we only consider operations that can be
-parallelised effectively.}
-Using this principle, a modified version of a standard resource allocation formulation can be described.
+thread operation and cannot be effectively multi-threaded. However for this project we only consider tasks
+that can be parallelised effectively.}
+Therefore instead of allowing the user to requesting a fixed amount of resources for loading, computing and sending back
+the results of a program, the user would instead inform the server the total amount of bandwidth required,
+computational power, etc for the task to be completed. Then the server can dynamically allocate its available resources
+to all of its allocated tasks.
+This is believed to be effective compared to standard resource allocation mechanism is that bottleneck can occur on
+certain resource preventing additional tasks from being allocated due not the server not having the requested resources
+available for the task.
+Therefore using this principle, a modified version of a standard resource allocation formulation can be described
+to maximise social welfare.
 
-%% Todo original text
+\section{Mathametical model of the problem}
 A sketch of the system is shown in Fig.~\ref{fig:system_model}.
 We assume that in the system there is a set of $I = \{1,2,\ldots,\left|I\right|\}$ servers are heterogeneous in all
 characters. Each server has a fixed availability of resources: storage for the code/data needed to run a task
 (e.g., measured in GB), computation capacity in terms of CPU cycles per time interval (e.g., measured in FLOP/s),
 and communication bandwidth to receive the data and to send back the results of the task after execution (e.g., measured in Mbit/s).
-We denote these resources for server $i$: the storage capacity as $S_i$, computation capacity as $W_i$, and the communication capacity as $R_i$.
+We denote these resources for server $i$: the storage capacity as $S_i$, computation capacity as $W_i$,
+and the communication capacity as $R_i$.
 
 \begin{figure}
     \centering
