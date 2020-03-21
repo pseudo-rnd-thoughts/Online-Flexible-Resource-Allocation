@@ -116,7 +116,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
             self._update_target_network()
         if self.total_obs % self.exploration_frequency == 0:
             updated_exploration = self.total_obs * (self.final_exploration - self.initial_exploration) / self.final_exploration_frame + self.initial_exploration
-            self.exploration = min(self.final_exploration, updated_exploration)
+            self.exploration = max(self.final_exploration, updated_exploration)
             tf.summary.scalar(f'{self.name} agent exploration', self.exploration, self.total_obs)
 
         # noinspection PyTypeChecker
