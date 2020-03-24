@@ -1,0 +1,86 @@
+
+#                The standard hyperparameter config file
+
+#========================================================================
+#                       Import the required files
+import agents.rl_agents.rl_agent
+
+import agents.rl_agents.dqn
+import agents.rl_agents.distributional_dqn
+import agents.rl_agents.ddpg
+
+import agents.rl_agents.neural_networks.dqn_networks
+import agents.rl_agents.neural_networks.dueling_dqn_networks
+import agents.rl_agents.neural_networks.distributional_networks
+import agents.rl_agents.neural_networks.ddpg_networks
+
+#========================================================================
+#                       Reinforcement learning Agent
+ReinforcementLearningAgent.batch_size = 32
+ReinforcementLearningAgent.learning_rate = 0.001
+
+ReinforcementLearningAgent.replay_buffer_length = 10000
+ReinforcementLearningAgent.training_replay_start_size = 2500
+
+ReinforcementLearningAgent.update_frequency = 4
+ReinforcementLearningAgent.log_frequency = 80
+ReinforcementLearningAgent.save_frequency = 25000
+
+
+#                       Task Pricing RL Agent
+TaskPricingRLAgent.failed_auction_reward = -0.05
+TaskPricingRLAgent.failed_reward_multiplier = -1.5
+
+
+#                       Resource Weighting RL Agent
+ResourceWeightingRLAgent.other_task_reward_discount = 0.2
+ResourceWeightingRLAgent.successful_task_reward = 1
+ResourceWeightingRLAgent.failed_task_reward = -2
+ResourceWeightingRLAgent.task_multiplier = 2.0
+ResourceWeightingRLAgent.ignore_empty_next_obs = False
+
+#========================================================================
+#                        Dqn Agent
+DqnAgent.initial_exploration = 1
+DqnAgent.final_exploration = 0.1
+DqnAgent.final_exploration_frame = 100000
+DqnAgent.exploration_frequency = 1000
+DqnAgent.discount_factor = 0.9
+DqnAgent.clip_loss = True
+
+#                        Distributional Dqn Agent
+DistributionalDqnAgent.num_atoms = 51
+DistributionalDqnAgent.v_min = -15
+DistributionalDqnAgent.v_max = 30
+DistributionalDqnAgent.double_dqn_loss = True
+
+#                        Deep Deterministic Policy Gradient
+DeepDeterministicPolicyGradientAgent.tau = 0.99
+DeepDeterministicPolicyGradientAgent.discount_factor = 0.9
+DeepDeterministicPolicyGradientAgent.clip_loss = True
+
+#========================================================================
+#                        Dqn Networks
+DqnBidirectionalLstmNetwork.lstm_width = 40
+DqnBidirectionalLstmNetwork.relu_width = 20
+
+DqnLstmNetwork.lstm_width = 40
+DqnLstmNetwork.relu_width = 20
+
+DqnGruNetwork.lstm_width = 40
+DqnGruNetwork.relu_width = 20
+
+#                        Dueling Dqn Networks
+DuelingDqnLstmNetwork.lstm_width = 40
+DuelingDqnLstmNetwork.relu_width = 20
+
+#                        Distributional Dqn Networks
+DistributionLstmNetwork.lstm_width = 40
+DistributionLstmNetwork.relu_width = 20
+
+#                        Deep Deterministic Policy Gradient Networks
+DdpgLstmActor.lstm_width = 40
+DdpgLstmActor.relu_width = 20
+
+DdpgLstmCritic.lstm_width = 40
+DdpgLstmCritic.relu_width = 20
