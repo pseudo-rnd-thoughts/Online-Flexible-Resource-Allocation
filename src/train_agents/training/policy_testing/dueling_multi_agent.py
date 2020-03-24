@@ -2,25 +2,29 @@
 
 from __future__ import annotations
 
+import gin
+
 from agents.rl_agents.dueling_dqn import TaskPricingDuelingDqnAgent, ResourceWeightingDuelingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from train_agents.core import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
+    gin.parse_config_file('../standard_config.gin')
+
     folder = 'dueling_multi_agents'
     writer = setup_tensorboard(folder)
 
     env = OnlineFlexibleResourceAllocationEnv.make('./train_agents/env_settings/basic_env.json')
     eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
 
-    task_pricing_ddqn_agents = [
+    task_pricing_agents = [
         TaskPricingDuelingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 9, 10), save_frequency=25000,
                                    save_folder=folder, replay_buffer_length=50000, training_replay_start_size=15000,
                                    target_update_frequency=10000, final_exploration_frame=100000)
         for agent_num in range(3)
     ]
-    resource_weighting_ddqn_agents = [
+    resource_weighting_agents = [
         ResourceWeightingDuelingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 10, 10), save_frequency=25000,
                                          save_folder=folder, replay_buffer_length=50000,
                                          training_replay_start_size=15000,
@@ -28,12 +32,16 @@ if __name__ == "__main__":
         for agent_num in range(3)
     ]
 
-    print('TP Agents: [' + ', '.join(agent.name for agent in task_pricing_ddqn_agents) + ']')
-    print('RW Agents: [' + ', '.join(agent.name for agent in resource_weighting_ddqn_agents) + ']')
+    print('TP Agents: [' + ', '.join(agent.name for agent in task_pricing_agents) + ']')
+    print('RW Agents: [' + ', '.join(agent.name for agent in resource_weighting_agents) + ']')
 
     with writer.as_default():
-        run_training(env, eval_envs, 150, task_pricing_ddqn_agents, resource_weighting_ddqn_agents, 5)
+        run_training(env, eval_envs, 150, task_pricing_agents, resource_weighting_agents, 5)
 
-    print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_ddqn_agents) + '}')
-    print('RW Total Obs: {' + ', '.join(
-        f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_ddqn_agents) + '}')
+    for agent in task_pricing_agents:
+        agent.save()
+    for agent in resource_weighting_agents:
+        agent.save()
+
+    print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
+    print('RW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agents) + '}')
