@@ -1,14 +1,14 @@
 \chapter{Related Work}\label{ch:background-literature}
-Due to the novel approach for resource allocation in cloud computing, there are few papers that consider flexible
-resource allocation. However there is a considerable amount of research in the area of resource allocation and
-pricing in cloud computing, some of which use auction mechanisms to deal with
-competition~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
+Due to the novel approach to resource allocation in cloud computing that this project uses, there are few papers
+that consider flexible resource allocation. However there is a considerable amount of research in the area of
+resource allocation and pricing in cloud computing, some of which use auction mechanisms to deal with
+competition~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}. Therefore section~\ref{sec:related-work-in-cloud-computing}
+presents the related approaches to the one taken in this project and explains the previous work done with the
+resource allocation method.
 
-Section~\ref{sec:related-work-in-cloud-computing} considers the related work in pricing and resource allocation in
-edge cloud computing and how this project builds upon it providing novel advancements.
-Section~\ref{sec:related-work-in-machine-learning} considers the recent work in the field of machine learning,
-din particular reinforcement learning. This is important as it relates to the proposed solution and how this
-project aims to solve the optimisation problem in section~\ref{sec:optimisation-problem}.
+The proposed solution of the project (presented in chapter~\ref{ch:proposed-solution-to-problem}) uses a form of
+machine learning, called reinforcement learning. Thus section~\ref{sec:related-work-in-machine-learning}
+explores the related research in this area and the state of the art algorithms.
 
 \section{Related Work in Cloud Computing}\label{sec:related-work-in-cloud-computing} %% Todo rewrite
 A majority of the approaches for pricing and resource allocation in cloud computing require users to request a
@@ -38,4 +38,22 @@ is to maximize the expected rate of successfully accomplished tasks over time. O
 and the objective function. Our objective is to maximize the value over all tasks. In terms of the setup, they assume
 that data/code can be shared and they do not consider the elasticity of resources.
 
-\section{Related Work in Machine Learning}\label{sec:related-work-in-machine-learning}  %% Todo write
+\section{Related Work in Reinforcement learning}\label{sec:related-work-in-machine-learning}
+Computer scientists have always been interested in testing computers against humans (cite turing test) and a key,
+natural part of humans is the ability to learn. For computers this ability is much more complex and researchers have
+found a variety of ways to allow computers to do this. These methods are broadly grouped into three categories of
+supervised, unsupervised and reinforcement learning. Supervised learning uses pairs of inputs to true outputs like in
+case of image classifications where each image has a correct category for the image to be mapped to. Unsupervised
+learning instead doesn't have a true output meaning that algorithms tries to find links between similar data.
+
+However both of these methods are not effective for games or real world interactions agents must make a series of
+actions that result in rewards. Reinforcement learning instead aims to maximise the reward over a series of actions,
+this is the area of machine learning that this project utilises as the environment for agents to learn over time.
+Reinforcement learning is a rapidly growing field of research within AI due to its possible real world options and
+its easy comparisons to humans.
+
+%% Deep Q Networks
+%% Deep deterministic policy gradients
+
+This project primarily uses deep q networks but also implements a deep deterministic policy gradient as an alternative
+policy method.
