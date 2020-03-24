@@ -1,6 +1,4 @@
-"""
-DQN Networks
-"""
+"""Standard DQN Networks"""
 
 from __future__ import annotations
 
