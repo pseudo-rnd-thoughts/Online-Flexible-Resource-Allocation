@@ -117,6 +117,9 @@ class DeepDeterministicPolicyGradientAgent(ReinforcementLearningAgent, ABC):
         critic_gradients = []
         critic_losses = []
 
+        actor_network_variables = self.model_actor_network.trainable_variables
+        actor_gradients = []
+
         for trajectory in training_batch:
             trajectory: Trajectory
 
@@ -150,7 +153,17 @@ class DeepDeterministicPolicyGradientAgent(ReinforcementLearningAgent, ABC):
                 critic_gradients.append(critic_gradient)
                 critic_losses.append(critic_loss)
 
-                # Todo add actor loss
+            # Finds the actor loss
+            with tf.GradientTape() as tape:
+                tape.watch(action)
+
+                q_values = self.model_critic_network(critic_obs)
+                actor_gradients.append(tape.gradient([q_values], actor_network_variables))
+
+        mean_critic_gradients = np.mean(critic_gradients, axis=0)
+        mean_actor_gradients = np.mean(actor_gradients, axis=0)
+        self.optimiser.apply_gradients(zip(mean_critic_gradients, critic_network_variables))
+        self.optimiser.apply_gradients(zip(mean_actor_gradients, actor_network_variables))
 
         return np.loss(critic_losses)
 
