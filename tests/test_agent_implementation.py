@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from copy import deepcopy, copy
+
 import tensorflow as tf
 
 from agents.rl_agents.ddqn import TaskPricingDdqnAgent, ResourceWeightingDdqnAgent
@@ -12,6 +14,18 @@ from agents.rl_agents.neural_networks.dueling_dqn_networks import DuelingDqnLstm
 from env.server import Server
 from env.task import Task
 from env.task_stage import TaskStage
+
+
+def test_simple_agent():
+    TaskPricingDqnAgent(0, DqnLstmNetwork(9, 10))
+
+
+def test_network_copy():
+    network = DqnLstmNetwork(9, 10)
+    copy_network = copy(network)
+    assert id(network.get_weights()) != id(copy_network.get_weights())
+    print(id(network.get_weights()), id(copy_network.get_weights()))
+    assert network.get_weights() == copy_network.get_weights()
 
 
 def test_agent_attributes():
@@ -77,3 +91,7 @@ def test_agent_saving():
     tp_dqn_agent.bid(auction_task, allocated_tasks, server, 0)
 
     tp_dqn_agent.save()
+
+
+if __name__ == "__main__":
+    test_simple_agent()
