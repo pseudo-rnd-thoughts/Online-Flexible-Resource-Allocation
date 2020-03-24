@@ -7,6 +7,7 @@ import gin
 from agents.rl_agents.dqn import TaskPricingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork
 
+
 def test_agent_gin():
     gin.parse_config("""
     import agents.rl_agents.rl_agent
