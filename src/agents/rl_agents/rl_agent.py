@@ -171,9 +171,9 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         ReinforcementLearningAgent.__init__(self, network_input_width, max_action_value, **kwargs)
 
         # Reward variable
-        assert self.failed_auction_reward <= 0
+        assert failed_auction_reward <= 0
         self.failed_auction_reward = failed_auction_reward
-        assert self.failed_reward_multiplier <= 0
+        assert failed_reward_multiplier <= 0
         self.failed_reward_multiplier = failed_reward_multiplier
 
     def winning_auction_bid(self, agent_state: AgentState, action: float,
