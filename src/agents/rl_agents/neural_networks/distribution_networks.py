@@ -12,14 +12,17 @@ from agents.rl_agents.neural_networks.network import Network
 
 @gin.configurable
 class DistributionLstmNetwork(Network):
+    """
+    Distribution LSTM network
+    """
 
-    def __init__(self, input_width: int, max_action_value: int, categories: int = 51,
+    def __init__(self, input_width: int, num_actions: int, num_atoms: int = 51,
                  lstm_width: int = 40, relu_width: int = 20):
-        Network.__init__(self, 'Distributional DQN',  input_width, max_action_value)
+        Network.__init__(self, 'Distributional DQN', input_width, num_actions)
 
         self.lstm_layer = tf.keras.layers.LSTM(lstm_width)
         self.relu_layer = tf.keras.layers.ReLU(relu_width)
-        self.action_layer = tf.keras.layers.Dense(max_action_value * categories)
+        self.action_layers = [tf.keras.layers.Dense(num_atoms) for _ in range(num_actions)]
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -32,4 +35,5 @@ class DistributionLstmNetwork(Network):
 
         Returns: The suggested action
         """
-        return self.action_layer(self.relu_layer(self.lstm_layer(inputs)))
+        relu_layer_output = self.relu_layer(self.lstm_layer(inputs))
+        return [action_layer(relu_layer_output) for action_layer in self.action_layers]
