@@ -158,7 +158,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
     """
 
     def __init__(self, name, network_input_width, max_action_value,
-                 failed_auction_reward: float = -0.05, failed_reward_multiplier: float = 1.5, **kwargs):
+                 failed_auction_reward: float = -0.05, failed_reward_multiplier: float = -1.5, **kwargs):
         """
         Constructor of the task pricing reinforcement learning agent
 
@@ -192,8 +192,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         assert finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
 
         # Calculate the reward and add it to the replay buffer
-        reward = finished_task.price if finished_task.stage is TaskStage.COMPLETED \
-            else self.failed_reward_multiplier * finished_task.price
+        reward = finished_task.price * (1 if finished_task.stage is TaskStage.COMPLETED else self.failed_reward_multiplier)
         self.replay_buffer.append(Trajectory(agent_state, action, reward, next_agent_state))
 
         # Check if to train the agent
@@ -236,8 +235,8 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
 
     def __init__(self, name, network_input_width, max_action_value,
                  other_task_reward_discount: float = 0.2, successful_task_reward: float = 1,
-                 failed_task_reward: float = -2,
-                 task_multiplier: float = 2.0, ignore_empty_next_obs: bool = False, **kwargs):
+                 failed_task_reward: float = -2, task_multiplier: float = 2.0, ignore_empty_next_obs: bool = False,
+                 **kwargs):
         """
         Constructor of the resource weighting reinforcement learning agent
 
