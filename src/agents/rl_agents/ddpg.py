@@ -1,5 +1,6 @@
 """
-Deep Deterministic Policy Agent agent implemented based on Continuous control with deep reinforcement learning (https://arxiv.org/abs/1509.02971)
+Deep Deterministic Policy Agent agent implemented based on Continuous control with deep reinforcement learning
+ (https://arxiv.org/abs/1509.02971)
 
 """
 
@@ -59,7 +60,7 @@ class DeepDeterministicPolicyGradientAgent(ReinforcementLearningAgent, ABC):
     """
 
     def __init__(self, actor_network: Network, critic_network: Network, network_input_width: int,
-                 max_action_value: int, tau: float, noise: Noise = GaussianNoise(), discount: float = 0.9,
+                 max_action_value: int, tau: float = 0.99, noise: Noise = GaussianNoise(), discount_factor: float = 0.9,
                  loss_func: tf.keras.losses.Loss = tf.keras.losses.Huber(), clip_loss: bool = True):
         ReinforcementLearningAgent.__init__(self, network_input_width, max_action_value)
 
@@ -71,7 +72,7 @@ class DeepDeterministicPolicyGradientAgent(ReinforcementLearningAgent, ABC):
 
         self.tau = tau
         self.noise = noise
-        self.discount = discount
+        self.discount_factor = discount_factor
         self.loss_func = loss_func
         self.clip_loss = clip_loss
 
@@ -142,7 +143,7 @@ class DeepDeterministicPolicyGradientAgent(ReinforcementLearningAgent, ABC):
                     critic_next_obs = self.critic_network_obs(next_agent_state.task, next_agent_state.tasks,
                                                               next_agent_state.server, next_agent_state.time_step,
                                                               self.model_actor_network(actor_obs))
-                    critic_target = reward + self.discount * self.model_critic_network(critic_next_obs)
+                    critic_target = reward + self.discount_factor * self.model_critic_network(critic_next_obs)
 
                 if self.clip_loss:
                     critic_loss = tf.clip_by_value(self.loss_func(critic_target, self.model_critic_network(critic_obs)))
