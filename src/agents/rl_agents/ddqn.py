@@ -1,5 +1,6 @@
 """
-Double DQN agent implemented based on Deep Reinforcement Learning with Double Q-learning (https://arxiv.org/abs/1509.06461)
+Double DQN agent implemented based on Deep Reinforcement Learning with Double Q-learning
+ (https://arxiv.org/abs/1509.06461)
 """
 
 from __future__ import annotations
@@ -36,7 +37,8 @@ class DdqnAgent(DqnAgent, ABC):
         else:
             next_obs = self.network_obs(trajectory.next_state.task, trajectory.next_state.tasks,
                                         trajectory.next_state.server, trajectory.next_state.time_step)
-            target[0][action] = trajectory.reward + self.discount * self.target_network(next_obs)[0][np.argmax(self.model_network(next_obs))]
+            target[0][action] = trajectory.reward + self.discount * self.target_network(next_obs)[0][
+                np.argmax(self.model_network(next_obs))]
 
         return target, self.model_network(obs)
 
@@ -49,8 +51,7 @@ class TaskPricingDdqnAgent(DdqnAgent, TaskPricingDqnAgent):
 
     def __init__(self, agent_num: int, network: Network, **kwargs):
         DdqnAgent.__init__(self, network, **kwargs)
-        TaskPricingDqnAgent.__init__(self, agent_num, network, **kwargs)
-        self.name = f'DDQN TP {agent_num}'
+        TaskPricingDqnAgent.__init__(self, f'DDQN TP {agent_num}', network, **kwargs)
 
 
 @gin.configurable
@@ -61,5 +62,4 @@ class ResourceWeightingDdqnAgent(DdqnAgent, ResourceWeightingDqnAgent):
 
     def __init__(self, agent_num: int, network: Network, **kwargs):
         DdqnAgent.__init__(self, network, **kwargs)
-        ResourceWeightingDqnAgent.__init__(self, agent_num, network, **kwargs)
-        self.name = f'DDQN RW {agent_num}'
+        ResourceWeightingDqnAgent.__init__(self, f'DDQN RW {agent_num}', network, **kwargs)

@@ -1,6 +1,9 @@
 """
-Dueling DQN agent based on Dueling Network Architectures for Deep Reinforcement Learning (https://arxiv.org/abs/1511.06581)
+Dueling DQN agent based on Dueling Network Architectures for Deep Reinforcement Learning
+ (https://arxiv.org/abs/1511.06581)
 """
+
+from __future__ import annotations
 
 from abc import ABC
 
@@ -16,10 +19,8 @@ class DuelingDQN(DqnAgent, ABC):
     Implementations of a dueling DQN agent
     """
 
-    def __init__(self, network: Network, target_update_frequency: int = 2500, initial_exploration: float = 1,
-                 final_exploration: float = 0.1, final_exploration_frame: int = 20000, **kwargs):
-        DqnAgent.__init__(self, network, target_update_frequency, initial_exploration, final_exploration,
-                          final_exploration_frame, **kwargs)
+    def __init__(self, network: Network, **kwargs):
+        DqnAgent.__init__(self, network, **kwargs)
 
 
 @gin.configurable
@@ -30,8 +31,7 @@ class TaskPricingDuelingDqnAgent(DuelingDQN, TaskPricingDqnAgent):
 
     def __init__(self, agent_num: int, network: Network, **kwargs):
         DuelingDQN.__init__(self, network, **kwargs)
-        TaskPricingDqnAgent.__init__(self, agent_num, network, **kwargs)
-        self.name = f'Dueling DQN TP {agent_num}'
+        TaskPricingDqnAgent.__init__(self, f'Dueling DQN TP {agent_num}', network, **kwargs)
 
 
 @gin.configurable
@@ -42,5 +42,4 @@ class ResourceWeightingDuelingDqnAgent(DuelingDQN, ResourceWeightingDqnAgent):
 
     def __init__(self, agent_num: int, network: Network, **kwargs):
         DuelingDQN.__init__(self, network, **kwargs)
-        ResourceWeightingDqnAgent.__init__(self, agent_num, network, **kwargs)
-        self.name = f'Dueling DQN RW {agent_num}'
+        ResourceWeightingDqnAgent.__init__(self, f'Dueling DQN RW {agent_num}', network, **kwargs)

@@ -20,7 +20,7 @@ from env.task_stage import TaskStage
 
 class AgentState(NamedTuple):
     """
-    Agent state is the information that is relevant to the agent for network observations
+    Agent state is the information that is relevant to the agent at a particular time step for network observations
     """
     task: Task
     tasks: List[Task]
@@ -44,7 +44,7 @@ class ReinforcementLearningAgent(ABC):
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
-    def __init__(self, network_input_width: int, max_action_value: int,
+    def __init__(self, network_input_width: int, max_action_value: float,
                  save_frequency: int = 25000, save_folder: str = 'test', batch_size: int = 32,
                  learning_rate: float = 0.001, replay_buffer_length: int = 10000,
                  update_frequency: int = 4, log_frequency: int = 80, training_replay_start_size: int = 2500, **kwargs):
@@ -138,8 +138,6 @@ class ReinforcementLearningAgent(ABC):
         """
         Saves a copy of the reinforcement learning agent models at this current total obs
         """
-        assert self.name != 'unknown'
-        print(f'Saving {self.name} agent models')
         self._save()
 
     @abstractmethod
@@ -157,7 +155,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
     Task Pricing reinforcement learning agent
     """
 
-    def __init__(self, name, network_input_width, max_action_value,
+    def __init__(self, name: str, network_input_width: int, max_action_value: float,
                  failed_auction_reward: float = -0.05, failed_reward_multiplier: float = -1.5, **kwargs):
         """
         Constructor of the task pricing reinforcement learning agent
@@ -173,7 +171,9 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         ReinforcementLearningAgent.__init__(self, network_input_width, max_action_value, **kwargs)
 
         # Reward variable
+        assert self.failed_auction_reward <= 0
         self.failed_auction_reward = failed_auction_reward
+        assert self.failed_reward_multiplier <= 0
         self.failed_reward_multiplier = failed_reward_multiplier
 
     def winning_auction_bid(self, agent_state: AgentState, action: float,
@@ -192,7 +192,8 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         assert finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
 
         # Calculate the reward and add it to the replay buffer
-        reward = finished_task.price * (1 if finished_task.stage is TaskStage.COMPLETED else self.failed_reward_multiplier)
+        reward = finished_task.price * (
+            1 if finished_task.stage is TaskStage.COMPLETED else self.failed_reward_multiplier)
         self.replay_buffer.append(Trajectory(agent_state, action, reward, next_agent_state))
 
         # Check if to train the agent
@@ -233,7 +234,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
-    def __init__(self, name, network_input_width, max_action_value,
+    def __init__(self, name: str, network_input_width: int, max_action_value: float,
                  other_task_reward_discount: float = 0.2, successful_task_reward: float = 1,
                  failed_task_reward: float = -2, task_multiplier: float = 2.0, ignore_empty_next_obs: bool = False,
                  **kwargs):
@@ -290,7 +291,8 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             if self.training_replay_start_size <= self.total_obs and self.total_obs % self.update_frequency == 0:
                 self.train()
 
-    def finished_task_obs(self, agent_state: AgentState, action: float, finished_task: Task, finished_tasks: List[Task]):
+    def finished_task_obs(self, agent_state: AgentState, action: float, finished_task: Task,
+                          finished_tasks: List[Task]):
         """
         Adds an observation for allocating resource and does finish a task
             (either successfully or unsuccessfully) to the replay buffer
