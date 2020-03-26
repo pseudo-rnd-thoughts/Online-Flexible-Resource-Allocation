@@ -1,36 +1,25 @@
 \chapter{Related Work}\label{ch:background-literature}
-Due to the novel approach to resource allocation in cloud computing that this project uses, there are few papers
-that consider flexible resource allocation. However there is a considerable amount of research in the area of
-resource allocation and pricing in cloud computing, some of which use auction mechanisms to deal with
-competition~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}. Therefore section~\ref{sec:related-work-in-cloud-computing}
-presents the related approaches to the one taken in this project and explains the previous work done with the
-resource allocation method.
+There is a considerable amount of research in the area of pricing and resource allocation in cloud computing,
+of which some use auction mechanisms to deal with competition~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019} as this project does.
+Therefore section~\ref{sec:related-work-in-cloud-computing} presents the related approaches to resource allocation
+in cloud computing and edge cloud computing to the one taken in this project.
 
 The proposed solution of the project (presented in chapter~\ref{ch:proposed-solution-to-problem}) uses a form of
-machine learning, called reinforcement learning. Thus section~\ref{sec:related-work-in-machine-learning}
-explores the related research in this area and the state of the art algorithms.
+machine learning, called reinforcement learning. Section~\ref{sec:related-work-in-machine-learning} explores the
+research and the current state of the art algorithms of deep Q learning and policy gradient that are used in this
+project.
 
-\section{Related Work in Cloud Computing}\label{sec:related-work-in-cloud-computing} %% Todo rewrite
-A majority of the approaches for pricing and resource allocation in cloud computing require users to request a
-fixed amount of certain resource with the cloud provider having no control over the resources only the servers that the
-task was allocated to~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}. The flexible approach that this project
-assumed has only been considered in~\cite{FlexibleResourceAllocation} that allows the server to distribute its resources
-more efficiently based on each task's requirements. The primary difference between this project and that paper is that this
-project considers the addition of time allowing for resource speed to change over time and that there are task stages.
+\section{Related Work in Cloud Computing}\label{sec:related-work-in-cloud-computing}
+A majority of approaches for pricing and resource allocation in cloud computing use a fixed resource allocation
+mechanism such that user request a fixed amount of certain resource from the cloud provider. However this mechanism
+provides no control over the resources quantity allocated, only to which server these resources are allocated to.
+Therefore a majority of this resources is focusing on designing efficient and incentive compatible auction mechanism.
+A survey of these approaches has been investigated by~\cite{} and~\cite{} that found ....
+%% Todo on pricing on cloud computing
 
-Previous work by~\cite{FlexibleResourceAllocation} considers three solutions to a single-shot problem case,
-a greedy algorithm to quickly approximate a solution to maximise the social welfare and two auction mechanisms as server
-are normally paid for usage of their resources. The greedy algorithm is a polynomial time algorithm that will find solution
-within $\frac{1}{n}$ of the optimal social welfare.
-This is done through the use of modular heuristics for ordering the task by density then for each task, select a server
-based on available resource on each servers then to allocate resources that minimises a resource heuristics.
-Using certain heuristics, the greedy algorithm achieves at least 90\% of the optimal solution and 20\% more than optimal
-solution for fixed resource equivalent problems. A new distributed iterative auction was developed that use a reverse vcg
-principle to calculate a task price that meant that a task didnt need to reveal its private value also that the
-auction could be run in a decentralised way. This means that the auction is budget balanced however it is not
-economically efficient or incentive compatible. The third algorithm is an implementation of a single parameter
-auctions~\citep{nisan2007algorithmic_critical_value} using the greedy algorithm to find the critical value of a task.
-Using this mechanism with a monotonic value density heuristic means that the auction is incentive compatible.
+%A majority of the approaches for pricing and resource allocation in cloud computing require users to request a
+%fixed amount of certain resource with the cloud provider having no control over the resources only the servers that the
+%task was allocated to~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
 
 Other closely related work on resource allocation in edge clouds~\cite{vaji_infocom} considers both the placement of
 code/data needed to run a specific task, as well as the scheduling of tasks to different edge clouds. The goal there
@@ -38,22 +27,39 @@ is to maximize the expected rate of successfully accomplished tasks over time. O
 and the objective function. Our objective is to maximize the value over all tasks. In terms of the setup, they assume
 that data/code can be shared and they do not consider the elasticity of resources.
 
+Previous work by this author in~\cite{FlexibleResourceAllocation} proposed the novel resource allocation (explained in
+chapter~\ref{ch:project-problem}) along with an optimisation problem mathematically describing the resource allocation.
+This work then continued and presents three solutions for the problem case, a greedy algorithm to quickly approximate
+a solution in order to maximise the social welfare and two auction mechanisms as server are normally paid for usage
+of their resources. The greedy algorithm is a polynomial time algorithm that will find solution within $\frac{1}{n}$
+of the optimal social welfare. This is done through the use of modular heuristics for ordering the task by density
+then for each task, select a server based on available resource on each servers then to allocate resources that
+minimises a resource heuristics. Using certain heuristics, the greedy algorithm achieves at least 90\% of the optimal
+solution and 20\% more than optimal solution for fixed resource equivalent problems. The first of the auction mechanisms
+is a novel distributed iterative auction developed using a reverse vcg principle to calculate a task price. That meant
+that a task doesnt need to reveal its private value also that the auction could be run in a decentralised way.
+This means that the auction is budget balanced however it is not economically efficient or incentive compatible.
+The third algorithm is an implementation of a single parameter auctions~\citep{nisan2007algorithmic_critical_value}
+using the greedy algorithm to find the critical value of a task. Using this mechanism with a monotonic value density
+heuristic results in the auction being incentive compatible.
+
 \section{Related Work in Reinforcement learning}\label{sec:related-work-in-machine-learning}
-Computer scientists have always been interested in testing computers against humans (cite turing test) and a key,
-natural part of humans is the ability to learn. For computers this ability is much more complex and researchers have
+Computer scientists have always been interested in testing computers against humans (cite turing test) and a key part
+is the ability to learn. For computers this ability is much more complex and researchers have
 found a variety of ways to allow computers to do this. These methods are broadly grouped into three categories of
 supervised, unsupervised and reinforcement learning. Supervised learning uses pairs of inputs to true outputs like in
 case of image classifications where each image has a correct category for the image to be mapped to. Unsupervised
 learning instead doesn't have a true output meaning that algorithms tries to find links between similar data.
 
 However both of these methods are not effective for games or real world interactions agents must make a series of
-actions that result in rewards. Reinforcement learning instead aims to maximise the reward over a series of actions,
-this is the area of machine learning that this project utilises as the environment for agents to learn over time.
+actions that result in rewards. Algorithms designed for these problems fall into the category of reinforcement learning
+which aims to maximise the reward over a series of actions. This is the area of machine learning that this project
+utilises as the environment for agents to learn over time.
 Reinforcement learning is a rapidly growing field of research within AI due to its possible real world options and
 its easy comparisons to humans.
 
-%% Deep Q Networks
-%% Deep deterministic policy gradients
+%% Todo background lit on Q Network
+%% Todo Deep Q Networks
 
-This project primarily uses deep q networks but also implements a deep deterministic policy gradient as an alternative
-policy method.
+%% Todo background lit on policy gradient
+%% Todo Deep deterministic policy gradients
