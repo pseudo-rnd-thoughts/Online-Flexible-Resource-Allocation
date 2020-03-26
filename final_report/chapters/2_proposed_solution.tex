@@ -1,26 +1,33 @@
-%! Suppress = MissingImport
-\chapter{Proposed Solution to problem}\label{ch:proposed-solution-to-problem}
-In chapter~\ref{ch:project-problem}, the program case was outlined describing the general idea and reasoning for the
-project. This chapter builds upon that giving a mathematical description of the problem (\ref{sec:optimisation-problem}),
-which allows the problem to be separated into two sub-problems: task auctioning (sections~\ref{sec:task-auctioning})
-and resource allocation (\ref{sec:resource-allocation-solution}) that are each discussed with solution proposed.
+\chapter{Proposed solution to problem}\label{ch:proposed-solution-to-problem}
+In chapter~\ref{ch:project-problem}, the problem that this project address was outlined along with the reasoning for the
+project. This chapter builds upon that giving a mathematical description of the problem (\ref{sec:optimisation-problem}).
+Then separates the program into two sub-problems: task auctioning (addressed in sections~\ref{sec:task-auctioning})
+and server to task resource allocation (addressed in section~\ref{sec:resource-allocation-solution}) that are each
+discussed with novel solutions proposed. The last section of the chapter discusses a problem related to the problem
+formulation as it reflects to reinforcement learning markov decision processes
+(section~\ref{sec:markov-decision-process-description}).
 
-\section{Motivation for the solution}
-Resource allocation traditionally been an area of applied mathematics originally design to running multiple
-programs in parallel by actually allocating small slices of time inwhich the task would run before switching to a new
-task. Because of the origins of the research, the program is normally described using formal mathematics. Therefore
-this section proposed a mathematical model to describe the proposed flexible resource allocation mechanisms.
+\section{Optimisation problem}\label{sec:optimisation-problem}
+% Todo add motiviation for why optimisation problem maybe
+%Resource allocation traditionally been an area of applied mathematics originally design to running multiple
+%programs in parallel by actually allocating small slices of time inwhich the task would run before switching to a new
+%task. Because of the origins of the research, the program is normally described using formal mathematics. Therefore
+%this section proposed a mathematical model to describe the proposed flexible resource allocation mechanisms.
 
-The primary novel change to standard resource allocation models is of flexibility in resource requirements. In cloud
-computing, user would request a fix amount of resources, e.g. 2 cpu cores, 8GB ram, 10GB hard drive, etc, that is then
-set aside for the user who will pay by the minute for the allocation of the resources. However this standard cloud
-computing allocation model works effectively where the available resources to distribute are virtually unlimited and so
-the cloud provider does not consider to who and how resources are being distributed. Because of this, edge cloud
-computing which has significantly fewer resources must take the questions of resource allocation much more seriously.
+Using the flexible resource allocation principle presented in~\cite{FlexibleResourceAllocation}, a format mathematical
+description of the problem can be presented.
 
-Therefore in previous work by~\cite{FlexibleResourceAllocation} proposed a principle of task flexibility allow for
-more flexible allocation mechanism in low resource capable environment with the aim of maximising the usage of
-available resources. The principle is that for certain resources, the time taken for a operation to occur,
+%In cloud
+%computing, user would request a fix amount of resources, e.g. 2 cpu cores, 8GB ram, 10GB hard drive, etc, that is then
+%set aside for the user who will pay by the minute for the allocation of the resources. However this standard cloud
+%computing allocation model works effectively where the available resources to distribute are virtually unlimited and so
+%the cloud provider does not consider to who and how resources are being distributed. Because of this, edge cloud
+%computing which has significantly fewer resources must take the questions of resource allocation much more seriously.
+
+%Therefore in previous work by~\cite{FlexibleResourceAllocation} proposed a principle of task flexibility allow for
+%more flexible allocation mechanism in low resource capable environment with the aim of maximising the usage of
+%available resources.
+The principle is that for certain resources, the time taken for a operation to occur,
 e.g.\ loading of a program, computing the program and sending of results, etc, is proportional to the amount of
 resources allocated to completed the operation.
 \footnote{This principle is not always true, for example, video decompression is a generally a single
@@ -36,7 +43,6 @@ available for the task.
 Therefore using this principle, a modified version of a standard resource allocation formulation can be described
 to maximise social welfare.
 
-\section{Mathametical model of the problem}
 A sketch of the system is shown in Fig.~\ref{fig:system_model}.
 We assume that in the system there is a set of $I = \{1,2,\ldots,\left|I\right|\}$ servers are heterogeneous in all
 characters. Each server has a fixed availability of resources: storage for the code/data needed to run a task
@@ -83,15 +89,40 @@ bandwidth capacity (equation~\eqref{eq:server_bandwidth_capacity}) is the sum of
     \sum_{j \in J} s^{'}_{i,j,t} + r^{'}_{i,j,t} \leq R_i, && \forall{i \in I, t \in T} \label{eq:server_bandwidth_capacity} \\
 \end{align}
 
+% Todo add complete mathematical description of the problem
+
+\section{Auctioning of Tasks}
+
+\section{Markov Decision Process}
+
+\section{Proposed Agents}
+
 \section{Task Auctioning solution}\label{sec:task-auctioning}
-If an agent wish to run on task on the cloud, the task can be put forward with its requirements of required storage,
-computation, results data and deadline. In order for fast and truthful, a reverse Vickrey auction~\citep{vickrey}
-will be implemented  where servers all submit their bid for the task with the winner being the server with the lowest
-price but actually only gains second lowest price. The Vickrey auction is incentive compatible meaning that the dominant
-strategy for bidding on a task is to bid your truthful value for a task. This should help server as they dont need
-to learn how to outbid another agent as it only needs to consider its own evaluation.
-As there is also only a single round of bidding compared to alternative auctions like English or Dutch
-auctions, this makes auctioning fast no matter the number of servers and it also allows for a reserve price to be used.
+While the mathematically description of the problem presented above doesn't contain any auctioning properties, in real
+life, cloud providers wish to be paid to the use of their services. However due to the modifications that
+this project has to make to the optimisation problems compared to a traditional cloud computing optimisation problem.
+All traditional auction mechanisms that have been discussed in section~\ref{sec:related-work-in-cloud-computing} means
+that a novel or modified auction mechanism must be used to deal with these changes. Due to the complexities of devising
+new auction mechanism and the large corpus of research on auctions already, this project has chosen to use the Vickrey
+auction~\citep{vickrey}.
+
+This is as the modification required for an auction mechanism to be used is not to the auction itself but to the way
+that server price tasks. In traditional cloud computing, it was possible to create combinations of resources that means
+that users just buy the minimum amount of resources for their task with the price determined by the amount of
+resources requested. But due to the flexible resource allocation mechanism this style of linear pricing strategy is not
+effective as the demand on resources is not easy to calculate and the resource usage by other tasks is difficult to
+predict in the future.
+
+If an user wishes to run on task on the cloud, the task can be put forward with its
+requirements of required storage, computation, results data and deadline.
+
+%In order for fast and truthful, a reverse Vickrey auction~\citep{vickrey}
+%will be implemented  where servers all submit their bid for the task with the winner being the server with the lowest
+%price but actually only gains second lowest price. The Vickrey auction is incentive compatible meaning that the dominant
+%strategy for bidding on a task is to bid your truthful value for a task. This should help server as they dont need
+%to learn how to outbid another agent as it only needs to consider its own evaluation.
+%As there is also only a single round of bidding compared to alternative auctions like English or Dutch
+%auctions, this makes auctioning fast no matter the number of servers and it also allows for a reserve price to be used.
 
 In order to calculate the price of the task for a server requires a understanding the resource requirements of the task,
 the future supply and demand for tasks and the resource requirements of currently allocated tasks. Due to the complexity
@@ -116,6 +147,17 @@ implemented and compared. This is justified in section~\ref{sec:justification-fo
 the currently allocated tasks that are at a particular stages resource requirements and the task's resource requirement
 returning a single value between 1 to 100. Once this is completed for each job, the percentage of the total values will
 be assigned to each task.
+\section{Markov Decision Process Environment}\label{sec:markov-decision-process-description}
+Markov decision process~\citep{} is a mathematical framework that is used in reinforcement learning to model actions,
+states and rewards.
+\begin{figure}
+    \includegraphics{}
+    \caption{}
+    \label{fig:mdp}
+\end{figure}
 
-\section{Environment problem}\label{sec:markov-decision-process-description}
-%% Todo write about MDP
+But because of the way that the problem must be formulaed with the two sub-problems of auctioning and resource
+allocation that means that a straight forward implementation of this framework is difficult. This is the system works
+in batches with new tasks arriving over time that is then auctioned which could occur multiple times till all tasks
+are auctioned. Then server redistributes their resources which means that the overall markov decision process has
+two separate sub-environment within the overall larger environment. Because this problem of this, multiple
