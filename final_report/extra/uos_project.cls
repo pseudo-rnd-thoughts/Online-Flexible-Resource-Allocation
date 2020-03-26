@@ -12,7 +12,7 @@
 %% This file is part of the UoSDocs class distribution
 %%
 \NeedsTeXFormat{LaTeX2e}[2007/02/26]
-\ProvidesClass{uosproject}
+\ProvidesClass{extra/uos_project}
               [2019/03/12 v2.2
    LaTeX document class]
 %% ------------ Class/Formating Adjustment ----------------------
