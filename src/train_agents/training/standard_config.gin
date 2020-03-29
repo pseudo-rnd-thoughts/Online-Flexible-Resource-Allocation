@@ -75,12 +75,12 @@ DuelingDqnLstmNetwork.lstm_width = 40
 DuelingDqnLstmNetwork.relu_width = 20
 
 #                        Distributional Dqn Networks
-DistributionLstmNetwork.lstm_width = 40
-DistributionLstmNetwork.relu_width = 20
+DistributionalDqnLstmNetwork.lstm_width = 40
+DistributionalDqnLstmNetwork.relu_width = 20
 
 #                        Deep Deterministic Policy Gradient Networks
-DdpgLstmActor.lstm_width = 40
-DdpgLstmActor.relu_width = 20
+DdpgActorLstmNetwork.lstm_width = 40
+DdpgActorLstmNetwork.relu_width = 20
 
-DdpgLstmCritic.lstm_width = 40
-DdpgLstmCritic.relu_width = 20
+DdpgCriticLstmNetwork.lstm_width = 40
+DdpgCriticLstmNetwork.relu_width = 20
