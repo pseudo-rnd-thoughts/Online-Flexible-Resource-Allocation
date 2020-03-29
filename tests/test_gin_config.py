@@ -15,10 +15,11 @@ def test_agent_gin():
     ReinforcementLearningAgent.save_frequency = 4
     """)
 
-    test_agent = TaskPricingDqnAgent(1, DqnLstmNetwork(1, 9, 10))
+    test_agent = TaskPricingDqnAgent(0, DqnLstmNetwork(9, 10))
     assert test_agent.save_frequency == 4
+
 
 def test_standard_gin_config():
     gin.parse_config_file('../src/train_agents/training/standard_config.gin')
 
-    test_agent = TaskPricingDqnAgent(1, DqnLstmNetwork(1, 9, 10))
+    TaskPricingDqnAgent(0, DqnLstmNetwork(9, 10))
