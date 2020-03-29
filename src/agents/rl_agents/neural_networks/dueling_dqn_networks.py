@@ -18,10 +18,10 @@ class DuelingDqnLstmNetwork(Network):
         super().__init__('Dueling Lstm', input_width, num_actions)
 
         self.lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
-        self.relu_layer = tf.keras.layers.ReLU(relu_width)
+        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
 
-        self.advantage_layer = tf.keras.layers.Dense(num_actions)
-        self.value_layer = tf.keras.layers.Dense(1)
+        self.advantage_layer = tf.keras.layers.Dense(num_actions, activation='linear')
+        self.value_layer = tf.keras.layers.Dense(1, activation='linear')
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -41,5 +41,5 @@ class DuelingDqnLstmNetwork(Network):
         advantage = self.advantage_layer(relu)
         value = self.value_layer(relu)
 
-        action_q_value = value + (advantage - tf.reduce_mean(advantage, axis=1, keep_dims=True))
+        action_q_value = value + (advantage - tf.reduce_mean(advantage, axis=1, keepdims=True))
         return action_q_value

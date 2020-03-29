@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
-from copy import deepcopy, copy
+from copy import copy
+from typing import List
 
 import tensorflow as tf
 
+from agents.rl_agents.ddpg import TaskPricingDdpgAgent
 from agents.rl_agents.ddqn import TaskPricingDdqnAgent, ResourceWeightingDdqnAgent
+from agents.rl_agents.distributional_dqn import TaskPricingDistributionalDqnAgent
 from agents.rl_agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.dueling_dqn import TaskPricingDuelingDqnAgent, ResourceWeightingDuelingDqnAgent
+from agents.rl_agents.neural_networks.ddpg_networks import DdpgCriticLstmNetwork, DdpgActorLstmNetwork
+from agents.rl_agents.neural_networks.distributional_networks import DistributionalLstmNetwork
 from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork, DqnBidirectionalLstmNetwork, DqnGruNetwork
 from agents.rl_agents.neural_networks.dueling_dqn_networks import DuelingDqnLstmNetwork
+from agents.rl_agents.rl_agent import TaskPricingRLAgent, AgentState
 from env.server import Server
 from env.task import Task
 from env.task_stage import TaskStage
@@ -93,5 +99,26 @@ def test_agent_saving():
     tp_dqn_agent.save()
 
 
-if __name__ == "__main__":
-    test_simple_agent()
+def test_agent_training():
+    print()
+    agents: List[TaskPricingRLAgent] = [
+        TaskPricingDqnAgent(0, DqnLstmNetwork(10, 10), batch_size=1),
+        TaskPricingDdqnAgent(1, DqnLstmNetwork(10, 10), batch_size=1),
+        TaskPricingDuelingDqnAgent(2, DuelingDqnLstmNetwork(10, 10), batch_size=1),
+        TaskPricingDistributionalDqnAgent(3, DistributionalLstmNetwork(10, 10), batch_size=1),
+        TaskPricingDdpgAgent(4, DdpgActorLstmNetwork(9, 10), DdpgCriticLstmNetwork(10, 100), batch_size=1)
+    ]
+
+    auction_task_1 = Task('auction task 1', 69.0, 35.0, 10.0, 0, 12)
+    auction_task_2 = Task('auction task 2', 69.0, 35.0, 10.0, 0, 12)
+    tasks = [Task('task 1', 69.0, 35.0, 10.0, 0, 12), Task('task 2', 69.0, 35.0, 10.0, 0, 12)]
+    server = Server('server', 220.0, 35.0, 22.0)
+
+    agent_state = AgentState(auction_task_1, tasks, server, 0)
+    action = 0
+    next_agent_state = AgentState(auction_task_2, tasks, server, 0)
+
+    for agent in agents:
+        agent.failed_auction_bid(agent_state, action, next_agent_state)
+
+        agent.train()
