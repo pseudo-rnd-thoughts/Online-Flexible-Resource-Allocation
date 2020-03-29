@@ -6,7 +6,7 @@ import gin
 
 from agents.rl_agents.distributional_dqn import TaskPricingDistributionalDqnAgent, \
     ResourceWeightingDistributionalDqnAgent
-from agents.rl_agents.neural_networks.distributional_networks import DistributionalLstmNetwork
+from agents.rl_agents.neural_networks.distributional_networks import DistributionalDqnLstmNetwork
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from train_agents.core import generate_eval_envs, run_training, setup_tensorboard
 
@@ -20,11 +20,11 @@ if __name__ == "__main__":
     eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
 
     task_pricing_agents = [
-        TaskPricingDistributionalDqnAgent(agent_num, DistributionalLstmNetwork(9, 10), save_folder=folder)
+        TaskPricingDistributionalDqnAgent(agent_num, DistributionalDqnLstmNetwork(9, 10), save_folder=folder)
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDistributionalDqnAgent(agent_num, DistributionalLstmNetwork(10, 10), save_folder=folder)
+        ResourceWeightingDistributionalDqnAgent(agent_num, DistributionalDqnLstmNetwork(10, 10), save_folder=folder)
         for agent_num in range(3)
     ]
 
