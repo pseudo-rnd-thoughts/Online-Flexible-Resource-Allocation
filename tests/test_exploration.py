@@ -1,3 +1,7 @@
+"""
+Tests the linear exploration method used in the DQN agent
+"""
+
 
 def test_linear_exploration():
     initial_exploration = 1
@@ -10,5 +14,3 @@ def test_linear_exploration():
         print(f'Obs: {obs}, Exploration: {update_exploration}')
 
     assert round(update_exploration, 5) == final_exploration
-
-test_linear_exploration()

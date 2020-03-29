@@ -39,10 +39,17 @@ def test_network_copy():
 
 
 def test_agent_attributes():
-    def assert_args(agent, args):
+    def assert_args(test_agent, args):
+        """
+        Asserts that the proposed arguments have assigned to the agent
+
+        Args:
+            test_agent: The test agent
+            args: The argument used on the agent
+        """
         for arg_name, arg_value in args.items():
-            assert getattr(agent, arg_name) == arg_value, \
-                f'Attr: {arg_name}, correct value: {arg_value}, actual value: {getattr(agent, arg_name)}'
+            assert getattr(test_agent, arg_name) == arg_value, \
+                f'Attr: {arg_name}, correct value: {arg_value}, actual value: {getattr(test_agent, arg_name)}'
 
     # Check inheritance arguments
     dqn_arguments = {

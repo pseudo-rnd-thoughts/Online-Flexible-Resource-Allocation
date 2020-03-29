@@ -6,7 +6,7 @@ from typing import Dict
 
 from tqdm import tqdm
 
-from agents.heuristic_agents.human_agent import HumanTaskPricing, HumanResourceWeighting
+from agents.heuristic_agents.human_agent import HumanTaskPricing
 from agents.heuristic_agents.random_agent import RandomTaskPricingAgent, RandomResourceWeightingAgent
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.server import Server
