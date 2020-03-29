@@ -8,7 +8,7 @@ from agents.rl_agents.distributional_dqn import TaskPricingDistributionalDqnAgen
     ResourceWeightingDistributionalDqnAgent
 from agents.rl_agents.neural_networks.distributional_networks import DistributionalDqnLstmNetwork
 from env.environment import OnlineFlexibleResourceAllocationEnv
-from train_agents.core import generate_eval_envs, run_training, setup_tensorboard
+from train_agents.training_core import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
     gin.parse_config_file('./train_agents/training/standard_config.gin')
