@@ -51,7 +51,7 @@ class TaskPricingAgent(abc.ABC):
 
             return float(action)
         else:
-            return 0
+            return 0.0
 
     @abc.abstractmethod
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
