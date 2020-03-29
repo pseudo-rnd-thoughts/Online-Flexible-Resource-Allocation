@@ -53,19 +53,18 @@ At which point tasks would be auctioned and resource allocated. As a result whil
 such that tasks would bid on all tasks submitted every 5 minutes or so. Therefore previous work could also not
 dynamically change the resources allocated between batches, this work aims to address these problems in previous work.
 
-These problems are addressed by introducing time into the optimisation problem (outlined in section~\ref{}) but due
-to this additional all previous mechanism used are incompatible with the new optimisation problem. Therefore using
-a standard auction mechanism, this project investigates different methods of learning how to bid on tasks
-based on their resource requirements and to efficiently allocate resources to tasks by a server.
+These problems are addressed by introducing time into the optimisation problem (outlined in
+section~\ref{sec:optimisation-problem}) but due to this additional all previous mechanism used are incompatible with
+the new optimisation problem. Therefore using a standard auction mechanism, this project investigates different methods
+of learning how to bid on tasks based on their resource requirements and to efficiently allocate resources to tasks
+by a server.
 
 This report is set out is following chapters. Chapter~\ref{ch:proposed-solution-to-problem} proposed a solution
 to the project outline in this chapter with chapter~\ref{ch:justification-of-the-solution} justifying why this
-approach as taken over alternative. Chapter~\ref{ch:background_literature} investigates the previous research
+approach as taken over alternative. Chapter~\ref{ch:background-literature} investigates the previous research
 that this project builds upon within both resource allocation in cloud computing and reinforcement learning methods.
 The proposed solution is then implemented in chapter~\ref{ch:implementation-of-the-solution} with testing and
 evaluation in chapters~\ref{ch:testing-of-the-implementation} and~\ref{ch:evaluation-of-the-implementation} respectively.
-
-%% Todo explain what the project does
 
 %% Unneeded text
 %has the assumption that tasks have fixed resource requirements. However, flexibility is possible in practise
