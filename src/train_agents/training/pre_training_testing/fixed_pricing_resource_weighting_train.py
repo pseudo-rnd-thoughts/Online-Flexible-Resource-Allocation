@@ -6,7 +6,7 @@ from __future__ import annotations
 import gin
 
 from agents.heuristic_agents.fixed_task_pricing_agent import FixedTaskPricingAgent
-from agents.rl_agents.dqn import ResourceWeightingDqnAgent, TaskPricingDqnAgent
+from agents.rl_agents.dqn import ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from train_agents.core import generate_eval_envs, run_training, setup_tensorboard
