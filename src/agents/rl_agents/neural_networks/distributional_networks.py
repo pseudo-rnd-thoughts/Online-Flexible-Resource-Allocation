@@ -5,13 +5,14 @@ Distribution DQN network
 from __future__ import annotations
 
 import gin.tf
+import numpy as np
 import tensorflow as tf
 
 from agents.rl_agents.neural_networks.network import Network
 
 
 @gin.configurable
-class DistributionLstmNetwork(Network):
+class DistributionalLstmNetwork(Network):
     """
     Distribution LSTM network
     """
@@ -21,8 +22,8 @@ class DistributionLstmNetwork(Network):
         Network.__init__(self, 'Distributional DQN', input_width, num_actions)
 
         self.lstm_layer = tf.keras.layers.LSTM(lstm_width)
-        self.relu_layer = tf.keras.layers.ReLU(relu_width)
-        self.action_layers = [tf.keras.layers.Dense(num_atoms) for _ in range(num_actions)]
+        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
+        self.action_layers = [tf.keras.layers.Dense(num_atoms, activation='linear') for _ in range(num_actions)]
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -36,4 +37,4 @@ class DistributionLstmNetwork(Network):
         Returns: The suggested action
         """
         relu_layer_output = self.relu_layer(self.lstm_layer(inputs))
-        return [action_layer(relu_layer_output) for action_layer in self.action_layers]
+        return np.array([action_layer(relu_layer_output) for action_layer in self.action_layers])
