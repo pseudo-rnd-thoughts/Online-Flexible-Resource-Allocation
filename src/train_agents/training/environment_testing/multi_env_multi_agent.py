@@ -22,11 +22,11 @@ if __name__ == "__main__":
     eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
 
     task_pricing_agents = [
-        TaskPricingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 9, 10), save_folder=folder)
+        TaskPricingDqnAgent(agent_num, DqnLstmNetwork(9, 10), save_folder=folder)
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 10, 10), save_folder=folder)
+        ResourceWeightingDqnAgent(agent_num, DqnLstmNetwork(10, 10), save_folder=folder)
         for agent_num in range(3)
     ]
 

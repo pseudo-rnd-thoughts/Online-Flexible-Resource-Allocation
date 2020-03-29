@@ -19,10 +19,10 @@ if __name__ == "__main__":
     eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
 
     task_pricing_agents = [
-        TaskPricingDqnAgent(0, DqnLstmNetwork(0, 9, 10), save_folder=folder)
+        TaskPricingDqnAgent(0, DqnLstmNetwork(9, 10), save_folder=folder)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDqnAgent(0, DqnLstmNetwork(0, 10, 10), save_folder=folder)
+        ResourceWeightingDqnAgent(0, DqnLstmNetwork(10, 10), save_folder=folder)
     ]
 
     print('TP Agents: [' + ', '.join(agent.name for agent in task_pricing_agents) + ']')
