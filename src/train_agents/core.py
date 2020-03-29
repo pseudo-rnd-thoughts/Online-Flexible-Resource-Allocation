@@ -10,7 +10,7 @@ import random as rnd
 from typing import List, Dict, Tuple, Optional, TYPE_CHECKING
 
 import tensorflow as tf
-from tensorflow_core.python.ops.summary_ops_v2 import ResourceSummaryWriter
+from tensorflow.python.ops.summary_ops_v2 import ResourceSummaryWriter
 
 from agents.rl_agents.rl_agent import AgentState
 from env.env_state import EnvState
