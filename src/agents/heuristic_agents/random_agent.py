@@ -38,7 +38,7 @@ class RandomTaskPricingAgent(TaskPricingAgent):
 
         """
 
-        return rnd.randint(0, self.upper_price_bound)
+        return float(rnd.randint(0, self.upper_price_bound))
 
 
 @gin.configurable
@@ -65,4 +65,4 @@ class RandomResourceWeightingAgent(ResourceWeightingAgent):
         Returns: A random value between 1 and the upper weight bound
 
         """
-        return rnd.randint(1, self.upper_weight_bound)
+        return float(rnd.randint(0, self.upper_weight_bound))
