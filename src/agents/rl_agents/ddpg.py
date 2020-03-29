@@ -269,8 +269,8 @@ class ResourceWeightingDdpgAgent(DeepDeterministicPolicyGradientAgent, ResourceW
     Resource Weighting DDPG Agent
     """
 
-    actor_network_obs_width: int = 9
-    critic_network_obs_width: int = 10
+    actor_network_obs_width: int = 10
+    critic_network_obs_width: int = 11
 
     def __init__(self, agent_num: int, actor_network: Network, critic_network: Network, **kwargs):
         assert actor_network.input_width == self.actor_network_obs_width
