@@ -17,10 +17,10 @@ class DqnBidirectionalLstmNetwork(Network):
     def __init__(self, input_width: int, action_width: int, lstm_width: int = 40, relu_width: int = 20):
         Network.__init__(self, 'Bidirectional Lstm', input_width, action_width)
 
-        self.bidirectional_lstm = tf.keras.layers.Bidirectional(
-            tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width)))
-        self.relu = tf.keras.layers.ReLU(relu_width)
-        self.q_value_layer = tf.keras.layers.Dense(action_width)
+        lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
+        self.bidirectional_lstm_layer = tf.keras.layers.Bidirectional(lstm_layer)
+        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
+        self.q_value_layer = tf.keras.layers.Dense(action_width, activation='linear')
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -34,7 +34,7 @@ class DqnBidirectionalLstmNetwork(Network):
         Returns: Single dimensional array action output
 
         """
-        return self.q_value_layer(self.relu(self.bidirectional_lstm(inputs)))
+        return self.q_value_layer(self.relu_layer(self.bidirectional_lstm_layer(inputs)))
 
 
 @gin.configurable
@@ -46,9 +46,9 @@ class DqnLstmNetwork(Network):
     def __init__(self, input_width: int, action_width: int, lstm_width: int = 40, relu_width: int = 20):
         Network.__init__(self, 'Lstm', input_width, action_width)
 
-        self.lstm = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
-        self.relu = tf.keras.layers.ReLU(relu_width)
-        self.q_value_layer = tf.keras.layers.Dense(action_width)
+        self.lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
+        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
+        self.q_value_layer = tf.keras.layers.Dense(action_width, activation='linear')
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -62,7 +62,7 @@ class DqnLstmNetwork(Network):
         Returns: Single dimensional array action output
 
         """
-        return self.q_value_layer(self.relu(self.lstm(inputs)))
+        return self.q_value_layer(self.relu_layer(self.lstm_layer(inputs)))
 
 
 @gin.configurable
@@ -74,9 +74,9 @@ class DqnGruNetwork(Network):
     def __init__(self, input_width: int, action_width: int, lstm_width: int = 40, relu_width: int = 20):
         Network.__init__(self, 'Gru', input_width, action_width)
 
-        self.gru = tf.keras.layers.GRU(lstm_width, input_shape=(None, input_width))
-        self.relu = tf.keras.layers.ReLU(relu_width)
-        self.q_value_layer = tf.keras.layers.Dense(action_width)
+        self.gru_layer = tf.keras.layers.GRU(lstm_width, input_shape=(None, input_width))
+        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
+        self.q_value_layer = tf.keras.layers.Dense(action_width, activation='linear')
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -90,4 +90,4 @@ class DqnGruNetwork(Network):
         Returns: Single dimensional array action output
 
         """
-        return self.q_value_layer(self.relu(self.gru(inputs)))
+        return self.q_value_layer(self.relu_layer(self.gru_layer(inputs)))
