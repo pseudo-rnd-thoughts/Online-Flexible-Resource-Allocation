@@ -183,7 +183,7 @@ class DeepDeterministicPolicyGradientAgent(ReinforcementLearningAgent, ABC):
         target_network.set_weights(target_weights)
 
     def _save(self):
-        path = f'{os.getcwd()}/checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}'
+        path = f'{os.getcwd()}/train_agents/results/checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}'
         print(path)
         if not os.path.exists(path):
             os.makedirs(path)

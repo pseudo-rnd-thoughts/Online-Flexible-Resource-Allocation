@@ -148,7 +148,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         self.target_network.set_weights(self.model_network.get_weights())
 
     def _save(self):
-        path = f'{os.getcwd()}/checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}'
+        path = f'{os.getcwd()}/train_agents/results/checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}'
         if not os.path.exists(path):
             os.makedirs(path)
         with open(f'{path}/model_{self.total_obs}.pickle', 'wb') as file:

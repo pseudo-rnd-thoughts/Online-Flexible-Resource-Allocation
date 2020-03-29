@@ -327,4 +327,4 @@ def setup_tensorboard(folder: str) -> ResourceSummaryWriter:
     Args:
         folder: The folder for the tensorboard
     """
-    return tf.summary.create_file_writer(f'logs/{folder}_{dt.datetime.now().strftime("%m-%d_%H-%M-%S")}')
+    return tf.summary.create_file_writer(f'train_agents/results/logs/{folder}_{dt.datetime.now().strftime("%m-%d_%H-%M-%S")}')
