@@ -43,7 +43,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
             target_update_frequency: The target network update frequency
             **kwargs: Additional arguments for the reinforcement learning agent
         """
-        ReinforcementLearningAgent.__init__(self, network.input_width, network.max_action_value, **kwargs)
+        ReinforcementLearningAgent.__init__(self, **kwargs)
 
         # Create the two Q network; model and target
         self.model_network = network
@@ -144,7 +144,6 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         """
         Updates the target network with the model network every target_update_frequency observations
         """
-        # print(f'Update {self.name} target network {self.model_network.name}')
         self.target_network.set_weights(self.model_network.get_weights())
 
     def _save(self):
@@ -160,10 +159,12 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
     Task Pricing DQN agent
     """
 
+    network_obs_width: int = 9
+
     def __init__(self, agent_name: Union[int, str], network: Network, **kwargs):
         DqnAgent.__init__(self, network, **kwargs)
-        TaskPricingRLAgent.__init__(self, f'DQN TP {agent_name}' if type(agent_name) is int else agent_name,
-                                    9, network.max_action_value, **kwargs)
+        assert network.input_width == self.network_obs_width
+        TaskPricingRLAgent.__init__(self, f'DQN TP {agent_name}' if type(agent_name) is int else agent_name, **kwargs)
 
     @staticmethod
     def network_obs(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
@@ -190,7 +191,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         if not self.eval_policy and rnd.random() < self.exploration:
-            return rnd.randint(0, self.max_action_value - 1)
+            return rnd.randint(0, self.network_output_width - 1)
         else:
             obs = self.network_obs(auction_task, allocated_tasks, server, time_step)
             return np.argmax(self.model_network(obs))
@@ -201,10 +202,13 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
     Resource weighting DQN agent
     """
 
+    resource_obs_width: int = 10
+
     def __init__(self, agent_name: Union[int, str], network: Network, **kwargs):
         DqnAgent.__init__(self, network, **kwargs)
+        assert network.input_width == self.resource_obs_width, str(network)
         ResourceWeightingRLAgent.__init__(self, f'DQN TP {agent_name}' if type(agent_name) is int else agent_name,
-                                          10, network.max_action_value, **kwargs)
+                                          **kwargs)
 
     @staticmethod
     def network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
@@ -232,7 +236,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
 
     def _get_action(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         if not self.eval_policy and rnd.random() < self.exploration:
-            return rnd.randint(0, self.max_action_value - 1)
+            return rnd.randint(0, self.network_output_width - 1)
         else:
             obs = self.network_obs(weight_task, allocated_tasks, server, time_step)
             return np.argmax(self.model_network(obs))

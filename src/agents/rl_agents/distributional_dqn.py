@@ -76,10 +76,10 @@ class TaskPricingDistributionalDqnAgent(DistributionalDqnAgent, TaskPricingDqnAg
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         if not self.eval_policy and rnd.random() < self.exploration:
-            return rnd.randint(0, self.max_action_value - 1)
+            return rnd.randint(0, self.network_output_width - 1)
         else:
             obs = self.network_obs(auction_task, allocated_tasks, server, time_step)
-            action_value_prob = np.reshape(self.model_network(obs), (self.num_atoms, self.max_action_value))
+            action_value_prob = np.reshape(self.model_network(obs), (self.num_atoms, self.network_output_width))
             action_q = np.multiply(action_value_prob, self.z, axis=1)
             return np.argmax(action_q)
 
@@ -97,9 +97,9 @@ class ResourceWeightingDistributionalDqnAgent(DistributionalDqnAgent, ResourceWe
 
     def _get_action(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         if not self.eval_policy and rnd.random() < self.exploration:
-            return rnd.randint(0, self.max_action_value - 1)
+            return rnd.randint(0, self.network_output_width - 1)
         else:
             obs = self.network_obs(weight_task, allocated_tasks, server, time_step)
-            action_value_prob = np.reshape(self.model_network(obs), (self.num_atoms, self.max_action_value))
+            action_value_prob = np.reshape(self.model_network(obs), (self.num_atoms, self.network_output_width))
             action_q = np.multiply(action_value_prob, self.z, axis=1)
             return np.argmax(action_q)

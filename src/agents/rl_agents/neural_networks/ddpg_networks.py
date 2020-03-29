@@ -16,8 +16,8 @@ class DdpgActorLstmNetwork(Network):
     DDPG actor with LSTM as the primary layer
     """
 
-    def __init__(self, input_width: int, max_action_value: int = 10000, lstm_width: int = 40, relu_width: int = 20):
-        Network.__init__(self, 'DDPG Actor Lstm', input_width, max_action_value)
+    def __init__(self, input_width: int, lstm_width: int = 40, relu_width: int = 20):
+        Network.__init__(self, 'DDPG Actor Lstm', input_width, 1)
 
         self.lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
         self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
@@ -43,8 +43,8 @@ class DdpgCriticLstmNetwork(Network):
     DDPG Critic with LSTM as the primary layer
     """
 
-    def __init__(self, input_width: int, max_action_value: float = 10000, lstm_width: int = 40, relu_width: int = 20):
-        Network.__init__(self, 'DDPG Critic Lstm', input_width, max_action_value)
+    def __init__(self, input_width: int, lstm_width: int = 40, relu_width: int = 20):
+        Network.__init__(self, 'DDPG Critic Lstm', input_width, 1)
 
         self.lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
         self.relu_layer = tf.keras.layers.ReLU(relu_width)

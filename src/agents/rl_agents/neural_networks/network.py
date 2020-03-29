@@ -12,8 +12,11 @@ class Network(tf.keras.Model, ABC):
     Abstract network model used for the agents
     """
 
-    def __init__(self, name, input_width, max_action_value):
+    def __init__(self, name, input_width, output_width):
         tf.keras.Model.__init__(self, name=name)
 
         self.input_width = input_width
-        self.max_action_value = max_action_value
+        self.output_width = output_width
+
+    def __str__(self) -> str:
+        return f'{self.name} Network - input: {self.input_width}, output: {self.output_width}'

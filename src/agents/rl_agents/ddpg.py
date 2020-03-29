@@ -10,7 +10,7 @@ import os
 import pickle
 import random as rnd
 from abc import ABC, abstractmethod
-from copy import deepcopy
+from copy import copy
 from typing import List
 
 import gin.tf
@@ -59,16 +59,16 @@ class DeepDeterministicPolicyGradientAgent(ReinforcementLearningAgent, ABC):
     Deep Deterministic Policy Gradient for continuous action spaces
     """
 
-    def __init__(self, actor_network: Network, critic_network: Network, network_input_width: int,
-                 max_action_value: int, tau: float = 0.99, noise: Noise = GaussianNoise(), discount_factor: float = 0.9,
-                 loss_func: tf.keras.losses.Loss = tf.keras.losses.Huber(), clip_loss: bool = True):
-        ReinforcementLearningAgent.__init__(self, network_input_width, max_action_value)
+    def __init__(self, actor_network: Network, critic_network: Network, tau: float = 0.99,
+                 noise: Noise = GaussianNoise(), discount_factor: float = 0.9,
+                 loss_func: tf.keras.losses.Loss = tf.keras.losses.Huber(), clip_loss: bool = True, **kwargs):
+        ReinforcementLearningAgent.__init__(self, **kwargs)
 
         self.model_actor_network = actor_network
-        self.target_actor_network = deepcopy(actor_network)
+        self.target_actor_network = copy(actor_network)
 
         self.model_critic_network = critic_network
-        self.target_critic_network = deepcopy(critic_network)
+        self.target_critic_network = copy(critic_network)
 
         self.tau = tau
         self.noise = noise
@@ -200,16 +200,19 @@ class TaskPricingDdpgAgent(DeepDeterministicPolicyGradientAgent, TaskPricingRLAg
     Task Pricing DDPG Agent
     """
 
-    def __init__(self, agent_num: int, actor_network: Network, critic_network: Network,
-                 max_action_value: int = 10, **kwargs):
-        DeepDeterministicPolicyGradientAgent.__init__(self, actor_network, critic_network,
-                                                      11, max_action_value, **kwargs)
-        TaskPricingRLAgent.__init__(self, f'DDPG TP {agent_num}', 11, max_action_value, **kwargs)
+    actor_network_obs_width: int = 9
+    critic_network_obs_width: int = 10
+
+    def __init__(self, agent_num: int, actor_network: Network, critic_network: Network, **kwargs):
+        assert actor_network.input_width == self.actor_network_obs_width
+        assert critic_network.input_width == self.critic_network_obs_width
+        DeepDeterministicPolicyGradientAgent.__init__(self, actor_network, critic_network, **kwargs)
+        TaskPricingRLAgent.__init__(self, f'DDPG TP {agent_num}', **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         obs = self.actor_network_obs(auction_task, allocated_tasks, server, time_step)
         epsilon = 0 if self.eval_policy else self.noise()
-        return min(self.max_action_value, self.model_actor_network(obs) + epsilon)
+        return min(self.network_output_width, self.model_actor_network(obs) + epsilon)
 
     @staticmethod
     def actor_network_obs(auctioned_task: Task, allocated_tasks: List[Task], server: Server,
@@ -266,16 +269,19 @@ class ResourceWeightingDdpgAgent(DeepDeterministicPolicyGradientAgent, ResourceW
     Resource Weighting DDPG Agent
     """
 
-    def __init__(self, agent_num: int, actor_network: Network, critic_network: Network,
-                 max_action_value: int = 10, **kwargs):
-        DeepDeterministicPolicyGradientAgent.__init__(self, actor_network, critic_network,
-                                                      10, max_action_value, **kwargs)
-        ResourceWeightingRLAgent.__init__(self, f'DDPG RW {agent_num}', 10, max_action_value, **kwargs)
+    actor_network_obs_width: int = 9
+    critic_network_obs_width: int = 10
+
+    def __init__(self, agent_num: int, actor_network: Network, critic_network: Network, **kwargs):
+        assert actor_network.input_width == self.actor_network_obs_width
+        assert critic_network.input_width == self.critic_network_obs_width
+        DeepDeterministicPolicyGradientAgent.__init__(self, actor_network, critic_network, **kwargs)
+        ResourceWeightingRLAgent.__init__(self, f'DDPG RW {agent_num}', **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         obs = self.actor_network_obs(auction_task, allocated_tasks, server, time_step)
         epsilon = 0 if self.eval_policy else rnd.gauss(0, self.exploration)
-        return min(self.max_action_value, self.model_actor_network(obs) + epsilon)
+        return min(self.network_output_width, self.model_actor_network(obs) + epsilon)
 
     @staticmethod
     def actor_network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server,

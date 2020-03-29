@@ -44,8 +44,7 @@ class ReinforcementLearningAgent(ABC):
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
-    def __init__(self, network_input_width: int, max_action_value: float,
-                 save_frequency: int = 25000, save_folder: str = 'test', batch_size: int = 32,
+    def __init__(self, save_frequency: int = 25000, save_folder: str = 'test', batch_size: int = 32,
                  learning_rate: float = 0.001, replay_buffer_length: int = 10000,
                  update_frequency: int = 4, log_frequency: int = 80, training_replay_start_size: int = 2500, **kwargs):
         """
@@ -53,8 +52,7 @@ class ReinforcementLearningAgent(ABC):
 
         Args:
             network_input_width: The network input width
-            max_action_value: The max action width (for discrete action space, this is the network output width
-                                    but for continuous action space, this is the upper action limit)
+            network_output_width: The network output width
             batch_size: Training batch size
             learning_rate: Learning of the algorithm
             replay_buffer_length: The experience replay buffer length
@@ -70,10 +68,6 @@ class ReinforcementLearningAgent(ABC):
         # Adadelta optimiser and learning rate for training the agent
         self.learning_rate = learning_rate
         self.optimiser = tf.keras.optimizers.Adadelta(lr=learning_rate)
-
-        # Network neural, input and output info
-        self.network_input_width = network_input_width
-        self.max_action_value = max_action_value
 
         # Training observations
         self.total_obs = 0
@@ -155,25 +149,25 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
     Task Pricing reinforcement learning agent
     """
 
-    def __init__(self, name: str, network_input_width: int, max_action_value: float,
-                 failed_auction_reward: float = -0.05, failed_reward_multiplier: float = -1.5, **kwargs):
+    def __init__(self, name: str, failed_auction_reward: float = -0.05, failed_reward_multiplier: float = -1.5,
+                 **kwargs):
         """
         Constructor of the task pricing reinforcement learning agent
 
         Args:
             name: Agent name
             network_input_width: Network input width
-            max_action_value: Network output width
+            network_output_width: Network output width
             failed_auction_reward: Failed auction reward
             failed_reward_multiplier: Failed reward multiplier
         """
         TaskPricingAgent.__init__(self, name)
-        ReinforcementLearningAgent.__init__(self, network_input_width, max_action_value, **kwargs)
+        ReinforcementLearningAgent.__init__(self, **kwargs)
 
         # Reward variable
-        assert failed_auction_reward <= 0
+        assert failed_auction_reward <= 0, failed_auction_reward
         self.failed_auction_reward = failed_auction_reward
-        assert failed_reward_multiplier <= 0
+        assert failed_reward_multiplier <= 0, failed_reward_multiplier
         self.failed_reward_multiplier = failed_reward_multiplier
 
     def winning_auction_bid(self, agent_state: AgentState, action: float,
@@ -188,7 +182,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
             next_agent_state: The next agent state
         """
         # Check that the arguments are valid
-        assert 0 <= action < self.max_action_value
+        assert 0 <= action < self.network_output_width
         assert finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
 
         # Calculate the reward and add it to the replay buffer
@@ -212,7 +206,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
             next_agent_state: The next agent state
         """
         # Check that the argument are valid
-        assert 0 <= action < self.max_action_value
+        assert 0 <= action
         assert agent_state.time_step <= next_agent_state.time_step
 
         # If the action is zero then there is no bid on the task so no loss
@@ -234,8 +228,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
-    def __init__(self, name: str, network_input_width: int, max_action_value: float,
-                 other_task_reward_discount: float = 0.2, successful_task_reward: float = 1,
+    def __init__(self, name: str, other_task_reward_discount: float = 0.2, successful_task_reward: float = 1,
                  failed_task_reward: float = -2, task_multiplier: float = 2.0, ignore_empty_next_obs: bool = False,
                  **kwargs):
         """
@@ -244,7 +237,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
         Args:
             name: The name of the agent
             network_input_width: The network input width
-            max_action_value: The max action value
+            network_output_width: The max action value
             other_task_reward_discount: The discount for when other tasks are completed
             successful_task_reward: The reward for when tasks have completed successful
             failed_task_reward: The reward for when tasks have failed
@@ -252,7 +245,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             **kwargs: Additional arguments for the reinforcement learning agent base class
         """
         ResourceWeightingAgent.__init__(self, name)
-        ReinforcementLearningAgent.__init__(self, network_input_width, max_action_value, **kwargs)
+        ReinforcementLearningAgent.__init__(self, **kwargs)
 
         # Agent reward variables
         self.other_task_reward_discount = other_task_reward_discount
@@ -275,7 +268,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             finished_tasks: List of tasks that finished during that round of resource allocation
         """
         # Check that the arguments are valid
-        assert 0 <= action < self.max_action_value
+        assert 0 <= action
         assert all(finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
                    for finished_task in finished_tasks)
 
@@ -304,7 +297,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             finished_tasks: List of tasks that finished during that round of resource allocation
         """
         # Check that the arguments are valid
-        assert 0 <= action < self.max_action_value
+        assert 0 <= action
         assert finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
         assert all(finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
                    for finished_task in finished_tasks)
