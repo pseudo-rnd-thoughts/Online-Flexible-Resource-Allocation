@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Dict
+
 from tqdm import tqdm
 
 from agents.heuristic_agents.human_agent import HumanTaskPricing, HumanResourceWeighting
@@ -34,14 +36,14 @@ def test_env_step_rnd_action():
             # print(f'State num of servers: {len(state.server_tasks)}')
             assert len(state.server_tasks) == num_servers
             if state.auction_task:
-                actions = {
+                actions: Dict[Server, float] = {
                     server: random_task_pricing.bid(state.auction_task, allocated_tasks, server, state.time_step)
                     for server, allocated_tasks in state.server_tasks.items()
                 }
                 # print(f'\tAuction of {state.auction_task.name}, time step: {state.time_step}')
                 auctioned_tasks += 1
             else:
-                actions = {
+                actions: Dict[Server, Dict[Task, float]] = {
                     server: {
                         task: random_resource_weighting.weight(task, tasks, server, state.time_step)
                         for task in tasks
@@ -92,11 +94,9 @@ def test_env_auction_step():
 # noinspection DuplicatedCode
 def test_env_resource_allocation_step():
     print()
-    human_resource_weighting = HumanResourceWeighting(0)
-
     servers_tasks = {
         Server('Test', 220.0, 35.0, 22.0): [
-            Task('Test 1', 76.0, 36.0, 16.0, 0, 12, stage=TaskStage.COMPUTING, loading_progress=76.0),
+            Task('Test 1', 76.0, 36.0, 16.0, 0, 12, stage=TaskStage.LOADING, loading_progress=50.0),
             Task('Test 2', 75.0, 37.0, 12.0, 0, 12, stage=TaskStage.COMPUTING, loading_progress=75.0, compute_progress=10.0),
             Task('Test 3', 72.0, 47.0, 20.0, 0, 7, stage=TaskStage.COMPUTING, loading_progress=72.0, compute_progress=25.0)
         ]
@@ -107,8 +107,9 @@ def test_env_resource_allocation_step():
 
     actions = {
         server: {
-            task: human_resource_weighting.weight(task, tasks, server, state.time_step)
-            for task in tasks
+            tasks[0]: 1.0,
+            tasks[1]: 1.0,
+            tasks[2]: 2.0
         }
         for server, tasks in state.server_tasks.items()
     }
