@@ -10,7 +10,7 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 from train_agents.core import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
-    gin.parse_config_file('../standard_config.gin')
+    gin.parse_config_file('./train_agents/training/standard_config.gin')
 
     folder = 'dqn_agents'
     writer = setup_tensorboard(folder)
