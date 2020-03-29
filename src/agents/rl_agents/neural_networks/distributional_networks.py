@@ -12,7 +12,7 @@ from agents.rl_agents.neural_networks.network import Network
 
 
 @gin.configurable
-class DistributionalLstmNetwork(Network):
+class DistributionalDqnLstmNetwork(Network):
     """
     Distribution LSTM network
     """
