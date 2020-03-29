@@ -37,8 +37,8 @@ class DdqnAgent(DqnAgent, ABC):
         else:
             next_obs = self.network_obs(trajectory.next_state.task, trajectory.next_state.tasks,
                                         trajectory.next_state.server, trajectory.next_state.time_step)
-            target[0][action] = trajectory.reward + self.discount * self.target_network(next_obs)[0][
-                np.argmax(self.model_network(next_obs))]
+            target[0][action] = trajectory.reward + \
+                self.discount_factor * self.target_network(next_obs)[0][np.argmax(self.model_network(next_obs))]
 
         return target, self.model_network(obs)
 
