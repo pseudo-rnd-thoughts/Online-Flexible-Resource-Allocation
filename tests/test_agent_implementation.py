@@ -7,7 +7,7 @@ from typing import List
 
 import tensorflow as tf
 
-from agents.rl_agents.ddpg import TaskPricingDdpgAgent
+from agents.rl_agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent
 from agents.rl_agents.ddqn import TaskPricingDdqnAgent, ResourceWeightingDdqnAgent
 from agents.rl_agents.distributional_dqn import TaskPricingDistributionalDqnAgent, \
     ResourceWeightingDistributionalDqnAgent
@@ -92,16 +92,21 @@ def test_agents_build():
     print(f'{bidirectional_lstm.name}, {lstm.name}, {gru.name}, {dueling_lstm.name}')
 
     tp_dqn_agent = TaskPricingDqnAgent(0, DqnBidirectionalLstmNetwork(9, 10))
-    tp_ddqn_agent = TaskPricingDdqnAgent(0, DqnBidirectionalLstmNetwork(9, 10))
-    tp_dueling_dqn_agent = TaskPricingDuelingDqnAgent(0, DqnBidirectionalLstmNetwork(9, 10))
+    tp_ddqn_agent = TaskPricingDdqnAgent(1, DqnBidirectionalLstmNetwork(9, 10))
+    tp_dueling_dqn_agent = TaskPricingDuelingDqnAgent(2, DqnBidirectionalLstmNetwork(9, 10))
+    tp_distributional_dqn_agent = TaskPricingDistributionalDqnAgent(3, DistributionalDqnLstmNetwork(9, 10))
+    tp_ddpg_agent = TaskPricingDdpgAgent(4, DdpgActorLstmNetwork(9), DdpgCriticLstmNetwork(10))
 
     rw_dqn_agent = ResourceWeightingDqnAgent(0, DqnBidirectionalLstmNetwork(10, 10))
-    rw_ddqn_agent = ResourceWeightingDdqnAgent(0, DqnBidirectionalLstmNetwork(10, 10))
-    rw_dueling_dqn_agent = ResourceWeightingDuelingDqnAgent(0, DqnBidirectionalLstmNetwork(10, 10))
+    rw_ddqn_agent = ResourceWeightingDdqnAgent(1, DqnBidirectionalLstmNetwork(10, 10))
+    rw_dueling_dqn_agent = ResourceWeightingDuelingDqnAgent(2, DqnBidirectionalLstmNetwork(10, 10))
+    rw_distributional_dqn_agent = ResourceWeightingDistributionalDqnAgent(3, DistributionalDqnLstmNetwork(10, 10))
+    rw_ddpg_agent = ResourceWeightingDdpgAgent(4, DdpgActorLstmNetwork(10), DdpgCriticLstmNetwork(11))
 
-    assert id(tp_dqn_agent.model_network) != id(tp_dqn_agent.target_network)
-    print(f'{tp_dqn_agent.name}, {tp_ddqn_agent.name}, {tp_dueling_dqn_agent.name}')
-    print(f'{rw_dqn_agent.name}, {rw_ddqn_agent.name}, {rw_dueling_dqn_agent.name}')
+    print(f'{tp_dqn_agent.name}, {tp_ddqn_agent.name}, {tp_dueling_dqn_agent.name}, '
+          f'{tp_distributional_dqn_agent.name}, {tp_ddpg_agent.name}')
+    print(f'{rw_dqn_agent.name}, {rw_ddqn_agent.name}, {rw_dueling_dqn_agent.name}, '
+          f'{rw_distributional_dqn_agent.name}, {rw_ddpg_agent.name}')
 
 
 def test_agent_saving():
