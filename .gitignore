@@ -6,3 +6,6 @@ auxil/
 out/
 
 papers/
+
+src/train_agents/results/logs/*
+src/train_agents/results/checkpoint/*
