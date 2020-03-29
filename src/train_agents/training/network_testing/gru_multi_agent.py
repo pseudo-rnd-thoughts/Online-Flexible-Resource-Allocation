@@ -28,10 +28,10 @@ if __name__ == "__main__":
     ]
 
     print('TP Agents: [' + ', '.join(agent.name for agent in task_pricing_agents) + ']')
-    print('RW Agents: [' + ', '.join(agent.name for agent in resource_weighting_agent) + ']')
+    print('RW Agents: [' + ', '.join(agent.name for agent in resource_weighting_agents) + ']')
 
     with writer.as_default():
-        run_training(env, eval_envs, 150, task_pricing_agents, resource_weighting_agent, 5)
+        run_training(env, eval_envs, 150, task_pricing_agents, resource_weighting_agents, 5)
 
     for agent in task_pricing_agents:
         agent.save()
@@ -39,4 +39,4 @@ if __name__ == "__main__":
         agent.save()
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
-    print('RW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agent) + '}')
+    print('RW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agents) + '}')
