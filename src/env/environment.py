@@ -86,7 +86,8 @@ class OnlineFlexibleResourceAllocationEnv:
 
         env._total_time_steps = total_time_steps
         env._unallocated_tasks = sorted(new_unallocated_tasks, key=operator.attrgetter('auction_time'))
-        auction_task = env._unallocated_tasks.pop(0) if env._unallocated_tasks[0].auction_time == 0 else None
+        auction_task = env._unallocated_tasks.pop(0) \
+            if len(env._unallocated_tasks) > 0 and env._unallocated_tasks[0].auction_time == 0 else None
         env._state = EnvState(new_servers_tasks, auction_task, 0)
 
         return env, env._state
@@ -150,8 +151,10 @@ class OnlineFlexibleResourceAllocationEnv:
         # If there is an auction task then the actions must be auction
         if self._state.auction_task is not None:  # Auction action = Dict[Server, float])
             info['step type'] = 'auction'
-            assert all(type(actions[server]) is float and 0 <= actions[server]
-                       for server in self._state.server_tasks.keys())
+            assert all(server in actions for server in self._state.server_tasks.keys())
+            assert all(type(action) is float for action in actions.values()), \
+                ', '.join(str(type(action)) for action in actions.values())
+            assert all(0 <= action for action in actions.values())
 
             # Vickrey auction, the server wins with the minimum price but only pays the second minimum price
             #  If multiple servers all price the same price then the server pays the minimum price (not second minimum price)
