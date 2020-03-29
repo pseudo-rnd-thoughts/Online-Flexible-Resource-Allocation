@@ -166,12 +166,12 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
                                     9, network.max_action_value, **kwargs)
 
     @staticmethod
-    def network_obs(pricing_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
+    def network_obs(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
         """
         Network observation for the Q network
 
         Args:
-            pricing_task: The pricing task
+            auction_task: The pricing task
             allocated_tasks: The allocated tasks
             server: The server
             time_step: The time step
@@ -181,7 +181,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
         """
 
         observation = np.array([
-            [ReinforcementLearningAgent.normalise_task(pricing_task, server, time_step) + [1.0]] +
+            [ReinforcementLearningAgent.normalise_task(auction_task, server, time_step) + [1.0]] +
             [ReinforcementLearningAgent.normalise_task(allocated_task, server, time_step) + [0.0]
              for allocated_task in allocated_tasks]
         ]).astype(np.float32)
