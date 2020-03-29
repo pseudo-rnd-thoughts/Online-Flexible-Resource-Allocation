@@ -9,11 +9,12 @@ import tensorflow as tf
 
 from agents.rl_agents.ddpg import TaskPricingDdpgAgent
 from agents.rl_agents.ddqn import TaskPricingDdqnAgent, ResourceWeightingDdqnAgent
-from agents.rl_agents.distributional_dqn import TaskPricingDistributionalDqnAgent
+from agents.rl_agents.distributional_dqn import TaskPricingDistributionalDqnAgent, \
+    ResourceWeightingDistributionalDqnAgent
 from agents.rl_agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.dueling_dqn import TaskPricingDuelingDqnAgent, ResourceWeightingDuelingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import DdpgCriticLstmNetwork, DdpgActorLstmNetwork
-from agents.rl_agents.neural_networks.distributional_networks import DistributionalLstmNetwork
+from agents.rl_agents.neural_networks.distributional_networks import DistributionalDqnLstmNetwork
 from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork, DqnBidirectionalLstmNetwork, DqnGruNetwork
 from agents.rl_agents.neural_networks.dueling_dqn_networks import DuelingDqnLstmNetwork
 from agents.rl_agents.rl_agent import TaskPricingRLAgent, AgentState
@@ -23,10 +24,13 @@ from env.task_stage import TaskStage
 
 
 def test_simple_agent():
+    print()
     TaskPricingDqnAgent(0, DqnLstmNetwork(9, 10))
+    print(DqnLstmNetwork(9, 10).__str__())
 
 
 def test_network_copy():
+    print()
     network = DqnLstmNetwork(9, 10)
     copy_network = copy(network)
     assert id(network.get_weights()) != id(copy_network.get_weights())
@@ -35,29 +39,41 @@ def test_network_copy():
 
 
 def test_agent_attributes():
+    def assert_args(agent, args):
+        for arg_name, arg_value in args.items():
+            assert getattr(agent, arg_name) == arg_value, \
+                f'Attr: {arg_name}, correct value: {arg_value}, actual value: {getattr(agent, arg_name)}'
+
     # Check inheritance arguments
     dqn_arguments = {
         'target_update_frequency': 100, 'initial_exploration': 0.9, 'final_exploration': 0.2,
         'final_exploration_frame': 100, 'exploration_frequency': 1000, 'loss_func': tf.keras.losses.MeanSquaredError(),
         'clip_loss': False
     }
-    tp_arguments = {'failed_auction_reward': 100, 'failed_reward_multiplier': 100}
+    tp_arguments = {'failed_auction_reward': -100, 'failed_reward_multiplier': -100}
     rw_arguments = {'other_task_reward_discount': 0.2, 'successful_task_reward': 1, 'failed_task_reward': -2,
                     'task_multiplier': 2.0, 'ignore_empty_next_obs': False}
 
     dqn_tp_arguments = {**dqn_arguments, **tp_arguments}
-    dqn_tp = TaskPricingDqnAgent(0, DqnBidirectionalLstmNetwork(9, 10), **dqn_tp_arguments)
-    for name, value in dqn_tp_arguments.items():
-        assert getattr(dqn_tp,
-                       name) == value, f'Attr: {name}, correct value: {value}, actual value: {getattr(dqn_tp, name)}'
-    assert dqn_tp.name != 'unknown'
-
     dqn_rw_arguments = {**dqn_arguments, **rw_arguments}
-    dqn_rw = ResourceWeightingDqnAgent(0, DqnBidirectionalLstmNetwork(10, 10), **dqn_rw_arguments)
-    for name, value in dqn_rw_arguments.items():
-        assert getattr(dqn_rw,
-                       name) == value, f'Attr: {name}, correct value: {value}, actual value: {getattr(dqn_rw, name)}'
-    assert dqn_rw.name != 'unknown'
+
+    tp_agents = [
+        TaskPricingDqnAgent(0, DqnLstmNetwork(9, 10), **dqn_tp_arguments),
+        TaskPricingDdqnAgent(0, DqnLstmNetwork(9, 10), **dqn_tp_arguments),
+        TaskPricingDuelingDqnAgent(0, DuelingDqnLstmNetwork(9, 10), **dqn_tp_arguments),
+        TaskPricingDistributionalDqnAgent(0, DistributionalDqnLstmNetwork(9, 10), **dqn_tp_arguments)
+    ]
+    for agent in tp_agents:
+        assert_args(agent, dqn_tp_arguments)
+
+    rw_agents = [
+        ResourceWeightingDqnAgent(0, DqnLstmNetwork(10, 10), **dqn_rw_arguments),
+        ResourceWeightingDdqnAgent(0, DqnLstmNetwork(10, 10), **dqn_rw_arguments),
+        ResourceWeightingDuelingDqnAgent(0, DuelingDqnLstmNetwork(10, 10), **dqn_rw_arguments),
+        ResourceWeightingDistributionalDqnAgent(0, DistributionalDqnLstmNetwork(10, 10), **dqn_rw_arguments)
+    ]
+    for agent in rw_agents:
+        assert_args(agent, dqn_rw_arguments)
 
 
 def test_agents_build():
@@ -83,7 +99,7 @@ def test_agents_build():
 
 def test_agent_saving():
     print()
-    tp_dqn_agent = TaskPricingDqnAgent(0, DqnBidirectionalLstmNetwork(10, 10))
+    tp_dqn_agent = TaskPricingDqnAgent(0, DqnBidirectionalLstmNetwork(9, 10))
 
     server = Server('Test', 220.0, 35.0, 22.0)
     auction_task = Task('Test 4', 69.0, 35.0, 10.0, 0, 12)
@@ -102,11 +118,11 @@ def test_agent_saving():
 def test_agent_training():
     print()
     agents: List[TaskPricingRLAgent] = [
-        TaskPricingDqnAgent(0, DqnLstmNetwork(10, 10), batch_size=1),
-        TaskPricingDdqnAgent(1, DqnLstmNetwork(10, 10), batch_size=1),
-        TaskPricingDuelingDqnAgent(2, DuelingDqnLstmNetwork(10, 10), batch_size=1),
-        TaskPricingDistributionalDqnAgent(3, DistributionalLstmNetwork(10, 10), batch_size=1),
-        TaskPricingDdpgAgent(4, DdpgActorLstmNetwork(9, 10), DdpgCriticLstmNetwork(10, 100), batch_size=1)
+        TaskPricingDqnAgent(0, DqnLstmNetwork(9, 10), batch_size=1),
+        TaskPricingDdqnAgent(1, DqnLstmNetwork(9, 10), batch_size=1),
+        TaskPricingDuelingDqnAgent(2, DuelingDqnLstmNetwork(9, 10), batch_size=1),
+        TaskPricingDistributionalDqnAgent(3, DistributionalDqnLstmNetwork(9, 10), batch_size=1),
+        TaskPricingDdpgAgent(4, DdpgActorLstmNetwork(9), DdpgCriticLstmNetwork(10), batch_size=1)
     ]
 
     auction_task_1 = Task('auction task 1', 69.0, 35.0, 10.0, 0, 12)
