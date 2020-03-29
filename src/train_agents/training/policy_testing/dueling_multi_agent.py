@@ -5,7 +5,7 @@ from __future__ import annotations
 import gin
 
 from agents.rl_agents.dueling_dqn import TaskPricingDuelingDqnAgent, ResourceWeightingDuelingDqnAgent
-from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork
+from agents.rl_agents.neural_networks.dueling_dqn_networks import DuelingDqnLstmNetwork
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from train_agents.core import generate_eval_envs, run_training, setup_tensorboard
 
@@ -19,16 +19,11 @@ if __name__ == "__main__":
     eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
 
     task_pricing_agents = [
-        TaskPricingDuelingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 9, 10), save_frequency=25000,
-                                   save_folder=folder, replay_buffer_length=50000, training_replay_start_size=15000,
-                                   target_update_frequency=10000, final_exploration_frame=100000)
+        TaskPricingDuelingDqnAgent(agent_num, DuelingDqnLstmNetwork(9, 10), save_folder=folder)
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDuelingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 10, 10), save_frequency=25000,
-                                         save_folder=folder, replay_buffer_length=50000,
-                                         training_replay_start_size=15000,
-                                         target_update_frequency=10000, final_exploration_frame=100000)
+        ResourceWeightingDuelingDqnAgent(agent_num, DuelingDqnLstmNetwork(10, 10), save_folder=folder)
         for agent_num in range(3)
     ]
 
@@ -44,4 +39,5 @@ if __name__ == "__main__":
         agent.save()
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
-    print('RW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agents) + '}')
+    print(
+        'RW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agents) + '}')
