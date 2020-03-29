@@ -22,7 +22,7 @@ if __name__ == "__main__":
         TaskPricingDqnAgent(agent_num, DqnGruNetwork(9, 10), save_folder=folder)
         for agent_num in range(3)
     ]
-    resource_weighting_agent = [
+    resource_weighting_agents = [
         ResourceWeightingDqnAgent(agent_num, DqnGruNetwork(10, 10), save_folder=folder)
         for agent_num in range(3)
     ]
