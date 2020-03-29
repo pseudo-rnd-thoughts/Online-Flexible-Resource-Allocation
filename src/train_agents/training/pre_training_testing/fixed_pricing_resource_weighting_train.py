@@ -24,9 +24,7 @@ if __name__ == "__main__":
         FixedTaskPricingAgent(agent_num, 3) for agent_num in range(3)
     ]
     resource_weighting_dqn_agents = [
-        ResourceWeightingDqnAgent(agent_num, DqnLstmNetwork(agent_num, 10, 10), save_frequency=25000,
-                                  save_folder=folder, replay_buffer_length=50000, training_replay_start_size=15000,
-                                  target_update_frequency=10000, final_exploration_frame=100000)
+        ResourceWeightingDqnAgent(agent_num, DqnLstmNetwork(10, 10), save_folder=folder)
         for agent_num in range(3)
     ]
 
