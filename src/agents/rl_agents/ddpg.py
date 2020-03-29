@@ -201,10 +201,10 @@ class TaskPricingDdpgAgent(DeepDeterministicPolicyGradientAgent, TaskPricingRLAg
     """
 
     def __init__(self, agent_num: int, actor_network: Network, critic_network: Network,
-                 network_input_width: int, max_action_value: int, **kwargs):
+                 max_action_value: int = 10, **kwargs):
         DeepDeterministicPolicyGradientAgent.__init__(self, actor_network, critic_network,
-                                                      network_input_width, max_action_value, **kwargs)
-        TaskPricingRLAgent.__init__(self, f'DDPG TP {agent_num}', network_input_width, max_action_value, **kwargs)
+                                                      11, max_action_value, **kwargs)
+        TaskPricingRLAgent.__init__(self, f'DDPG TP {agent_num}', 11, max_action_value, **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         obs = self.actor_network_obs(auction_task, allocated_tasks, server, time_step)
@@ -212,13 +212,13 @@ class TaskPricingDdpgAgent(DeepDeterministicPolicyGradientAgent, TaskPricingRLAg
         return min(self.max_action_value, self.model_actor_network(obs) + epsilon)
 
     @staticmethod
-    def actor_network_obs(pricing_task: Task, allocated_tasks: List[Task], server: Server,
+    def actor_network_obs(auctioned_task: Task, allocated_tasks: List[Task], server: Server,
                           time_step: int) -> np.ndarray:
         """
         Network observation for the actor network
 
         Args:
-            pricing_task: The pricing task
+            auctioned_task: The pricing task
             allocated_tasks: The allocated tasks
             server: The server
             time_step: The time step
@@ -227,7 +227,7 @@ class TaskPricingDdpgAgent(DeepDeterministicPolicyGradientAgent, TaskPricingRLAg
         """
 
         observation = np.array([
-            [ReinforcementLearningAgent.normalise_task(pricing_task, server, time_step) + [1.0]] +
+            [ReinforcementLearningAgent.normalise_task(auctioned_task, server, time_step) + [1.0]] +
             [ReinforcementLearningAgent.normalise_task(allocated_task, server, time_step) + [0.0]
              for allocated_task in allocated_tasks]
         ]).astype(np.float32)
@@ -267,10 +267,10 @@ class ResourceWeightingDdpgAgent(DeepDeterministicPolicyGradientAgent, ResourceW
     """
 
     def __init__(self, agent_num: int, actor_network: Network, critic_network: Network,
-                 network_input_width: int, max_action_value: int, **kwargs):
+                 max_action_value: int = 10, **kwargs):
         DeepDeterministicPolicyGradientAgent.__init__(self, actor_network, critic_network,
-                                                      network_input_width, max_action_value, **kwargs)
-        ResourceWeightingRLAgent.__init__(self, f'DDPG RW {agent_num}', network_input_width, max_action_value, **kwargs)
+                                                      10, max_action_value, **kwargs)
+        ResourceWeightingRLAgent.__init__(self, f'DDPG RW {agent_num}', 10, max_action_value, **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         obs = self.actor_network_obs(auction_task, allocated_tasks, server, time_step)
