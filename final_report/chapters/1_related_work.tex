@@ -51,15 +51,38 @@ supervised, unsupervised and reinforcement learning. Supervised learning uses pa
 case of image classifications where each image has a correct category for the image to be mapped to. Unsupervised
 learning instead doesn't have a true output meaning that algorithms tries to find links between similar data.
 
-However both of these methods are not effective for games or real world interactions agents must make a series of
-actions that result in rewards. Algorithms designed for these problems fall into the category of reinforcement learning
-which aims to maximise the reward over a series of actions. This is the area of machine learning that this project
-utilises as the environment for agents to learn over time.
-Reinforcement learning is a rapidly growing field of research within AI due to its possible real world options and
-its easy comparisons to humans.
+However both of these methods are not effective for real world interactions as agents must make a series of
+actions that result in rewards. Algorithms designed for these problems with a series of actions fall into the category
+of reinforcement learning which aims to maximise the reward over time. This is the area of machine learning that this
+project utilises as the problem can be modelled as a markov decision process (in section~\ref{}) that allows agents
+to interact with the environment to learn over time. Reinforcement learning is a rapidly growing field of research
+within AI due to its real world applications like driving a car, playing games, etc.
 
-%% Todo background lit on Q Network
-%% Todo Deep Q Networks
+Q-learning algorithm~\cite{} is a learning method used for estimating the action-value function that is one of the
+bases on for modern reinforcement learning. As the series of actions can be formed into a tree of actions, an agent
+is interested in which actions will result in the largest reward in the future. This is formulated as in
+equation~\eqref{eq:q_learning}.
+\begin{align}
+    Q(s_t, a_t) = Q(s_t, a_t) + \alpha \cdot (r_t + \lambda \cdot \text{max}_a Q(s_{t+1} , a) - Q(s_t, a_t) ) \label{eq:q_learning}
+\end{align}
 
-%% Todo background lit on policy gradient
-%% Todo Deep deterministic policy gradients
+However the curse of dimensionally was found to be a major problem as to use Q learning required
+forming a table of state-actions in order to calculate and as the number of dimensions increase, the number of
+state-actions will increase exponentially. Therefore making the method impractical for problem that had large state
+space. Therefore use of a function approximate is used to circumvent this problem, traditionally done using a neural
+network. Work by~\cite{} using a deep convolution neural network was able to achieve state of the art in six of seven
+games tried on atari with three of these scores being superhuman. This work was followed up by~\cite{} and found that
+with no modifications to the hyperparameters, neural network and training method; state of the art results were
+achieved in ... of the ... with superhuman in ... of these. Additional heuristics have been proposed deep Q learning:
+double DQN~\cite{}, prioritized experience replay~\cite{}, dueling network architecture~\cite{}, multi-step bootstrap
+targets~\cite{}, A3C~\cite{}, distributional Q-learning~\cite{} and noisy DQN~\cite{}. These methods were combined
+to together~\cite{}, called rainbow DQN, achieving over 200\% of the original DQN algorithm and over 50\% than any optimisation on its
+own in a quarter of the observations.
+
+Using the base of Q-learning, policy gradient separate the action selection policy to the q-value policy. In Q-learning,
+the selection the action is based on the maximum Q-value of the actions however policy gradient separates. This has
+the advantages of being able to deal with both discrete and continuous action spaces where Q-learning can only deal
+with discrete action space. Also the learning method doesn't require \epsilon-greedy action selection that can for
+Q-learning cause the resulting policy to differ from the optimal policy. Therefore policy gradient has been used to
+master the game of Go~\citep{silver2017mastering} and achieve top 1\% in Dota 2~\citep{OpenAI_dota} and
+Starcraft 2~\citep{starcraft2}.
