@@ -11,17 +11,17 @@ from agents.rl_agents.neural_networks.network import Network
 
 
 @gin.configurable
-class DdpgLstmActor(Network):
+class DdpgActorLstmNetwork(Network):
     """
     DDPG actor with LSTM as the primary layer
     """
 
-    def __init__(self, input_width, lstm_width: int = 40, relu_width: int = 20):
-        Network.__init__(self, 'DDPG Actor', input_width, 1)
+    def __init__(self, input_width: int, max_action_value: int = 10000, lstm_width: int = 40, relu_width: int = 20):
+        Network.__init__(self, 'DDPG Actor Lstm', input_width, max_action_value)
 
-        self.lstm_layer = tf.keras.layers.LSTM(lstm_width)
-        self.relu_layer = tf.keras.layers.ReLU(relu_width)
-        self.action_layer = tf.keras.layers.ReLU(1)  # As the action space is always greater or equal to zero
+        self.lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
+        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
+        self.action_layer = tf.keras.layers.Dense(1, activation='linear')  # As the action space range is always greater or equal to zero
 
     def call(self, inputs, training=None, mask=None):
         """
@@ -34,21 +34,21 @@ class DdpgLstmActor(Network):
 
         Returns: The suggested action
         """
-        return self.action_layer(self.relu_layer(self.lstm_layer(inputs)))
+        return self.action_layer(self.lstm_layer(inputs))
 
 
 @gin.configurable
-class DdpgLstmCritic(Network):
+class DdpgCriticLstmNetwork(Network):
     """
     DDPG Critic with LSTM as the primary layer
     """
 
-    def __init__(self, input_width, max_action_value, lstm_width: int = 40, relu_width: int = 20):
-        Network.__init__(self, 'DDPG Critic', input_width, max_action_value)
+    def __init__(self, input_width: int, max_action_value: float = 10000, lstm_width: int = 40, relu_width: int = 20):
+        Network.__init__(self, 'DDPG Critic Lstm', input_width, max_action_value)
 
-        self.lstm_layer = tf.keras.layers.LSTM(lstm_width)
+        self.lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
         self.relu_layer = tf.keras.layers.ReLU(relu_width)
-        self.q_layer = tf.keras.layers.Dense(1)  # The Q Value for the action
+        self.q_layer = tf.keras.layers.Dense(1, activation='linear')  # The Q Value for the action
 
     def call(self, inputs, training=None, mask=None):
         """
