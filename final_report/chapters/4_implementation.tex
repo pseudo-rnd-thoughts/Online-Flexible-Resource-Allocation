@@ -1,69 +1,91 @@
 \chapter{Implementation of the solution}\label{ch:implementation-of-the-solution}
-Using the proposed solution in chapter~\ref{ch:proposed-solution-to-problem}, we can simulate edge cloud computing
-environment and then train agents to bid on tasks and allocate resources. This has three sections to it, first the
-simulation that is referred to as the environment (section~\ref{sec:simulating-the-environment}),
-second to define the agents (section~\ref{sec:agent-definition}) and three to train the agents on the
-environment (section~\ref{sec:training-of-agents}).
+Using the proposed solution in chapter~\ref{ch:proposed-solution-to-problem}, there are several stages in implementing
+the problem. These stages are: the environment, in order to simulate edge cloud computing servers
+(explained in section~\ref{sec:simulating-edge-cloud-computing-services}), defining server auction agents and
+resource allocation agents (explained in section~\ref{sec:agent-definition}) and finally to train the agents on the
+environment (explained in section~\ref{sec:training-of-agents}).
 
-The implementation discussed below as written in Python and available to download on Github at
+The implementation discussed below as written in Python and available to download from Github at
 \url{https://github.com/stringtheorys/Online-Flexible-Resource-Allocation}
 
-\section{Simulating the Problem}\label{sec:simulating-the-environment}
-As the aim of the environment is to train agents to learn how to action optimally then the way that agents
-interact with the environments matters. OpenAI~\cite{}, an independent research organisation, have create a large
-number of open source popular reinforcement learning environment using the python module gym~\cite{}.
-Due to the wide scale use and developing of agents to interact with environment using the OpenAI environment
-specification, I have likewise programmed this environment to follow the same specification. %% todo this is a horrible sentence, to fix
+\section{Simulating edge cloud computing services}\label{sec:simulating-edge-cloud-computing-services}
+As the aim of the environment is to train agents to learn how to action optimally then the way that agents interact
+with the environments matters. OpenAI have create a large number of open source popular reinforcement learning
+environment using the python module gym~\citep{openaigym}. Due to the wide scale use of the environment specification
+by reinforcement learning researchers, this project follows the specification with three primary functions: make,
+step and reset. An example of using the environment is given in in listing~\ref{listing:example_flexible_resource_env}
+with generating of the actions.
 
-Therefore each server is forced to have a individual agents for both of the subproblems making the overall problem
-particularly interesting for multi-agent reinforcement learning environment. \\
-This is because the overall aim of the environment is cooperative (to maximise the social welfare) but the servers
-in competition during the auctions in order to maximise their profit.
-But then the server must be cooperative in allocating of resources to each task as the server wish to complete as
-many tasks as they can.
+\begin{table}{|l|l|} \hline
+    Function name & Function purpose \\ \hline
+    make(settings) & Accept a list of environment settings filenames in order to setup the environment with the
+        specifications of how to generate new and random environments. The function returns a new flexible resource
+        allocation environment with the settings assigned as an attribute. \\ \hline
+    step(actions) & Accepts a dictionary of actions for each of the servers with the step type (auction or resource
+        allocation) being determined by the state having an auction task specified or not. The function returns a tuple
+        of updated state, reward, is environment done and information.
+    reset() & Resets the environment using the environment specifications settings set from the make function arguments
+        and returns the new state.
+    \label{tab:env_funcs}
+    \caption{Table of flexible resource environment functions}
+\end{table}
 
-\section{Task pricing and resource weighting policy}\label{sec:agent-definition}
-Using the problem definition from chapter~\ref{ch:project-problem}, the overall problem of flexible resource allocation
-is be separated into two subproblems: the auctioning of tasks and the allocating of resources to tasks that each server
-must do. Because of this, each server has to have a unique policy for bidding on tasks and allocating resources.
-Even those the state space and action space are exactly the same, the optimal policies for task pricing and
-resource allocation are completely different.
+\begin{lstlisting}
+env = FlexibleResourceEnv.make('basic_settings')
+state = env.reset()
+done = False
+while not done:
+    if state.auction_task:
+        actions = {
+            server: server_auction_agent.bid(state)
+            for server in state
+        }
+    else:
+        actions = {
+            server: {
+                task: server_resource_agent.weight(state)
+            }
+        }
+    state, reward, done, info = env.step(actions)
 
-These policies are referred to as the task pricing agent, for bidding on tasks and the resource weighting agent,
+    if done:
+        obs = env.reset()
+env.close()
+\label{listing:example_flexible_resource_env}
+\end{lstlisting}
+
+\section{Defining the agents}\label{sec:agent-definition}
+Each server has to have a unique policy for bidding on tasks and allocating resources that is explained in
+section~\ref{sec:proposed-agents}. Even those the state space and action space are exactly the same, the optimal
+policies for task pricing and resource allocation are completely different.
+
+These policies are referred to as the auction agents, for bidding on tasks and the resource weighting agent,
 for allocating of resources. However determining these policies is a difficult due to the complexity and the interaction
 of task attributes and the server resources. Because of this, the ability of reinforcement learning to interact
-an environment and learn a policy in order to maximise its reward over time. Therefore a range of different
-policies have been implemented as Table~\ref{tab:policies} in order to evaluate the performance of different policies
-learning methods.
+an environment and learn a policy in order to maximise its reward over time is helpful. Therefore a range of different
+reinforcement learning policies have been implemented as Table~\ref{tab:reinforcement_learning_policies} in order to
+evaluate the performance of the different policies learning methods.
 
 \begin{table}
     \centering
-    \begin{tabular}{l|l} \hline
+    \begin{tabular}{|l|l|} \hline
         Policy Type & Explanation \\ \hline
-        %% Todo add all of the policy comparisons
+        Dqn~\citep{mnih2015humanlevel} & A standard deep Q learning agent that discretizes the action space \\ \hline
+        Distributional Dqn~\citep{distributional_dqn} & Standard deep Q learning agents return a scalar value
+            (representing the q value) for each action. Distributional Dqn changes the output value to a probability
+            distribution over the possible values that the agent returns. \\ \hline
+        Rainbow Dqn~\citep{rainbow} & Using a vary of additional heuristic this will expand the previous distributional
+            dqn and dqn agents. The additional that the rainbow uses is explained in
+            section~\ref{sec:related-work-in-machine-learning}\\ \hline
+        Deep deterministic policy gradient~\citep{ddpg} & As the action space is continuous, DDPG allows for
+            investigation of the difference between continuous and discrete action spaces and policy gradient can be
+            more effective at learning a policy where the reward function is too complex. \\ \hline
     \end{tabular}
     \caption{Table of policy types}
-    \label{tab:policies}
+    \label{tab:reinforcement_learning_policies}
 \end{table}
 
+% Todo Add additional heuristic policies
 
 \section{Training of agents}\label{sec:training-of-agents}
-In order to train the agents certain hyperparameters were used.
-
-\begin{table}
-    \begin{tabular}{l|l} \hline
-        Hyperparameter & Value \\ \hline
-        %% todo add hyperparameter
-    \end{tabular}
-    \label{tab:dqn_hyperparameter}
-    \caption{Table of Deep Q Networks training hyperparameters}
-\end{table}
-
-\begin{table}
-    \begin{tabular}{l|l} \hline
-        Hyperparameter & Value \\ \hline
-        %% todo add hyperparameter
-    \end{tabular}
-    \label{tab:ddpg_hyperparameter}
-    \caption{Table of Deep Deterministic Policy Gradient hyperparameters}
-\end{table}
+This is currently unknown as this training being investigated currently.
