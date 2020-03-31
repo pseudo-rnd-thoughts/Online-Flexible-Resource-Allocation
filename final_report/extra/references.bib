@@ -31,6 +31,8 @@
     url = {http://cs.brown.edu/about/system/managed/latex/doc/attrib.pdf}
 }
 
+%% cloud computing background lit
+
 @INPROCEEDINGS{vaji_infocom,
     author = {V. { Farhadi } and F. { Mehmeti } and T. { He } and T. L. { Porta } and H. { Khamfroush } and S. { Wang } and K. S. { Chan }},
     booktitle = {IEEE INFOCOM 2019 - IEEE Conference on Computer Communications},
@@ -180,6 +182,8 @@
     number = {12}
 }
 
+%% VCG Auctions
+
 @article{groves,
     ISSN = {00129682, 14680262},
     URL = {http://www.jstor.org/stable/1914085},
@@ -221,6 +225,8 @@
     volume = {16},
     year = {1961}
 }
+
+%% Applications of project
 
 @Article{Sreenu2019,
     author = "Sreenu, G. and Saleem Durai, M. A.",
@@ -266,6 +272,7 @@
     address = {New York, NY, USA},
     keywords = {city evacuation strategies, cloud computing, intelligent transportation systems, microscopic simulations, smart disaster management system, vanets},
 }
+
 @Article{Pai2013,
     author = {Pai, Mallesh M. and Roth, Aaron},
     journaltitle = {SIGecom Exch.},
@@ -287,6 +294,27 @@
     year = {2013},
 }
 
+@book{nisan2007algorithmic_critical_value,
+    title={Algorithmic game theory},
+    author={Nisan, Noam and Roughgarden, Tim and Tardos, Eva and Vazirani, Vijay V},
+    year={2007},
+    publisher={Cambridge university press},
+    url="https://www.cs.cmu.edu/~sandholm/cs15-892F13/algorithmic-game-theory.pdf",
+    pages={228}
+}
+
+@article{al2013cloud,
+  title={Cloud computing pricing models: a survey},
+  author={Al-Roomi, May and Al-Ebrahim, Shaikha and Buqrais, Sabika and Ahmad, Imtiaz},
+  journal={International Journal of Grid and Distributed Computing},
+  volume={6},
+  number={5},
+  pages={93--106},
+  year={2013}
+}
+
+%% Reinforcement learning background lit
+
 @book{Sutton1998,
     added-at = {2019-07-13T10:11:53.000+0200},
     author = {Sutton, Richard S. and Barto, Andrew G.},
@@ -302,7 +330,8 @@
 }
 
 @article{atari,
-    author = {Volodymyr Mnih and Koray Kavukcuoglu and David Silver and Alex Graves and Ioannis Antonoglou and Daan Wierstra and Martin A. Riedmiller},
+    author = {Volodymyr Mnih and Koray Kavukcuoglu and David Silver and Alex Graves and Ioannis Antonoglou and
+              Daan Wierstra and Martin A. Riedmiller},
     title = {Playing Atari with Deep Reinforcement Learning},
     journal = {CoRR},
     volume = {abs/1312.5602},
@@ -313,6 +342,27 @@
     timestamp = {Mon, 13 Aug 2018 16:47:42 +0200},
     biburl = {https://dblp.org/rec/bib/journals/corr/MnihKSGAWR13},
     bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{mnih2015humanlevel,
+  added-at = {2015-08-26T14:46:40.000+0200},
+  author = {Mnih, Volodymyr and Kavukcuoglu, Koray and Silver, David and Rusu, Andrei A. and Veness, Joel and Bellemare, Marc G. and Graves, Alex and Riedmiller, Martin and Fidjeland, Andreas K. and Ostrovski, Georg and Petersen, Stig and Beattie, Charles and Sadik, Amir and Antonoglou, Ioannis and King, Helen and Kumaran, Dharshan and Wierstra, Daan and Legg, Shane and Hassabis, Demis},
+  biburl = {https://www.bibsonomy.org/bibtex/2fb15f4471c81dc2b9edf2304cb2f7083/hotho},
+  description = {Human-level control through deep reinforcement learning - nature14236.pdf},
+  interhash = {eac59980357d99db87b341b61ef6645f},
+  intrahash = {fb15f4471c81dc2b9edf2304cb2f7083},
+  issn = {00280836},
+  journal = {Nature},
+  keywords = {deep learning toread},
+  month = feb,
+  number = 7540,
+  pages = {529--533},
+  publisher = {Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved.},
+  timestamp = {2015-08-26T14:46:40.000+0200},
+  title = {Human-level control through deep reinforcement learning},
+  url = {http://dx.doi.org/10.1038/nature14236},
+  volume = 518,
+  year = 2015
 }
 
 @article{silver2017mastering,
@@ -334,11 +384,236 @@
     year = 2017
 }
 
+@article{watkins1992q-learning,
+  title={Q-learning},
+  author={Watkins, Christopher JCH and Dayan, Peter},
+  journal={Machine learning},
+  volume={8},
+  number={3-4},
+  pages={279--292},
+  year={1992},
+  publisher={Springer}
+}
+
+@incollection{samuel1988some,
+  title={Some studies in machine learning using the game of checkers. II—recent progress},
+  author={Samuel, Arthur L},
+  booktitle={Computer Games I},
+  pages={366--400},
+  year={1988},
+  publisher={Springer}
+}
+
+@misc{ OpenAI_dota,
+    author = {OpenAI},
+    title = {OpenAI Five},
+    howpublished = {\url{https://blog.openai.com/openai-five/}},
+    year = {2018}
+}
+
+@article{starcraft2,
+  author = {Oriol Vinyals and Timo Ewalds and Sergey Bartunov and Petko Georgiev and Alexander Sasha Vezhnevets and
+            Michelle Yeo and Alireza Makhzani and Heinrich K{\"{u}}ttler and John Agapiou and Julian Schrittwieser and
+            John Quan and Stephen Gaffney and Stig Petersen and Karen Simonyan and Tom Schaul and Hado van Hasselt and
+            David Silver and Timothy P. Lillicrap and Kevin Calderone and Paul Keet and Anthony Brunasso and David Lawrence and
+            Anders Ekermo and Jacob Repp and Rodney Tsing},
+  title     = {StarCraft {II:} {A} New Challenge for Reinforcement Learning},
+  journal   = {CoRR},
+  volume    = {abs/1708.04782},
+  year      = {2017},
+  url       = {http://arxiv.org/abs/1708.04782},
+  archivePrefix = {arXiv},
+  eprint    = {1708.04782},
+  timestamp = {Mon, 13 Aug 2018 16:47:24 +0200},
+  biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1708-04782},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@ARTICLE{Bel,
+    author = "Richard Bellman",
+    title = "A Markovian Decision Process",
+    journal = "Indiana Univ. Math. J.",
+    fjournal = "Indiana University Mathematics Journal",
+    volume = 6,
+    year = 1957,
+    issue = 4,
+    pages = "679--684",
+    issn = "0022-2518",
+    coden = "IUMJAB"
+}
+
+@article{doubledqn,
+  author    = {Hado van Hasselt and
+               Arthur Guez and
+               David Silver},
+  title     = {Deep Reinforcement Learning with Double Q-learning},
+  journal   = {CoRR},
+  volume    = {abs/1509.06461},
+  year      = {2015},
+  url       = {http://arxiv.org/abs/1509.06461},
+  archivePrefix = {arXiv},
+  eprint    = {1509.06461},
+  timestamp = {Mon, 13 Aug 2018 16:47:32 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/HasseltGS15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@misc{prioritizedexperiencereplay,
+  author = {Schaul, Tom and Quan, John and Antonoglou, Ioannis and Silver, David},
+  biburl = {https://www.bibsonomy.org/bibtex/2be47ebfc4c5eb8f06b374fe632a3e236/jan.hofmann1},
+  description = {[1511.05952] Prioritized Experience Replay},
+  keywords = {final reinforcement_learning thema:double_dqn},
+  note = {cite arxiv:1511.05952Comment: Published at ICLR 2016},
+  timestamp = {2019-12-09T10:13:58.000+0100},
+  title = {Prioritized Experience Replay},
+  url = {http://arxiv.org/abs/1511.05952},
+  year = 2015
+}
+
+@article{duelingdqn,
+  author    = {Ziyu Wang and Nando de Freitas and Marc Lanctot},
+  title     = {Dueling Network Architectures for Deep Reinforcement Learning},
+  journal   = {CoRR},
+  volume    = {abs/1511.06581},
+  year      = {2015},
+  url       = {http://arxiv.org/abs/1511.06581},
+  archivePrefix = {arXiv},
+  eprint    = {1511.06581},
+  timestamp = {Mon, 13 Aug 2018 16:48:17 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/WangFL15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{multi-step-dqn,
+    author = {Sutton, Richard S.},
+    title = {Learning to Predict by the Methods of Temporal Differences},
+    year = {1988},
+    issue_date = {August 1988},
+    publisher = {Kluwer Academic Publishers},
+    address = {USA},
+    volume = {3},
+    number = {1},
+    issn = {0885-6125},
+    url = {https://doi.org/10.1023/A:1022633531479},
+    doi = {10.1023/A:1022633531479},
+    journal = {Mach. Learn.},
+    month = aug,
+    pages = {9–44},
+    numpages = {36},
+    keywords = {prediction, Incremental learning, connectionism, evaluation functions, credit assignment}
+}
+
+@article{A3C,
+  author    = {Volodymyr Mnih and Adri{\`{a}} Puigdom{\`{e}}nech Badia and Mehdi Mirza and Alex Graves and
+               Timothy P. Lillicrap and Tim Harley and David Silver and Koray Kavukcuoglu},
+  title     = {Asynchronous Methods for Deep Reinforcement Learning},
+  journal   = {CoRR},
+  volume    = {abs/1602.01783},
+  year      = {2016},
+  url       = {http://arxiv.org/abs/1602.01783},
+  archivePrefix = {arXiv},
+  eprint    = {1602.01783},
+  timestamp = {Mon, 13 Aug 2018 16:47:40 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/MnihBMGLHSK16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{distributional_dqn,
+  author    = {Marc G. Bellemare and Will Dabney and R{\'{e}}mi Munos},
+  title     = {A Distributional Perspective on Reinforcement Learning},
+  journal   = {CoRR},
+  volume    = {abs/1707.06887},
+  year      = {2017},
+  url       = {http://arxiv.org/abs/1707.06887},
+  archivePrefix = {arXiv},
+  eprint    = {1707.06887},
+  timestamp = {Mon, 13 Aug 2018 16:48:34 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/BellemareDM17.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{noisy_dqn,
+  author    = {Meire Fortunato and Mohammad Gheshlaghi Azar and Bilal Piot and Jacob Menick and Ian Osband and
+               Alex Graves and Vlad Mnih and R{\'{e}}mi Munos and Demis Hassabis and Olivier Pietquin and
+               Charles Blundell and Shane Legg},
+  title     = {Noisy Networks for Exploration},
+  journal   = {CoRR},
+  volume    = {abs/1706.10295},
+  year      = {2017},
+  url       = {http://arxiv.org/abs/1706.10295},
+  archivePrefix = {arXiv},
+  eprint    = {1706.10295},
+  timestamp = {Mon, 13 Aug 2018 16:46:11 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/FortunatoAPMOGM17.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{rainbow,
+  author    = {Matteo Hessel and Joseph Modayil and Hado van Hasselt and Tom Schaul and Georg Ostrovski and
+               Will Dabney and Daniel Horgan and Bilal Piot and Mohammad Gheshlaghi Azar and David Silver},
+  title     = {Rainbow: Combining Improvements in Deep Reinforcement Learning},
+  journal   = {CoRR},
+  volume    = {abs/1710.02298},
+  year      = {2017},
+  url       = {http://arxiv.org/abs/1710.02298},
+  archivePrefix = {arXiv},
+  eprint    = {1710.02298},
+  timestamp = {Mon, 13 Aug 2018 16:48:05 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-1710-02298.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{openaigym,
+  author    = {Greg Brockman and Vicki Cheung and Ludwig Pettersson and Jonas Schneider and John Schulman and
+               Jie Tang and Wojciech Zaremba},
+  title     = {OpenAI Gym},
+  journal   = {CoRR},
+  volume    = {abs/1606.01540},
+  year      = {2016},
+  url       = {http://arxiv.org/abs/1606.01540},
+  archivePrefix = {arXiv},
+  eprint    = {1606.01540},
+  timestamp = {Fri, 08 Nov 2019 12:51:06 +0100},
+  biburl    = {https://dblp.org/rec/journals/corr/BrockmanCPSSTZ16.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@InProceedings{ddpg,
+  title = 	 {Deterministic Policy Gradient Algorithms},
+  author = 	 {David Silver and Guy Lever and Nicolas Heess and Thomas Degris and Daan Wierstra and Martin Riedmiller},
+  booktitle = {Proceedings of the 31st International Conference on Machine Learning},
+  pages = 	 {387--395},
+  year = 	 {2014},
+  editor = 	 {Eric P. Xing and Tony Jebara},
+  volume = 	 {32},
+  series = 	 {Proceedings of Machine Learning Research},
+  address =  {Bejing, China},
+  month = 	 {22--24 Jun},
+  publisher = {PMLR},
+  pdf = 	 {http://proceedings.mlr.press/v32/silver14.pdf},
+  url = 	 {http://proceedings.mlr.press/v32/silver14.html},
+  abstract = 	 {In this paper we consider deterministic policy gradient algorithms for reinforcement learning with continuous actions. The deterministic policy gradient has a particularly appealing form: it is the expected gradient of the action-value function. This simple form means that the deterministic policy gradient can be estimated much more efficiently than the usual stochastic policy gradient. To ensure adequate exploration, we introduce an off-policy actor-critic algorithm that learns a deterministic target policy from an exploratory behaviour policy. Deterministic policy gradient algorithms outperformed their stochastic counterparts in several benchmark problems, particularly in high-dimensional action spaces.}
+}
+
+@incollection{turing_test,
+  title={Computing machinery and intelligence},
+  author={Turing, Alan M},
+  booktitle={Parsing the Turing Test},
+  pages={23--65},
+  year={2009},
+  publisher={Springer}
+}
+
+%% My paper
+
 @unpublished{FlexibleResourceAllocation,
     author = {Mark Towers and Sebastian Stein and Fidan Mehmeti and Caroline Rubeun and Tim Norman and Tom La Porta and Geeth Demel},
     title = {Auction-based Mechanisms for Allocating Elastic resources in Edge Clouds},
     note = {Unpublished},
+    year = {2020},
 }
+
+%% Neural network papers
 
 @Article{ANN,
     author="McCulloch, Warren S. and Pitts, Walter",
@@ -355,8 +630,6 @@
     doi="10.1007/BF02478259",
     url="https://doi.org/10.1007/BF02478259"
 }
-
-
 
 @article{RNN,
     author = {Elman, Jeffrey L.},
@@ -450,67 +723,4 @@
   url = {http://dx.doi.org/10.1038/nature20101},
   volume = 538,
   year = 2016
-}
-
-@book{nisan2007algorithmic_critical_value,
-    title={Algorithmic game theory},
-    author={Nisan, Noam and Roughgarden, Tim and Tardos, Eva and Vazirani, Vijay V},
-    year={2007},
-    publisher={Cambridge university press},
-    url="https://www.cs.cmu.edu/~sandholm/cs15-892F13/algorithmic-game-theory.pdf",
-    pages={228}
-}
-
-@incollection{samuel1988some,
-  title={Some studies in machine learning using the game of checkers. II—recent progress},
-  author={Samuel, Arthur L},
-  booktitle={Computer Games I},
-  pages={366--400},
-  year={1988},
-  publisher={Springer}
-}
-
-@misc{ OpenAI_dota,
-    author = {OpenAI},
-    title = {OpenAI Five},
-    howpublished = {\url{https://blog.openai.com/openai-five/}},
-    year = {2018}
-}
-
-@article{starcraft2,
-  author    = {Oriol Vinyals and
-               Timo Ewalds and
-               Sergey Bartunov and
-               Petko Georgiev and
-               Alexander Sasha Vezhnevets and
-               Michelle Yeo and
-               Alireza Makhzani and
-               Heinrich K{\"{u}}ttler and
-               John Agapiou and
-               Julian Schrittwieser and
-               John Quan and
-               Stephen Gaffney and
-               Stig Petersen and
-               Karen Simonyan and
-               Tom Schaul and
-               Hado van Hasselt and
-               David Silver and
-               Timothy P. Lillicrap and
-               Kevin Calderone and
-               Paul Keet and
-               Anthony Brunasso and
-               David Lawrence and
-               Anders Ekermo and
-               Jacob Repp and
-               Rodney Tsing},
-  title     = {StarCraft {II:} {A} New Challenge for Reinforcement Learning},
-  journal   = {CoRR},
-  volume    = {abs/1708.04782},
-  year      = {2017},
-  url       = {http://arxiv.org/abs/1708.04782},
-  archivePrefix = {arXiv},
-  eprint    = {1708.04782},
-  timestamp = {Mon, 13 Aug 2018 16:47:24 +0200},
-  biburl    = {https://dblp.org/rec/bib/journals/corr/abs-1708-04782},
-  bibsource = {dblp computer science bibliography, https://dblp.org}
 }
