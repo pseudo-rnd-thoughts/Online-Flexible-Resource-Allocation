@@ -1,63 +1,68 @@
 \chapter{Project problem}\label{ch:project-problem}
-Cloud computing is a rapidly growing service with competition from Google, Amazon, Microsoft and more that aim to
+Cloud computing is a rapidly growing service with competition from Google, Amazon, Microsoft and more that aims to
 allow users to run computer programs that are too large, difficult or time consuming for users to run locally.
 These services provide the computational resources, e.g.\ cpu cores, RAM, hard drive space, bandwidth, etc
 to be able to run such programs. However, as these resources are limited, bottlenecks can occur when
-numerous users all require large amounts of these resources, which limits the number of tasks
+numerous users all require large amounts of these resources, limiting the number of tasks
 \footnote{Tasks, Programs and Jobs will be used interchangeable to refer to the same idea of a computer programs that
-has a fixed amount of resources required to compute the program.} that can be run on the cloud services simultaneously.
+has a fixed amount of resources required to compute.} that can be run on the cloud servers simultaneously.
 
-For Google and the like, their cloud computing facilities contain vast server nodes limiting the probability of such
-bottlenecking occurring and if such an event does occur, users have a range of data centres across the global to use instead.
+For Google Cloud Services (GCP), Microsoft Azure or Amazon Web Services, their cloud computing facilities contain huge
+server nodes limiting the probability of such bottlenecking occurring and if such an event does occur. Users also have
+a range of data centres across the global to use instead if a single data centre becomes overloaded.
 Therefore this work considers still a developing paradigm~\citep{mobile_edge_survey} called Edge/Mobile cloud computing.
-Edge cloud computing is believed to have a wide range of application where using cloud computing would traditionally
-be impractical. This could be due to tasks being highly delay-sensitive, intermittent internet connectivity
+Edge cloud computing is believed to have a wide range of application where traditional cloud computing would be
+impractical. This could be due to tasks being highly delay-sensitive, intermittent internet connectivity
 or high operational security that prevent or limit the effectiveness of traditional cloud computing.
 
-Currently: disaster response, smart cities and internet-of-things (IoT) are all popular technologies that utilise
-edge cloud computing due to its ability to process programs locally with low latency. For smart cities, this
-allows for the possibly of smart intersections with the use of road-side sensors or smart traffic lights based
+Currently disaster response~\cite{mobile_edge_disaster}, smart cities~\cite{smart_disaster_management} and
+internet-of-things~\citep{mobile_edge_IoT} (IoT) are all area that utilise edge cloud computing due to its ability
+to process computationally small tasks locally with low latency. For example, in smart cities, this
+allows for smart intersection systems using of road-side sensors or smart traffic lights based
 on cameras to minimise the waiting times~\citep{smart_cities_traffic_lights}. Or for the police to analysis
 CCTV footage to spot suspicious behaviour or to track people between cameras~\citep{Sreenu2019}. In the case
-of disaster response, maps can be produced using autonomous vehicles sensors to be used in the search for potential
-victims and support responders~\citep{smart_disaster_management}.
+of disaster response, maps can be produced using data from autonomous vehicles sensors that can then be used in the
+search for potential victims and support responders~\citep{smart_disaster_management}.
 
 However the problem of bottlenecking is of particular relevant in edge cloud computing, as instead of large server farms
-that can be geographically distant from the users. Edge cloud computing server are significantly smaller than Google
-style data centers and can be just high powered desktop computers. This results in the demand on resources to be much
-greater, requiring that servers try to allocate their resources was efficiently as possible.
-Because of this, resource allocation in edge cloud computing is an important and interesting research area.
+that can be geographically distant from the users. Edge cloud computing server are significantly smaller,
+being just high powered desktop computers and single server nodes. This results in greater demand on server resources,
+meaning that efficient allocation of resources is extremely important. Because of this, resource allocation in edge
+cloud computing is an important and interesting research area with edge cloud computing.
 
 However it is believed that there is a shortcoming of existing work in resource allocation within
 edge cloud computing~\citep{vaji_infocom, Bi2019} due to the nature of task resource requirements. Traditional, to
-compute these task, several types of resource are required including communication bandwidth, computational power and
-data storage resources~\cite{vaji_infocom} that a user would request a fixed amount of each of these resources.
-This thus requires the server to allocate such resources to the user however anyone user from accessing the resources
-till the user is finished with them. However this has the disadvantage bottlenecking occurring due to the inflexible
-nature of resources that cant allow balancing of resources between users. The reason for the continued use of such
-methods is that in traditional cloud computing such bottlenecking is rare and it allows for simpler pricing mechanism
-as the price can be proportional to the quantity of resources required.
+compute a task, several types of resource are required to be allocated for the task including communication bandwidth,
+computational power and data storage resources~\citep{vaji_infocom}.
+However this locks away these resources, preventing any other users have using these resources till the task is
+finished with them. But this has the disadvantage bottlenecking occurring due to the inflexible
+nature of resources that cannot allow rebalancing of resources between tasks. The reason for the continued use of fixed
+resource allocation methods is that in traditional cloud computing such bottlenecking is rare and it allows for
+simpler pricing mechanism as the price can be proportional to the quantity of resources required.
 
 Previous work by this author~\citep{FlexibleResourceAllocation} proposed a novel resource allocation method to allow
-for significantly more flexibility aims that this would reduce bottlenecking of resources. This was done by requesting
-that users provide a total resource usage over a tasks lifetime instead of the required resource usage. With this
-change how much of each resource to be allocated could be decided by the server instead of the user. This is possible
-as the time taken for data to be send and received is proportional to the allocated bandwidth. This sort of flexibility
-is similarly true for computing a task as well. Therefore using a deadline, provided by the user, it is possible
-to reallocate resources around to reduce the overall strain on certain resources. Therefore Using this alternative
+for significantly more flexibility in resource allocation with the aims of reducing possible bottlenecking. This was
+done by requesting that users provide a total resource usage over a tasks lifetime instead of the required resource
+usage. With this change of how much of each resource to be allocated could be decided by the server instead of the user.
+This is possible as the time taken for an operation is complete is generally proportional to the resources provided
+for the operation. An example for this is downloading an image, the time taken is proportional to the bandwidth
+allocated. This sort of flexibility is similarly true for computing a task or sending results back to the user as well.
+Therefore using a deadline, provided by the user, it is possible to reallocate resources around tasks to reduce the
+overall strain on certain resources while still finishing the task with its deadline. Therefore Using this alternative
 resource allocation procedure, bottlenecks can be prevent through proper balancing of resources that in turn will allow
 more tasks to run simultaneously and to reduce the price for user to run a task.
 
-However this work only considered a static or one-shot approach where all tasks were presented at the first time step.
-At which point tasks would be auctioned and resource allocated. As a result while tasks would be processed in batches
-such that tasks would bid on all tasks submitted every 5 minutes or so. Therefore previous work could also not
-dynamically change the resources allocated between batches, this work aims to address these problems in previous work.
+But in previous work~\citep{FlexibleResourceAllocation}, this resource allocation method was only considered in a static
+or one-shot approach where all tasks were presented at the first time step. At which point tasks would be auctioned
+and resource allocated. As a result while tasks would be processed in batches such that servers would bid on all tasks
+submitted every 5 minutes or so. Therefore previous work could also not dynamically change the resources allocated
+between batches making it impractical to be used commercially, this work aims to address these problems in previous work.
 
 These problems are addressed by introducing time into the optimisation problem (outlined in
-section~\ref{sec:optimisation-problem}) but due to this additional all previous mechanism used are incompatible with
-the new optimisation problem. Therefore using a standard auction mechanism, this project investigates different methods
-of learning how to bid on tasks based on their resource requirements and to efficiently allocate resources to tasks
-by a server.
+section~\ref{sec:optimisation-problem}) but due to this addition, all previous mechanism proposed
+in~\cite{FlexibleResourceAllocation} are incompatible with the new optimisation problem. Therefore using a standard
+auction mechanism, this project investigates different methods of learning how to bid on tasks based on their resource
+requirements and to efficiently allocate resources to tasks by a server.
 
 This report is set out is following chapters. Chapter~\ref{ch:proposed-solution-to-problem} proposed a solution
 to the project outline in this chapter with chapter~\ref{ch:justification-of-the-solution} justifying why this
@@ -65,29 +70,3 @@ approach as taken over alternative. Chapter~\ref{ch:background-literature} inves
 that this project builds upon within both resource allocation in cloud computing and reinforcement learning methods.
 The proposed solution is then implemented in chapter~\ref{ch:implementation-of-the-solution} with testing and
 evaluation in chapters~\ref{ch:testing-of-the-implementation} and~\ref{ch:evaluation-of-the-implementation} respectively.
-
-%% Unneeded text
-%has the assumption that tasks have fixed resource requirements. However, flexibility is possible in practise
-%with how resources are allocated to each task. For example, the allocated bandwidth for loading the program is
-%proportional to the time taken to load the program. This is true of also the computational requirements and
-%for sending results back to the user. This project investigates flexible allocation of resource and pricing
-%mechanisms when task arrive over time and have private values.
-%
-%To compute these task, several types of resources are required included communication bandwidth, computational power
-%and data storage resources~\citep{vaji_infocom}. Tasks also contain a deadline such that the program must be completed
-%before this point. Task will have a private monetary value that depends on the program itself and its value to the owner,
-%.e.g analysis air pollution is less important than preventing traffic jams at rush hour or tracking a criminal on the
-%run. This project is interested in allocated task to servers to maximise the social welfare (sum of all allocated
-%task values) over time. But due to users being self-interested, they may behave strategically~\citep{Bi2019} or prefer
-%to not reveal their value publicity~\citep{Pai2013}.
-%
-%By building upon the flexible resource allocation method \footnote{This method is explain in greater detail in
-%section~\ref{ch:proposed-solution-to-problem}.} and with the use of deep reinforcement learning agents, this project
-%explores the effectiveness of different reinforcement learning methods and compares to non-learning agents.
-%
-%This project considers the case where users state their total resource requirements for a program, instead of the
-%standard procedure that users request a fixed amount of resources for their program. This change now allows the cloud
-%provider the ability to balance resource demand as it had completed knowledge of user's requirements. With this
-%knowledge, a task's allocated resources can be dynamically changed as new tasks arrives or finish. Using this
-%alternative resource allocation procedure, bottlenecks can be prevent through proper balancing of resources that in
-%turn will allow more tasks to run simultaneously and can also lower the price to run a task.
