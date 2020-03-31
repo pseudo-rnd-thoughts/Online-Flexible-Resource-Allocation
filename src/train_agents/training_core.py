@@ -288,8 +288,6 @@ def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: L
 
             print('\tTP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
             print('\tRW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agents) + '}')
-            print('\tTP exploration Obs: {' + ', '.join(f'{agent.name}: {agent.exploration}' for agent in task_pricing_agents) + '}')
-            print('\tRW exploration Obs: {' + ', '.join(f'{agent.name}: {agent.exploration}' for agent in resource_weighting_agents) + '}')
             print()
 
 

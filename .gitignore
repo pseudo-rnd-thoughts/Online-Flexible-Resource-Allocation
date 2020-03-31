@@ -2,15 +2,22 @@
 
 *.pyc
 
-auxil/
-out/
-
-papers/
-
 src/train_agents/results/logs
 src/train_agents/results/checkpoint
 src/train_agents/results/.ipynb_checkpoints
-
-examples
-
 src/train_agents/eval_envs
+
+/final_report/chapters/*.aux
+/final_report/final_report.aux
+/final_report/final_report.bbl
+/final_report/final_report.blg
+/final_report/final_report.lof
+/final_report/final_report.log
+/final_report/final_report.lol
+/final_report/final_report.lom
+/final_report/final_report.lot
+/final_report/final_report.out
+/final_report/final_report.synctex.gz
+/final_report/final_report.toc
+
+examples/
