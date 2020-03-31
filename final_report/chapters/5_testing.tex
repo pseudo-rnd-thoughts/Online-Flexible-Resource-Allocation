@@ -1,22 +1,27 @@
 \chapter{Testing}\label{ch:testing-of-the-implementation}
-To test the effectiveness of the implemented policies from section~\ref{}, a range of tests are proposed in order to
-compare the solutions. These tests aim to compare the effectiveness of training techniques, policy hyperparameters and
-to fixed policies.
-
-These tests fall into several distinct sections that are explained in Table~\ref{}.
+To test the effectiveness of the implemented policies from chapter~\ref{ch:implementation-of-the-solution}, a range of
+tests are proposed in order to compare the solutions. These tests aim to compare the effectiveness of training
+techniques, policy hyperparameters and to fixed heuristics. These tests fall into several distinct sections that are
+explained in Table~\ref{tab:testing_areas}.
 
 \begin{table}[h]
     \centering
-    \begin{tabular}{l|l} \hline
+    \begin{tabular}{|l|l|} \hline
         Test Name & Explanation \\ \hline
-        Multi vs Single environment training settings & \\ \hline
-        Multi vs Single agent environment training settings &  \\ \hline
-        Reinforcement Learning Policy testing & \\ \hline
-        Policy Environment generalisation & \\ \hline
-        Fixed policies testing & \\ \hline
-        Hyperparameter testing & \\ \hline
+        Multi vs Single environment training settings & There are huge ranges of possible environment settings that
+            agents could be trained for. This test investigates how good single environment trained agents react to
+            a new environment and how agents compare on an environment when an agent is only trained on that
+            environment or on multiple environments. \\ \hline
+        Multi vs Single agent environment training settings & As the Vickrey auction is incentive compatible then it is
+            possible to train both the auction agents and resource allocation against itself. This test investigates
+            the difference between the agent policies when self-trained or train with other agents. \\ \hline
+        Reinforcement Learning Policy testing & As multiple different reinforcement learning policy outlined in
+            table~\ref{tab:reinforcement_learning_policies}, this test compares the results of the different agents
+            against each other. \\ \hline
+        Fixed heuristic policies testing & In order to compare to the reinforcement learning policies, a number of
+            fixed heuristic policies are investigated both against other heuristics and reinforcement learning
+            policies. \\ \hline
     \end{tabular}
-    \caption{}
-    \label{}
+    \caption{Table of Testing Areas}
+    \label{tab:testing_areas}
 \end{table}
-
