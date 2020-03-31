@@ -11,7 +11,7 @@ requires, a server is required to buy the task as a single unit. Therefore combi
 here. Table~\ref{tab:auctions_descriptions} outlines a description of possible applicable auction mechanisms while
 table~\ref{tab:auction_properties} outline the properties of each auction mechanisms in the previous table.
 
-\begin{longtable}{|p{3cm}|p{10cm}|} \hline
+\begin{longtable}{|p{3cm}|p{12cm}|} \hline
     \textbf{Auction type} & \textbf{Description} \\ \hline
     English auction & A traditional auction where all participant can bid on a single item with the price slowing ascending till
     only a single participant is left who pays the final bid price. Due to the number of rounds, this requires a large amount of
@@ -93,23 +93,23 @@ are explored and explained with there difference.
         neurons again so that the network is not stateless. This means that individual letters of a words can be
         passed in with the network "remembering" the previous letter. \\ \hline
 
-    Long/Short Term Memory~\cite{LSTM} & While recurrent neural network's can "remember" previous inputs to the
+    Long/Short Term Memory~\citep{LSTM} & While recurrent neural network's can "remember" previous inputs to the
         network, it also struggles from the vanishing or exploding gradient problem where gradient tends to zero or
         infinity making it unusable. This network aims to prevent this by using forget gates that determines how much
         information the next state will get, allowing for more complexity information to be learnt compared to
         recurrent neural networks. \\ \hline
 
-    Gated Recurrent unit~\cite{GRU} & Gated recurrent unit are very similar to long/short term memory, except for the
+    Gated Recurrent unit~\citep{GRU} & Gated recurrent unit are very similar to long/short term memory, except for the
         use of a different wiring mechanisms and use one less gate with an update date instead of forgot gates.
         These changes mean that gated recurrent units allow for them to run faster and are easier to code than
         long/short term memory however are not as expressive allowing for less complex functions to be encoded. \\ \hline
 
-    Neural Turing Machine~\cite{NTM} & Inspired by computers, neural turing machines build on long/short term memory
+    Neural Turing Machine~\citep{NTM} & Inspired by computers, neural turing machines build on long/short term memory
         by using an external memory module that instead of memory being inbuild to the network. This allows for
         external observers to understand what is going on much better than other networks due to their
         black-box nature. \\ \hline
 
-    Differentiable neural computer~\cite{DNC} & This is an expansion to the neural turing machine that allows the
+    Differentiable neural computer~\citep{DNC} & This is an expansion to the neural turing machine that allows the
         memory module to scalable in size allowing for additional memory to be added if needed. \\ \hline
     \caption{Neural network layer descriptions}
     \label{tab:neural_network_layers}

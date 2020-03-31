@@ -63,7 +63,7 @@ that allows agents to interact with the environment to learn over time. Reinforc
 field of research within AI due to its real world applications like driving a car, playing games, etc.
 
 \begin{figure}
-    \includegraphics{figures/reinforcement_learning.png}
+    \includegraphics[width=10cm]{figures/reinforcement_learning.png}
     \caption{Reinforcement learning model (Source: ~\cite{Sutton1998})}
     \label{fig:reinforcement_learning}
 \end{figure}
@@ -74,8 +74,8 @@ actions, an agent is interested in which actions will result in the largest rewa
 as in equation~\eqref{eq:q_learning}.
 
 \begin{align}
-    Q(s_t, a_t) = E\[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+2} + \cdots \] \label{eq:q_value}
-    Q(s_t, a_t) = Q(s_t, a_t) + \alpha \cdot (r_t + \lambda \cdot \text{max}_a Q(s_{t+1} , a) - Q(s_t, a_t) ) \label{eq:q_learning}
+    Q(s_t, a_t) = E[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+2} + \cdots ] \label{eq:q_value} \\
+    Q(s_t, a_t) = Q(s_t, a_t) + \alpha \cdot (r_t + \lambda \cdot \text{max}_a Q(s_{t+1} , a) - Q(s_t, a_t) ) \label{eq:q_learning} \\
 \end{align}
 
 However the curse of dimensionally was found to be a major problem as to use Q learning required
@@ -101,7 +101,7 @@ gradient has been used to master the game of Go~\citep{silver2017mastering} and 
 Dota 2~\citep{OpenAI_dota} and Starcraft 2~\citep{starcraft2}.
 
 \begin{figure}
-    \includegraphics{figures/actor-critic.png}
+    \includegraphics[width=10cm]{figures/actor-critic.png}
     \caption{Actor Critic model (Source: ~\cite{Sutton1998})}
     \label{fig:actor-critic-model}
 \end{figure}
