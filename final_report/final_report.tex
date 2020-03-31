@@ -2,14 +2,16 @@
 %% Project.tex
 %% ----------------------------------------------------------------
 \documentclass[sotoncolour]{extra/uos_project}     % Use the Project Style with custom link colour
-\usepackage[round]{natbib}     % Use Natbib style for the refs.
-\usepackage{bibentry}          % Use bibentry for prepublished works
-\usepackage{pdfpages}          % Enables PDF to be inserted into the project
-\nobibliography*               % Use bibentry for prepublished works
-\usepackage{attrib}            % Use the attrib package for quotations
-\hypersetup{colorlinks=true}   % Set to false for black/white printing
-\input{extra/definitions}      % Include your abbreviations
-\pdfminorversion=7             % Fixes warnings for importing pdf documents
+\usepackage[round]{natbib}           % Use Natbib style for the refs.
+\usepackage{bibentry}                % Use bibentry for prepublished works
+\usepackage{pdfpages}                % Enables PDF to be inserted into the project
+\usepackage[hyphenbreaks]{breakurl}  % Enables the use of urls that softwrap on newlines
+\usepackage[hyphens]{url}
+\nobibliography*                     % Use bibentry for prepublished works
+\usepackage{attrib}                  % Use the attrib package for quotations
+\hypersetup{colorlinks=true}         % Set to false for black/white printing
+\input{extra/definitions}            % Include your abbreviations
+\pdfminorversion=7                   % Fixes warnings for importing pdf documents
 
 %% ----------------------------------------------------------------
 %% --------------------THESIS/DOC INFORMATION ---------------------
@@ -27,7 +29,7 @@
 \date       {\today}
 \supervisor {Dr Tim Norman}
 \examiner   {Dr Nicholas Harris}
-\degree     {MEng Electronic Engineering}
+\degree     {MEng Computer Science}
 %% Optional Fields TODO: Replace these fields with your own data
 \qualifications{}
 \subject    {}
@@ -45,6 +47,7 @@ resource requirements (i.e., a fixed amount of compute time, bandwidth and stora
 resource use. In this paper, we expand previous work to an online setting such that job will arrive over time with the
 task prices and resource allocation determined through training an agent using reinforcement learning.
 \end{abstract}
+
 \pdfbookmark[0]{\contentsname}{toc}
 \tableofcontents
 % \listoffigures
@@ -65,13 +68,16 @@ task prices and resource allocation determined through training an agent using r
 %% \authorshipdeclaration{}
 %% -----------------------
 \acknowledgements{
-I want to thank my parents for all of the support they have given me because I would not be able where I am now
-without them. Also to my housemates for surviving with me pestering them about proof reading and dealing with me
-stressing about this project.
+I want to thank my parents for all of the support they have given me because I would not be where I am now
+without them. Also to my housemates for surviving with me pestering them about proof reading this project and for
+dealing with me stressing about this project.
 
 This project wouldn't have started without Dr Sebastian Stein, Professor Tim Norman and a team of Pennsylvania State
 University that has produced a paper investigating the static case of this problem. Thank to all of them for sharing
 ideas and support for that paper and this project.
+
+Also to Professor Tim Norman for this constant guidance over the project and the wisdom to know what to investigate
+and implement.
 }
 
 % \dedicatory{To \dots}
