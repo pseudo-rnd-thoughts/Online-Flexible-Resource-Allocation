@@ -19,10 +19,10 @@ import agents.rl_agents.neural_networks.ddpg_networks
 ReinforcementLearningAgent.batch_size = 32
 ReinforcementLearningAgent.learning_rate = 0.001
 
-ReinforcementLearningAgent.replay_buffer_length = 10000
+ReinforcementLearningAgent.replay_buffer_length = 20000
 ReinforcementLearningAgent.training_replay_start_size = 2500
 
-ReinforcementLearningAgent.update_frequency = 4
+ReinforcementLearningAgent.update_frequency = 1
 ReinforcementLearningAgent.log_frequency = 80
 ReinforcementLearningAgent.save_frequency = 25000
 

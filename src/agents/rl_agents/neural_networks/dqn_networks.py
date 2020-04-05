@@ -19,8 +19,8 @@ class DqnBidirectionalLstmNetwork(Network):
 
         lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
         self.bidirectional_lstm_layer = tf.keras.layers.Bidirectional(lstm_layer)
-        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
-        self.q_value_layer = tf.keras.layers.Dense(action_width, activation='linear')
+        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu', kernel_initializer='zeros')
+        self.q_value_layer = tf.keras.layers.Dense(action_width, activation='linear', kernel_initializer='zeros')
 
     def call(self, inputs, training=None, mask=None):
         """

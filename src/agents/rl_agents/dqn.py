@@ -48,7 +48,8 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         # Create the two Q network; model and target
         self.model_network = network
         self.target_network = copy(network)
-        assert id(self.model_network.get_weights()) != id(self.target_network.get_weights())
+        if id(self.model_network.get_weights()) == id(self.target_network.get_weights()):
+            self.target_network.set_weights(self.model_network.get_weights().copy())
 
         # The target network update frequency called from the _train function
         assert target_update_frequency % self.update_frequency == 0
