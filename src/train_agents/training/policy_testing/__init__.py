@@ -1,3 +1,0 @@
-"""
-Policy testing of agents
-"""
