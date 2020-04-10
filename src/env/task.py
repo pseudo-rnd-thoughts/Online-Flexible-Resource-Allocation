@@ -87,62 +87,67 @@ class Task:
         """
         assert self.stage is TaskStage.LOADING or self.stage is TaskStage.COMPUTING or self.stage is TaskStage.SENDING
 
-        self.stage = self.has_failed(self.stage, time_step)
+        self.stage = self.has_failed(time_step)
 
-    def allocate_loading_resources(self, loading_resources: float, time_step: int):
+    def allocate_loading_resources(self, loading_resources: float, time_step: int, error_term: float = 0.05):
         """
         The loading of task on a server that increases the loading process with loading_resources at time_step
 
         Args:
             loading_resources: The loading resources applied to the task
             time_step: The time step that the resources are applied at
+            error_term: The error term between the required storage and the loading progress at which to ignore
         """
-        assert self.stage is TaskStage.LOADING and self.loading_progress < self.required_storage
+        assert self.stage is TaskStage.LOADING and self.loading_progress < self.required_storage, str(self)
 
-        updated_loading_progress = round_float(self.loading_progress + loading_resources)
-        updated_stage = TaskStage.LOADING if updated_loading_progress < self.required_storage else TaskStage.COMPUTING
+        self.loading_progress = round_float(self.loading_progress + loading_resources)
+        if self.required_storage - self.loading_progress < error_term:
+            self.loading_progress = self.required_storage
+            self.stage = TaskStage.COMPUTING
 
-        self.loading_progress = updated_loading_progress
-        self.stage = self.has_failed(updated_stage, time_step)
+        self.stage = self.has_failed(time_step)
 
-    def allocate_compute_resources(self, compute_resources: float, time_step: int):
+    def allocate_compute_resources(self, compute_resources: float, time_step: int, error_term: float = 0.05):
         """
         The computing of the task on a server that increase the computing process with compute_resources at time_step
 
         Args:
             compute_resources: The compute resources applied to the task
             time_step: The time step that the resources are applied at
+            error_term: The error term between the required computation and the compute progress at which to ignore
         """
         assert self.stage is TaskStage.COMPUTING and self.compute_progress < self.required_computation
 
-        updated_compute_progress = round_float(self.compute_progress + compute_resources)
-        updated_stage = TaskStage.COMPUTING if updated_compute_progress < self.required_computation else TaskStage.SENDING
+        self.compute_progress = round_float(self.compute_progress + compute_resources)
+        if self.required_computation - self.compute_progress < error_term:
+            self.compute_progress = self.required_computation
+            self.stage = TaskStage.SENDING
 
-        self.compute_progress = updated_compute_progress
-        self.stage = self.has_failed(updated_stage, time_step)
+        self.stage = self.has_failed(time_step)
 
-    def allocate_sending_resources(self, sending_resources: float, time_step: int):
+    def allocate_sending_resources(self, sending_resources: float, time_step: int, error_term: float = 0.05):
         """
         The sending of the task on a server that increase the sending process with sending_resources at time_step
 
         Args:
             sending_resources: The sending resources applied to the task
             time_step: The time step that the resources are applied at
+            error_term: The error term between the required results data and the sending progress at which to ignore
         """
         assert self.stage is TaskStage.SENDING and self.sending_progress < self.required_results_data
 
-        updated_sending_progress = round_float(self.sending_progress + sending_resources)
-        updated_stage = TaskStage.SENDING if updated_sending_progress < self.required_results_data else TaskStage.COMPLETED
+        self.sending_progress = round_float(self.sending_progress + sending_resources)
+        if self.required_results_data - self.sending_progress < error_term:
+            self.sending_progress = self.required_results_data
+            self.stage = TaskStage.COMPLETED
 
-        self.sending_progress = updated_sending_progress
-        self.stage = self.has_failed(updated_stage, time_step)
+        self.stage = self.has_failed(time_step)
 
-    def has_failed(self, updated_stage: TaskStage, time_step: int) -> TaskStage:
+    def has_failed(self, time_step: int) -> TaskStage:
         """
         Check if the task has failed if the time step is greater than deadline
 
         Args:
-            updated_stage: The current stage of the task
             time_step: The current time step
 
         Returns: The updated task stage of the task
@@ -150,10 +155,10 @@ class Task:
         """
         assert time_step <= self.deadline
 
-        if self.deadline == time_step and updated_stage is not TaskStage.COMPLETED:
+        if self.deadline == time_step and self.stage is not TaskStage.COMPLETED:
             return TaskStage.FAILED
         else:
-            return updated_stage
+            return self.stage
 
     def assert_valid(self):
         """
@@ -172,7 +177,7 @@ class Task:
                 assert self.loading_progress < self.required_storage
                 assert self.compute_progress == self.sending_progress == 0
             else:
-                assert self.required_storage <= self.loading_progress
+                assert self.required_storage <= self.loading_progress, str(self)
                 if self.stage is TaskStage.COMPUTING:
                     assert self.compute_progress < self.required_computation, \
                         f'Failed {self.name} Task compute progress: {self.compute_progress} < required comp: {self.required_computation}, {str(self)}'
@@ -209,10 +214,21 @@ class Task:
         elif self.stage is TaskStage.COMPLETED:
             return f'{self.name} Task ({hex(id(self))}) - Completed, Storage: {self.required_storage}, Comp: {self.required_computation}, ' \
                    f'Results data: {self.required_results_data}, Auction time: {self.auction_time}, Deadline: {self.deadline}'
-        elif self.stage is TaskStage.INCOMPLETE:
+        elif self.stage is TaskStage.FAILED:
             return f'{self.name} Task ({hex(id(self))}) - Failed, Storage: {self.required_storage}, Comp: {self.required_computation}, ' \
-                   f'Results data: {self.required_results_data}, Auction time: {self.auction_time}, Deadline: {self.deadline}'
+                   f'Results data: {self.required_results_data}, Auction time: {self.auction_time}, Deadline: {self.deadline}, ' \
+                   f'Loading ({self.loading_progress}), Computing ({self.compute_progress}), Sending ({self.sending_progress}) progress'
+
+        else:
+            raise Exception(f'Unknown stage: {self.stage}')
 
     def __eq__(self, o: object) -> bool:
         # noinspection PyUnresolvedReferences
         return type(o) is Task and o.name == self.name
+
+    def deep_eq(self, task) -> bool:
+        return type(task) is Task and \
+               all(getattr(self, attribute) == getattr(task, attribute)
+                   for attribute in ['name', 'auction_time', 'deadline', 'price', 'stage',
+                                     'required_storage', 'required_computation', 'required_results_data',
+                                     'loading_progress', 'compute_progress', 'sending_progress'])

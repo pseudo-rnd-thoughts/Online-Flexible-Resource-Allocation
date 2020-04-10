@@ -7,7 +7,7 @@ import operator
 import random as rnd
 from enum import Enum, auto
 from math import inf
-from typing import Optional, List, Dict, Tuple, Union
+from typing import Optional, List, Dict, Tuple, Union, Sequence
 
 import gym
 import numpy as np
@@ -30,15 +30,14 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
     Gym environment for the online flexible resource allocation environment
     """
 
-    def __init__(self, filenames: Union[str, List[str]], env_name: str = '', env_settings: str = '',
-                 servers: List[Server] = (), server_tasks: Optional[Dict[Server, List[Task]]] = None,
-                 tasks: List[Task] = (), total_time_steps: int = -1):
+    def __init__(self, filenames: Union[str, List[str]], env_name: str = '', servers: Sequence[Server] = (),
+                 server_tasks: Optional[Dict[Server, List[Task]]] = None, tasks: Sequence[Task] = (),
+                 time_step: int = -1, total_time_steps: int = -1):
         self.environment_settings: List[str] = [filenames] if type(filenames) is str else filenames
 
         self.env_name: str = env_name
-        self.env_setting: str = env_settings
 
-        self.time_step: int = 0
+        self.time_step: int = time_step
         self.total_time_steps: int = total_time_steps
 
         self.unallocated_tasks: List[Task] = sorted(list(tasks), key=operator.attrgetter('auction_time'))
@@ -62,7 +61,6 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
 
         rewards = {}
         if self.auction_task:
-            print(f'Environment auction step')
             actions: Dict[Server, float] = actions
             # Check the actions are valid
             assert all(type(action) is float for action in actions.values())
@@ -73,22 +71,22 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
             for server, price in actions.items():
                 if price > 0:
                     if price < min_price:
-                        min_price, min_servers, second_min_price = price, [server], second_min_price
+                        min_price, min_servers, second_min_price = price, [server], min_price
                     elif price == min_price:
                         min_servers.append(server)
 
             if min_servers:
                 winning_server: Server = rnd.choice(min_servers)
                 price = second_min_price if len(min_servers) == 1 and second_min_price < inf else min_price
-                updated_task = self.auction_task.assign_server(price, self.time_step)
-                self.server_tasks[winning_server].append(updated_task)
+                self.auction_task.assign_server(price, self.time_step)
+                self.server_tasks[winning_server].append(self.auction_task)
                 rewards[winning_server] = price
         else:
-            print(f'Environment resource allocation step')
             # Check the actions are valid
             actions: Dict[Server, List[float]] = actions
-            assert all(type(server_actions) is list for server, server_actions in actions.items()), actions
-            assert all(type(task_action) is float
+            assert all(type(server_actions) is list or type(server_actions) is np.ndarray
+                       for server, server_actions in actions.items())
+            assert all(type(task_action) is float or type(task_action) is np.float64
                        for server, server_actions in actions.items() for task_action in server_actions)
             assert all(0 <= task_action for server, server_actions in actions.items() for task_action in server_actions)
 
@@ -159,7 +157,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
         """
         self.auction_task = self._next_auction_task()
 
-        if self.auction_task:
+        if self.auction_task is not None:
             return {server: [self._normalise_task(self.auction_task, server) + [1.0]] +
                             [self._normalise_task(task, server) + [0.0] for task in tasks]
                     for server, tasks in self.server_tasks.items()}, StepType.AUCTION
@@ -205,51 +203,61 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
 
     def save_env(self, filename: str):
         """
-        Saves this environment to a file with the following template
-        {"name": "",
-         "total time steps": 0,
-         "servers": [{"name": "", "storage capacity": 0, "computational capacity": 0, "bandwidth capacity": 0}, ...],
-         "tasks": [{"name": "", "required storage": 0, "required computation": 0, "required results data": 0,
-                    "auction time": 0, "deadline": 0}, ...]
-        }
+        Saves this environment to a file with the template in settings/format.env
 
         Args:
             filename: The filename to save the environment to
 
         """
-        assert self.time_step == 0
+        # Check that the environment is valid
+        for server, tasks in self.server_tasks.items():
+            server.assert_valid()
+            for task in tasks:
+                task.assert_valid()
+        for task in self.unallocated_tasks:
+            task.assert_valid()
 
-        environment_json_data = {
+        # Add the auction task to the beginning of the unallocated task list
+        if self.auction_task is not None:
+            self.unallocated_tasks.insert(0, self.auction_task)
+
+        # Generate the environment JSON data
+        env_json_data = {
             'env name': self.env_name,
             'total time steps': self.total_time_steps,
             'servers': [
-                {'name': server.name, 'storage capacity': server.storage_cap,
-                 'computational capacity': server.computational_comp,
-                 'bandwidth capacity': server.bandwidth_cap}
-                for server in self.server_tasks.keys()
+                {
+                    'name': server.name, 'storage capacity': server.storage_cap,
+                    'computational capacity': server.computational_comp, 'bandwidth capacity': server.bandwidth_cap,
+                    'tasks': [
+                        {
+                            'name': task.name, 'required storage': task.required_storage,
+                            'required computational': task.required_computation,
+                            'required results data': task.required_results_data, 'auction time': task.auction_time,
+                            'deadline': task.deadline, 'stage': task.stage.name,
+                            'loading progress': task.loading_progress, 'compute progress': task.compute_progress,
+                            'sending progress': task.sending_progress, 'price': task.price
+                        } for task in tasks
+                    ]
+                } for server, tasks in self.server_tasks.items()
             ],
-            'tasks': [
-                {'name': task.name, 'required storage': task.required_storage,
-                 'required computational': task.required_computation,
-                 'required results data': task.required_results_data, 'auction time': task.auction_time,
-                 'deadline': task.deadline}
-                for task in self.unallocated_tasks
+            'unallocated tasks': [
+                {
+                    'name': task.name, 'required storage': task.required_storage,
+                    'required computational': task.required_computation,
+                    'required results data': task.required_results_data, 'auction time': task.auction_time,
+                    'deadline': task.deadline
+                } for task in self.unallocated_tasks
             ]
         }
 
         with open(filename, 'w') as file:
-            json.dump(environment_json_data, file)
+            json.dump(env_json_data, file)
 
     @staticmethod
     def load_env(filename: str):
         """
-        Loads an environment from a file from template
-        {"name": "",
-         "total time steps": 0,
-         "servers": [{"name": "", "storage capacity": 0, "computational capacity": 0, "bandwidth capacity": 0}, ...],
-         "tasks": [{"name": "", "required storage": 0, "required computation": 0, "required results data": 0,
-                    "auction time": 0, "deadline": 0}, ...]
-        }
+        Loads an environment from a file from template file at settings/format.env
 
         Args:
             filename: The filename to load the environment from
@@ -262,28 +270,42 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
             json_data = json.load(file)
 
             name: str = json_data['env name']
+            time_step: int = json_data['time step']
             total_time_steps: int = json_data['total time steps']
 
             # Load the servers list
-            servers: List[Server] = [
+            server_tasks: Dict[Server, List[Task]] = {
                 Server(name=server_data['name'], storage_cap=server_data['storage capacity'],
                        computational_comp=server_data['computational capacity'],
-                       bandwidth_cap=server_data['bandwidth capacity'])
-                for server_data in json_data['servers']
-            ]
+                       bandwidth_cap=server_data['bandwidth capacity']): [
+                    Task(name=task_data['name'], auction_time=task_data['auction time'], deadline=task_data['deadline'],
+                         required_storage=task_data['required storage'],
+                         required_computation=task_data['required computational'],
+                         required_results_data=task_data['required results data'],
+                         stage=TaskStage[task_data['stage']], loading_progress=task_data['loading progress'],
+                         compute_progress=task_data['compute progress'], sending_progress=task_data['sending progress'],
+                         price=task_data['price'])
+                    for task_data in server_data['tasks']
+                ]
+                for server_data in json_data['server']
+            }
+            for server, tasks in server_tasks.items():
+                server.assert_valid()
+                for task in tasks:
+                    task.assert_valid()
 
-            # Load the tasks list
-            tasks: List[Task] = [
+            # Load the unallocated task list
+            unallocated_tasks: List[Task] = [
                 Task(name=task_data['name'], auction_time=task_data['auction time'], deadline=task_data['deadline'],
                      required_storage=task_data['required storage'],
                      required_computation=task_data['required computational'],
                      required_results_data=task_data['required results data'])
-                for task_data in json_data['tasks']
+                for task_data in json_data['unallocated tasks']
             ]
 
-        env = OnlineFlexibleResourceAllocationEnv(filename, env_name=name, env_settings=filename, servers=servers,
-                                                  tasks=tasks, total_time_steps=total_time_steps)
-
+        env = OnlineFlexibleResourceAllocationEnv(filename, env_name=name, server_tasks=server_tasks,
+                                                  tasks=unallocated_tasks, time_step=time_step,
+                                                  total_time_steps=total_time_steps)
         return env, env._generate_state()
 
     @staticmethod
@@ -368,11 +390,18 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
 
         """
 
+        # Check that the inputs are valid
         assert 0 < total_time_steps
         assert 0 < len(new_servers_tasks)
         assert all(task.stage is not TaskStage.UNASSIGNED or task.stage is not TaskStage.COMPLETED
                    or task.stage is not TaskStage.FAILED for _, tasks in new_servers_tasks.items() for task in tasks)
         assert all(task.stage is TaskStage.UNASSIGNED for task in new_unallocated_tasks)
+        for task in new_unallocated_tasks:
+            task.assert_valid()
+        for server, tasks in new_servers_tasks.items():
+            server.assert_valid()
+            for task in tasks:
+                task.assert_valid()
 
         env = OnlineFlexibleResourceAllocationEnv(filenames='', env_name=env_name, total_time_steps=total_time_steps,
                                                   server_tasks=new_servers_tasks, tasks=new_unallocated_tasks)
