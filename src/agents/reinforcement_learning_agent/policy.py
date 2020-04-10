@@ -2,8 +2,9 @@ import random as rnd
 from abc import ABC, abstractmethod
 
 import tensorflow as tf
+import numpy as np
 
-from agents.dqn import DqnAgent
+from agents.reinforcement_learning_agent.dqn import DqnAgent
 
 
 class Policy(ABC):
@@ -21,9 +22,9 @@ class EpsilonGreedyPolicy(Policy):
 
     def action(self, state):
         if rnd.random() < self.epsilon:
-            return rnd.randint(0, self.agent.num_actions)
+            return rnd.randint(0, self.agent.num_actions - 1)
         else:
-            return tf.math.argmax(self.agent.model_network(state))
+            return np.argmax(self.agent.model_network(tf.cast([state], tf.float32)))
 
 
 class GreedyPolicy(Policy):
@@ -32,4 +33,12 @@ class GreedyPolicy(Policy):
         self.agent = agent
 
     def action(self, state):
-        return tf.math.argmax(self.agent.model_network(state))
+        return np.argmax(self.agent.model_network(tf.cast([state], tf.float32)))
+
+
+class EpsilonGreedyPolicyCategorial(Policy):
+    pass
+
+
+class GreedyPolicyCategorial(Policy):
+    pass
