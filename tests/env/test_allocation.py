@@ -11,10 +11,14 @@ from env.task_stage import TaskStage
 
 def test_allocate_compute_resources(error_term=0.1):
     tasks = [
-        Task('Test 1', 76.0, 36.0, 16.0, 0, 12, stage=TaskStage.COMPUTING, loading_progress=76.0),
-        Task('Test 2', 75.0, 37.0, 12.0, 0, 12, stage=TaskStage.COMPUTING, loading_progress=75.0, compute_progress=10.0),
-        Task('Test 3', 72.0, 47.0, 20.0, 0, 7, stage=TaskStage.COMPUTING, loading_progress=72.0, compute_progress=25.0),
-        Task('Test 4', 69.0, 35.0, 10.0, 0, 12, stage=TaskStage.COMPUTING, loading_progress=69.0, compute_progress=20.0)
+        Task('Test 1', 76.0, 36.0, 16.0, 0, 12, stage=TaskStage.COMPUTING,
+             loading_progress=76.0, price=1),
+        Task('Test 2', 75.0, 37.0, 12.0, 0, 12, stage=TaskStage.COMPUTING,
+             loading_progress=75.0, compute_progress=10.0, price=1),
+        Task('Test 3', 72.0, 47.0, 20.0, 0, 7, stage=TaskStage.COMPUTING,
+             loading_progress=72.0, compute_progress=25.0, price=1),
+        Task('Test 4', 69.0, 35.0, 10.0, 0, 12, stage=TaskStage.COMPUTING,
+             loading_progress=69.0, compute_progress=20.0, price=1)
     ]
     server = Server('Test', 220.0, 35.0, 22.0)
 
@@ -24,7 +28,8 @@ def test_allocate_compute_resources(error_term=0.1):
 
         task_resource_usage = server.allocate_compute_resources(task_weights, server.computational_comp, 0)
 
-        assert sum(compute_usage for _, _, compute_usage, _ in task_resource_usage) < server.computational_comp + error_term
+        assert sum(compute_usage for _, _, compute_usage, _ in task_resource_usage) < \
+            server.computational_comp + error_term
 
         print(f'\nTask resource usage')
         for task, storage_usage, comp_usage, bandwidth_usage in task_resource_usage:
@@ -38,12 +43,18 @@ def test_allocate_compute_resources(error_term=0.1):
 
 def test_allocate_bandwidth_resources(error_term=0.1):
     tasks = [
-        Task('Test 1', 56.0, 55.0, 15.0, 0, 9, stage=TaskStage.LOADING, loading_progress=15),
-        Task('Test 2', 75.0, 39.0, 18.0, 0, 12, stage=TaskStage.LOADING, loading_progress=50),
-        Task('Test 3', 52.0, 30.0, 26.0, 0, 9, stage=TaskStage.LOADING, loading_progress=25),
-        Task('Test 4', 60.0, 52.0, 18.0, 0, 12, stage=TaskStage.SENDING, loading_progress=60.0, compute_progress=52.0),
-        Task('Test 5', 57.0, 56.0, 15.0, 0, 10, stage=TaskStage.SENDING, loading_progress=57.0, compute_progress=56.0, sending_progress=10.0),
-        Task('Test 6', 72.0, 32.0, 23.0, 0, 12, stage=TaskStage.SENDING, loading_progress=72.0, compute_progress=32.0, sending_progress=12.0)
+        Task('Test 1', 56.0, 55.0, 15.0, 0, 9, stage=TaskStage.LOADING,
+             loading_progress=15, price=1),
+        Task('Test 2', 75.0, 39.0, 18.0, 0, 12, stage=TaskStage.LOADING,
+             loading_progress=50, price=1),
+        Task('Test 3', 52.0, 30.0, 26.0, 0, 9, stage=TaskStage.LOADING,
+             loading_progress=25, price=1),
+        Task('Test 4', 60.0, 52.0, 18.0, 0, 12, stage=TaskStage.SENDING,
+             loading_progress=60.0, compute_progress=52.0, price=1),
+        Task('Test 5', 57.0, 56.0, 15.0, 0, 10, stage=TaskStage.SENDING,
+             loading_progress=57.0, compute_progress=56.0, sending_progress=10.0, price=1),
+        Task('Test 6', 72.0, 32.0, 23.0, 0, 12, stage=TaskStage.SENDING,
+             loading_progress=72.0, compute_progress=32.0, sending_progress=12.0, price=1)
     ]
     server = Server('Test', 310, 29, 40)
 
@@ -55,10 +66,13 @@ def test_allocate_bandwidth_resources(error_term=0.1):
         available_storage = server.storage_cap - sum(task.loading_progress for task, weight in loading_weights) - \
             sum(task.loading_progress for task, weight in sending_weights)
 
-        task_resource_usage = server.allocate_bandwidth_resources(loading_weights, sending_weights, available_storage, server.bandwidth_cap, 0)
+        task_resource_usage = server.allocate_bandwidth_resources(loading_weights, sending_weights, available_storage,
+                                                                  server.bandwidth_cap, 0)
 
-        assert sum(storage_usage for _, storage_usage, _, _ in task_resource_usage) < server.storage_cap + error_term
-        assert sum(bandwidth_usage for _, _, _, bandwidth_usage in task_resource_usage) < server.bandwidth_cap + error_term
+        assert sum(storage_usage for _, storage_usage, _, _ in task_resource_usage) < \
+            server.storage_cap + error_term
+        assert sum(bandwidth_usage for _, _, _, bandwidth_usage in task_resource_usage) < \
+            server.bandwidth_cap + error_term
 
         print(f'\nTask resource usage')
         for task, storage_usage, comp_usage, bandwidth_usage in task_resource_usage:
@@ -69,7 +83,8 @@ def test_allocate_bandwidth_resources(error_term=0.1):
                 print(f'{task.name} Task - Bandwidth Usage: {bandwidth_usage}, Sending Progress: {task.sending_progress}, '
                       f'Required results data: {task.required_results_data} Stage: {task.stage}')
 
-        tasks = [task for task, _ in task_resource_usage if task.stage is TaskStage.LOADING or task.stage is TaskStage.SENDING]
+        tasks = [task for task, _ in task_resource_usage
+                 if task.stage is TaskStage.LOADING or task.stage is TaskStage.SENDING]
         it += 1
 
 

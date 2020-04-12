@@ -1,7 +1,7 @@
 
 import tensorflow as tf
 
-from agents.reinforcement_learning_agent.agent import RLAgent
+from agents.reinforcement_learning_agent.agents.agent import RLAgent
 
 
 class DqnAgent(RLAgent):
@@ -18,6 +18,8 @@ class DqnAgent(RLAgent):
         self.update_target_tau = update_target_tau
 
         self.target_update_freq = target_update_freq
+
+        self.num_actions = 2
 
     @tf.function
     def _train(self, states, actions, next_states, rewards, dones):
@@ -52,7 +54,7 @@ class DqnAgent(RLAgent):
     @tf.function
     def _compute_next_q_values(self, next_states):
         next_q_values = self.target_network(next_states)
-        next_actions = tf.math.argmax(next_q_values, axis=1)
+        next_actions = tf.math.argmax(next_q_values, axis=1, output_type=tf.int32)
 
         return self._action_values(next_q_values, next_actions)
 

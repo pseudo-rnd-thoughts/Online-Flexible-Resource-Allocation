@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 import tensorflow as tf
 import numpy as np
 
-from agents.reinforcement_learning_agent.dqn import DqnAgent
+from agents.reinforcement_learning_agent.agents.dqn import DqnAgent
 
 
 class Policy(ABC):

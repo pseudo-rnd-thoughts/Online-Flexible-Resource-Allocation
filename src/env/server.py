@@ -29,7 +29,7 @@ class Server:
         assert 0 < self.bandwidth_cap
 
     def allocate_resources(self, resource_weights: List[Tuple[Task, float]],
-                           time_step: int, error_term: float = 0.1) -> Tuple[List[Task], List[Task]]:
+                           time_step: int, error_term: float = 0.1):
         """
         Allocate resources to tasks by converting a weighting (importance) to an actual resource
 
@@ -91,13 +91,8 @@ class Server:
         assert sum(compute_usage for _, _, compute_usage, _ in task_resource_usage) <= self.computational_comp + error_term
         assert sum(bandwidth_usage for _, _, _, bandwidth_usage in task_resource_usage) <= self.bandwidth_cap + error_term
 
-        # Group the updated tasks in those completed or failed and those still ongoing
-        unfinished_tasks = [task for task, _, _, _ in task_resource_usage
-                            if not (task.stage is TaskStage.COMPLETED or task.stage is TaskStage.FAILED)]
-        completed_tasks = [task for task, _, _, _ in task_resource_usage
-                           if task.stage is TaskStage.COMPLETED or task.stage is TaskStage.FAILED]
-
-        return unfinished_tasks, completed_tasks
+        # As there is no need to know the exact resource allocation and task reference aren't changed then there is
+        #   no need to return any information
 
     @staticmethod
     def allocate_compute_resources(compute_weights: List[Tuple[Task, float]], available_computation: float,

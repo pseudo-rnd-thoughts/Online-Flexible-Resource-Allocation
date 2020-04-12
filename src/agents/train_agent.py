@@ -1,10 +1,14 @@
+"""
+Train agent
+"""
+
 import random as rnd
 
 import gym
 import tensorflow as tf
 
-from agents.reinforcement_learning_agent.dqn import DqnAgent
-from agents.reinforcement_learning_agent.policy import EpsilonGreedyPolicy, GreedyPolicy
+from agents.reinforcement_learning_agent.agents.dqn import DqnAgent
+from agents.reinforcement_learning_agent.agents.policy import EpsilonGreedyPolicy, GreedyPolicy
 
 
 def eval_agent(policy, env):

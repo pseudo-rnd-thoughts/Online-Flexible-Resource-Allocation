@@ -97,7 +97,13 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
                 task_resource_weights: List[Tuple[Task, float]] = [
                     (task, resource_weight) for task, resource_weight in zip(self.server_tasks[server], resource_weights)
                 ]
-                self.server_tasks[server], rewards[server] = server.allocate_resources(task_resource_weights, self.time_step)
+                server.allocate_resources(task_resource_weights, self.time_step)
+                rewards[server] = [1 if task.stage is TaskStage.COMPLETED or task.stage is TaskStage.FAILED else 0
+                                   for task in self.server_tasks[server]]
+                self.server_tasks[server] = [
+                    task for task in self.server_tasks[server]
+                    if task.stage is not TaskStage.COMPLETED and task.stage is not TaskStage.FAILED
+                ]
 
             self.time_step += 1
 
@@ -120,7 +126,6 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
         assert 0 < len(new_servers)
 
         # Update the environment variables
-        self.env_setting = env_setting
         self.env_name = env_name
 
         # Current state
@@ -195,7 +200,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
             task.required_storage / server.bandwidth_cap,
             task.required_computation / server.computational_comp,
             task.required_results_data / server.bandwidth_cap,
-            task.deadline - self.time_step,
+            float(task.deadline - self.time_step),
             task.loading_progress,
             task.compute_progress,
             task.sending_progress
@@ -224,6 +229,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
         # Generate the environment JSON data
         env_json_data = {
             'env name': self.env_name,
+            'time step': self.time_step,
             'total time steps': self.total_time_steps,
             'servers': [
                 {
@@ -287,7 +293,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
                          price=task_data['price'])
                     for task_data in server_data['tasks']
                 ]
-                for server_data in json_data['server']
+                for server_data in json_data['servers']
             }
             for server, tasks in server_tasks.items():
                 server.assert_valid()
