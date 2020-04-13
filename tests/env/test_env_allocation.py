@@ -26,10 +26,10 @@ def test_allocate_compute_resources(error_term=0.1):
     while tasks and it < max_iterations:
         task_weights = [(task, np.random.uniform(0, 10)) for task in tasks]
 
-        task_resource_usage = server.allocate_compute_resources(task_weights, server.computational_comp, 0)
+        task_resource_usage = server.allocate_compute_resources(task_weights, server.computational_cap, 0)
 
         assert sum(compute_usage for _, _, compute_usage, _ in task_resource_usage) < \
-            server.computational_comp + error_term
+            server.computational_cap + error_term
 
         print(f'\nTask resource usage')
         for task, storage_usage, comp_usage, bandwidth_usage in task_resource_usage:
@@ -83,7 +83,7 @@ def test_allocate_bandwidth_resources(error_term=0.1):
                 print(f'{task.name} Task - Bandwidth Usage: {bandwidth_usage}, Sending Progress: {task.sending_progress}, '
                       f'Required results data: {task.required_results_data} Stage: {task.stage}')
 
-        tasks = [task for task, _ in task_resource_usage
+        tasks = [task for task, _, _, _ in task_resource_usage
                  if task.stage is TaskStage.LOADING or task.stage is TaskStage.SENDING]
         it += 1
 

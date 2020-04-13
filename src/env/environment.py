@@ -198,7 +198,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
         return [
             task.required_storage / server.storage_cap,
             task.required_storage / server.bandwidth_cap,
-            task.required_computation / server.computational_comp,
+            task.required_computation / server.computational_cap,
             task.required_results_data / server.bandwidth_cap,
             float(task.deadline - self.time_step),
             task.loading_progress,
@@ -234,7 +234,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
             'servers': [
                 {
                     'name': server.name, 'storage capacity': server.storage_cap,
-                    'computational capacity': server.computational_comp, 'bandwidth capacity': server.bandwidth_cap,
+                    'computational capacity': server.computational_cap, 'bandwidth capacity': server.bandwidth_cap,
                     'tasks': [
                         {
                             'name': task.name, 'required storage': task.required_storage,
@@ -282,7 +282,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
             # Load the servers list
             server_tasks: Dict[Server, List[Task]] = {
                 Server(name=server_data['name'], storage_cap=server_data['storage capacity'],
-                       computational_comp=server_data['computational capacity'],
+                       computational_cap=server_data['computational capacity'],
                        bandwidth_cap=server_data['bandwidth capacity']): [
                     Task(name=task_data['name'], auction_time=task_data['auction time'], deadline=task_data['deadline'],
                          required_storage=task_data['required storage'],
@@ -357,8 +357,8 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
                     name='{} {}'.format(server_json_data['name'], server_num),
                     storage_cap=float(rnd.randint(server_json_data['min storage capacity'],
                                                   server_json_data['max storage capacity'])),
-                    computational_comp=float(rnd.randint(server_json_data['min computational capacity'],
-                                                         server_json_data['max computational capacity'])),
+                    computational_cap=float(rnd.randint(server_json_data['min computational capacity'],
+                                                        server_json_data['max computational capacity'])),
                     bandwidth_cap=float(rnd.randint(server_json_data['min bandwidth capacity'],
                                                     server_json_data['max bandwidth capacity']))))
 

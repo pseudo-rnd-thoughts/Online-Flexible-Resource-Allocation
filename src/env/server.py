@@ -2,30 +2,37 @@
 Implementation of a server
 """
 
-from typing import Dict, Tuple, List
+from typing import Dict, Tuple, List, NamedTuple
 
 from env.task import Task, round_float
 from env.task_stage import TaskStage
 
 
-class Server:
+class Server(NamedTuple):
     """Server class that takes a name and resource capacity for storage, computation and bandwidth"""
 
-    def __init__(self, name: str, storage_cap: float, computational_comp: float, bandwidth_cap: float):
+    def __init__(self, name: str, storage_cap: float, computational_cap: float, bandwidth_cap: float):
         self.name = name  # The name of the server
 
-        self.storage_cap = storage_cap                # The server storage capacity
-        self.computational_comp = computational_comp  # The server computational capacity
-        self.bandwidth_cap = bandwidth_cap            # The server bandwidth capacity
+        self.storage_cap = storage_cap              # The server storage capacity
+        self.computational_cap = computational_cap  # The server computational capacity
+        self.bandwidth_cap = bandwidth_cap          # The server bandwidth capacity
 
     def __str__(self) -> str:
-        return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.computational_comp}, ' \
+        return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.computational_cap}, ' \
                f'Bandwidth cap: {self.bandwidth_cap}'
 
+    def __eq__(self, o: object) -> bool:
+        return type(o) is Server and o.name == self.name and o.storage_cap == self.storage_cap and \
+           o.computational_cap == self.computational_cap and o.bandwidth_cap == self.bandwidth_cap
+
     def assert_valid(self):
+        """
+        Assert that the server is valid
+        """
         assert self.name != ''
         assert 0 < self.storage_cap
-        assert 0 < self.computational_comp
+        assert 0 < self.computational_cap
         assert 0 < self.bandwidth_cap
 
     def allocate_resources(self, resource_weights: List[Tuple[Task, float]],
@@ -62,7 +69,7 @@ class Server:
 
         # Resource available, storage is special because some storage is already used due to the previous stage
         available_storage: float = self.storage_cap - sum(task.loading_progress for task, weight in resource_weights)
-        available_computation: float = self.computational_comp
+        available_computation: float = self.computational_cap
         available_bandwidth: float = self.bandwidth_cap
 
         # Allocate computational resources to the tasks at computing stage
@@ -88,7 +95,7 @@ class Server:
             assert task in [task for task, weight in resource_weights]
         # Assert that the resources used are less than available resources
         assert sum(storage_usage for _, storage_usage, _, _ in task_resource_usage) <= self.storage_cap + error_term
-        assert sum(compute_usage for _, _, compute_usage, _ in task_resource_usage) <= self.computational_comp + error_term
+        assert sum(compute_usage for _, _, compute_usage, _ in task_resource_usage) <= self.computational_cap + error_term
         assert sum(bandwidth_usage for _, _, _, bandwidth_usage in task_resource_usage) <= self.bandwidth_cap + error_term
 
         # As there is no need to know the exact resource allocation and task reference aren't changed then there is
