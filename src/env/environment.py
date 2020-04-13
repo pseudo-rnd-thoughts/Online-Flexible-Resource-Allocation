@@ -11,6 +11,8 @@ from copy import deepcopy
 from math import inf
 from typing import TYPE_CHECKING, Optional
 
+import gym
+
 from env.env_state import EnvState
 from env.server import Server
 from env.task import Task
@@ -23,7 +25,7 @@ if TYPE_CHECKING:
     REWARD_TYPE = Dict[Server, Union[float, List[Task]]]
 
 
-class OnlineFlexibleResourceAllocationEnv:
+class OnlineFlexibleResourceAllocationEnv(gym.Env):
     """
     The environment that manages the high level working for online flexible resource allocation
     This is a multi-rl_agents mixed cooperative and competitive situation that aims for the agents
