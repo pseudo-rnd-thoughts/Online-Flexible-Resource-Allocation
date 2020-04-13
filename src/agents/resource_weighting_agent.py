@@ -22,12 +22,11 @@ class ResourceWeightingAgent(abc.ABC):
     def __init__(self, name):
         self.name = name
 
-    def weight(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
+    def weight(self, allocated_tasks: List[Task], server: Server, time_step: int) -> List[float]:
         """
         Weights a task on the server with a list of already allocated tasks at time step
 
         Args:
-            weight_task: The task being weighted
             allocated_tasks: The already allocated tasks to the server (includes the weighted task as well)
             server: The server weighting the task
             time_step: The time step of the environment
@@ -36,32 +35,31 @@ class ResourceWeightingAgent(abc.ABC):
 
         """
         # If the length of allocated task is more than 1
-        if len(allocated_tasks) > 1:
+        if 1 < len(allocated_tasks):
             # Assert that the task input variables are valid
             assert all(allocated_task.stage is not TaskStage.UNASSIGNED or allocated_task.stage is not TaskStage.FAILED
                        or allocated_task.stage is not TaskStage.COMPLETED for allocated_task in allocated_tasks)
             assert all(allocated_task.auction_time <= time_step <= allocated_task.deadline
                        for allocated_task in allocated_tasks)
 
-            action = self._get_action(weight_task, allocated_tasks, server, time_step)
-            assert 0 <= action
+            actions = self.get_actions(allocated_tasks, server, time_step)
+            assert all(0 <= action for action in actions)
 
-            return float(action)
+            return actions
         else:
             # If the weight task is only task allocated to the server
-            assert weight_task == allocated_tasks[0]
+            assert len(allocated_tasks) == 1
 
-            return 1.0
+            return [1.0]
 
     @abc.abstractmethod
-    def _get_action(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
+    def get_actions(self, tasks: List[Task], server: Server, time_step: int) -> List[float]:
         """
         An abstract method that takes an task, a list of allocated tasks, a server
             and the current time step to return the weight for the task
 
         Args:
-            weight_task: The task being weighted
-            allocated_tasks: The already allocated tasks to the server (includes the weighted task as well)
+            tasks: All of the allocated tasks to the server
             server: The server weighting the task
             time_step: The time step of the environment
 

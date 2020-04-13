@@ -45,16 +45,16 @@ class TaskPricingAgent(abc.ABC):
                    for allocated_task in allocated_tasks)
 
         if self.limit_number_task_parallel is not None and len(allocated_tasks) < self.limit_number_task_parallel:
-            action = self._get_action(auction_task, allocated_tasks, server, time_step)
+            action = self.get_action(auction_task, allocated_tasks, server, time_step)
             # Assert that the resulting action is valid
             assert 0 <= action
 
-            return float(action)
+            return action
         else:
             return 0.0
 
     @abc.abstractmethod
-    def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
+    def get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         """
         An abstract method that takes an auction task, a list of allocated tasks, a server
             and the current time step to return a bid price
