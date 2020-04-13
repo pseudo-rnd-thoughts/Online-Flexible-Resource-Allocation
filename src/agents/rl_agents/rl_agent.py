@@ -7,7 +7,7 @@ from __future__ import annotations
 import random as rnd
 from abc import ABC, abstractmethod
 from collections import deque
-from typing import List
+from typing import List, Optional
 
 import gin.tf
 import numpy as np
@@ -125,7 +125,7 @@ class ReinforcementLearningAgent(ABC):
         pass
 
     @abstractmethod
-    def _save(self):
+    def _save(self, custom_location: Optional[str] = None):
         """
         Saves a copy of the reinforcement learning agent models at this current total obs
         """
