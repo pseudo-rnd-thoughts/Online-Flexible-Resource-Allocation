@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import gin
 
-from agents.rl_agents.distributional_dqn import TaskPricingDistributionalDqnAgent, \
+from agents.rl_agents.agents.c51_dqn import TaskPricingDistributionalDqnAgent, \
     ResourceWeightingDistributionalDqnAgent
 from agents.rl_agents.neural_networks.distributional_networks import DistributionalDqnLstmNetwork
 from env.environment import OnlineFlexibleResourceAllocationEnv
@@ -35,9 +35,9 @@ if __name__ == "__main__":
         run_training(env, eval_envs, 150, task_pricing_agents, resource_weighting_agents, 5)
 
     for agent in task_pricing_agents:
-        agent.save()
+        agent._save()
     for agent in resource_weighting_agents:
-        agent.save()
+        agent._save()
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
     print(

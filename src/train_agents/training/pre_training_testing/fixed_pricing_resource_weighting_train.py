@@ -6,8 +6,8 @@ from __future__ import annotations
 import gin
 
 from agents.heuristic_agents.fixed_task_pricing_agent import FixedTaskPricingAgent
-from agents.rl_agents.dqn import ResourceWeightingDqnAgent
-from agents.rl_agents.neural_networks.dqn_networks import DqnLstmNetwork
+from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent
+from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from train_agents.training_core import generate_eval_envs, run_training, setup_tensorboard
 
@@ -24,7 +24,7 @@ if __name__ == "__main__":
         FixedTaskPricingAgent(agent_num, 3) for agent_num in range(3)
     ]
     resource_weighting_dqn_agents = [
-        ResourceWeightingDqnAgent(agent_num, DqnLstmNetwork(10, 10), save_folder=folder)
+        ResourceWeightingDqnAgent(agent_num, create_lstm_dqn_network(10, 10), save_folder=folder)
         for agent_num in range(3)
     ]
 
