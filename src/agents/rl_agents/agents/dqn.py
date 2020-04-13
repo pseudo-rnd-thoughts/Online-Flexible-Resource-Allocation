@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
-from typing import List, Union
+from typing import List, Union, Optional
 
 import gin.tf
 import numpy as np
@@ -70,10 +70,18 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         """
         pass
 
-    def _save(self):
-        path = f'{os.getcwd()}/train_agents/results/checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}'
+    def _save(self, custom_location: Optional[str] = None):
+        # Set the location to save the model
+        if custom_location:
+            path = f'{os.getcwd()}/{custom_location}'
+        else:
+            path = f'{os.getcwd()}/train_agents/results/checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}'
+
+        # Create the directory if it doesn't exist
         if not os.path.exists(path):
             os.makedirs(path)
+
+        # Save the model network weights to the path
         self.model_network.save_weights(path)
 
     @tf.function
