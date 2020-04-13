@@ -7,87 +7,59 @@ import tensorflow as tf
 
 from agents.rl_agents.neural_networks.network import Network
 
-
-@gin.configurable
-class DqnBidirectionalLstmNetwork(Network):
-    """
-    DQN Bidirectional Lstm Network
-    """
-
-    def __init__(self, input_width: int, action_width: int, lstm_width: int = 40, relu_width: int = 20):
-        Network.__init__(self, 'Bidirectional Lstm', input_width, action_width)
-
-        lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
-        self.bidirectional_lstm_layer = tf.keras.layers.Bidirectional(lstm_layer)
-        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu', kernel_initializer='zeros')
-        self.q_value_layer = tf.keras.layers.Dense(action_width, activation='linear', kernel_initializer='zeros')
-
-    def call(self, inputs, training=None, mask=None):
-        """
-        Forward propagation through the neural network
-
-        Args:
-            inputs: numpy ndarray input observation for the network
-            training: Ignored
-            mask: Ignored
-
-        Returns: Single dimensional array action output
-
-        """
-        return self.q_value_layer(self.relu_layer(self.bidirectional_lstm_layer(inputs)))
+# Todo add regularizers to the networks
 
 
 @gin.configurable
-class DqnLstmNetwork(Network):
-    """
-    DQN Lstm Network
-    """
+def create_bidirectional_dqn_network(input_width: int, num_actions: int, lstm_width: int = 32, relu_width: int = 32):
+    input_layer = tf.keras.layers.Input(shape=(None, input_width))
+    lstm_layer = tf.keras.layers.LSTM(lstm_width)
+    bidirectional_layer = tf.keras.layers.Bidirectional(lstm_layer)(input_layer)
+    relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(bidirectional_layer)
+    q_layer = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
 
-    def __init__(self, input_width: int, num_actions: int, lstm_width: int = 40, relu_width: int = 20):
-        Network.__init__(self, 'Lstm', input_width, num_actions)
-
-        self.lstm_layer = tf.keras.layers.LSTM(lstm_width, input_shape=(None, input_width))
-        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
-        self.q_value_layer = tf.keras.layers.Dense(num_actions, activation='linear')
-
-    def call(self, inputs, training=None, mask=None):
-        """
-        Forward propagation through the neural network
-
-        Args:
-            inputs: numpy ndarray input observation for the network
-            training: Ignored
-            mask: Ignored
-
-        Returns: Single dimensional array action output
-
-        """
-        return self.q_value_layer(self.relu_layer(self.lstm_layer(inputs)))
+    return tf.keras.Model(name='Bidirectional LSTM Dqn', inputs=input_layer, outputs=q_layer)
 
 
 @gin.configurable
-class DqnGruNetwork(Network):
-    """
-    DQN Gru Network
-    """
+def create_lstm_dqn_network(input_width: int, num_actions: int, lstm_width: int = 32, relu_width: int = 32):
+    input_layer = tf.keras.layers.Input(shape=(None, input_width))
+    lstm_layer = tf.keras.layers.LSTM(lstm_width)(input_layer)
+    relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
+    q_layer = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
 
-    def __init__(self, input_width: int, action_width: int, lstm_width: int = 40, relu_width: int = 20):
-        Network.__init__(self, 'Gru', input_width, action_width)
+    return tf.keras.Model(name='LSTM Dqn', inputs=input_layer, outputs=q_layer)
 
-        self.gru_layer = tf.keras.layers.GRU(lstm_width, input_shape=(None, input_width))
-        self.relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')
-        self.q_value_layer = tf.keras.layers.Dense(action_width, activation='linear')
 
-    def call(self, inputs, training=None, mask=None):
-        """
-        Forward propagation through the neural network
+@gin.configurable
+def create_gru_dqn_network(input_width: int, num_actions: int, lstm_width: int = 32, relu_width: int = 32):
+    input_layer = tf.keras.layers.Input(shape=(None, input_width))
+    gru_layer = tf.keras.layers.GRU(lstm_width)(input_layer)
+    relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(gru_layer)
+    q_layer = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
 
-        Args:
-            inputs: numpy ndarray input observation for the network
-            training: Ignored
-            mask: Ignored
+    return tf.keras.Model(name='GRU Dqn', inputs=input_layer, outputs=q_layer)
 
-        Returns: Single dimensional array action output
 
-        """
-        return self.q_value_layer(self.relu_layer(self.gru_layer(inputs)))
+@gin.configurable
+def create_lstm_dueling_dqn_network(input_width: int, num_actions: int, lstm_width: int = 32, relu_width: int = 32):
+    input_layer = tf.keras.layers.Input(shape=(None, input_width))
+    lstm_layer = tf.keras.layers.LSTM(lstm_width)(input_layer)
+    relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
+    value = tf.keras.layers.Dense(1, activation='linear')(relu_layer)
+    advantage = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
+    dueling_q_layer = value + (advantage - tf.reduce_mean(advantage, axis=1, keepdims=True))
+
+    return tf.keras.Model(name='LSTM Dueling Dqn', inputs=input_layer, outputs=dueling_q_layer)
+
+
+@gin.configurable
+def create_lstm_categorical_dqn_network(input_width: int, num_actions: int,
+                                        lstm_width: int = 32, relu_width: int = 32, num_atoms: int = 51):
+    input_layer = tf.keras.layers.Input(shape=(None, input_width))
+    lstm_layer = tf.keras.layers.LSTM(lstm_width)(input_layer)
+    relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
+    distribution_layer = [tf.keras.layers.Dense(num_atoms, activation='linear')(relu_layer)
+                          for _ in range(num_actions)]
+
+    return tf.keras.Model(name='LSTM Categorical Dqn', inputs=input_layer, outputs=distribution_layer)
