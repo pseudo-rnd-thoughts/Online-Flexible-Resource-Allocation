@@ -7,7 +7,7 @@ from __future__ import annotations
 import random as rnd
 from abc import ABC, abstractmethod
 from collections import deque
-from typing import List, Optional
+from typing import List, Optional, NamedTuple, Dict
 
 import gin.tf
 import numpy as np
@@ -18,6 +18,25 @@ from agents.task_pricing_agent import TaskPricingAgent
 from env.server import Server
 from env.task import Task
 from env.task_stage import TaskStage
+
+
+class TaskPricingState(NamedTuple):
+    """
+    Task pricing reinforcement learning agent state
+    """
+    auction_task: Task
+    tasks: List[Task]
+    server: Server
+    time_step: int
+
+
+class ResourceAllocationState(NamedTuple):
+    """
+    Resource allocation reinforcement learning agent state
+    """
+    tasks: List[Task]
+    server: Server
+    time_step: int
 
 
 @gin.configurable
@@ -32,16 +51,16 @@ class ReinforcementLearningAgent(ABC):
                  replay_buffer_length: int = 100000, save_frequency: int = 25000, save_folder: str = 'checkpoint',
                  **kwargs):
         """
-        Todo
+        Constructor that is generalised for the deep q networks and policy gradient agents
         Args:
-            batch_size:
-            optimiser:
-            error_loss_fn:
-            initial_training_replay_size:
-            update_frequency:
-            replay_buffer_length:
-            save_frequency:
-            save_folder:
+            batch_size: Training batch sizes
+            optimiser: Network optimiser
+            error_loss_fn: Training error loss function
+            initial_training_replay_size: The required initial training replay size
+            update_frequency: Network update frequency
+            replay_buffer_length: Replay buffer length
+            save_frequency: Agent save frequency
+            save_folder: Agent save folder
             **kwargs:
         """
         assert 0 < batch_size
@@ -81,7 +100,7 @@ class ReinforcementLearningAgent(ABC):
         return [
             task.required_storage / server.storage_cap,
             task.required_storage / server.bandwidth_cap,
-            task.required_comp / server.computational_comp,
+            task.required_computation / server.computational_cap,
             task.required_results_data / server.bandwidth_cap,
             float(task.deadline - time_step),
             task.loading_progress,
@@ -93,7 +112,9 @@ class ReinforcementLearningAgent(ABC):
         """
         Trains the reinforcement learning agent and logs the training loss
         """
-        states, actions, next_states, rewards, dones = zip(*rnd.sample(self.batch_size, self.replay_buffer))
+        states, actions, next_states, rewards, dones = zip(*rnd.sample(self.replay_buffer, self.batch_size))
+        print(f'States: {states}\nActions: {actions}\nNext states: {next_states}\nRewards: {rewards}\nDones: {dones}')
+
         states = tf.keras.preprocessing.sequence.pad_sequences(states, dtype='float32')
         actions = tf.cast(actions, tf.float32)  # For DQN, the actions must be converted to int32
         next_states = tf.keras.preprocessing.sequence.pad_sequences(next_states, dtype='float32')
@@ -113,13 +134,13 @@ class ReinforcementLearningAgent(ABC):
         An abstract function to train the reinforcement learning agent
 
         Args:
-            states:
-            actions:
-            next_states:
-            rewards:
-            dones:
+            states: Tensor of network observations
+            actions: Tensor of actions
+            next_states: Tensor of the next network observations
+            rewards: Tensor of rewards
+            dones: Tensor of dones
 
-        Returns:
+        Returns: Training loss
 
         """
         pass
@@ -131,12 +152,14 @@ class ReinforcementLearningAgent(ABC):
         """
         pass
 
-    def _add_trajectory(self, state, action, next_state, reward, done=False):
+    def _add_trajectory(self, state: np.ndarray, action: float, next_state: np.ndarray,
+                        reward: float, done: bool = False):
         self.replay_buffer.append((state, action, next_state, reward, done))
 
         # Check if to train the agent
         self.total_observations += 1
-        if self.training_replay_start_size <= self.total_obs and self.total_obs % self.update_frequency == 0:
+        if self.initial_training_replay_size <= self.total_observations and \
+                self.total_observations % self.update_frequency == 0:
             self.train()
 
 
@@ -146,8 +169,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
     Task Pricing reinforcement learning agent
     """
 
-    def __init__(self, name: str, failed_auction_reward: float = -0.05, failed_multiplier: float = -1.5,
-                 **kwargs):
+    def __init__(self, name: str, failed_auction_reward: float = -0.05, failed_multiplier: float = -1.5, **kwargs):
         """
         Constructor of the task pricing reinforcement learning agent
 
@@ -167,26 +189,46 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         assert failed_multiplier <= 0, failed_multiplier
         self.failed_multiplier = failed_multiplier
 
-    def winning_auction_bid(self, agent_state: np.ndarray, action: float,
-                            finished_task: Task, next_agent_state: np.ndarray):
+    @staticmethod
+    @abstractmethod
+    def network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
+        """
+        Returns a numpy array for the network observation
+
+        Args:
+            task: The primary task to consider
+            allocated_tasks: The other allocated task
+            server: The server
+            time_step: The time step
+
+        Returns: numpy ndarray for the network observation
+        """
+        pass
+
+    def winning_auction_bid(self, agent_state: TaskPricingState, action: float,
+                            finished_task: Task, next_agent_state: TaskPricingState):
         """
         When the agent is successful in winning the task then add the task when the task is finished
 
         Args:
-            agent_state: The agent state
-            action: The action
-            finished_task: The finished task
-            next_agent_state: The next agent state
+            agent_state: Initial agent state
+            action: Auction action
+            finished_task: Auctioned finished task containing the winning price
+            next_agent_state: Resulting next agent state
         """
         # Check that the arguments are valid
-        assert 0 <= action < self.network_output_width
-        assert finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
+        assert 0 <= action
+        assert finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED, finished_task
 
         # Calculate the reward and add it to the replay buffer
         reward = finished_task.price * (1 if finished_task.stage is TaskStage.COMPLETED else self.failed_multiplier)
-        self._add_trajectory(agent_state, action, next_agent_state, reward)
+        obs = self.network_obs(agent_state.auction_task, agent_state.tasks, agent_state.server, agent_state.time_step)
+        next_obs = self.network_obs(next_agent_state.auction_task, next_agent_state.tasks,
+                                    next_agent_state.server, next_agent_state.time_step)
 
-    def failed_auction_bid(self, agent_state: np.ndarray, action: float, next_agent_state: np.ndarray):
+        self._add_trajectory(obs, action, next_obs, reward)
+
+    def failed_auction_bid(self, agent_state: TaskPricingState, action: float, next_agent_state: TaskPricingState):
         """
         When the agent is unsuccessful in winning the task then add the observation
             and next observation after this action
@@ -201,21 +243,21 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         # assert agent_state.time_step <= next_agent_state.time_step
 
         # If the action is zero then there is no bid on the task so no loss
-        if action == 0:
-            self._add_trajectory(agent_state, action, next_agent_state, 0)
-        else:
-            self._add_trajectory(agent_state, action, next_agent_state, self.failed_auction_reward)
+        obs = self.network_obs(agent_state.auction_task, agent_state.tasks, agent_state.server, agent_state.time_step)
+        next_obs = self.network_obs(next_agent_state.auction_task, next_agent_state.tasks,
+                                    next_agent_state.server, next_agent_state.time_step)
+        self._add_trajectory(obs, action, next_obs, self.failed_auction_reward if action == 0 else 0)
 
 
-# noinspection DuplicatedCode
 @gin.configurable
 class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgent, ABC):
     """
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
-    def __init__(self, name: str, other_task_reward_discount: float = 0.2, successful_task_reward: float = 1,
-                 failed_task_reward: float = -2, task_multiplier: float = 2.0, **kwargs):
+    def __init__(self, name: str, other_task_discount: float = 0.2, success_reward: float = 1,
+                 failed_reward: float = -2, reward_multiplier: float = 2.0,
+                 ignore_empty_next_obs: bool = True, **kwargs):
         """
         Constructor of the resource weighting reinforcement learning agent
 
@@ -233,58 +275,64 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
         ReinforcementLearningAgent.__init__(self, **kwargs)
 
         # Agent reward variables
-        assert 0 < other_task_reward_discount
-        self.other_task_reward_discount = other_task_reward_discount
-        assert 0 < successful_task_reward
-        self.successful_task_reward = successful_task_reward
-        self.failed_task_reward = failed_task_reward
-        self.task_multiplier = task_multiplier
+        assert 0 < other_task_discount
+        self.other_task_discount = other_task_discount
+        assert 0 < success_reward
+        self.success_reward = success_reward
+        self.failed_reward = failed_reward
+        self.reward_multiplier = reward_multiplier
+        self.ignore_empty_next_obs = ignore_empty_next_obs
 
-    def allocation_obs(self, agent_state: np.ndarray, action: float, next_agent_state: np.ndarray,
-                       finished_tasks: List[Task]):
+    @staticmethod
+    @abstractmethod
+    def network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
         """
-        Adds an observation for allocating resource but doesnt finish a task to the replay buffer
+        Returns a numpy array for the network observation
 
         Args:
-            agent_state: The agent state
-            action: The action taken
-            next_agent_state: The next agent state
+            task: The primary task to consider
+            allocated_tasks: The other allocated task
+            server: The server
+            time_step: The time step
+
+        Returns: numpy ndarray for the network observation
+        """
+        pass
+
+    def resource_allocation_obs(self, agent_state: ResourceAllocationState, actions: Dict[Task, float],
+                                next_agent_state: ResourceAllocationState, finished_tasks: List[Task]):
+        """
+        Adds a resource allocation state and actions with the resulting resource allocation state with the list of
+            finished tasks
+
+        Args:
+            agent_state: Resource allocation state
+            actions: List of actions
+            next_agent_state: Next resource allocation state
             finished_tasks: List of tasks that finished during that round of resource allocation
         """
         # Check that the arguments are valid
-        assert 0 <= action
+        assert len(agent_state.tasks) == len(actions)
+        assert all(task in agent_state.tasks for task in actions.keys())
+        assert all(0 <= action for action in actions.values())
         assert all(finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
                    for finished_task in finished_tasks)
+        assert all(task in next_agent_state.tasks or task in finished_tasks for task in agent_state.tasks)
 
-        # If the next obs is not none or if can access empty next obs then save observation
-        if next_agent_state is not None or not self.ignore_empty_next_obs:
-            # Calculate the action reward
-            reward = sum(self.successful_task_reward if finished_task.stage is TaskStage.COMPLETED
-                         else self.failed_task_reward for finished_task in finished_tasks)
-            self._add_trajectory(agent_state, action, reward, next_agent_state)
+        if len(agent_state.tasks) <= 1 or (len(next_agent_state.tasks) <= 1 and self.ignore_empty_next_obs):
+            return
 
-    def finished_task_obs(self, agent_state: np.ndarray, action: float, finished_task: Task,
-                          finished_tasks: List[Task]):
-        """
-        Adds an observation for allocating resource and does finish a task
-            (either successfully or unsuccessfully) to the replay buffer
+        for task, action in actions.items():
+            obs = self.network_obs(task, agent_state.tasks, agent_state.server, agent_state.time_step)
+            reward = sum(self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward
+                         for finished_task in finished_tasks if not task == finished_task) * self.other_task_discount
+            if task in next_agent_state.tasks:
+                next_task = next(next_task for next_task in next_agent_state.tasks if next_task == task)
+                next_obs = self.network_obs(next_task, next_agent_state.tasks, next_agent_state.server, next_agent_state.time_step)
+                self._add_trajectory(obs, action, next_obs, reward)
+            else:
+                next_obs = np.zeros(obs.shape)
+                finished_task = next(finished_task for finished_task in finished_tasks if finished_task == task)
+                reward += (self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward) * self.reward_multiplier
 
-        Args:
-            agent_state: The agent state
-            action: The action taken
-            finished_task: The finished task
-            finished_tasks: List of tasks that finished during that round of resource allocation
-        """
-        # Check that the arguments are valid
-        assert 0 <= action
-        assert finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
-        assert all(finished_task.stage is TaskStage.COMPLETED or finished_task.stage is TaskStage.FAILED
-                   for finished_task in finished_tasks)
-
-        # Calculate the action reward
-        reward = sum(
-            (self.successful_task_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_task_reward) *
-            (self.task_multiplier if finished_task.stage is TaskStage.COMPLETED else 1)
-            for finished_task in finished_tasks)
-        # Add the trajectory to the replay buffer
-        self._add_trajectory(agent_state, action, reward, np.zeros(agent_state.shape), done=True)
+                self._add_trajectory(obs, action, next_obs, reward, done=True)
