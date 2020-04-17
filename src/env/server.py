@@ -11,12 +11,11 @@ from env.task_stage import TaskStage
 class Server(NamedTuple):
     """Server class that takes a name and resource capacity for storage, computation and bandwidth"""
 
-    def __init__(self, name: str, storage_cap: float, computational_cap: float, bandwidth_cap: float):
-        self.name = name  # The name of the server
+    name: str  # The name of the server
 
-        self.storage_cap = storage_cap              # The server storage capacity
-        self.computational_cap = computational_cap  # The server computational capacity
-        self.bandwidth_cap = bandwidth_cap          # The server bandwidth capacity
+    storage_cap: float        # The server storage capacity
+    computational_cap: float  # The server computational capacity
+    bandwidth_cap: float      # The server bandwidth capacity
 
     def __str__(self) -> str:
         return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.computational_cap}, ' \
@@ -24,7 +23,7 @@ class Server(NamedTuple):
 
     def __eq__(self, o: object) -> bool:
         return type(o) is Server and o.name == self.name and o.storage_cap == self.storage_cap and \
-           o.computational_cap == self.computational_cap and o.bandwidth_cap == self.bandwidth_cap
+            o.computational_cap == self.computational_cap and o.bandwidth_cap == self.bandwidth_cap
 
     def assert_valid(self):
         """
