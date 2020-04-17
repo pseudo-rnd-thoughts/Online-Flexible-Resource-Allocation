@@ -1,5 +1,5 @@
 """
-Tests in agent implementation is valid
+Tests that agent implementations; constructor attributes, agent saving, task pricing / resource allocation training
 """
 
 from __future__ import annotations
@@ -8,20 +8,16 @@ from typing import List
 
 import tensorflow as tf
 
-from agents.heuristic_agents.random_agent import RandomTaskPricingAgent
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, TaskPricingDdqnAgent, TaskPricingDuelingDqnAgent, \
     ResourceWeightingDqnAgent, ResourceWeightingDdqnAgent, ResourceWeightingDuelingDqnAgent
-from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network, \
-    create_bidirectional_dqn_network, create_gru_dqn_network, create_rnn_dqn_network, \
-    create_lstm_categorical_dqn_network
+from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network
 from agents.rl_agents.rl_agents import TaskPricingRLAgent, TaskPricingState, ResourceWeightingRLAgent, \
     ResourceAllocationState
 from env.environment import OnlineFlexibleResourceAllocationEnv
-from env.server import Server
-from env.task import Task
+from env.task_stage import TaskStage
+
 
 # TODO add comments
-from env.task_stage import TaskStage
 
 
 def test_agent_attributes():
@@ -67,47 +63,18 @@ def test_agent_attributes():
         assert_args(agent, dqn_rw_arguments)
 
 
-def test_agents_build():
-    print()
-    # All of the Networks
-    bidirectional_lstm = create_bidirectional_dqn_network(10, 10)
-    lstm = create_lstm_dqn_network(10, 10)
-    gru = create_gru_dqn_network(10, 10)
-    rnn = create_rnn_dqn_network(10, 10)
-    dueling_lstm = create_lstm_dueling_dqn_network(10, 10)
-    categorical_lstm = create_lstm_categorical_dqn_network(10, 10)
-    # Todo add new networks when created
-    print(f'{bidirectional_lstm.name}, {lstm.name}, {gru.name}, {rnn.name}, '
-          f'{dueling_lstm.name}, {categorical_lstm.name}')
-
-    # All of the task pricing agents
-    tp_dqn_agent = TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10))
-    tp_ddqn_agent = TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 10))
-    tp_dueling_dqn_agent = TaskPricingDuelingDqnAgent(2, create_lstm_dqn_network(9, 10))
-
-    # All of the resource weight agents
-    rw_dqn_agent = ResourceWeightingDqnAgent(0, create_lstm_dqn_network(10, 10))
-    rw_ddqn_agent = ResourceWeightingDdqnAgent(1, create_lstm_dqn_network(10, 10))
-    rw_dueling_dqn_agent = ResourceWeightingDuelingDqnAgent(2, create_lstm_dqn_network(10, 10))
-
-    # Todo add new agents when created
-
-    print(f'{tp_dqn_agent.name}, {tp_ddqn_agent.name}, {tp_dueling_dqn_agent.name}')
-    print(f'{rw_dqn_agent.name}, {rw_ddqn_agent.name}, {rw_dueling_dqn_agent.name}')
-
-
-def test_agent_saving():
+def test_saving_agent():
     print()
     dqn_agent = TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10))
 
     dqn_agent._save('tmp/dqn_agent')
 
     loaded_model = create_lstm_dqn_network(9, 10)
-    loaded_model.load_weights('tmp/dqn_agent')
+    loaded_model.load_weights('agent/tmp/dqn_agent')
 
-    # Todo check that the weigths are the same
-    # assert all(weights == load_weights
-    #            for weights, load_weights in zip(dqn_agent.model_network.get_weights(), loaded_model.get_weights()))
+    assert all(weights == load_weights
+               for weights, load_weights in zip(dqn_agent.model_network.get_weights(), loaded_model.get_weights())), \
+        f'Model: {dqn_agent.model_network.get_weights()}, Loaded: {loaded_model.get_weights()}'
 
 
 def test_task_price_training():
