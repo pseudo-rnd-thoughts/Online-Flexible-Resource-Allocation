@@ -2,8 +2,10 @@
 Agent that randoms choose the price or weight of a task
 """
 
+from __future__ import annotations
+
 import random as rnd
-from typing import List
+from typing import List, Dict
 
 import gin
 
@@ -52,17 +54,16 @@ class RandomResourceWeightingAgent(ResourceWeightingAgent):
 
         self.upper_weight_bound = upper_weight_bound
 
-    def _get_action(self, weight_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
+    def _get_actions(self, allocated_tasks: List[Task], server: Server, time_step: int) -> Dict[Task, float]:
         """
         Implements the action by randomly selecting an integer weight between 1 and the upper weight bound
 
         Args:
-            weight_task: Ignored
-            allocated_tasks: Ignored
+            allocated_tasks: List of allocated tasks on the server
             server: Ignored
             time_step: Ignored
 
-        Returns: A random value between 1 and the upper weight bound
+        Returns: A dictionary of tasks to weights
 
         """
-        return float(rnd.randint(0, self.upper_weight_bound))
+        return {task: float(rnd.randint(0, self.upper_weight_bound)) for task in allocated_tasks}
