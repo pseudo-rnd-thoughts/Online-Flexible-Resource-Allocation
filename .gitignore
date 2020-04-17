@@ -1,12 +1,16 @@
+# Pycharm files
 .idea/
 
+# Compiled python files
 *.pyc
 
-src/train_agents/results/logs
-src/train_agents/results/checkpoint
-src/train_agents/results/.ipynb_checkpoints
-src/train_agents/eval_envs
+# Agent training results and evaluation environments
+src/agent_training/results/logs
+src/agent_training/results/checkpoint
+src/agent_training/results/.ipynb_checkpoints
+src/agent_training/eval_envs
 
+# Additional Latex files
 /final_report/chapters/*.aux
 /final_report/final_report.aux
 /final_report/final_report.bbl
@@ -19,5 +23,3 @@ src/train_agents/eval_envs
 /final_report/final_report.out
 /final_report/final_report.synctex.gz
 /final_report/final_report.toc
-
-examples/
