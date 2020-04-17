@@ -6,117 +6,130 @@ from typing import Dict
 
 from tqdm import tqdm
 
-from agents.heuristic_agents.human_agent import HumanTaskPricing
 from agents.heuristic_agents.random_agent import RandomTaskPricingAgent, RandomResourceWeightingAgent
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.server import Server
 from env.task import Task
-from env.task_stage import TaskStage
 
 
 def test_env_step_rnd_action():
+    """
+    Tests the environment works with random actions
+    """
     print()
-    env = OnlineFlexibleResourceAllocationEnv.make('../src/train_agents/env_settings/basic_env.json')
-    random_task_pricing = RandomTaskPricingAgent(0)
-    random_resource_weighting = RandomResourceWeightingAgent(0)
 
-    for _ in tqdm(range(20)):
+    # Generate the environment
+    env = OnlineFlexibleResourceAllocationEnv('env/settings/basic.env')
+
+    # Random action agents
+    random_task_pricing, random_resource_weighting = RandomTaskPricingAgent(0), RandomResourceWeightingAgent(0)
+
+    # Run the environment multiple times
+    for _ in tqdm(range(200)):
         state = env.reset()
 
-        num_tasks = len(env._unallocated_tasks) + (1 if state.auction_task else 0)
-        # print(f'Auction tasks ({num_tasks}) at [' + ', '.join(str(task.auction_time) for task in env.unallocated_tasks) + ']')
-        auctioned_tasks = 0
-
+        # Number of auction opportunities
+        num_auction_opportunities = len(env._unallocated_tasks) + (1 if state.auction_task else 0)
+        # Number of auction and resource allocation steps taken
+        num_auctions, num_resource_allocations = 0, 0
+        # Number of environment server
         num_servers = len(state.server_tasks)
-        # print(f'Num of servers: {num_servers}')
 
+        # Take random steps over the environment
         done = False
         while not done:
-            # print(f'\tUnallocated tasks: {len(env.unallocated_tasks)}')
-            # print(f'State num of servers: {len(state.server_tasks)}')
+            # Check that the number of servers is constant
             assert len(state.server_tasks) == num_servers
+
+            # Generate the actions
             if state.auction_task:
                 actions: Dict[Server, float] = {
                     server: random_task_pricing.bid(state.auction_task, allocated_tasks, server, state.time_step)
                     for server, allocated_tasks in state.server_tasks.items()
                 }
-                # print(f'\tAuction of {state.auction_task.name}, time step: {state.time_step}')
-                auctioned_tasks += 1
+                num_auctions += 1
             else:
                 actions: Dict[Server, Dict[Task, float]] = {
-                    server: {
-                        task: random_resource_weighting.weight(task, tasks, server, state.time_step)
-                        for task in tasks
-                    }
+                    server: random_resource_weighting.weight(tasks, server, state.time_step)
                     for server, tasks in state.server_tasks.items()
                 }
-                # print(f'\tResource allocation')
-            # print(f'Step, time step: {env.state.time_step}')
+                num_resource_allocations += 1
+
+            # Take the action on the environment
             state, reward, done, info = env.step(actions)
             assert all(task.auction_time <= state.time_step <= task.deadline
                        for _, tasks in state.server_tasks.items() for task in tasks)
 
-        # print(f'Num unallocated tasks: {num_tasks}, auctioned tasks: {auctioned_tasks}\n')
-        assert num_tasks == auctioned_tasks
+        # Check that the number of auction and resource allocation steps are correct
+        assert state.auction_task is None
+        assert len(env._unallocated_tasks) == 0
+        assert num_auctions == num_auction_opportunities
+        assert num_resource_allocations == env._total_time_steps + 1
 
 
-# noinspection DuplicatedCode
 def test_env_auction_step():
-    print()
-    human_task_pricing = HumanTaskPricing(0)
+    env, state = OnlineFlexibleResourceAllocationEnv.load_env('settings/auctions.env')
 
-    servers_tasks = {
-        Server('Test', 220.0, 35.0, 22.0): [
-            Task('Test 1', 76.0, 36.0, 16.0, 0, 12, stage=TaskStage.COMPUTING, loading_progress=76.0),
-            Task('Test 2', 75.0, 37.0, 12.0, 0, 12, stage=TaskStage.COMPUTING, loading_progress=75.0, compute_progress=10.0),
-            Task('Test 3', 72.0, 47.0, 20.0, 0, 7, stage=TaskStage.COMPUTING, loading_progress=72.0, compute_progress=25.0)
-        ]
-    }
-    tasks = [
-        Task('Test 4', 69.0, 35.0, 10.0, 0, 12)
-    ]
-    env, state = OnlineFlexibleResourceAllocationEnv.custom_env('auction step test', 3, servers_tasks, tasks)
-    print('State')
-    print(state)
+    server_0, server_1, server_2 = list(state.server_tasks.keys())
+    assert server_0.name == 'Basic 0' and server_1.name == 'Basic 1' and server_2.name == 'Basic 2'
 
+    # Tests a normal circumstance for the Vickrey auction with second price winning
     actions = {
-        server: human_task_pricing.bid(state.auction_task, tasks, server, state.time_step)
-        for server, tasks in state.server_tasks.items()
+        server_0: 1.0,
+        server_1: 3.0,
+        server_2: 0.0
     }
 
     next_state, rewards, done, info = env.step(actions)
-    print('Next state')
-    print(next_state)
+    assert server_0 in rewards and rewards[server_0] == 3.0
+    assert len(state.server_tasks[server_0]) + 1 == len(next_state.server_tasks[server_0]) and \
+        len(state.server_tasks[server_1]) == len(next_state.server_tasks[server_1]) and \
+        len(state.server_tasks[server_2]) == len(next_state.server_tasks[server_2])
+    state = next_state
 
-    print('Rewards - [' + ', '.join(f'{task.name} Task: {price}' for task, price in rewards.items()) + ']')
+    # Test a case where server provide the same price
+    actions = {
+        server_0: 3.0,
+        server_1: 3.0,
+        server_2: 0.0
+    }
+    next_state, rewards, done, _ = env.step(actions)
+    assert (server_0 in rewards and rewards[server_0] == 3.0) or (server_1 in rewards and rewards[server_1] == 3.0)
+    assert len(next_state.server_tasks[server_0]) == len(state.server_tasks[server_0]) + 1 or \
+        len(next_state.server_tasks[server_1]) == len(state.server_tasks[server_1]) + 1
+
+    # Test where no server provides a price
+    actions = {
+        server_0: 0.0,
+        server_1: 0.0,
+        server_2: 0.0
+    }
+    state, rewards, done, _ = env.step(actions)
+    assert len(rewards) == 0
+
+    # Test where only a single server provides a price
+    actions = {
+        server_0: 1.0,
+        server_1: 0.0,
+        server_2: 0.0
+    }
+    next_state, rewards, done, _ = env.step(actions)
+    assert server_0 in rewards and rewards[server_0] == 1.0
+    assert len(next_state.server_tasks[server_0]) == len(state.server_tasks[server_0]) + 1
+
+    # Test all of the server bid
+    actions = {
+        server_0: 2.0,
+        server_1: 3.0,
+        server_2: 1.0
+    }
+    state, rewards, done, _ = env.step(actions)
+    assert server_2 in rewards and rewards[server_2] == 2.0
 
 
-# noinspection DuplicatedCode
 def test_env_resource_allocation_step():
     print()
-    servers_tasks = {
-        Server('Test', 220.0, 35.0, 22.0): [
-            Task('Test 1', 76.0, 36.0, 16.0, 0, 12, stage=TaskStage.LOADING, loading_progress=50.0),
-            Task('Test 2', 75.0, 37.0, 12.0, 0, 12, stage=TaskStage.COMPUTING, loading_progress=75.0, compute_progress=10.0),
-            Task('Test 3', 72.0, 47.0, 20.0, 0, 7, stage=TaskStage.COMPUTING, loading_progress=72.0, compute_progress=25.0)
-        ]
-    }
-    env, state = OnlineFlexibleResourceAllocationEnv.custom_env('resource weighting step test', 5, servers_tasks, [])
-    print('State')
+
+    env, state = OnlineFlexibleResourceAllocationEnv.load_env('env/settings/resource_allocation.env')
     print(state)
-
-    actions = {
-        server: {
-            tasks[0]: 1.0,
-            tasks[1]: 1.0,
-            tasks[2]: 2.0
-        }
-        for server, tasks in state.server_tasks.items()
-    }
-
-    next_state, rewards, done, info = env.step(actions)
-    print('Next state')
-    print(next_state)
-
-    print('rewards - {' + ', '.join(f'{server.name} server: [' + ', '.join(f'{task.name} Task: {task.stage}' for task in tasks) + ']'
-                                    for server, tasks in rewards.items()) + '}')
+    # TODO

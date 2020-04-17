@@ -1,4 +1,6 @@
-"""Tests the resource allocation in the server class"""
+"""
+Tests the resource allocation in the server class for both bandwidth/storage allocation and compute allocation
+"""
 
 from __future__ import annotations
 
@@ -22,13 +24,13 @@ def test_allocate_compute_resources(error_term=0.1):
     while tasks and it < max_iterations:
         task_weights = {task: rnd.randint(1, 25) for task in tasks}
 
-        task_resource_usage = server.allocate_compute_resources(task_weights, server.computational_comp, 0)
+        task_resource_usage = server.allocate_compute_resources(task_weights, server.computational_cap, 0)
 
-        assert sum(compute_usage for (_, compute_usage, _) in task_resource_usage.values()) < server.computational_comp + error_term
+        assert sum(compute_usage for (_, compute_usage, _) in task_resource_usage.values()) < server.computational_cap + error_term
 
         print(f'\nTask resource usage')
         for task, (storage_usage, comp_usage, bandwidth_usage) in task_resource_usage.items():
-            print(f'\t{task.name} Task - Comp Usage: {comp_usage}, Comp Progress: {task.compute_progress}, Required Comp: {task.required_comp} Stage: {task.stage}')
+            print(f'\t{task.name} Task - Comp Usage: {comp_usage}, Comp Progress: {task.compute_progress}, Required Comp: {task.required_computation} Stage: {task.stage}')
         print()
 
         tasks = [task for task in task_resource_usage.keys() if task.stage is TaskStage.COMPUTING]
@@ -67,3 +69,8 @@ def test_allocate_bandwidth_resources(error_term=0.1):
 
         tasks = [task for task in task_resource_usage.keys() if task.stage is TaskStage.LOADING or task.stage is TaskStage.SENDING]
         it += 1
+
+
+def test_resource_allocation():
+    # TODO
+    pass
