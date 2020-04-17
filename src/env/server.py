@@ -29,17 +29,23 @@ def round_float(value: float) -> float:
 class Server(NamedTuple):
     """Server class that takes a name and resource capacity for storage, computation and bandwidth"""
 
-    name: str
+    name: str  # The name of the server
 
-    storage_cap: float
-    computational_cap: float
-    bandwidth_cap: float
+    storage_cap: float        # The server storage capacity
+    computational_cap: float  # The server computational capacity
+    bandwidth_cap: float      # The server bandwidth capacity
 
     def __str__(self) -> str:
         return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.computational_cap}, ' \
                f'Bandwidth cap: {self.bandwidth_cap}'
 
+    def __eq__(self, o: object) -> bool:
+        return type(o) is Server and o.name == self.name
+
     def assert_valid(self):
+        """
+        Assert that the server object is valid
+        """
         assert 0 < self.storage_cap and 0 < self.computational_cap and 0 < self.bandwidth_cap
 
     def allocate_resources(self, resource_weights: Dict[Task, float],
