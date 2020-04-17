@@ -38,7 +38,7 @@ def test_env_save_load():
                                             if loaded_server.name == server.name), (None, None))
         assert loaded_server is not None and loaded_tasks is not None
         assert server.name == loaded_server.name and server.storage_cap == loaded_server.storage_cap and \
-            server.computational_cap == loaded_server.computation_cap and \
+            server.computational_cap == loaded_server.computational_cap and \
             server.bandwidth_cap == loaded_server.bandwidth_cap
         for task, loaded_task in zip(tasks, loaded_tasks):
             assert task.name == loaded_task.name and task.required_storage == loaded_task.required_storage and \

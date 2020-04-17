@@ -2,7 +2,7 @@
 Tests the linear exploration method used in the DQN agent
 """
 
-# TODO add comments
+# TODO add comments and epsilon policy
 
 
 def test_linear_exploration():

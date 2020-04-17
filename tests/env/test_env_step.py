@@ -68,7 +68,7 @@ def test_env_step_rnd_action():
 
 
 def test_env_auction_step():
-    env, state = OnlineFlexibleResourceAllocationEnv.load_env('env/settings/auctions.env')
+    env, state = OnlineFlexibleResourceAllocationEnv.load_env('env/settings/auction.env')
 
     server_0, server_1, server_2 = list(state.server_tasks.keys())
     assert server_0.name == 'Basic 0' and server_1.name == 'Basic 1' and server_2.name == 'Basic 2'
