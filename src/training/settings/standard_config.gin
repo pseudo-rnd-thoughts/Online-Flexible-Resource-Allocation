@@ -58,7 +58,7 @@ create_rnn_dqn_network.relu_width = 20
 #                        Dueling Dqn Networks
 create_lstm_dueling_dqn_network.lstm_width = 40
 create_lstm_dueling_dqn_network.relu_width = 20
-create_lstm_dueling_dqn_network.combiner = 'sum'
+create_lstm_dueling_dqn_network.combiner = 'avg'
 
 #                        Distributional Dqn Networks
 create_lstm_categorical_dqn_network.lstm_width = 40

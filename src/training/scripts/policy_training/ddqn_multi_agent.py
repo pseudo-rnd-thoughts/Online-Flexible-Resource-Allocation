@@ -7,7 +7,7 @@ import gin
 from agents.rl_agents.agents.dqn import TaskPricingDdqnAgent, ResourceWeightingDdqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
-from training.scripts.training_core import generate_eval_envs, run_training, setup_tensorboard
+from training.scripts.train_agents import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
     gin.parse_config_file('./train_agents/training/standard_config.gin')
