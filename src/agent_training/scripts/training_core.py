@@ -12,7 +12,6 @@ from typing import List, Dict, Tuple, Optional, TYPE_CHECKING
 import tensorflow as tf
 from tensorflow.python.ops.summary_ops_v2 import ResourceSummaryWriter
 
-from agents.rl_agents.rl_agent import AgentState
 from env.env_state import EnvState
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.task_stage import TaskStage
@@ -21,7 +20,7 @@ if TYPE_CHECKING:
     from env.server import Server
     from agents.task_pricing_agent import TaskPricingAgent
     from agents.resource_weighting_agent import ResourceWeightingAgent
-    from agents.rl_agents.rl_agent import TaskPricingRLAgent, ResourceWeightingRLAgent
+    from agents.rl_agents.rl_agents import TaskPricingRLAgent, ResourceWeightingRLAgent
 
 
 def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent],
@@ -63,7 +62,7 @@ def eval_agent(env_filenames: List[str], episode: int,
 
     total_task_prices, completed_tasks, failed_tasks = 0, 0, 0
     for env_filename in env_filenames:
-        eval_env, state = OnlineFlexibleResourceAllocationEnv.load(env_filename)
+        eval_env, state = OnlineFlexibleResourceAllocationEnv.load_env(env_filename)
         server_task_pricing_agents, server_resource_allocation_agents = allocate_agents(state, task_pricing_agents,
                                                                                         resource_weighting_agents)
 
@@ -79,8 +78,8 @@ def eval_agent(env_filenames: List[str], episode: int,
             else:
                 weighting_actions = {
                     server: {
-                        task: server_resource_allocation_agents[server].weight(task, tasks, server, state.time_step)
-                        for task in tasks
+                        task: weight
+                        for task, weight in zip(tasks, server_resource_allocation_agents[server].weight(tasks, server, state.time_step))
                     }
                     for server, tasks in state.server_tasks.items()
                 }
@@ -171,8 +170,7 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, task_pricing_
             # For each server and each server task calculate its relative weighting
             resource_weighting_actions = {
                 server: {
-                    task: server_resource_weighting_agents[server].weight(task, server_tasks, server, state.time_step)
-                    for task in server_tasks
+                    server_resource_weighting_agents[server].weight(server_tasks, server, state.time_step)
                 }
                 for server, server_tasks in state.server_tasks.items()
             }

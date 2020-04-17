@@ -1,4 +1,4 @@
-"""Training of the agent using the lstm network"""
+"""Initial training of the agents using the basic environments"""
 
 from __future__ import annotations
 
@@ -7,12 +7,12 @@ import gin
 from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent, TaskPricingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
-from train_agents.training_core import generate_eval_envs, run_training, setup_tensorboard
+from agent_training.scripts.training_core import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
     gin.parse_config_file('./train_agents/training/standard_config.gin')
 
-    folder = 'lstm_agents'
+    folder = 'dqn_agents'
     writer = setup_tensorboard(folder)
 
     env = OnlineFlexibleResourceAllocationEnv('./train_agents/env_settings/basic_env.json')
@@ -34,9 +34,9 @@ if __name__ == "__main__":
         run_training(env, eval_envs, 150, task_pricing_agents, resource_weighting_agents, 5)
 
     for agent in task_pricing_agents:
-        agent._save()
+        agent.save()
     for agent in resource_weighting_agents:
-        agent._save()
+        agent.save()
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
     print('RW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agents) + '}')
