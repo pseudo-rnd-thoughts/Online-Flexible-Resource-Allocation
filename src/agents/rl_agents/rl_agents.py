@@ -113,13 +113,20 @@ class ReinforcementLearningAgent(ABC):
         Trains the reinforcement learning agent and logs the training loss
         """
         states, actions, next_states, rewards, dones = zip(*rnd.sample(self.replay_buffer, self.batch_size))
-        print(f'States: {states}\nActions: {actions}\nNext states: {next_states}\nRewards: {rewards}\nDones: {dones}')
+        states = list(states)
+        next_states = list(next_states)
 
         states = tf.keras.preprocessing.sequence.pad_sequences(states, dtype='float32')
-        actions = tf.cast(actions, tf.float32)  # For DQN, the actions must be converted to int32
+        actions = tf.cast(tf.stack(actions), tf.float32)  # For DQN, the actions must be converted to int32
         next_states = tf.keras.preprocessing.sequence.pad_sequences(next_states, dtype='float32')
-        rewards = tf.cast(rewards, tf.float32)
-        dones = tf.cast(~dones, tf.int32)
+        rewards = tf.cast(tf.stack(rewards), tf.float32)
+        dones = tf.cast(tf.stack(dones), tf.int32)
+
+        print(f'States: {states}')
+        print(f'Actions: {actions}')
+        print(f'Next states: {next_states}')
+        print(f'Rewards: {rewards}')
+        print(f'Dones: {dones}')
 
         training_loss = self._train(states, actions, next_states, rewards, dones)
         tf.summary.scalar(f'{self.name} agent training loss', training_loss, step=self.total_obs)
@@ -152,9 +159,11 @@ class ReinforcementLearningAgent(ABC):
         """
         pass
 
-    def _add_trajectory(self, state: np.ndarray, action: float, next_state: np.ndarray,
-                        reward: float, done: bool = False):
-        self.replay_buffer.append((state, action, next_state, reward, done))
+    def _add_trajectory(self, state, action: float, next_state, reward: float, done: bool = False):
+        if done:
+            self.replay_buffer.append((state, action, next_state, reward, 0))
+        else:
+            self.replay_buffer.append((state, action, next_state, reward, 1))
 
         # Check if to train the agent
         self.total_observations += 1
@@ -336,3 +345,42 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
                 reward += (self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward) * self.reward_multiplier
 
                 self._add_trajectory(obs, action, next_obs, reward, done=True)
+
+    """
+                    if len(tasks) > 1:
+                    # Get the agent state for each task
+                    for weighted_task in tasks:
+                        # Get the last agent state that generated the weighting
+                        last_agent_state = ResourceAllocationState(weighted_task, tasks, server, state.time_step)
+                        last_action = resource_weighting_actions[server][weighted_task]
+
+                        # Get the modified task in the next state, the task may be missing if the task is finished
+                        updated_task = next((next_task for next_task in next_state.server_tasks[server]
+                                             if weighted_task == next_task), None)
+
+                        # If the task wasn't finished
+                        if updated_task:
+                            # Check if the next state contains other tasks than the updated task
+                            if len(next_state.server_tasks[server]) > 1:
+                                # Get the next observation (imagining that no new tasks were auctioned)
+                                next_agent_state = AgentState(updated_task, next_state.server_tasks[server], server,
+                                                              next_state.time_step)
+
+                                # Add the task observation with the rewards of other tasks completed
+                                server_resource_weighting_agents[server].allocation_obs(last_agent_state, last_action,
+                                                                                        next_agent_state,
+                                                                                        finished_server_tasks[server])
+                            else:
+                                # Add the task observation but without the next observations
+                                server_resource_weighting_agents[server].allocation_obs(last_agent_state, last_action, None,
+                                                                                        finished_server_tasks[server])
+                        else:
+                            # The weighted task was finished so using the finished task in the finished_server_tasks dictionary
+                            finished_task = next(finished_task for finished_task in finished_server_tasks[server]
+                                                 if finished_task == weighted_task)
+
+                            # Update the resource allocation with teh finished task observation
+                            server_resource_weighting_agents[server].finished_task_obs(last_agent_state, last_action,
+                                                                                       finished_task,
+                                                                                       finished_server_tasks[server])
+                                                                                       """
