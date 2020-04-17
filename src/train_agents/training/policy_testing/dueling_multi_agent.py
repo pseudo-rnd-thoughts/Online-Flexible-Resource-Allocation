@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import gin
 
-from agents.rl_agents.dueling_dqn import TaskPricingDuelingDqnAgent, ResourceWeightingDuelingDqnAgent
-from agents.rl_agents.neural_networks.dueling_dqn_networks import DuelingDqnLstmNetwork
+from agents.rl_agents.agents.dqn import TaskPricingDuelingDqnAgent, ResourceWeightingDuelingDqnAgent
+from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from train_agents.training_core import generate_eval_envs, run_training, setup_tensorboard
 
@@ -15,15 +15,15 @@ if __name__ == "__main__":
     folder = 'dueling_multi_agents'
     writer = setup_tensorboard(folder)
 
-    env = OnlineFlexibleResourceAllocationEnv.make('./train_agents/env_settings/basic_env.json')
+    env = OnlineFlexibleResourceAllocationEnv('./train_agents/env_settings/basic_env.json')
     eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
 
     task_pricing_agents = [
-        TaskPricingDuelingDqnAgent(agent_num, DuelingDqnLstmNetwork(9, 10), save_folder=folder)
+        TaskPricingDuelingDqnAgent(agent_num, create_lstm_dueling_dqn_network(9, 10), save_folder=folder)
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDuelingDqnAgent(agent_num, DuelingDqnLstmNetwork(10, 10), save_folder=folder)
+        ResourceWeightingDuelingDqnAgent(agent_num, create_lstm_dueling_dqn_network(10, 10), save_folder=folder)
         for agent_num in range(3)
     ]
 
@@ -34,9 +34,9 @@ if __name__ == "__main__":
         run_training(env, eval_envs, 150, task_pricing_agents, resource_weighting_agents, 5)
 
     for agent in task_pricing_agents:
-        agent._save()
+        agent.save()
     for agent in resource_weighting_agents:
-        agent._save()
+        agent.save()
 
     print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
     print(

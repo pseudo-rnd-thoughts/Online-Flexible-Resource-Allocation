@@ -17,7 +17,7 @@ if __name__ == "__main__":
     folder = 'fixed_pricing_resource_weighting'
     writer = setup_tensorboard(folder)
 
-    env = OnlineFlexibleResourceAllocationEnv.make('./train_agents/env_settings/basic_env.json')
+    env = OnlineFlexibleResourceAllocationEnv('./train_agents/env_settings/basic_env.json')
     eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
 
     fixed_task_pricing_agents = [

@@ -15,7 +15,7 @@ if __name__ == "__main__":
     folder = 'multi_envs_multi_agents'
     writer = setup_tensorboard(folder)
 
-    env = OnlineFlexibleResourceAllocationEnv.make([
+    env = OnlineFlexibleResourceAllocationEnv([
         './train_agents/env_settings/basic_env.json',
         # Todo add additional environments
     ])
