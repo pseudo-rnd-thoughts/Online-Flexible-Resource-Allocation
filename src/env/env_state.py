@@ -26,7 +26,7 @@ class EnvState(NamedTuple):
         auction_task_str = str(self.auction_task) if self.auction_task else 'None'
         return f'Env State ({hex(id(self))}) at time step: {self.time_step}\n' \
                f'\tAuction Task -> {auction_task_str}\n' \
-               f'\tServers -> {server_tasks_str}'
+               f'\tServers -> {{{server_tasks_str}}}'
 
     # noinspection PyUnusedLocal
     def _repr_pretty_(self, p, cycle):

@@ -32,12 +32,15 @@ class Server(NamedTuple):
     name: str
 
     storage_cap: float
-    computational_comp: float
+    computational_cap: float
     bandwidth_cap: float
 
     def __str__(self) -> str:
-        return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.computational_comp}, ' \
+        return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.computational_cap}, ' \
                f'Bandwidth cap: {self.bandwidth_cap}'
+
+    def assert_valid(self):
+        assert 0 < self.storage_cap and 0 < self.computational_cap and 0 < self.bandwidth_cap
 
     def allocate_resources(self, resource_weights: Dict[Task, float],
                            time_step: int, error_term: float = 0.1) -> Tuple[List[Task], List[Task]]:
@@ -69,7 +72,7 @@ class Server(NamedTuple):
 
         # Resource available, storage is special because some storage is already used due to the previous stage
         available_storage: float = self.storage_cap - sum(task.loading_progress for task in resource_weights.keys())
-        available_computation: float = self.computational_comp
+        available_computation: float = self.computational_cap
         available_bandwidth: float = self.bandwidth_cap
 
         # Allocate computational resources to the tasks at computing stage
@@ -91,7 +94,7 @@ class Server(NamedTuple):
             assert task in list(resource_weights.keys())
         # Assert that the resources used are less than available resources
         assert sum(storage_usage for (storage_usage, _, _) in task_resource_usage.values()) <= self.storage_cap + error_term
-        assert sum(compute_usage for (_, compute_usage, _) in task_resource_usage.values()) <= self.computational_comp + error_term
+        assert sum(compute_usage for (_, compute_usage, _) in task_resource_usage.values()) <= self.computational_cap + error_term
         assert sum(bandwidth_usage for (_, _, bandwidth_usage) in task_resource_usage.values()) <= self.bandwidth_cap + error_term
 
         # Group the updated tasks in those completed or failed and those still ongoing
@@ -135,11 +138,12 @@ class Server(NamedTuple):
 
             for task, weight in compute_weights.items():
                 # If the weight compute resources are less than the needed computational resources, allocate only the required resources
-                if task.required_comp - task.compute_progress <= weight * compute_unit:
-                    compute_resources = round_float(task.required_comp - task.compute_progress)  # The required resources
+                if task.required_computation - task.compute_progress <= weight * compute_unit:
+                    compute_resources = round_float(task.required_computation - task.compute_progress)  # The required resources
 
                     # Set the updated task with the new resources and the resource used by the task
-                    task_resource_usage[task.compute(compute_resources, time_step)] = (task.required_storage, compute_resources, 0)
+                    updated_task = task.allocate_compute_resources(compute_resources, time_step)
+                    task_resource_usage[updated_task] = (task.required_storage, compute_resources, 0)
                     available_computation = round_float(available_computation - compute_resources)
                     task_updated = True
 
@@ -154,7 +158,8 @@ class Server(NamedTuple):
             for task, weight in compute_weights.items():
                 # Updated the task with the compute resources
                 compute_resources = round_float(compute_unit * weight)
-                task_resource_usage[task.compute(compute_resources, time_step)] = (task.required_storage, compute_resources, 0)
+                updated_task = task.allocate_compute_resources(compute_resources, time_step)
+                task_resource_usage[updated_task] = (task.required_storage, compute_resources, 0)
 
         return task_resource_usage
 
@@ -193,7 +198,8 @@ class Server(NamedTuple):
                 if task.required_results_data - task.sending_progress <= weight * bandwidth_unit:
                     # Calculate the sending resources, update the task and resource usage, and bandwidth availability
                     sending_resources = round_float(task.required_results_data - task.sending_progress)
-                    task_resource_usage[task.sending(sending_resources, time_step)] = (task.required_storage, 0, sending_resources)
+                    updated_task = task.allocate_sending_resources(sending_resources, time_step)
+                    task_resource_usage[updated_task] = (task.required_storage, 0, sending_resources)
                     available_bandwidth = round_float(available_bandwidth - sending_resources)
 
                     update_task = True
@@ -207,7 +213,8 @@ class Server(NamedTuple):
                 if task.required_storage - task.loading_progress <= min(weight * bandwidth_unit, available_storage, available_bandwidth):
                     loading_resources = round_float(task.required_storage - task.loading_progress)
 
-                    task_resource_usage[task.loading(loading_resources, time_step)] = (task.required_storage, 0, loading_resources)
+                    updated_task = task.allocate_loading_resources(loading_resources, time_step)
+                    task_resource_usage[updated_task] = (task.required_storage, 0, loading_resources)
                     available_storage = round_float(available_storage - loading_resources)
                     available_bandwidth = round_float(available_bandwidth - loading_resources)
 
@@ -222,9 +229,10 @@ class Server(NamedTuple):
             # Try to allocate resources for loading te
             for task, weight in loading_weights.items():
                 # Calculate the loading resources available to the task
-                loading_resources = round_float(min(round_float(available_bandwidth / bandwidth_total_weights * weight), available_storage))
+                loading_resources = round_float(min(round_float(available_bandwidth / bandwidth_total_weights * weight),
+                                                    available_storage))
 
-                updated_task = task.loading(loading_resources, time_step)
+                updated_task = task.allocate_loading_resources(loading_resources, time_step)
                 task_resource_usage[updated_task] = (updated_task.loading_progress, 0, loading_resources)
 
                 available_storage = round_float(available_storage - loading_resources)
@@ -240,7 +248,8 @@ class Server(NamedTuple):
                     if task.required_results_data - task.sending_progress <= weight * bandwidth_unit:
                         # Calculate the sending resources, update the task and resource usage, and bandwidth availability
                         sending_resources = round_float(task.required_results_data - task.sending_progress)
-                        task_resource_usage[task.sending(sending_resources, time_step)] = (task.required_storage, 0, sending_resources)
+                        updated_task = task.allocate_sending_resources(sending_resources, time_step)
+                        task_resource_usage[updated_task] = (task.required_storage, 0, sending_resources)
 
                         available_bandwidth = round_float(available_bandwidth - sending_resources)
                         bandwidth_total_weights -= weight
@@ -254,6 +263,7 @@ class Server(NamedTuple):
                 bandwidth_unit = round_float(available_bandwidth / bandwidth_total_weights)
                 for task, weight in sending_weights.items():
                     sending_resources = round_float(bandwidth_unit * weight)
-                    task_resource_usage[task.sending(sending_resources, time_step)] = (task.required_storage, 0, sending_resources)
+                    updated_task = task.allocate_sending_resources(sending_resources, time_step)
+                    task_resource_usage[updated_task] = (task.required_storage, 0, sending_resources)
 
         return task_resource_usage
