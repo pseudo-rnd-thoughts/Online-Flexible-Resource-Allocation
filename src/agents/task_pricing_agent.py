@@ -4,7 +4,7 @@ Abstract task pricing agent with the abstract method _get_action function to cho
 
 from __future__ import annotations
 
-import abc
+from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from env.server import Server
@@ -12,13 +12,12 @@ from env.task import Task
 from env.task_stage import TaskStage
 
 
-# noinspection DuplicatedCode
-class TaskPricingAgent(abc.ABC):
+class TaskPricingAgent(ABC):
     """
     Task pricing agent used in Online Flexible Resource Allocation Env in order to price tasks being being auctioned
     """
 
-    def __init__(self, name, limit_number_task_parallel: Optional[int] = None):
+    def __init__(self, name: str, limit_number_task_parallel: Optional[int] = None):
         self.name = name
 
         self.limit_number_task_parallel = limit_number_task_parallel
@@ -45,7 +44,7 @@ class TaskPricingAgent(abc.ABC):
                    for allocated_task in allocated_tasks)
 
         if self.limit_number_task_parallel is not None and len(allocated_tasks) < self.limit_number_task_parallel:
-            action = self.get_action(auction_task, allocated_tasks, server, time_step)
+            action = self._get_action(auction_task, allocated_tasks, server, time_step)
             # Assert that the resulting action is valid
             assert 0 <= action
 
@@ -53,8 +52,8 @@ class TaskPricingAgent(abc.ABC):
         else:
             return 0.0
 
-    @abc.abstractmethod
-    def get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
+    @abstractmethod
+    def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         """
         An abstract method that takes an auction task, a list of allocated tasks, a server
             and the current time step to return a bid price

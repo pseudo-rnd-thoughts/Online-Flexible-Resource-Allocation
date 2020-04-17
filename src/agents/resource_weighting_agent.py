@@ -5,16 +5,15 @@ Abstract resource weighting with the abstract method _get_action function to cho
 
 from __future__ import annotations
 
-import abc
-from typing import List
+from abc import ABC, abstractmethod
+from typing import List, Dict
 
 from env.server import Server
 from env.task import Task
 from env.task_stage import TaskStage
 
 
-# noinspection DuplicatedCode
-class ResourceWeightingAgent(abc.ABC):
+class ResourceWeightingAgent(ABC):
     """
     Resource Weighting agent used in Online Flexible Resource Allocation Env in order to weight tasks
     """
@@ -22,48 +21,44 @@ class ResourceWeightingAgent(abc.ABC):
     def __init__(self, name):
         self.name = name
 
-    def weight(self, allocated_tasks: List[Task], server: Server, time_step: int) -> List[float]:
+    def weight(self, allocated_tasks: List[Task], server: Server, time_step: int) -> Dict[Task, float]:
         """
-        Weights a task on the server with a list of already allocated tasks at time step
+        Returns a dictionary of task with weights on server at time step
 
         Args:
-            allocated_tasks: The already allocated tasks to the server (includes the weighted task as well)
-            server: The server weighting the task
+            allocated_tasks: List of the allocated tasks on the server
+            server: The server that the allocated tasks are running on
             time_step: The time step of the environment
 
-        Returns: The weight for a task
+        Returns: A dictionary of tasks to weights
 
         """
-        # If the length of allocated task is more than 1
-        if 1 < len(allocated_tasks):
-            # Assert that the task input variables are valid
-            assert all(allocated_task.stage is not TaskStage.UNASSIGNED or allocated_task.stage is not TaskStage.FAILED
-                       or allocated_task.stage is not TaskStage.COMPLETED for allocated_task in allocated_tasks)
-            assert all(allocated_task.auction_time <= time_step <= allocated_task.deadline
-                       for allocated_task in allocated_tasks)
+        assert all(task.stage is TaskStage.LOADING and task.stage is TaskStage.COMPUTING and task.stage is TaskStage.SENDING
+                   for task in allocated_tasks)
+        assert all(task.auction_time <= time_step <= task.deadline for task in allocated_tasks)
 
-            actions = self.get_actions(allocated_tasks, server, time_step)
-            assert all(0 <= action for action in actions)
+        if len(allocated_tasks) <= 1:
+            return {task: 1.0 for task in allocated_tasks}
+        else:
+            actions = self._get_actions(allocated_tasks, server, time_step)
+            assert len(allocated_tasks) == len(actions)
+            assert all(task in allocated_tasks for task in actions.keys())
+            assert all(0 <= action for action in actions.values())
 
             return actions
-        else:
-            # If the weight task is only task allocated to the server
-            assert len(allocated_tasks) == 1
 
-            return [1.0]
-
-    @abc.abstractmethod
-    def get_actions(self, tasks: List[Task], server: Server, time_step: int) -> List[float]:
+    @abstractmethod
+    def _get_actions(self, tasks: List[Task], server: Server, time_step: int) -> Dict[Task, float]:
         """
-        An abstract method that takes an task, a list of allocated tasks, a server
-            and the current time step to return the weight for the task
+        An abstract method that takes a list of allocated tasks, a server and the current time of the environment
+            to return a dictionary of the task to weights
 
         Args:
             tasks: All of the allocated tasks to the server
-            server: The server weighting the task
+            server: The server running the tasks
             time_step: The time step of the environment
 
-        Returns: The weight for a task
+        Returns: A dictionary of tasks to weights
 
         """
         pass
