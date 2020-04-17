@@ -69,12 +69,15 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         self.model_network.save_weights(path)
 
     @tf.function
-    def _train(self, states, actions, next_states, rewards, dones) -> float:
-        # Actions are discrete so
+    def _train(self, states: tf.Tensor, actions: tf.Tensor,
+               next_states: tf.Tensor, rewards: tf.Tensor, dones: tf. Tensor) -> float:
+        # Actions are discrete so cast to int32 from float32
         actions = tf.cast(actions, tf.int32)
 
         network_variables = self.model_network.trainable_variables
         with tf.GradientTape() as tape:
+            tape.watch(network_variables)
+
             # Calculate the state q values for the actions
             state_q_values = self.model_network(states)
             state_action_indexes = tf.stack([tf.range(self.batch_size), actions], axis=-1)
@@ -123,7 +126,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
         TaskPricingRLAgent.__init__(self, f'DQN TP {agent_name}' if type(agent_name) is int else agent_name, **kwargs)
 
     @staticmethod
-    def network_obs(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
+    def network_obs(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         """
         Network observation for the Q network
 
@@ -137,11 +140,9 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
 
         """
 
-        observation = np.array([
-            [ReinforcementLearningAgent.normalise_task(auction_task, server, time_step) + [1.0]] +
-            [ReinforcementLearningAgent.normalise_task(allocated_task, server, time_step) + [0.0]
-             for allocated_task in allocated_tasks]
-        ]).astype(np.float32)
+        observation = [ReinforcementLearningAgent.normalise_task(auction_task, server, time_step) + [1.0]] + \
+                      [ReinforcementLearningAgent.normalise_task(allocated_task, server, time_step) + [0.0]
+                       for allocated_task in allocated_tasks]
 
         return observation
 
@@ -165,7 +166,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
                                           **kwargs)
 
     @staticmethod
-    def network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
+    def network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         """
         Network observation for the Q network
 
@@ -181,10 +182,10 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
         assert 1 < len(allocated_tasks)
 
         task_observation = ReinforcementLearningAgent.normalise_task(weighting_task, server, time_step)
-        observation = np.array([[
+        observation = [
             task_observation + ReinforcementLearningAgent.normalise_task(allocated_task, server, time_step)
             for allocated_task in allocated_tasks if weighting_task != allocated_task
-        ]]).astype(np.float32)
+        ]
 
         return observation
 
