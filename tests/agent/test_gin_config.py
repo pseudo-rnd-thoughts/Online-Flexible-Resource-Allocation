@@ -7,10 +7,12 @@ import gin
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network
 
+# TODO add comments
+
 
 def test_agent_gin():
     gin.parse_config("""
-    import agents.rl_agents.rl_agent
+    import agents.rl_agents.rl_agents
 
     ReinforcementLearningAgent.save_frequency = 4
     """)
@@ -20,6 +22,6 @@ def test_agent_gin():
 
 
 def test_standard_gin_config():
-    gin.parse_config_file('../../src/train_agents/training/standard_config.gin')
+    gin.parse_config_file('../../src/agent_training/settings/standard_config.gin')
 
     TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10))

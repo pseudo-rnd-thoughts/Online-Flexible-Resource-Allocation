@@ -2,6 +2,8 @@
 Tests the linear exploration method used in the DQN agent
 """
 
+# TODO add comments
+
 
 def test_linear_exploration():
     initial_exploration = 1

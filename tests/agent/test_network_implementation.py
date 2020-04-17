@@ -1,9 +1,8 @@
-"""Checks that neural networks can be differentiated using DQN loss function"""
+"""
+Checks that neural networks can be differentiated using DQN loss function
+"""
 
 from __future__ import annotations
-
-import numpy as np
-import tensorflow as tf
 
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network, create_bidirectional_dqn_network, \
@@ -11,6 +10,8 @@ from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_networ
 from env.server import Server
 from env.task import Task
 from env.task_stage import TaskStage
+
+# TODO Add comments
 
 
 def test_network_output_shape():
@@ -30,12 +31,17 @@ def test_network_output_shape():
         create_gru_dqn_network(9, 3): (1, 3),
         create_rnn_dqn_network(9, 3): (1, 3),
         create_lstm_dueling_dqn_network(9, 3): (1, 3),
-        create_lstm_categorical_dqn_network(9, 3, num_atoms=10): (3, 1, 10),
+        create_lstm_dueling_dqn_network(9, 3, combiner='max'): (1, 3),
     }
 
     dqn_obs = TaskPricingDqnAgent.network_obs(auction_task, allocated_tasks, server, 0)
     for network, output_shape in dqn_networks.items():
         output = network(dqn_obs)
-        print(network.name, output, output.shape)
+        print(f'Network: {network.name}, Output: {output}, shape: {output.shape}')
         print()
         assert output.shape == output_shape, f'{output}, {output.shape}'
+
+    network = create_lstm_categorical_dqn_network(9, 3, num_atoms=10)
+    output = network(dqn_obs)
+    print(f'Network: {network.name}, Output: {output}')
+    assert len(output) == 3 and all(output_layer.shape == (1, 10) for output_layer in output)
