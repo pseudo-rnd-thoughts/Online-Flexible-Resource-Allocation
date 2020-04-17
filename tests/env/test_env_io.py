@@ -25,7 +25,7 @@ def test_env_save_load():
                 server: random_resource_weighting.weight(tasks, server, state.time_step)
                 for server, tasks in state.server_tasks.items()
             }
-        env_state, rewards, done, info = env.step(actions)
+        state, rewards, done, info = env.step(actions)
 
     env.save_env('env/settings/tmp/save.env')
     loaded_env, loaded_env_state = env.load_env('env/settings/tmp/save.env')

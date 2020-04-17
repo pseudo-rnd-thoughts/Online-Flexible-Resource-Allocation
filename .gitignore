@@ -5,10 +5,10 @@
 *.pyc
 
 # Agent training results and evaluation environments
-src/agent_training/results/logs
-src/agent_training/results/checkpoint
-src/agent_training/results/.ipynb_checkpoints
-src/agent_training/eval_envs
+src/training/results/logs
+src/training/results/checkpoint
+src/training/results/.ipynb_checkpoints
+src/training/eval_envs
 
 # Additional Latex files
 /final_report/chapters/*.aux
