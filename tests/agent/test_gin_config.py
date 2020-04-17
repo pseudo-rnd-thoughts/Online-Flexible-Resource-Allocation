@@ -22,6 +22,6 @@ def test_agent_gin():
 
 
 def test_standard_gin_config():
-    gin.parse_config_file('../../src/training/settings/standard_config.gin')
+    gin.parse_config_file('../src/training/settings/standard_config.gin')
 
     TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10))
