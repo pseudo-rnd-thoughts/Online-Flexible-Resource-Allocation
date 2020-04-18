@@ -59,9 +59,9 @@ def test_resource_allocation_training():
     print()
     # List of agents
     agents: List[ResourceWeightingRLAgent] = [
-        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(10, 10), batch_size=4),
-        ResourceWeightingDdqnAgent(1, create_lstm_dqn_network(10, 10), batch_size=4),
-        ResourceWeightingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(10, 10), batch_size=4),
+        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 10), batch_size=4),
+        ResourceWeightingDdqnAgent(1, create_lstm_dqn_network(16, 10), batch_size=4),
+        ResourceWeightingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(16, 10), batch_size=4),
     ]
 
     # Load the environment
