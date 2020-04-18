@@ -33,9 +33,11 @@ class ResourceWeightingAgent(ABC):
         Returns: A dictionary of tasks to weights
 
         """
-        assert all(task.stage is TaskStage.LOADING and task.stage is TaskStage.COMPUTING and task.stage is TaskStage.SENDING
-                   for task in allocated_tasks)
-        assert all(task.auction_time <= time_step <= task.deadline for task in allocated_tasks)
+        assert all(task.stage is TaskStage.LOADING or task.stage is TaskStage.COMPUTING or
+                   task.stage is TaskStage.SENDING for task in allocated_tasks), \
+            ', '.join([f'{task.name}: {task.stage}' for task in allocated_tasks])
+        assert all(task.auction_time <= time_step <= task.deadline for task in allocated_tasks), \
+            '\n'.join([str(task) for task in allocated_tasks])
 
         if len(allocated_tasks) <= 1:
             return {task: 1.0 for task in allocated_tasks}
@@ -44,6 +46,7 @@ class ResourceWeightingAgent(ABC):
             assert len(allocated_tasks) == len(actions)
             assert all(task in allocated_tasks for task in actions.keys())
             assert all(0 <= action for action in actions.values())
+            assert all(type(action) is float for action in actions.values())
 
             return actions
 
