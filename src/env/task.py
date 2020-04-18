@@ -69,7 +69,6 @@ class Task(NamedTuple):
             time_step: The time step that the resources are applied at
 
         Returns: The updated task
-
         """
         assert self.stage is TaskStage.COMPUTING and self.compute_progress < self.required_computation
         updated_compute_progress = round_float(self.compute_progress + compute_resources)
@@ -85,7 +84,6 @@ class Task(NamedTuple):
             time_step: The time step that the resources are applied at
 
         Returns: The updated task
-
         """
         assert self.stage is TaskStage.SENDING and self.sending_progress < self.required_results_data
         updated_sending_progress = round_float(self.sending_progress + sending_resources)
@@ -122,11 +120,14 @@ class Task(NamedTuple):
             assert self.price == -1
         else:
             assert 0 < self.price
-            if self.stage is TaskStage.LOADING:
+            if self.stage is TaskStage.FAILED:
+                pass
+            elif self.stage is TaskStage.LOADING:
                 assert self.loading_progress < self.required_storage
                 assert self.compute_progress == self.sending_progress == 0
             else:
-                assert self.required_storage <= self.loading_progress, str(self)
+                assert self.required_storage <= self.loading_progress, \
+                    f'Required storage: {self.required_storage}, loading progress: {self.loading_progress}, {str(self)}'
                 if self.stage is TaskStage.COMPUTING:
                     assert self.compute_progress < self.required_computation, \
                         f'Failed {self.name} Task compute progress: {self.compute_progress} < ' \
@@ -134,12 +135,13 @@ class Task(NamedTuple):
                     assert self.sending_progress == 0, \
                         f'Failed {self.name} Task is Computing but has sending progress: {self.sending_progress}'
                 else:
-                    assert self.required_computation <= self.compute_progress
+                    assert self.required_computation <= self.compute_progress, \
+                        f'Required computation: {self.required_computation}, compute progress: {self.compute_progress}'
                     if self.stage is TaskStage.SENDING:
                         assert self.sending_progress < self.required_results_data
                     else:
                         if self.stage is TaskStage.COMPLETED:
-                            assert self.required_results_data <= self.sending_progress
+                            assert self.required_results_data == self.sending_progress
                         else:
                             assert self.stage is TaskStage.FAILED
 
@@ -169,7 +171,7 @@ class Task(NamedTuple):
             return f'{self.name} Task ({hex(id(self))}) - Completed, Storage: {self.required_storage}, ' \
                    f'Computation: {self.required_computation}, Results data: {self.required_results_data}, ' \
                    f'Auction time: {self.auction_time}, Deadline: {self.deadline}'
-        elif self.stage is TaskStage.INCOMPLETE:
+        elif self.stage is TaskStage.FAILED:
             return f'{self.name} Task ({hex(id(self))}) - Failed, Storage: {self.required_storage}, ' \
                    f'Computation: {self.required_computation}, Results data: {self.required_results_data}, ' \
                    f'Auction time: {self.auction_time}, Deadline: {self.deadline}'
