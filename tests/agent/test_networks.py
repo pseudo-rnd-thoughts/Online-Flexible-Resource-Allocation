@@ -4,6 +4,8 @@ Checks that neural networks can be differentiated using DQN loss function
 
 from __future__ import annotations
 
+import tensorflow as tf
+
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network, create_bidirectional_dqn_network, \
     create_rnn_dqn_network, create_gru_dqn_network, create_lstm_dueling_dqn_network, create_lstm_categorical_dqn_network
@@ -12,7 +14,7 @@ from env.task import Task
 from env.task_stage import TaskStage
 
 
-def test_dqn_networks():
+def test_networks():
     print()
     # Environment setup
     auction_task = Task('Test 4', 69.0, 35.0, 10.0, 0, 12)
@@ -30,7 +32,7 @@ def test_dqn_networks():
     server.assert_valid()
 
     # List of networks
-    networks = [
+    pricing_networks = [
         create_bidirectional_dqn_network(9, 3),
         create_lstm_dqn_network(9, 3),
         create_gru_dqn_network(9, 3),
@@ -38,29 +40,38 @@ def test_dqn_networks():
         create_lstm_dueling_dqn_network(9, 3),
         create_lstm_dueling_dqn_network(9, 3, combiner='max')
     ]
+    weighting_networks = [
+        create_bidirectional_dqn_network(16, 3),
+        create_lstm_dqn_network(16, 3),
+        create_gru_dqn_network(16, 3),
+        create_rnn_dqn_network(16, 3),
+        create_lstm_dueling_dqn_network(16, 3),
+        create_lstm_dueling_dqn_network(16, 3, combiner='max')
+    ]
 
     # Network observations
-    auction_obs = TaskPricingDqnAgent.network_obs(auction_task, allocated_tasks, server, 0)
-    resource_allocation_obs = ResourceWeightingDqnAgent.network_obs(allocated_tasks[0], allocated_tasks, server, 0)
+    auction_obs = tf.expand_dims(TaskPricingDqnAgent.network_obs(auction_task, allocated_tasks, server, 0), axis=0)
+    resource_allocation_obs = tf.expand_dims(ResourceWeightingDqnAgent.network_obs(allocated_tasks[0], allocated_tasks, server, 0), axis=0)
     print(f'Auction obs: {auction_obs}')
     print(f'Resource allocation obs: {resource_allocation_obs}')
 
     # Loop over the networks to find the output and output shape is correct
-    for network in networks:
-        auction_output = network(auction_obs)
-        resource_output = network(resource_allocation_obs)
-        print(f'Network: {network.name}'
+    for pricing_network, weighting_network in zip(pricing_networks, weighting_networks):
+        auction_output = pricing_network(auction_obs)
+        resource_output = weighting_network(resource_allocation_obs)
+        print(f'Network: {pricing_network.name}'
               f'\n\tAuction output: {auction_output} ({auction_output.shape})'
               f'\n\tResource allocation output: {resource_output} ({resource_output.shape})')
         assert auction_output.shape == (1, 3)
         assert resource_output.shape == (1, 3)
 
     # Check of the categorical dqn networks as it is a special case
-    network = create_lstm_categorical_dqn_network(9, 3, num_atoms=10)
-    auction_output = network(auction_obs)
-    resource_output = network(resource_allocation_obs)
-    print(f'Network: {network.name}'
-          f'\n\tAuction output: {auction_output} ({auction_output.shape})'
-          f'\n\tResource allocation output: {resource_output} ({resource_output.shape})')
-    assert all(output.shape == (1, 3) for output in auction_output)
-    assert all(output.shape == (1, 3) for output in resource_output)
+    pricing_network = create_lstm_categorical_dqn_network(9, 3, num_atoms=10)
+    weighting_network = create_lstm_categorical_dqn_network(16, 3, num_atoms=10)
+    auction_output = pricing_network(auction_obs)
+    resource_output = weighting_network(resource_allocation_obs)
+    print(f'Network: {pricing_network.name}'
+          f'\n\tAuction output: {auction_output}'
+          f'\n\tResource allocation output: {resource_output}')
+    assert all(output.shape == (1, 10) for output in auction_output)
+    assert all(output.shape == (1, 10) for output in resource_output)
