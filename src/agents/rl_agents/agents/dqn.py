@@ -9,7 +9,6 @@ from abc import ABC
 from typing import List, Union, Optional, Dict
 
 import gin.tf
-import numpy as np
 import tensorflow as tf
 
 from agents.rl_agents.rl_agents import ReinforcementLearningAgent, ResourceWeightingRLAgent, TaskPricingRLAgent
@@ -59,7 +58,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         if custom_location:
             path = f'{os.getcwd()}/{custom_location}'
         else:
-            path = f'{os.getcwd()}/train_agents/results/checkpoint/{self.save_folder}/{self.name.replace(" ", "_")}'
+            path = f'{os.getcwd()}/training/results/checkpoints/{self.save_folder}/{self.name.replace(" ", "_")}'
 
         # Create the directory if it doesn't exist
         if not os.path.exists(path):
@@ -68,7 +67,6 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         # Save the model network weights to the path
         self.model_network.save_weights(path)
 
-    @tf.function
     def _train(self, states: tf.Tensor, actions: tf.Tensor,
                next_states: tf.Tensor, rewards: tf.Tensor, dones: tf. Tensor) -> float:
         # Actions are discrete so cast to int32 from float32
@@ -83,9 +81,11 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
             state_action_indexes = tf.stack([tf.range(self.batch_size), actions], axis=-1)
             states_actions_q_values = tf.gather_nd(state_q_values, state_action_indexes)
 
-            # Calculate the next state q values for the next actions (important as separate function for double dqn)
+            # Calculate the next state q values for the next actions (important as a separate function for double dqn)
             next_states_actions_q_values = self._compute_next_q_values(next_states)
+
             # Calculate the target using the rewards, discount factor, next q values and dones
+            # noinspection PyTypeChecker
             target = tf.stop_gradient(rewards + self.discount_factor * next_states_actions_q_values * dones)
 
             # Calculate the element wise loss
@@ -104,7 +104,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
         return loss
 
-    def _compute_next_q_values(self, next_states):
+    def _compute_next_q_values(self, next_states: tf.Tensor):
         next_state_q_values = self.target_network(next_states)
         next_actions = tf.math.argmax(next_state_q_values, axis=1, output_type=tf.int32)
         next_state_action_indexes = tf.stack([tf.range(self.batch_size), next_actions], axis=-1)
@@ -147,8 +147,10 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
         return observation
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
-        observation = self.network_obs(auction_task, allocated_tasks, server, time_step)
-        return tf.math.argmax(self.model_network(observation), axis=0, output_type=tf.float32)
+        observation = tf.expand_dims(self.network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
+        q_values = self.model_network(observation)
+        action = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
+        return action
 
 
 @gin.configurable
@@ -157,7 +159,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
     Resource weighting DQN agent
     """
 
-    resource_obs_width: int = 10
+    resource_obs_width: int = 16
 
     def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, **kwargs):
         assert network.input_shape[-1] == self.resource_obs_width
@@ -190,9 +192,11 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
         return observation
 
     def _get_actions(self, tasks: List[Task], server: Server, time_step: int) -> Dict[Task, float]:
-        observations = [self.network_obs(task, tasks, server, time_step) for task in tasks]
-        actions = tf.math.argmax(self.model_network(observations), axis=1, output_type=tf.int32)
-        return {task: action for task, action in zip(tasks, actions)}
+        observations = tf.convert_to_tensor([self.network_obs(task, tasks, server, time_step) for task in tasks],
+                                            dtype='float32')
+        q_values = self.model_network(observations)
+        actions = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
+        return {task: float(action) for task, action in zip(tasks, actions)}
 
 
 """
@@ -255,11 +259,19 @@ class DuelingDQN(DdqnAgent, ABC):
 
     def __init__(self, network: tf.keras.Model, double_loss: bool = False, **kwargs):
         DqnAgent.__init__(self, network, **kwargs)
+        self.double_loss = double_loss
 
-        if double_loss:
-            self._compute_next_q_values = DdqnAgent._compute_next_q_values
+    def _compute_next_q_values(self, next_states):
+        if self.double_loss:
+            target_q_values = self.target_network(next_states)
+            next_actions = tf.math.argmax(target_q_values, axis=1, output_type=tf.int32)
+            next_state_q_values = self.model_network(next_states)
         else:
-            self._compute_next_q_values = DqnAgent._compute_next_q_values
+            next_state_q_values = self.target_network(next_states)
+            next_actions = tf.math.argmax(next_state_q_values, axis=1, output_type=tf.int32)
+
+        action_indexes = tf.stack([tf.range(self.batch_size), next_actions], axis=-1)
+        return tf.gather_nd(next_state_q_values, action_indexes)
 
 
 @gin.configurable
