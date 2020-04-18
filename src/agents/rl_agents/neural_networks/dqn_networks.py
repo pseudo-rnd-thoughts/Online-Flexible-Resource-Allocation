@@ -30,7 +30,7 @@ def create_bidirectional_dqn_network(input_width: int, num_actions: int, lstm_wi
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(bidirectional_layer)
     q_layer = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
 
-    return tf.keras.Model(name='Bidirectional LSTM Dqn', inputs=input_layer, outputs=q_layer)
+    return tf.keras.Model(name='Bidirectional_LSTM_Dqn', inputs=input_layer, outputs=q_layer)
 
 
 @gin.configurable
@@ -52,7 +52,7 @@ def create_lstm_dqn_network(input_width: int, num_actions: int, lstm_width: int 
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
     q_layer = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
 
-    return tf.keras.Model(name='LSTM Dqn', inputs=input_layer, outputs=q_layer)
+    return tf.keras.Model(name='LSTM_Dqn', inputs=input_layer, outputs=q_layer)
 
 
 @gin.configurable
@@ -74,7 +74,7 @@ def create_gru_dqn_network(input_width: int, num_actions: int, gru_width: int = 
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(gru_layer)
     q_layer = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
 
-    return tf.keras.Model(name='GRU Dqn', inputs=input_layer, outputs=q_layer)
+    return tf.keras.Model(name='GRU_Dqn', inputs=input_layer, outputs=q_layer)
 
 
 @gin.configurable
@@ -96,7 +96,7 @@ def create_rnn_dqn_network(input_width: int, num_actions: int, rnn_width: int = 
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(rnn_layer)
     q_layer = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
 
-    return tf.keras.Model(name='RNN Dqn', inputs=input_layer, outputs=q_layer)
+    return tf.keras.Model(name='RNN_Dqn', inputs=input_layer, outputs=q_layer)
 
 
 @gin.configurable
@@ -127,7 +127,7 @@ def create_lstm_dueling_dqn_network(input_width: int, num_actions: int,
     else:
         raise Exception(f'Unknown combiner function ({combiner})')
 
-    return tf.keras.Model(name='LSTM Dueling Dqn', inputs=input_layer, outputs=dueling_q_layer)
+    return tf.keras.Model(name='LSTM_Dueling_Dqn', inputs=input_layer, outputs=dueling_q_layer)
 
 
 @gin.configurable
@@ -149,7 +149,7 @@ def create_lstm_categorical_dqn_network(input_width: int, num_actions: int,
     input_layer = tf.keras.layers.Input(shape=(None, input_width))
     lstm_layer = tf.keras.layers.LSTM(lstm_width)(input_layer)
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
-    distribution_layer = [tf.keras.layers.Dense(num_atoms, activation='linear')(relu_layer)
-                          for _ in range(num_actions)]
+    distribution_layers = [tf.keras.layers.Dense(num_atoms, activation='linear')(relu_layer)
+                           for _ in range(num_actions)]
 
-    return tf.keras.Model(name='LSTM Categorical Dqn', inputs=input_layer, outputs=distribution_layer)
+    return tf.keras.Model(name='LSTM_Categorical_Dqn', inputs=input_layer, outputs=distribution_layers)
