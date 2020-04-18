@@ -55,11 +55,15 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
 
             self.env_name = env_name
             self._total_time_steps = total_time_steps
-            self._unallocated_tasks = sorted(list(tasks), key=operator.attrgetter('auction_time'))
+            self._unallocated_tasks: List[tasks] = list(tasks)
+            assert all(tasks[pos].auction_time <= tasks[pos+1].auction_time for pos in range(len(tasks)-1))
             if self._unallocated_tasks:
                 assert time_step <= self._unallocated_tasks[0].auction_time
-                auction_task = self._unallocated_tasks.pop(0) if self._unallocated_tasks[
-                                                                     0].auction_time == time_step else None
+
+                if self._unallocated_tasks[0].auction_time == time_step:
+                    auction_task = self._unallocated_tasks.pop(0)
+                else:
+                    auction_task = None
             else:
                 auction_task = None
             self._state = EnvState(server_tasks, auction_task, time_step)
@@ -186,7 +190,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
                     next_server_tasks[server], rewards[server] = server.allocate_resources(task_resource_weights,
                                                                                            self._state.time_step)
                 else:
-                    next_server_tasks[server] = []
+                    next_server_tasks[server], rewards[server] = [], []
 
             # The updated state
             next_state = EnvState(next_server_tasks,
@@ -200,6 +204,11 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
         assert all(id(task) != id(_task)
                    for tasks in self._state.server_tasks.values() for task in tasks
                    for _tasks in next_state.server_tasks.values() for _task in _tasks)
+        assert all(task.stage is TaskStage.LOADING or task.stage is TaskStage.COMPUTING or task.stage is TaskStage.SENDING
+                   for server, tasks in next_state.server_tasks.items() for task in tasks)
+        for server, tasks in next_state.server_tasks.items():
+            for task in tasks:
+                task.assert_valid()
 
         self._state = next_state
         return self._state, rewards, self._total_time_steps < self._state.time_step, info
@@ -237,8 +246,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
             task.assert_valid()
 
         # Add the auction task to the beginning of the unallocated task list
-        if self._state.auction_task is not None:
-            self._unallocated_tasks.insert(0, self._state.auction_task)
+        tasks = ([] if self._state.auction_task is None else [self._state.auction_task]) + self._unallocated_tasks
 
         # Generate the environment JSON data
         env_json_data = {
@@ -257,9 +265,11 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
                             'deadline': task.deadline, 'stage': task.stage.name,
                             'loading progress': task.loading_progress, 'compute progress': task.compute_progress,
                             'sending progress': task.sending_progress, 'price': task.price
-                        } for task in tasks
+                        }
+                        for task in tasks
                     ]
-                } for server, tasks in self._state.server_tasks.items()
+                }
+                for server, tasks in self._state.server_tasks.items()
             ],
             'unallocated tasks': [
                 {
@@ -267,7 +277,8 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
                     'required computational': task.required_computation,
                     'required results data': task.required_results_data, 'auction time': task.auction_time,
                     'deadline': task.deadline
-                } for task in self._unallocated_tasks
+                }
+                for task in tasks
             ]
         }
 
@@ -309,6 +320,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
                 ]
                 for server_data in json_data['servers']
             }
+
             for server, tasks in server_tasks.items():
                 server.assert_valid()
                 for task in tasks:
