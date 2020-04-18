@@ -12,16 +12,78 @@ from typing import List, Dict, Tuple, Optional, TYPE_CHECKING
 import tensorflow as tf
 from tensorflow.python.ops.summary_ops_v2 import ResourceSummaryWriter
 
+from agents.rl_agents.rl_agents import TaskPricingState, ResourceAllocationState
 from env.env_state import EnvState
 from env.environment import OnlineFlexibleResourceAllocationEnv
+from env.task import Task
 from env.task_stage import TaskStage
 
 if TYPE_CHECKING:
     from env.server import Server
-    from agents.task_pricing_agent import TaskPricingAgent
     from agents.resource_weighting_agent import ResourceWeightingAgent
-    from agents.rl_agents.rl_agents import TaskPricingRLAgent, ResourceWeightingRLAgent, TaskPricingState, \
-        ResourceAllocationState
+    from agents.rl_agents.rl_agents import TaskPricingRLAgent, ResourceWeightingRLAgent
+    from agents.task_pricing_agent import TaskPricingAgent
+
+
+class EvalResults:
+    """
+    Agent evaluation results
+    """
+
+    def __init__(self):
+        # Auction attributes
+        self.winning_prices: float = 0
+        self.num_auctions: int = 0
+
+        # Resource allocation attributes
+        self.number_completed_tasks: int = 0
+        self.number_failed_tasks: int = 0
+        self.total_prices: float = 0
+        self.num_resource_allocations: int = 0
+
+    def auction(self, actions, rewards):
+        """
+        Auction case
+
+        Args:
+            actions: Dictionary of actions
+            rewards: Dictionary of rewards
+        """
+        for server, price in rewards.items():
+            self.winning_prices += price
+        self.num_auctions += 1
+
+    def resource_allocation(self, actions, rewards):
+        """
+        Resource allocation case
+
+        Args:
+            actions: Dictionary of actions
+            rewards: Dictionary of rewards
+        """
+        for server, tasks in rewards.items():
+            for task in tasks:
+                if task.stage is TaskStage.COMPLETED:
+                    self.number_completed_tasks += 1
+                    self.total_prices += task.price
+                elif task.stage is TaskStage.FAILED:
+                    self.number_failed_tasks += 1
+                    self.total_prices -= task.price
+                else:
+                    raise Exception(f'Unexpected task stage: {task.stage}, {str(task)}')
+        self.num_resource_allocations += 1
+
+    def save(self, episode):
+        """
+        Save the evaluation results
+
+        Args:
+            episode: Episode number
+        """
+        tf.summary.scalar('Eval winning prices', self.winning_prices, episode)
+        tf.summary.scalar('Eval number of completed tasks', self.number_completed_tasks)
+        tf.summary.scalar('Eval number of failed tasks', self.number_failed_tasks)
+        tf.summary.scalar('Eval total prices', self.total_prices)
 
 
 def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent],
@@ -49,7 +111,7 @@ def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent]
 
 
 def eval_agent(env_filenames: List[str], episode: int, pricing_agents: List[TaskPricingAgent],
-               weighting_agents: List[ResourceWeightingAgent]):
+               weighting_agents: List[ResourceWeightingAgent]) -> EvalResults:
     """
     Evaluation of agents using a list of preset environments
 
@@ -58,8 +120,11 @@ def eval_agent(env_filenames: List[str], episode: int, pricing_agents: List[Task
         episode: The episode of evaluation
         pricing_agents: List of task pricing agents
         weighting_agents: List of resource weighting agents
+
+    Returns: The evaluation results
     """
-    total_task_prices, completed_tasks, failed_tasks = 0, 0, 0
+    results = EvalResults()
+
     for env_filename in env_filenames:
         eval_env, state = OnlineFlexibleResourceAllocationEnv.load_env(env_filename)
         server_pricing_agents, server_weighting_agents = allocate_agents(state, pricing_agents, weighting_agents)
@@ -72,27 +137,17 @@ def eval_agent(env_filenames: List[str], episode: int, pricing_agents: List[Task
                     for server, tasks in state.server_tasks.items()
                 }
                 state, rewards, done, info = eval_env.step(bidding_actions)
+                results.auction(bidding_actions, rewards)
             else:
                 weighting_actions = {
                     server: server_weighting_agents[server].weight(tasks, server, state.time_step)
                     for server, tasks in state.server_tasks.items()
                 }
                 state, rewards, done, info = eval_env.step(weighting_actions)
-                for finished_tasks in rewards.values():
-                    for finished_task in finished_tasks:
-                        total_task_prices += finished_task.price * (1 if finished_task.stage is TaskStage.COMPLETED else -1)
-                        if finished_task.stage is TaskStage.COMPLETED:
-                            completed_tasks += 1
-                        elif finished_task.stage is TaskStage.FAILED:
-                            failed_tasks += 1
-                        else:
-                            raise Exception(f'Unexpected task stage: {finished_task.stage}, {str(finished_task)}')
+                results.resource_allocation(weighting_actions, rewards)
 
-    print(f'Eval episode {episode} - total price: {total_task_prices}, '
-          f'completed tasks: {completed_tasks}, failed tasks: {failed_tasks}')
-    tf.summary.scalar('Eval total price', total_task_prices, step=episode)
-    tf.summary.scalar('Eval total completed tasks', completed_tasks, step=episode)
-    tf.summary.scalar('Eval total failed tasks', failed_tasks, step=episode)
+    results.save(episode)
+    return results
 
 
 def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agents: List[TaskPricingRLAgent],
@@ -161,7 +216,7 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
                 server_auction_agent_states[server] = (current_state, auction_prices[server], server in rewards)
         else:  # Else the environment is at resource allocation stage
             # For each server and each server task calculate its relative weighting
-            weighting_actions = {
+            weighting_actions: Dict[Server, Dict[Task, float]] = {
                 server: server_weighting_agents[server].weight(tasks, server, state.time_step)
                 for server, tasks in state.server_tasks.items()
             }
@@ -181,10 +236,11 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
                     successful_auction_agent_states.remove(successful_auction)
 
                     # Unwrap the successful auction agent state tuple
-                    auction_state, action, next_state = successful_auction
+                    auction_state, action, next_auction_state = successful_auction
 
                     # Add the winning auction bid info to the agent
-                    server_pricing_agents[server].winning_auction_bid(auction_state, action, finished_task, next_state)
+                    server_pricing_agents[server].winning_auction_bid(auction_state, action, finished_task,
+                                                                      next_auction_state)
 
             # Add the agent states for resource allocation
             for server, tasks in state.server_tasks.items():
@@ -199,25 +255,9 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
         state = next_state
 
 
-def set_policy(task_pricing_agents: List[TaskPricingRLAgent],
-               resource_weighting_agents: List[ResourceWeightingRLAgent], policy: bool):
-    """
-    Sets the action selection policy either epsilon greedy or argmax
-
-    Args:
-        task_pricing_agents: List of task pricing agents
-        resource_weighting_agents: List of resource weighting agents
-        policy: Action selection policy
-    """
-    for task_pricing_agent in task_pricing_agents:
-        task_pricing_agent.eval_policy = policy
-    for resource_weighting_agent in resource_weighting_agents:
-        resource_weighting_agent.eval_policy = policy
-
-
-def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: List[str],
-                 total_episodes: int, task_pricing_agents: List[TaskPricingRLAgent],
-                 resource_weighting_agents: List[ResourceWeightingRLAgent], eval_frequency: int):
+def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: List[str], total_episodes: int,
+                 pricing_agents: List[TaskPricingRLAgent], weighting_agents: List[ResourceWeightingRLAgent],
+                 eval_frequency: int):
     """
     Runs the training of the agents for a fixed number of episodes
 
@@ -225,24 +265,18 @@ def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: L
         training_env: The training environments
         eval_envs: The evaluation environment filenames
         total_episodes: The total number of episodes
-        task_pricing_agents: The task pricing agents
-        resource_weighting_agents: The resource weighting agents
-        eval_frequency: The evaluation frequency
+        pricing_agents: List of pricing agents
+        weighting_agents: List of weighting agents
+        eval_frequency: The agent evaluation frequency
     """
     # Loop over the episodes
     for episode in range(total_episodes):
         print(f'Episode: {episode} at {dt.datetime.now().strftime("%H:%M:%S")}')
-        set_policy(task_pricing_agents, resource_weighting_agents, False)
-        train_agent(training_env, task_pricing_agents, resource_weighting_agents)
+        train_agent(training_env, pricing_agents, weighting_agents)
 
         # Every eval_frequency episodes, the agents are evaluated
         if episode % eval_frequency == 0:
-            set_policy(task_pricing_agents, resource_weighting_agents, True)
-            eval_agent(eval_envs, episode, task_pricing_agents, resource_weighting_agents)
-
-            print('\tTP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
-            print('\tRW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agents) + '}')
-            print()
+            eval_agent(eval_envs, episode, pricing_agents, weighting_agents)
 
 
 def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals: int, folder: str,
@@ -263,7 +297,7 @@ def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals:
 
     eval_files = []
     for eval_num in range(num_evals):
-        eval_file = f'{folder}/eval_{eval_num}.json'
+        eval_file = f'{folder}/eval_{eval_num}.env'
         eval_files.append(eval_file)
         if overwrite or not os.path.exists(eval_file):
             eval_env.reset()
@@ -272,11 +306,13 @@ def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals:
     return eval_files
 
 
-def setup_tensorboard(folder: str) -> ResourceSummaryWriter:
+def setup_tensorboard(folder: str, training_name: str) -> ResourceSummaryWriter:
     """
     Setups the tensorboard for the training and evaluation results
 
     Args:
         folder: The folder for the tensorboard
+        training_name: Name of the training script
     """
-    return tf.summary.create_file_writer(f'train_agents/results/logs/{folder}_{dt.datetime.now().strftime("%m-%d_%H-%M-%S")}')
+    datetime = dt.datetime.now().strftime("%m-%d_%H-%M-%S")
+    return tf.summary.create_file_writer(f'{folder}/{training_name}_{datetime}')
