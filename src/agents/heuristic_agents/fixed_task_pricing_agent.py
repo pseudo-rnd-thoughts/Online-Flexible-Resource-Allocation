@@ -7,31 +7,26 @@ The bid is then random for the task
 from __future__ import annotations
 
 import random as rnd
-from typing import List, Optional
+from typing import List
 
-from agents.rl_agents.rl_agents import TaskPricingRLAgent
+from agents.task_pricing_agent import TaskPricingAgent
 from env.server import Server
 from env.task import Task
 
 
-class FixedTaskPricingAgent(TaskPricingRLAgent):
+class FixedTaskPricingAgent(TaskPricingAgent):
     """
     Fixed task pricing agents
     """
 
-    def __init__(self, agent_num: int, bid_tasks_number: int, network_output_width: int = 5, **kwargs):
-        TaskPricingRLAgent.__init__(self, f'Fixed Task Pricing Agent {agent_num}', 9, network_output_width, **kwargs)
+    def __init__(self, agent_num: int, bid_tasks_number: int, max_price: int = 5, **kwargs):
+        TaskPricingAgent.__init__(self, f'Fixed Task Pricing Agent {agent_num}', **kwargs)
 
         self.bid_tasks_number = bid_tasks_number
+        self.max_price = max_price
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         if len(allocated_tasks) <= self.bid_tasks_number:
-            return float(rnd.randint(1, self.network_output_width))
+            return float(rnd.randint(1, self.max_price))
         else:
             return 0
-
-    def _train(self, states, actions, next_states, rewards, dones) -> float:
-        pass
-
-    def _save(self, custom_location: Optional[str] = None):
-        pass
