@@ -43,8 +43,8 @@ class TaskPricingAgent(ABC):
         assert all(allocated_task.auction_time <= time_step <= allocated_task.deadline
                    for allocated_task in allocated_tasks)
 
-        if self.limit_number_task_parallel is not None and len(allocated_tasks) < self.limit_number_task_parallel:
-            action = self._get_action(auction_task, allocated_tasks, server, time_step)
+        if self.limit_number_task_parallel is None or len(allocated_tasks) < self.limit_number_task_parallel:
+            action = float(self._get_action(auction_task, allocated_tasks, server, time_step))
             # Assert that the resulting action is valid
             assert 0 <= action
 
