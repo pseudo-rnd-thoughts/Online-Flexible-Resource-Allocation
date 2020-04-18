@@ -25,7 +25,7 @@ src/training/eval_envs
 /final_report/final_report.toc
 
 # Testing tmp files
-/tests/env/settings/tmp/save.env
+/tests/env/settings/tmp/
 /tests/agent/checkpoints/
 /tests/training/tmp/
 /tests/training/settings/tmp
