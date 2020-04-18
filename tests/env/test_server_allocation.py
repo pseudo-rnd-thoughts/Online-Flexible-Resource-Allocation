@@ -30,7 +30,8 @@ def test_allocate_compute_resources(error_term=0.1):
 
         print(f'\nTask resource usage')
         for task, (storage_usage, comp_usage, bandwidth_usage) in task_resource_usage.items():
-            print(f'\t{task.name} Task - Comp Usage: {comp_usage}, Comp Progress: {task.compute_progress}, Required Comp: {task.required_computation} Stage: {task.stage}')
+            print(f'\t{task.name} Task - Comp Usage: {comp_usage}, Comp Progress: {task.compute_progress}, '
+                  f'Required Comp: {task.required_computation} Stage: {task.stage}')
         print()
 
         tasks = [task for task in task_resource_usage.keys() if task.stage is TaskStage.COMPUTING]
@@ -53,9 +54,11 @@ def test_allocate_bandwidth_resources(error_term=0.1):
         loading_weights = {task: rnd.randint(1, 25) for task in tasks if task.stage is TaskStage.LOADING}
         sending_weights = {task: rnd.randint(1, 25) for task in tasks if task.stage is TaskStage.SENDING}
 
-        available_storage = server.storage_cap - sum(task.loading_progress for task in loading_weights.keys()) - sum(task.loading_progress for task in sending_weights.keys())
+        available_storage = server.storage_cap - sum(task.loading_progress for task in loading_weights.keys()) - \
+            sum(task.loading_progress for task in sending_weights.keys())
 
-        task_resource_usage = server.allocate_bandwidth_resources(loading_weights, sending_weights, available_storage, server.bandwidth_cap, 0)
+        task_resource_usage = server.allocate_bandwidth_resources(loading_weights, sending_weights, available_storage,
+                                                                  server.bandwidth_cap, 0)
 
         assert sum(storage_usage for (storage_usage, _, _) in task_resource_usage.values()) < server.storage_cap + error_term
         assert sum(bandwidth_usage for (_, _, bandwidth_usage) in task_resource_usage.values()) < server.bandwidth_cap + error_term
@@ -63,9 +66,11 @@ def test_allocate_bandwidth_resources(error_term=0.1):
         print(f'\nTask resource usage')
         for task, (storage_usage, comp_usage, bandwidth_usage) in task_resource_usage.items():
             if task.stage is TaskStage.LOADING or task.stage is TaskStage.COMPUTING:
-                print(f'{task.name} Task - Bandwidth Usage: {bandwidth_usage}, Loading Progress: {task.loading_progress}, Required storage: {task.required_storage} Stage: {task.stage}')
+                print(f'{task.name} Task - Bandwidth Usage: {bandwidth_usage}, Loading Progress: {task.loading_progress}, '
+                      f'Required storage: {task.required_storage} Stage: {task.stage}')
             else:
-                print(f'{task.name} Task - Bandwidth Usage: {bandwidth_usage}, Sending Progress: {task.sending_progress}, Required results data: {task.required_results_data} Stage: {task.stage}')
+                print(f'{task.name} Task - Bandwidth Usage: {bandwidth_usage}, Sending Progress: {task.sending_progress}, '
+                      f'Required results data: {task.required_results_data} Stage: {task.stage}')
 
         tasks = [task for task in task_resource_usage.keys() if task.stage is TaskStage.LOADING or task.stage is TaskStage.SENDING]
         it += 1

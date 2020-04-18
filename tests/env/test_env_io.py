@@ -30,6 +30,8 @@ def test_env_save_load():
     env.save_env('env/settings/tmp/save.env')
     loaded_env, loaded_env_state = env.load_env('env/settings/tmp/save.env')
 
+    assert state.auction_task == loaded_env_state.auction_task
+    assert len(env._unallocated_tasks) == len(loaded_env._unallocated_tasks)
     for task, loaded_task in zip(env._unallocated_tasks, loaded_env._unallocated_tasks):
         assert task == loaded_task
     for server, tasks in state.server_tasks.items():
@@ -49,6 +51,13 @@ def test_env_save_load():
                 task.compute_progress == loaded_task.compute_progress and \
                 task.sending_progress == loaded_task.sending_progress and task.price == loaded_task.price
             task.assert_valid()
+
+    loaded_env.save_env('env/settings/tmp/loaded_save.env')
+    with open('env/settings/tmp/save.env') as env_file:
+        env_file_data = env_file.read()
+    with open('env/settings/tmp/loaded_save.env') as loaded_env_file:
+        loaded_env_file_data = loaded_env_file.read()
+    assert env_file_data == loaded_env_file_data
 
 
 def test_env_load_settings():
