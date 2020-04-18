@@ -28,3 +28,4 @@ src/training/eval_envs
 /tests/env/settings/tmp/save.env
 /tests/agent/checkpoints/
 /tests/training/tmp/
+/tests/training/settings/tmp
