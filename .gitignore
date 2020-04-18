@@ -23,3 +23,8 @@ src/training/eval_envs
 /final_report/final_report.out
 /final_report/final_report.synctex.gz
 /final_report/final_report.toc
+
+# Testing tmp files
+/tests/env/settings/tmp/save.env
+/tests/agent/checkpoints/
+/tests/training/tmp/
