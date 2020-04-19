@@ -46,8 +46,8 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
         # Set the model and target Q networks
         self.model_network = network
-        self.target_network = tf.keras.models.clone_model(network)
-        self.num_actions = network.output_shape[1]
+        self.target_network: tf.keras.Model = tf.keras.models.clone_model(network)
+        self.num_actions: int = network.output_shape[1]
 
         self.optimiser = optimiser
 
@@ -55,25 +55,19 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         self.target_update_frequency = target_update_frequency
         self.target_update_tau = target_update_tau
 
-        # Exploration attributes: initial, final and total steps
+        # Exploration attributes: initial, final, total steps, epsilon itself and the update frequency
         self.initial_epsilon = initial_epsilon
         self.final_epsilon = final_epsilon
-        self.diff_epsilon = final_epsilon - initial_epsilon
-        self.epsilon_steps = epsilon_steps
-
-        # Exploration factor
+        self.grad_epsilon: float = (final_epsilon - initial_epsilon) * epsilon_steps
         self.epsilon = initial_epsilon
-
-        # Number of actions and exploration update frequency
-        self.total_actions = 0
         self.epsilon_update_frequency = epsilon_update_frequency
 
     def _update_epsilon(self):
         self.total_actions += 1
         if self.total_actions % self.epsilon_update_frequency == 0:
-            self.epsilon = max(self.total_actions / self.epsilon_steps * self.diff_epsilon + self.initial_epsilon,
-                               self.final_epsilon)
-            tf.summary.scalar(f'{self.name} agent epsilon', self.epsilon, self.total_actions)
+            self.epsilon = max(self.total_actions / self.grad_epsilon + self.initial_epsilon, self.final_epsilon)
+            if self.total_actions % 1000 == 0:
+                tf.summary.scalar(f'{self.name} agent epsilon', self.epsilon, self.total_actions)
 
     def _save(self, location: str = 'training/results/checkpoints/'):
         # Set the location to save the model and setup the directory
@@ -136,7 +130,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
         assert network.input_shape[-1] == self.network_obs_width
 
         DqnAgent.__init__(self, network, **kwargs)
-        name = f'Task Pricing Dqn agent {agent_name}' if type(agent_name) is int else agent_name
+        name = f'Task pricing Dqn agent {agent_name}' if type(agent_name) is int else agent_name
         TaskPricingRLAgent.__init__(self, name, **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
@@ -159,7 +153,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
     """
 
     def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, **kwargs):
-        assert network.input_shape[-1] == self.resource_obs_width
+        assert network.input_shape[-1] == self.network_obs_width
 
         DqnAgent.__init__(self, network, **kwargs)
         name = f'Resource weighting Dqn agent {agent_name}' if type(agent_name) is int else agent_name
@@ -215,7 +209,7 @@ class TaskPricingDdqnAgent(DdqnAgent, TaskPricingDqnAgent):
 
     def __init__(self, agent_num: int, network: tf.keras.Model, **kwargs):
         DdqnAgent.__init__(self, network, **kwargs)
-        TaskPricingDqnAgent.__init__(self, f'Task pricing Double uDqn agent {agent_num}', network, **kwargs)
+        TaskPricingDqnAgent.__init__(self, f'Task pricing Double Dqn agent {agent_num}', network, **kwargs)
 
 
 @gin.configurable
