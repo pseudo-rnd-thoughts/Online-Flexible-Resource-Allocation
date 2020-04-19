@@ -50,8 +50,8 @@ def test_networks():
     ]
 
     # Network observations
-    auction_obs = tf.expand_dims(TaskPricingDqnAgent.network_obs(auction_task, allocated_tasks, server, 0), axis=0)
-    resource_allocation_obs = tf.expand_dims(ResourceWeightingDqnAgent.network_obs(allocated_tasks[0], allocated_tasks, server, 0), axis=0)
+    auction_obs = tf.expand_dims(TaskPricingDqnAgent._network_obs(auction_task, allocated_tasks, server, 0), axis=0)
+    resource_allocation_obs = tf.expand_dims(ResourceWeightingDqnAgent._network_obs(allocated_tasks[0], allocated_tasks, server, 0), axis=0)
     print(f'Auction obs: {auction_obs}')
     print(f'Resource allocation obs: {resource_allocation_obs}')
 
