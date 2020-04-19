@@ -271,7 +271,8 @@ def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: L
     """
     # Loop over the episodes
     for episode in range(total_episodes):
-        print(f'Episode: {episode} at {dt.datetime.now().strftime("%H:%M:%S")}')
+        if episode % 5 == 0:
+            print(f'Episode: {episode} at {dt.datetime.now().strftime("%H:%M:%S")}')
         train_agent(training_env, task_pricing_agents, resource_weighting_agents)
 
         # Every eval_frequency episodes, the agents are evaluated
