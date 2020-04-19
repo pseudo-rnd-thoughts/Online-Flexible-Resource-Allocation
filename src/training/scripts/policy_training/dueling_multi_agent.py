@@ -10,13 +10,13 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 from training.scripts.train_agents import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
-    gin.parse_config_file('./train_agents/training/standard_config.gin')
+    gin.parse_config_file('./training/settings/standard_config.gin')
 
     folder = 'dueling_multi_agents'
-    writer = setup_tensorboard(folder)
+    writer = setup_tensorboard('training/results/logs/', folder)
 
-    env = OnlineFlexibleResourceAllocationEnv('./train_agents/env_settings/basic_env.json')
-    eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
+    env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
+    eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/{folder}/')
 
     task_pricing_agents = [
         TaskPricingDuelingDqnAgent(agent_num, create_lstm_dueling_dqn_network(9, 10), save_folder=folder)
@@ -27,9 +27,6 @@ if __name__ == "__main__":
         for agent_num in range(3)
     ]
 
-    print('TP Agents: [' + ', '.join(agent.name for agent in task_pricing_agents) + ']')
-    print('RW Agents: [' + ', '.join(agent.name for agent in resource_weighting_agents) + ']')
-
     with writer.as_default():
         run_training(env, eval_envs, 150, task_pricing_agents, resource_weighting_agents, 5)
 
@@ -37,7 +34,3 @@ if __name__ == "__main__":
         agent.save()
     for agent in resource_weighting_agents:
         agent.save()
-
-    print('TP Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in task_pricing_agents) + '}')
-    print(
-        'RW Total Obs: {' + ', '.join(f'{agent.name}: {agent.total_obs}' for agent in resource_weighting_agents) + '}')

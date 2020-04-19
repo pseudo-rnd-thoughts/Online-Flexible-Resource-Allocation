@@ -12,13 +12,13 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 from training.scripts.train_agents import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
-    gin.parse_config_file('./train_agents/training/standard_config.gin')
+    gin.parse_config_file('./training/settings/standard_config.gin')
 
     folder = 'fixed_pricing_resource_weighting'
-    writer = setup_tensorboard(folder)
+    writer = setup_tensorboard('training/results/logs/', folder)
 
-    env = OnlineFlexibleResourceAllocationEnv('./train_agents/env_settings/basic_env.json')
-    eval_envs = generate_eval_envs(env, 5, f'./train_agents/eval_envs/{folder}/')
+    env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
+    eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/{folder}/')
 
     fixed_task_pricing_agents = [
         FixedTaskPricingAgent(agent_num, 3) for agent_num in range(3)

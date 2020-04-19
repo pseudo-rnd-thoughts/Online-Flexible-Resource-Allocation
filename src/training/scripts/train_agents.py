@@ -256,8 +256,8 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
 
 
 def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: List[str], total_episodes: int,
-                 pricing_agents: List[TaskPricingRLAgent], weighting_agents: List[ResourceWeightingRLAgent],
-                 eval_frequency: int):
+                 task_pricing_agents: List[TaskPricingRLAgent],
+                 resource_weighting_agents: List[ResourceWeightingRLAgent], eval_frequency: int):
     """
     Runs the training of the agents for a fixed number of episodes
 
@@ -265,18 +265,18 @@ def run_training(training_env: OnlineFlexibleResourceAllocationEnv, eval_envs: L
         training_env: The training environments
         eval_envs: The evaluation environment filenames
         total_episodes: The total number of episodes
-        pricing_agents: List of pricing agents
-        weighting_agents: List of weighting agents
+        task_pricing_agents: List of training task pricing agents
+        resource_weighting_agents: List of training resource weighting agents
         eval_frequency: The agent evaluation frequency
     """
     # Loop over the episodes
     for episode in range(total_episodes):
         print(f'Episode: {episode} at {dt.datetime.now().strftime("%H:%M:%S")}')
-        train_agent(training_env, pricing_agents, weighting_agents)
+        train_agent(training_env, task_pricing_agents, resource_weighting_agents)
 
         # Every eval_frequency episodes, the agents are evaluated
         if episode % eval_frequency == 0:
-            eval_agent(eval_envs, episode, pricing_agents, weighting_agents)
+            eval_agent(eval_envs, episode, task_pricing_agents, resource_weighting_agents)
 
 
 def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals: int, folder: str,
