@@ -1,79 +1,112 @@
-
+import matplotlib.pyplot as plt
 import tensorflow as tf
+from tf_agents.agents import DdpgAgent
+from tf_agents.agents.ddpg.actor_network import ActorNetwork
+from tf_agents.agents.ddpg.critic_network import CriticNetwork
+from tf_agents.environments import suite_gym
+from tf_agents.environments.tf_py_environment import TFPyEnvironment
+from tf_agents.policies.random_tf_policy import RandomTFPolicy
+from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuffer
+from tf_agents.utils import common
+
+from experiment.dqn_custom_loss import training_step, eval_agent
 
 
-class DdpgAgent(RLAgent):
+@tf.function
+def train_agent(ddpg_agent, trajectories):
+    agent_states, agent_actions, agent_next_states = ddpg_agent._experience_to_transitions(trajectories)
 
-    def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
-                 critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
-                 name: str = 'DDPG Agent', **kwargs):
-        RLAgent.__init__(self, name=name, **kwargs)
+    states = agent_states.observation
+    actions = tf.cast(agent_actions, tf.float32)
+    rewards = agent_next_states.reward
+    dones = tf.cast(~agent_states.is_last(), tf.float32)
+    next_states = agent_next_states.observation
 
-        actor_network.build()
-        self.model_actor_network = actor_network
-        self.target_actor_network = tf.keras.models.clone_model(actor_network)
-        critic_network.build()
-        self.model_critic_network = critic_network
-        self.target_critic_network = tf.keras.models.clone_model(critic_network)
+    trainable_critic_variables = critic_net.trainable_variables
+    with tf.GradientTape() as critic_tape:
+        critic_tape.watch(trainable_critic_variables)
 
-        self.actor_optimiser = actor_optimiser
-        self.critic_optimiser = critic_optimiser
+        q_values, _ = critic_net((states, actions))
 
-        self.critic_loss_func = tf.keras.losses.Huber()
-        self.actor_loss_func = tf.keras.losses.MeanSquaredError()
+        next_actions = actor_net(next_states)
+        next_q_values, _ = critic_net((next_states, next_actions))
 
-    @tf.function
-    def _train(self, states, actions, next_states, rewards, dones):
-        critic_network_weights = self.model_critic_network.trainable_variables
-        with tf.GradientTape() as tape:
-            tape.watch(critic_network_weights)
-            critic_loss = self._critic_loss(states, actions, next_states, rewards, dones)
+        td_targets = tf.stop_gradient(rewards + discount_factor * next_q_values * dones)
+        critic_loss = tf.reduce_mean(loss_func(td_targets, q_values))
+    critic_grads = critic_tape.gradient(critic_loss, trainable_critic_variables)
+    critic_optimiser.apply_gradients(zip(critic_grads, trainable_critic_variables))
 
-        critic_grads = tape.gradient(critic_loss, critic_network_weights)
-        self.critic_optimiser.apply_gradients(zip(critic_grads, critic_network_weights))
+    trainable_actor_variables = actor_net.trainable_variables
+    with tf.GradientTape() as actor_tape:
+        actor_tape.watch(actions)
+        q_values, _ = critic_net((states, actions))
+        actions = tf.nest.flatten(actions)
 
-        actor_network_weights = self.model_actor_network.trainable_variables
-        with tf.GradientTape() as tape:
-            tape.watch(actor_network_weights)
-            actor_loss = self._actor_loss(states)
-        actor_grads = tape.gradient(actor_loss, actor_network_weights)
-        self.actor_optimiser.apply_gradients(zip(actor_grads, actor_network_weights))
+    dqdas = actor_tape.gradient([q_values], actions)
+    print(dqdas)
+    actor_losses = []
+    for dqda, action in zip(dqdas, actions):
+        actor_losses.append(tf.reduce_mean(common.element_wise_squared_loss(tf.stop_gradient(dqda + action), action)))
+    actor_loss = tf.add_n(actor_losses)
+    actor_grads = actor_tape.gradient(actor_loss, trainable_actor_variables)
+    actor_optimiser.apply_gradients(zip(actor_grads, trainable_actor_variables))
 
-        self._update_target()
-        return actor_loss + critic_loss
+    ddpg_agent._update_target()
+    return actor_loss + critic_loss
 
-    def _critic_loss(self, states, actions, next_states, rewards, dones):
-        target_actions = self.target_actor_network(next_states)
 
-        target_critic_net_input = (next_states, target_actions)  # Todo combine the state and the actions
-        target_q_values = self.target_critic_network(target_critic_net_input)
-        td_targets = tf.stop_gradient(rewards + self.discount_factor * target_q_values * dones)
+if __name__ == "__main__":
+    tau = 0.99
+    batch_size = 64
+    discount_factor = 0.95
+    loss_func = tf.losses.mean_squared_error
 
-        critic_net_input = (states, actions)  # Todo combine the state and the actions
-        q_values = self.model_critic_network(critic_net_input)
+    env_name = 'MountainCarContinuous-v0'
 
-        critic_loss = self.critic_loss_func(td_targets, q_values)
-        critic_loss = tf.reduce_mean(critic_loss)
+    train_py_env = suite_gym.load(env_name)
+    eval_py_env = suite_gym.load(env_name)
 
-        return critic_loss
+    train_env = TFPyEnvironment(train_py_env)
+    eval_env = TFPyEnvironment(eval_py_env)
 
-    def _actor_loss(self, states):
-        actions, _ = self.model_actor_network(states)
-        with tf.GradientTape() as tape:
-            tape.watch(actions)
-            q_values = self.model_critic_network((states, actions))
+    actor_net = ActorNetwork(train_env.observation_spec(), train_env.action_spec(), fc_layer_params=(100,))
+    actor_optimiser = tf.keras.optimizers.Adam(lr=1e-4)
+    critic_net = CriticNetwork((train_env.time_step_spec().observation, train_env.action_spec()),
+                               action_fc_layer_params=(32,), joint_fc_layer_params=(16,), observation_fc_layer_params=(32,))
+    critic_optimiser = tf.keras.optimizers.Adam(lr=1e-3)
+    agent = DdpgAgent(train_env.time_step_spec(), train_env.action_spec(), actor_network=actor_net,
+                      critic_network=critic_net, actor_optimizer=actor_optimiser, critic_optimizer=critic_optimiser)
+    agent.initialize()
 
-        dqdas = tape.gradient([q_values], actions)
+    eval_policy, training_policy = agent.policy, agent.collect_policy
+    random_policy = RandomTFPolicy(train_env.time_step_spec(), train_env.action_spec())
 
-        actor_losses = []
-        for dqda, action in zip(dqdas, actions):
-            loss = self.actor_loss_func(tf.stop_gradient(dqda + action), action)
-            loss = tf.reduce_mean(loss)
-            actor_losses.append(loss)
+    replay_buffer = TFUniformReplayBuffer(data_spec=agent.collect_data_spec, batch_size=train_env.batch_size,
+                                          max_length=10000)
+    dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=64, num_steps=2).prefetch(3)
+    iterator = iter(dataset)
 
-        actor_loss = tf.add_n(actor_losses)
-        return actor_loss
+    for _ in range(200):
+        training_step(train_env, random_policy, replay_buffer)
 
-    def _update_target(self):
-        pass
+    agent.train = common.function(agent.train)
+    eval_avg_rewards = [eval_agent(eval_env, eval_policy)]
+
+    for step in range(20000):
+        training_step(train_env, training_policy, replay_buffer)
+
+        experience, _ = next(iterator)
+        training_loss = agent.train(experience).loss
+        # training_loss = train_agent(agent, experience)
+
+        if step % 2000 == 0:
+            eval_reward = eval_agent(eval_env, eval_policy)
+            eval_avg_rewards.append(eval_reward)
+            print(f'Step: {step} - Eval avg reward: {eval_reward}')
+        elif step % 200 == 0:
+            print(f'Step: {step} - Training loss: {training_loss}')
+
+    plt.plot(range(0, 20000 + 1, 2000), eval_avg_rewards)
+    plt.ylabel('Eval Average Rewards')
+    plt.xlabel('Iteration')
+    plt.show()

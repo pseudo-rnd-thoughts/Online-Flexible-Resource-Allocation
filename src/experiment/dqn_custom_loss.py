@@ -11,27 +11,6 @@ from tf_agents.replay_buffers.tf_uniform_replay_buffer import TFUniformReplayBuf
 from tf_agents.trajectories import trajectory
 from tf_agents.utils import common
 
-tau = 0.99
-batch_size = 64
-discount_factor = 0.95
-loss_func = tf.losses.mean_squared_error
-env_name = 'CartPole-v0'
-
-train_py_env = suite_gym.load(env_name)
-eval_py_env = suite_gym.load(env_name)
-
-train_env = TFPyEnvironment(train_py_env)
-eval_env = TFPyEnvironment(eval_py_env)
-
-q_net = QNetwork(train_env.observation_spec(), train_env.action_spec(), fc_layer_params=(100,))
-optimiser = tf.keras.optimizers.Adam(lr=1e-3)
-agent = DqnAgent(train_env.time_step_spec(), train_env.action_spec(), q_network=q_net, optimizer=optimiser,
-                 td_errors_loss_fn=common.element_wise_squared_loss)
-agent.initialize()
-
-eval_policy, training_policy = agent.policy, agent.collect_policy
-random_policy = RandomTFPolicy(train_env.time_step_spec(), train_env.action_spec())
-
 
 def eval_agent(env, policy, num_tests=10):
     total_rewards = 0.0
@@ -87,33 +66,54 @@ def train_agent(dqn_agent, trajectories):
     return loss
 
 
-replay_buffer = TFUniformReplayBuffer(data_spec=agent.collect_data_spec, batch_size=train_env.batch_size,
-                                      max_length=10000)
-dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=64, num_steps=2).prefetch(3)
-iterator = iter(dataset)
+if __name__ == "__main__":
+    tau = 0.99
+    batch_size = 64
+    discount_factor = 0.95
+    loss_func = tf.losses.mean_squared_error
+    env_name = 'CartPole-v0'
 
-for _ in range(100):
-    training_step(train_env, random_policy, replay_buffer)
+    train_py_env = suite_gym.load(env_name)
+    eval_py_env = suite_gym.load(env_name)
 
+    train_env = TFPyEnvironment(train_py_env)
+    eval_env = TFPyEnvironment(eval_py_env)
 
-agent.train = common.function(agent.train)
-eval_avg_rewards = [eval_agent(eval_env, eval_policy)]
+    q_net = QNetwork(train_env.observation_spec(), train_env.action_spec(), fc_layer_params=(100,))
+    optimiser = tf.keras.optimizers.Adam(lr=1e-3)
+    agent = DqnAgent(train_env.time_step_spec(), train_env.action_spec(), q_network=q_net, optimizer=optimiser,
+                     td_errors_loss_fn=common.element_wise_squared_loss)
+    agent.initialize()
 
-for step in range(20000):
-    training_step(train_env, training_policy, replay_buffer)
+    eval_policy, training_policy = agent.policy, agent.collect_policy
+    random_policy = RandomTFPolicy(train_env.time_step_spec(), train_env.action_spec())
 
-    experience, _ = next(iterator)
-    # training_loss = agent.train(experience).loss
-    training_loss = train_agent(agent, experience)
+    replay_buffer = TFUniformReplayBuffer(data_spec=agent.collect_data_spec, batch_size=train_env.batch_size,
+                                          max_length=10000)
+    dataset = replay_buffer.as_dataset(num_parallel_calls=3, sample_batch_size=64, num_steps=2).prefetch(3)
+    iterator = iter(dataset)
 
-    if step % 2000 == 0:
-        eval_reward = eval_agent(eval_env, eval_policy)
-        eval_avg_rewards.append(eval_reward)
-        print(f'Step: {step} - Eval avg reward: {eval_reward}')
-    elif step % 200 == 0:
-        print(f'Step: {step} - Training loss: {training_loss}')
+    for _ in range(100):
+        training_step(train_env, random_policy, replay_buffer)
 
-plt.plot(range(0, 20000+1, 2000), eval_avg_rewards)
-plt.ylabel('Eval Average Rewards')
-plt.xlabel('Iteration')
-plt.show()
+    agent.train = common.function(agent.train)
+    eval_avg_rewards = [eval_agent(eval_env, eval_policy)]
+
+    for step in range(20000):
+        training_step(train_env, training_policy, replay_buffer)
+
+        experience, _ = next(iterator)
+        # training_loss = agent.train(experience).loss
+        training_loss = train_agent(agent, experience)
+
+        if step % 2000 == 0:
+            eval_reward = eval_agent(eval_env, eval_policy)
+            eval_avg_rewards.append(eval_reward)
+            print(f'Step: {step} - Eval avg reward: {eval_reward}')
+        elif step % 200 == 0:
+            print(f'Step: {step} - Training loss: {training_loss}')
+
+    plt.plot(range(0, 20000 + 1, 2000), eval_avg_rewards)
+    plt.ylabel('Eval Average Rewards')
+    plt.xlabel('Iteration')
+    plt.show()
