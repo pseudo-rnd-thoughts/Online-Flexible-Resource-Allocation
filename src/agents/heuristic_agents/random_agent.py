@@ -26,7 +26,8 @@ class RandomTaskPricingAgent(TaskPricingAgent):
 
         self.upper_price_bound = upper_price_bound
 
-    def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
+    def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
+                    training: bool = False) -> float:
         """
         Implements the action by randomly selecting an integer price between 0 and the upper price bound
 
@@ -54,7 +55,8 @@ class RandomResourceWeightingAgent(ResourceWeightingAgent):
 
         self.upper_weight_bound = upper_weight_bound
 
-    def _get_actions(self, allocated_tasks: List[Task], server: Server, time_step: int) -> Dict[Task, float]:
+    def _get_actions(self, allocated_tasks: List[Task], server: Server, time_step: int,
+                     training: bool = False) -> Dict[Task, float]:
         """
         Implements the action by randomly selecting an integer weight between 1 and the upper weight bound
 

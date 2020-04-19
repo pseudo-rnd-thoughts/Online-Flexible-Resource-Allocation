@@ -7,6 +7,7 @@ from __future__ import annotations
 import os
 from abc import ABC
 from typing import List, Union, Optional, Dict
+import random as rnd
 
 import gin.tf
 import tensorflow as tf
@@ -151,7 +152,13 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
                        for allocated_task in allocated_tasks]
         return observation
 
-    def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
+    def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
+                    training: bool = False) -> float:
+        if training:
+            self._update_epsilon()
+            if rnd.random() < self.epsilon:
+                return float(rnd.randint(0, self.num_actions-1))
+
         observation = tf.expand_dims(self._network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
         q_values = self.model_network(observation)
         action = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
@@ -196,12 +203,26 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
 
         return observation
 
-    def _get_actions(self, tasks: List[Task], server: Server, time_step: int) -> Dict[Task, float]:
-        observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
-                                            dtype='float32')
-        q_values = self.model_network(observations)
-        actions = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
-        return {task: float(action) for task, action in zip(tasks, actions)}
+    def _get_actions(self, tasks: List[Task], server: Server, time_step: int,
+                     training: bool = False) -> Dict[Task, float]:
+        if training:
+            self._update_epsilon()
+
+            actions = {}
+            for task in tasks:
+                if rnd.random() < self.epsilon:
+                    actions[task] = float(rnd.randint(0, self.num_actions-1))
+                else:
+                    observation = tf.expand_dims(self._network_obs(task, tasks, server, time_step), axis=0)
+                    q_values = self.model_network(observation)
+                    actions[task] = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
+            return actions
+        else:
+            observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
+                                                dtype='float32')
+            q_values = self.model_network(observations)
+            actions = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
+            return {task: float(action) for task, action in zip(tasks, actions)}
 
 
 """

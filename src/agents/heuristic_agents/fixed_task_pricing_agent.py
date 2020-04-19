@@ -27,7 +27,8 @@ class FixedTaskPricingAgent(TaskPricingRLAgent):
         self.bid_tasks_number = bid_tasks_number
         self.max_price = max_price
 
-    def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
+    def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
+                    training: bool = False):
         if len(allocated_tasks) <= self.bid_tasks_number:
             return float(rnd.randint(1, self.max_price))
         else:

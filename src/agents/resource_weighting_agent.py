@@ -21,7 +21,8 @@ class ResourceWeightingAgent(ABC):
     def __init__(self, name):
         self.name = name
 
-    def weight(self, allocated_tasks: List[Task], server: Server, time_step: int) -> Dict[Task, float]:
+    def weight(self, allocated_tasks: List[Task], server: Server, time_step: int,
+               training: bool = False) -> Dict[Task, float]:
         """
         Returns a dictionary of task with weights on server at time step
 
@@ -29,6 +30,7 @@ class ResourceWeightingAgent(ABC):
             allocated_tasks: List of the allocated tasks on the server
             server: The server that the allocated tasks are running on
             time_step: The time step of the environment
+            training: If to use training actions
 
         Returns: A dictionary of tasks to weights
 
@@ -42,7 +44,7 @@ class ResourceWeightingAgent(ABC):
         if len(allocated_tasks) <= 1:
             return {task: 1.0 for task in allocated_tasks}
         else:
-            actions = self._get_actions(allocated_tasks, server, time_step)
+            actions = self._get_actions(allocated_tasks, server, time_step, training)
             assert len(allocated_tasks) == len(actions)
             assert all(task in allocated_tasks for task in actions.keys())
             assert all(0 <= action for action in actions.values())
@@ -51,7 +53,8 @@ class ResourceWeightingAgent(ABC):
             return actions
 
     @abstractmethod
-    def _get_actions(self, tasks: List[Task], server: Server, time_step: int) -> Dict[Task, float]:
+    def _get_actions(self, tasks: List[Task], server: Server, time_step: int,
+                     training: bool = False) -> Dict[Task, float]:
         """
         An abstract method that takes a list of allocated tasks, a server and the current time of the environment
             to return a dictionary of the task to weights
@@ -60,8 +63,8 @@ class ResourceWeightingAgent(ABC):
             tasks: All of the allocated tasks to the server
             server: The server running the tasks
             time_step: The time step of the environment
+            training: If to use training actions
 
         Returns: A dictionary of tasks to weights
-
         """
         pass
