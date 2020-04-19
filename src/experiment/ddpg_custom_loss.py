@@ -27,8 +27,7 @@ def train_agent(ddpg_agent, trajectories):
         critic_tape.watch(trainable_critic_variables)
 
         q_values, _ = critic_net((states, actions))
-
-        next_actions = actor_net(next_states)
+        next_actions, _ = actor_net(next_states)
         next_q_values, _ = critic_net((next_states, next_actions))
 
         td_targets = tf.stop_gradient(rewards + discount_factor * next_q_values * dones)
@@ -38,16 +37,9 @@ def train_agent(ddpg_agent, trajectories):
 
     trainable_actor_variables = actor_net.trainable_variables
     with tf.GradientTape() as actor_tape:
-        actor_tape.watch(actions)
-        q_values, _ = critic_net((states, actions))
-        actions = tf.nest.flatten(actions)
-
-    dqdas = actor_tape.gradient([q_values], actions)
-    print(dqdas)
-    actor_losses = []
-    for dqda, action in zip(dqdas, actions):
-        actor_losses.append(tf.reduce_mean(common.element_wise_squared_loss(tf.stop_gradient(dqda + action), action)))
-    actor_loss = tf.add_n(actor_losses)
+        next_actions, _ = actor_net(states)
+        q_values, _ = critic_net((states, next_actions))
+        actor_loss = -tf.reduce_mean(q_values)
     actor_grads = actor_tape.gradient(actor_loss, trainable_actor_variables)
     actor_optimiser.apply_gradients(zip(actor_grads, trainable_actor_variables))
 
@@ -70,10 +62,10 @@ if __name__ == "__main__":
     eval_env = TFPyEnvironment(eval_py_env)
 
     actor_net = ActorNetwork(train_env.observation_spec(), train_env.action_spec(), fc_layer_params=(100,))
-    actor_optimiser = tf.keras.optimizers.Adam(lr=1e-4)
+    actor_optimiser = tf.keras.optimizers.Adam(lr=0.0001)
     critic_net = CriticNetwork((train_env.time_step_spec().observation, train_env.action_spec()),
                                action_fc_layer_params=(32,), joint_fc_layer_params=(16,), observation_fc_layer_params=(32,))
-    critic_optimiser = tf.keras.optimizers.Adam(lr=1e-3)
+    critic_optimiser = tf.keras.optimizers.Adam(lr=0.005)
     agent = DdpgAgent(train_env.time_step_spec(), train_env.action_spec(), actor_network=actor_net,
                       critic_network=critic_net, actor_optimizer=actor_optimiser, critic_optimizer=critic_optimiser)
     agent.initialize()
@@ -96,8 +88,8 @@ if __name__ == "__main__":
         training_step(train_env, training_policy, replay_buffer)
 
         experience, _ = next(iterator)
-        training_loss = agent.train(experience).loss
-        # training_loss = train_agent(agent, experience)
+        # training_loss = agent.train(experience).loss
+        training_loss = train_agent(agent, experience)
 
         if step % 2000 == 0:
             eval_reward = eval_agent(eval_env, eval_policy)
