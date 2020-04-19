@@ -6,7 +6,9 @@ import os
 from typing import List
 
 from agents.heuristic_agents.random_agent import RandomTaskPricingAgent, RandomResourceWeightingAgent
+from agents.rl_agents.agents.ddpg import ResourceWeightingDdpgAgent, TaskPricingDdpgAgent
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
+from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
 from agents.rl_agents.neural_networks.dqn_networks import create_bidirectional_dqn_network
 from agents.rl_agents.rl_agents import ReinforcementLearningAgent
 from env.environment import OnlineFlexibleResourceAllocationEnv
@@ -54,11 +56,15 @@ def test_train_agents():
     env = OnlineFlexibleResourceAllocationEnv('training/settings/basic.env')
 
     pricing_agents = [
-        TaskPricingDqnAgent(0, create_bidirectional_dqn_network(9, 5), batch_size=32, initial_training_replay_size=32)
+        TaskPricingDqnAgent(0, create_bidirectional_dqn_network(9, 5), batch_size=16, initial_training_replay_size=16),
+        TaskPricingDdpgAgent(1, create_lstm_actor_network(9), create_lstm_critic_network(9), batch_size=16,
+                             initial_training_replay_size=16)
     ]
     weighting_agents = [
-        ResourceWeightingDqnAgent(1, create_bidirectional_dqn_network(16, 5), batch_size=32,
-                                  initial_training_replay_size=32)
+        ResourceWeightingDqnAgent(2, create_bidirectional_dqn_network(16, 5), batch_size=16,
+                                  initial_training_replay_size=16),
+        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16), batch_size=16,
+                                   initial_training_replay_size=16)
     ]
 
     train_agent(env, pricing_agents, weighting_agents)
@@ -66,5 +72,4 @@ def test_train_agents():
     # noinspection PyTypeChecker
     agents: List[ReinforcementLearningAgent] = pricing_agents + weighting_agents
     for agent in agents:
-        assert 0 < agent.total_observations
         assert 0 < agent.total_updates

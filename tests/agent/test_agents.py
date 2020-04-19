@@ -31,18 +31,18 @@ def test_build_agent():
 
     # Check inheritance arguments
     reinforcement_learning_arguments = {
-        'batch_size': 16,
-        'error_loss_fn': tf.compat.v1.losses.mean_squared_error, 'initial_training_replay_size': 1000,
+        'batch_size': 16, 'error_loss_fn': tf.compat.v1.losses.mean_squared_error, 'initial_training_replay_size': 1000,
         'update_frequency': 2, 'replay_buffer_length': 20000, 'save_frequency': 12500, 'save_folder': 'test',
         'discount_factor': 0.9
     }
     dqn_arguments = {
         'target_update_tau': 1.0, 'target_update_frequency': 2500, 'optimiser': tf.keras.optimizers.Adadelta(),
-        'initial_epsilon': 0.5, 'final_epsilon': 0.2, 'epsilon_steps': 400, 'epsilon_update_frequency': 25
+        'initial_epsilon': 0.5, 'final_epsilon': 0.2, 'epsilon_update_frequency': 25
     }
     ddpg_arguments = {
         'actor_optimiser': tf.keras.optimizers.Adadelta(), 'critic_optimiser': tf.keras.optimizers.Adadelta(),
-        'epsilon_std': 0.2
+        'initial_epsilon_std': 0.8, 'final_epsilon_std': 0.1, 'epsilon_update_frequency': 25, 'min_value': -15.0,
+        'max_value': 15
     }
     pricing_arguments = {'failed_auction_reward': -100, 'failed_multiplier': -100}
     weighting_arguments = {'other_task_discount': 0.2, 'success_reward': 1, 'failed_reward': -2,
@@ -51,7 +51,7 @@ def test_build_agent():
     dqn_pricing_arguments = {**reinforcement_learning_arguments, **dqn_arguments, **pricing_arguments}
     dqn_weighting_arguments = {**reinforcement_learning_arguments, **dqn_arguments, **weighting_arguments}
 
-    ddpg_pricing_arguments = {**reinforcement_learning_arguments, ** ddpg_arguments, **pricing_arguments}
+    ddpg_pricing_arguments = {**reinforcement_learning_arguments, **ddpg_arguments, **pricing_arguments}
     ddpg_weighting_arguments = {**reinforcement_learning_arguments, **ddpg_arguments, **weighting_arguments}
 
     pricing_network = create_lstm_dqn_network(9, 10)
@@ -73,11 +73,11 @@ def test_build_agent():
         assert_args(agent, dqn_weighting_arguments)
 
     pricing_agent = TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9),
-                                         **ddpg_weighting_arguments)
+                                         **ddpg_pricing_arguments)
     weighting_agent = ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16),
-                                                 **ddpg_pricing_arguments)
-    assert_args(pricing_agent, **ddpg_pricing_arguments)
-    assert_args(weighting_agent, **ddpg_weighting_arguments)
+                                                 **ddpg_weighting_arguments)
+    assert_args(pricing_agent, ddpg_pricing_arguments)
+    assert_args(weighting_agent, ddpg_weighting_arguments)
 
 
 def test_saving_agent():
@@ -88,13 +88,12 @@ def test_saving_agent():
 
     # Save the agent
     dqn_agent._save('agent/checkpoints/')
-    ddpg_agent._save('agent/checkpoint')
+    ddpg_agent._save('agent/checkpoints/')
 
     # Check that loading works
     loaded_model = create_lstm_dqn_network(9, 10)
-    loaded_model.load_weights(f'agent/checkpoints/tmp/DQN_TP_0')
+    loaded_model.load_weights(f'agent/checkpoints/tmp/Task_pricing_Dqn_agent_0')
 
-    print(f'Model: {dqn_agent.model_network.variables}, Loaded: {loaded_model.variables}')
     assert all(tf.reduce_all(weights == load_weights)
                for weights, load_weights in zip(dqn_agent.model_network.variables, loaded_model.variables))
 
