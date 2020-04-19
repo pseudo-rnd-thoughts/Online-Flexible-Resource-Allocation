@@ -23,7 +23,7 @@ if __name__ == "__main__":
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDqnAgent(agent_num, create_lstm_dqn_network(10, 10), save_folder=folder)
+        ResourceWeightingDqnAgent(agent_num, create_lstm_dqn_network(16, 10), save_folder=folder)
         for agent_num in range(3)
     ]
 
