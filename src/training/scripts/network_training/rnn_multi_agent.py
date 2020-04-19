@@ -5,7 +5,7 @@ from __future__ import annotations
 import gin
 
 from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent, TaskPricingDqnAgent
-from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network, create_rnn_dqn_network
+from agents.rl_agents.neural_networks.dqn_networks import create_rnn_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from training.scripts.train_agents import generate_eval_envs, run_training, setup_tensorboard
 
