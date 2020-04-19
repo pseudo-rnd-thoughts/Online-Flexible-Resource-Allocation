@@ -73,6 +73,8 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         if self.total_actions % self.epsilon_update_frequency == 0:
             self.epsilon = max(self.total_actions / self.epsilon_steps * self.diff_epsilon + self.initial_epsilon,
                                self.final_epsilon)
+            tf.summary.scalar(f'{self.name} agent epsilon', self.epsilon, self.total_actions)
+
 
     def _save(self, custom_location: Optional[str] = None):
         # Set the location to save the model
