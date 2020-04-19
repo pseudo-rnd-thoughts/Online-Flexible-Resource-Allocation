@@ -188,7 +188,7 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
         if state.auction_task:
             # Get the bids for each server
             auction_prices = {
-                server: server_pricing_agents[server].bid(state.auction_task, tasks, server, state.time_step)
+                server: server_pricing_agents[server].bid(state.auction_task, tasks, server, state.time_step, training=True)
                 for server, tasks in state.server_tasks.items()
             }
 
@@ -217,7 +217,7 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
         else:  # Else the environment is at resource allocation stage
             # For each server and each server task calculate its relative weighting
             weighting_actions: Dict[Server, Dict[Task, float]] = {
-                server: server_weighting_agents[server].weight(tasks, server, state.time_step)
+                server: server_weighting_agents[server].weight(tasks, server, state.time_step, training=True)
                 for server, tasks in state.server_tasks.items()
             }
 
