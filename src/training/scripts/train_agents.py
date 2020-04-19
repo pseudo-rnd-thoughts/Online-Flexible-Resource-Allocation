@@ -81,9 +81,9 @@ class EvalResults:
             episode: Episode number
         """
         tf.summary.scalar('Eval winning prices', self.winning_prices, episode)
-        tf.summary.scalar('Eval number of completed tasks', self.number_completed_tasks)
-        tf.summary.scalar('Eval number of failed tasks', self.number_failed_tasks)
-        tf.summary.scalar('Eval total prices', self.total_prices)
+        tf.summary.scalar('Eval number of completed tasks', self.number_completed_tasks, episode)
+        tf.summary.scalar('Eval number of failed tasks', self.number_failed_tasks, episode)
+        tf.summary.scalar('Eval total prices', self.total_prices, episode)
 
 
 def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent],
