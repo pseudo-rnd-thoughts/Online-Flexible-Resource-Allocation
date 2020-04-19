@@ -31,6 +31,6 @@ if __name__ == "__main__":
         run_training(env, eval_envs, 150, task_pricing_agents, resource_weighting_agents, 5)
 
     for agent in task_pricing_agents:
-        agent.save()
+        agent._save()
     for agent in resource_weighting_agents:
-        agent.save()
+        agent._save()
