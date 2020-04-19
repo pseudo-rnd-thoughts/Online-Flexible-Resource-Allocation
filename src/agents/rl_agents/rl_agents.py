@@ -192,9 +192,9 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
 
     @staticmethod
     @abstractmethod
-    def _network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
+    def _network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         """
-        Returns a numpy array for the network observation
+        Returns a list for the network observation
 
         Args:
             task: The primary task to consider
@@ -202,7 +202,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
             server: The server
             time_step: The time step
 
-        Returns: numpy ndarray for the network observation
+        Returns: List for the network observation
         """
         pass
 
@@ -286,7 +286,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
 
     @staticmethod
     @abstractmethod
-    def _network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
+    def _network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         """
         Returns a numpy array for the network observation
 
