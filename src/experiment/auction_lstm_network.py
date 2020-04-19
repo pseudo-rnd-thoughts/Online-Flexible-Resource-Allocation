@@ -11,7 +11,7 @@ if __name__ == "__main__":
         tf.keras.layers.Dense(5, activation='linear')
     ])
 
-    env, (server_state, step_type) = OnlineFlexibleResourceAllocationEnv.load_env('auction_test.env')
+    env, (server_state, step_type) = OnlineFlexibleResourceAllocationEnv.load_env('settings/auction_test.env')
     assert step_type is StepType.AUCTION
 
     auction_actions = {}

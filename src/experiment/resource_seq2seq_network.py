@@ -30,7 +30,7 @@ class Seq2SeqModel(tf.keras.Model):
 if __name__ == "__main__":
     network = Seq2SeqModel(8, 2)
 
-    env, (server_state, step_type) = OnlineFlexibleResourceAllocationEnv.load_env('resource_test.env')
+    env, (server_state, step_type) = OnlineFlexibleResourceAllocationEnv.load_env('settings/resource_test.env')
     assert step_type is StepType.RESOURCE_ALLOCATION
 
     auction_actions = {}
