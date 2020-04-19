@@ -70,9 +70,12 @@ class ReinforcementLearningAgent(ABC):
         self.batch_size = batch_size
         self.error_loss_fn = error_loss_fn
         self.initial_training_replay_size = initial_training_replay_size
-        self.total_updates: int = 0
         self.update_frequency = update_frequency
         self.log_frequency = log_frequency
+
+        # Records the agent actions and updates
+        self.total_updates: int = 0
+        self.total_actions: int = 0
 
         # Replay buffer (todo add priority replay buffer)
         self.replay_buffer_length = replay_buffer_length
@@ -257,7 +260,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
-    resource_obs_width: int = 16
+    network_obs_width: int = 16
 
     def __init__(self, name: str, other_task_discount: float = 0.2, success_reward: float = 1,
                  failed_reward: float = -2, reward_multiplier: float = 2.0,
@@ -332,7 +335,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
                     next_obs = self._network_obs(next_task, next_agent_state.tasks, next_agent_state.server, next_agent_state.time_step)
                     self._add_trajectory(obs, action, next_obs, reward)
             else:
-                next_obs = np.zeros((1, self.resource_obs_width))
+                next_obs = np.zeros((1, self.network_obs_width))
                 finished_task = next(finished_task for finished_task in finished_tasks if finished_task == task)
                 reward += (self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward) * self.reward_multiplier
 
