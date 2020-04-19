@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import os
 from abc import ABC
-from typing import List, Union, Optional, Dict
+from typing import List, Union, Dict
 import random as rnd
 
 import gin.tf
@@ -16,30 +16,31 @@ from agents.rl_agents.rl_agents import ReinforcementLearningAgent, ResourceWeigh
 from env.server import Server
 from env.task import Task
 
-"""
-Deep Q Network based on Playing Atari with Deep Reinforcement Learning
- (https://arxiv.org/abs/1312.5602)
-"""
-
 
 @gin.configurable
 class DqnAgent(ReinforcementLearningAgent, ABC):
     """
-    Deep Q Network agent
+    Deep Q network Agent based on the paper by Deepmind
+    Deep Q Network based on Playing Atari with Deep Reinforcement Learning
+        (https://arxiv.org/abs/1312.5602)
     """
 
-    def __init__(self, network: tf.keras.Model, target_update_tau: float = 1.0, target_update_frequency: int = 2500,
-                 discount_factor: float = 0.9, initial_epsilon: float = 1, final_epsilon: float = 0.1,
-                 epsilon_steps: int = 10000, epsilon_update_frequency: int = 25, **kwargs):
+    def __init__(self, network: tf.keras.Model, optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
+                 target_update_tau: float = 1.0, target_update_frequency: int = 2500,
+                 initial_epsilon: float = 1, final_epsilon: float = 0.1, epsilon_steps: int = 10000,
+                 epsilon_update_frequency: int = 25, **kwargs):
         """
-        Constructor for the DQN agent
-
+        Constructor of the dqn agent
         Args:
-            network_input_width: The network input width
-            network_num_outputs: The network num of outputs
-            build_network: Function to build networks
-            target_update_frequency: The target network update frequency
-            **kwargs: Additional arguments for the reinforcement learning agent
+            network: Agent model network that is used for the target network
+            optimiser: Network optimiser
+            target_update_tau: Target network update tau value
+            target_update_frequency: Target network update frequency
+            initial_epsilon: initial exploration factor
+            final_epsilon: final exploration factor
+            epsilon_steps: number of exploration steps
+            epsilon_update_frequency: exploration factor update frequency
+            **kwargs:
         """
         ReinforcementLearningAgent.__init__(self, **kwargs)
 
@@ -48,12 +49,11 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         self.target_network = tf.keras.models.clone_model(network)
         self.num_actions = network.output_shape[1]
 
+        self.optimiser = optimiser
+
         # Target update frequency and tau
         self.target_update_frequency = target_update_frequency
         self.target_update_tau = target_update_tau
-
-        # Discount factor
-        self.discount_factor = discount_factor
 
         # Exploration attributes: initial, final and total steps
         self.initial_epsilon = initial_epsilon
@@ -75,20 +75,14 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
                                self.final_epsilon)
             tf.summary.scalar(f'{self.name} agent epsilon', self.epsilon, self.total_actions)
 
-
-    def _save(self, custom_location: Optional[str] = None):
-        # Set the location to save the model
-        if custom_location:
-            path = f'{os.getcwd()}/{custom_location}'
-        else:
-            path = f'{os.getcwd()}/training/results/checkpoints/{self.save_folder}/{self.name.replace(" ", "_")}'
-
-        # Create the directory if it doesn't exist
+    def _save(self, location: str = 'training/results/checkpoints/'):
+        # Set the location to save the model and setup the directory
+        path = f'{os.getcwd()}/{location}/{self.save_folder}'
         if not os.path.exists(path):
             os.makedirs(path)
 
         # Save the model network weights to the path
-        self.model_network.save_weights(path)
+        self.model_network.save_weights(f'{path}/{self.name.replace(" ", "_")}')
 
     def _train(self, states: tf.Tensor, actions: tf.Tensor,
                next_states: tf.Tensor, rewards: tf.Tensor, dones: tf. Tensor) -> float:
@@ -120,10 +114,8 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
         if self.total_updates % self.update_frequency == 0:
-            for model_variable, target_variable in zip(self.model_network.variables, self.target_network.variables):
-                if model_variable.trainable and target_variable.trainable:
-                    target_variable.assign(self.target_update_tau * model_variable +
-                                           (1 - self.target_update_tau) * target_variable)
+            ReinforcementLearningAgent._update_target_network(self.model_network, self.target_network,
+                                                              self.target_update_tau)
 
         return loss
 
@@ -140,20 +132,12 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
     Task Pricing DQN agent
     """
 
-    network_obs_width: int = 9
-
     def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, **kwargs):
         assert network.input_shape[-1] == self.network_obs_width
 
         DqnAgent.__init__(self, network, **kwargs)
-        TaskPricingRLAgent.__init__(self, f'DQN TP {agent_name}' if type(agent_name) is int else agent_name, **kwargs)
-
-    @staticmethod
-    def _network_obs(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
-        observation = [ReinforcementLearningAgent._normalise_task(auction_task, server, time_step) + [1.0]] + \
-                      [ReinforcementLearningAgent._normalise_task(allocated_task, server, time_step) + [0.0]
-                       for allocated_task in allocated_tasks]
-        return observation
+        name = f'Task Pricing Dqn agent {agent_name}' if type(agent_name) is int else agent_name
+        TaskPricingRLAgent.__init__(self, name, **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
                     training: bool = False) -> float:
@@ -174,37 +158,12 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
     Resource weighting DQN agent
     """
 
-    resource_obs_width: int = 16
-
     def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, **kwargs):
         assert network.input_shape[-1] == self.resource_obs_width
+
         DqnAgent.__init__(self, network, **kwargs)
-        ResourceWeightingRLAgent.__init__(self, f'DQN TP {agent_name}' if type(agent_name) is int else agent_name,
-                                          **kwargs)
-
-    @staticmethod
-    def _network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
-        """
-        Network observation for the Q network
-
-        Args:
-            weighting_task: The weighing task
-            allocated_tasks: The allocated tasks
-            server: The server
-            time_step: The time step
-
-        Returns: numpy ndarray with shape (1, len(allocated_tasks)-1, self.max_action_value)
-
-        """
-        assert 1 < len(allocated_tasks)
-
-        task_observation = ReinforcementLearningAgent._normalise_task(weighting_task, server, time_step)
-        observation = [
-            task_observation + ReinforcementLearningAgent._normalise_task(allocated_task, server, time_step)
-            for allocated_task in allocated_tasks if weighting_task != allocated_task
-        ]
-
-        return observation
+        name = f'Resource weighting Dqn agent {agent_name}' if type(agent_name) is int else agent_name
+        ResourceWeightingRLAgent.__init__(self, name, **kwargs)
 
     def _get_actions(self, tasks: List[Task], server: Server, time_step: int,
                      training: bool = False) -> Dict[Task, float]:
@@ -228,16 +187,12 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
             return {task: float(action) for task, action in zip(tasks, actions)}
 
 
-"""
-Double DQN agent implemented based on Deep Reinforcement Learning with Double Q-learning
- (https://arxiv.org/abs/1509.06461)
-"""
-
-
 @gin.configurable
 class DdqnAgent(DqnAgent, ABC):
     """
-    Implementation of a double deep q network agent
+    Implementation of a double deep q network agent based on the following paper
+    Double DQN agent implemented based on Deep Reinforcement Learning with Double Q-learning
+        (https://arxiv.org/abs/1509.06461)
     """
 
     def __init__(self, network: tf.keras.Model, **kwargs):
@@ -260,7 +215,7 @@ class TaskPricingDdqnAgent(DdqnAgent, TaskPricingDqnAgent):
 
     def __init__(self, agent_num: int, network: tf.keras.Model, **kwargs):
         DdqnAgent.__init__(self, network, **kwargs)
-        TaskPricingDqnAgent.__init__(self, f'DDQN TP {agent_num}', network, **kwargs)
+        TaskPricingDqnAgent.__init__(self, f'Task pricing Double uDqn agent {agent_num}', network, **kwargs)
 
 
 @gin.configurable
@@ -271,19 +226,15 @@ class ResourceWeightingDdqnAgent(DdqnAgent, ResourceWeightingDqnAgent):
 
     def __init__(self, agent_num: int, network: tf.keras.Model, **kwargs):
         DdqnAgent.__init__(self, network, **kwargs)
-        ResourceWeightingDqnAgent.__init__(self, f'DDQN RW {agent_num}', network, **kwargs)
-
-
-"""
-Dueling DQN agent based on Dueling Network Architectures for Deep Reinforcement Learning
- (https://arxiv.org/abs/1511.06581)
-"""
+        ResourceWeightingDqnAgent.__init__(self, f'Resource weighting Double Dqn agent {agent_num}', network, **kwargs)
 
 
 @gin.configurable
 class DuelingDQN(DdqnAgent, ABC):
     """
-    Implementations of a dueling DQN agent
+    Implementations of a dueling DQN agent based on the following papers
+    Dueling DQN agent based on Dueling Network Architectures for Deep Reinforcement Learning
+        (https://arxiv.org/abs/1511.06581)
     """
 
     def __init__(self, network: tf.keras.Model, double_loss: bool = False, **kwargs):
@@ -311,7 +262,7 @@ class TaskPricingDuelingDqnAgent(DuelingDQN, TaskPricingDqnAgent):
 
     def __init__(self, agent_num: int, network: tf.keras.Model, **kwargs):
         DuelingDQN.__init__(self, network, **kwargs)
-        TaskPricingDqnAgent.__init__(self, f'Dueling DQN TP {agent_num}', network, **kwargs)
+        TaskPricingDqnAgent.__init__(self, f'Task pricing Dueling Dqn agent {agent_num}', network, **kwargs)
 
 
 @gin.configurable
@@ -322,4 +273,4 @@ class ResourceWeightingDuelingDqnAgent(DuelingDQN, ResourceWeightingDqnAgent):
 
     def __init__(self, agent_num: int, network: tf.keras.Model, **kwargs):
         DuelingDQN.__init__(self, network, **kwargs)
-        ResourceWeightingDqnAgent.__init__(self, f'Dueling DQN RW {agent_num}', network, **kwargs)
+        ResourceWeightingDqnAgent.__init__(self, f'Resource weighting Dueling Dqn agent {agent_num}', network, **kwargs)

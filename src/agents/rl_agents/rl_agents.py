@@ -45,18 +45,18 @@ class ReinforcementLearningAgent(ABC):
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
-    def __init__(self, batch_size: int = 32, optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
-                 error_loss_fn=tf.compat.v1.losses.huber_loss, initial_training_replay_size: int = 5000,
-                 update_frequency: int = 4, replay_buffer_length: int = 100000, save_frequency: int = 25000,
-                 save_folder: str = 'checkpoint', log_frequency: int = 100, **kwargs):
+    def __init__(self, batch_size: int = 32, error_loss_fn=tf.compat.v1.losses.huber_loss,
+                 initial_training_replay_size: int = 5000, update_frequency: int = 4, discount_factor: float = 0.9,
+                 replay_buffer_length: int = 100000, save_frequency: int = 25000, save_folder: str = 'checkpoint',
+                 log_frequency: int = 100, **kwargs):
         """
         Constructor that is generalised for the deep q networks and policy gradient agents
         Args:
             batch_size: Training batch sizes
-            optimiser: Network optimiser
             error_loss_fn: Training error loss function
             initial_training_replay_size: The required initial training replay size
             update_frequency: Network update frequency
+            discount_factor: TD target discount factor
             replay_buffer_length: Replay buffer length
             save_frequency: Agent save frequency
             save_folder: Agent save folder
@@ -68,7 +68,6 @@ class ReinforcementLearningAgent(ABC):
 
         # Training
         self.batch_size = batch_size
-        self.optimiser = optimiser
         self.error_loss_fn = error_loss_fn
         self.initial_training_replay_size = initial_training_replay_size
         self.total_updates: int = 0
@@ -83,6 +82,9 @@ class ReinforcementLearningAgent(ABC):
         # Save
         self.save_frequency = save_frequency
         self.save_folder = save_folder
+
+        # Discount factor
+        self.discount_factor = discount_factor
 
     @staticmethod
     def _normalise_task(task: Task, server: Server, time_step: int) -> List[float]:
@@ -162,12 +164,21 @@ class ReinforcementLearningAgent(ABC):
                 self.total_observations % self.update_frequency == 0:
             self.train()
 
+    @staticmethod
+    def _update_target_network(model_network: tf.keras.Model, target_network: tf.keras.Model, tau: float):
+        for model_variable, target_variable in zip(model_network.variables,
+                                                   target_network.variables):
+            if model_variable.trainable and target_variable.trainable:
+                target_variable.assign(tau * model_variable + (1 - tau) * target_variable)
+
 
 @gin.configurable
 class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
     """
     Task Pricing reinforcement learning agent
     """
+
+    network_obs_width: int = 9
 
     def __init__(self, name: str, failed_auction_reward: float = -0.05, failed_multiplier: float = -1.5, **kwargs):
         """
@@ -190,20 +201,11 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         self.failed_multiplier = failed_multiplier
 
     @staticmethod
-    @abstractmethod
-    def _network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
-        """
-        Returns a list for the network observation
-
-        Args:
-            task: The primary task to consider
-            allocated_tasks: The other allocated task
-            server: The server
-            time_step: The time step
-
-        Returns: List for the network observation
-        """
-        pass
+    def _network_obs(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
+        observation = [ReinforcementLearningAgent._normalise_task(auction_task, server, time_step) + [1.0]] + \
+                      [ReinforcementLearningAgent._normalise_task(allocated_task, server, time_step) + [0.0]
+                       for allocated_task in allocated_tasks]
+        return observation
 
     def winning_auction_bid(self, agent_state: TaskPricingState, action: float,
                             finished_task: Task, next_agent_state: TaskPricingState):
@@ -255,6 +257,8 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
     The reinforcement learning base class that is used for DQN and DDPG classes
     """
 
+    resource_obs_width: int = 16
+
     def __init__(self, name: str, other_task_discount: float = 0.2, success_reward: float = 1,
                  failed_reward: float = -2, reward_multiplier: float = 2.0,
                  ignore_empty_next_obs: bool = True, **kwargs):
@@ -284,20 +288,16 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
         self.ignore_empty_next_obs = ignore_empty_next_obs
 
     @staticmethod
-    @abstractmethod
-    def _network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
-        """
-        Returns a numpy array for the network observation
+    def _network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
+        assert 1 < len(allocated_tasks)
 
-        Args:
-            task: The primary task to consider
-            allocated_tasks: The other allocated task
-            server: The server
-            time_step: The time step
+        task_observation = ReinforcementLearningAgent._normalise_task(weighting_task, server, time_step)
+        observation = [
+            task_observation + ReinforcementLearningAgent._normalise_task(allocated_task, server, time_step)
+            for allocated_task in allocated_tasks if weighting_task != allocated_task
+        ]
 
-        Returns: numpy ndarray for the network observation
-        """
-        pass
+        return observation
 
     def resource_allocation_obs(self, agent_state: ResourceAllocationState, actions: Dict[Task, float],
                                 next_agent_state: ResourceAllocationState, finished_tasks: List[Task]):
