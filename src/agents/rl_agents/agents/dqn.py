@@ -215,7 +215,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
                 else:
                     observation = tf.expand_dims(self._network_obs(task, tasks, server, time_step), axis=0)
                     q_values = self.model_network(observation)
-                    actions[task] = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
+                    actions[task] = float(tf.math.argmax(q_values, axis=1, output_type=tf.int32))
             return actions
         else:
             observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
