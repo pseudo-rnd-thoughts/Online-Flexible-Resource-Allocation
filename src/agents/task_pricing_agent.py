@@ -17,10 +17,10 @@ class TaskPricingAgent(ABC):
     Task pricing agent used in Online Flexible Resource Allocation Env in order to price tasks being being auctioned
     """
 
-    def __init__(self, name: str, limit_number_task_parallel: Optional[int] = None):
+    def __init__(self, name: str, limit_parallel_tasks: Optional[int] = None):
         self.name = name
 
-        self.limit_number_task_parallel = limit_number_task_parallel
+        self.limit_parallel_tasks = limit_parallel_tasks
 
     def bid(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
         """
@@ -43,7 +43,9 @@ class TaskPricingAgent(ABC):
         assert all(allocated_task.auction_time <= time_step <= allocated_task.deadline
                    for allocated_task in allocated_tasks)
 
-        if self.limit_number_task_parallel is None or len(allocated_tasks) < self.limit_number_task_parallel:
+        # Check that if the tasks should be limited
+        if self.limit_parallel_tasks is None or len(allocated_tasks) < self.limit_parallel_tasks:
+            # Get the auction action
             action = float(self._get_action(auction_task, allocated_tasks, server, time_step))
             # Assert that the resulting action is valid
             assert 0 <= action
