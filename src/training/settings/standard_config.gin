@@ -15,10 +15,10 @@ ReinforcementLearningAgent.batch_size = 32
 ReinforcementLearningAgent.learning_rate = 0.001
 
 ReinforcementLearningAgent.replay_buffer_length = 20000
-ReinforcementLearningAgent.training_replay_start_size = 2500
+ReinforcementLearningAgent.initial_training_replay_size = 2500
 
 ReinforcementLearningAgent.update_frequency = 1
-ReinforcementLearningAgent.log_frequency = 80
+ReinforcementLearningAgent.log_frequency = 50
 ReinforcementLearningAgent.save_frequency = 25000
 
 
@@ -37,9 +37,13 @@ ResourceWeightingRLAgent.ignore_empty_next_obs = False
 #========================================================================
 #                        Dqn Agent
 DqnAgent.discount_factor = 0.9
+DqnAgent.initial_epsilon = 1.0
+DqnAgent.final_epsilon = 0.1
+DqnAgent.epsilon_steps = 10000
+DqnAgent.epsilon_update_frequency = 25
 
 #                        Dueling Dqn Agent
-DuelingDQN.double_loss = False
+DuelingDQN.double_loss = True
 
 #========================================================================
 #                        Dqn Networks
