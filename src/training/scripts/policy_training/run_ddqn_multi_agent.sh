@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --partition=lyceum
-#SBATCH --time=16:00:00
+#SBATCH --time=6:00:00
 
 cd ~/Online-Flexible-Resource-Allocation/src/
 
@@ -9,4 +9,4 @@ module load conda
 source activate py37env
 
 echo 'Running Double DQN agent'
-python -m  train_agents.training.policy_testing.ddqn_multi_agent
+python -m  training.scripts.policy_training.ddqn_multi_agent

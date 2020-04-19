@@ -1,12 +1,12 @@
 #!/bin/bash
 
 #SBATCH --partition=lyceum
-#SBATCH --time=16:00:00
+#SBATCH --time=6:00:00
 
 cd ~/Online-Flexible-Resource-Allocation/src/
 
 module load conda
 source activate py37env
 
-echo 'Running DDPG agent'
-python -m  train_agents.training.policy_testing.ddpg_multi_agent
+echo 'Running RNN Network DQN multi-agent'
+python -m  training.scripts.network_training.rnn_multi_agent
