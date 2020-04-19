@@ -85,7 +85,7 @@ class ReinforcementLearningAgent(ABC):
         self.save_folder = save_folder
 
     @staticmethod
-    def normalise_task(task: Task, server: Server, time_step: int) -> List[float]:
+    def _normalise_task(task: Task, server: Server, time_step: int) -> List[float]:
         """
         Normalises the task that is running on Server at environment time step
 
@@ -192,7 +192,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
 
     @staticmethod
     @abstractmethod
-    def network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
+    def _network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
         """
         Returns a numpy array for the network observation
 
@@ -223,9 +223,9 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
 
         # Calculate the reward and add it to the replay buffer
         reward = finished_task.price * (1 if finished_task.stage is TaskStage.COMPLETED else self.failed_multiplier)
-        obs = self.network_obs(agent_state.auction_task, agent_state.tasks, agent_state.server, agent_state.time_step)
-        next_obs = self.network_obs(next_agent_state.auction_task, next_agent_state.tasks,
-                                    next_agent_state.server, next_agent_state.time_step)
+        obs = self._network_obs(agent_state.auction_task, agent_state.tasks, agent_state.server, agent_state.time_step)
+        next_obs = self._network_obs(next_agent_state.auction_task, next_agent_state.tasks,
+                                     next_agent_state.server, next_agent_state.time_step)
 
         self._add_trajectory(obs, action, next_obs, reward)
 
@@ -244,9 +244,9 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         # assert agent_state.time_step <= next_agent_state.time_step
 
         # If the action is zero then there is no bid on the task so no loss
-        obs = self.network_obs(agent_state.auction_task, agent_state.tasks, agent_state.server, agent_state.time_step)
-        next_obs = self.network_obs(next_agent_state.auction_task, next_agent_state.tasks,
-                                    next_agent_state.server, next_agent_state.time_step)
+        obs = self._network_obs(agent_state.auction_task, agent_state.tasks, agent_state.server, agent_state.time_step)
+        next_obs = self._network_obs(next_agent_state.auction_task, next_agent_state.tasks,
+                                     next_agent_state.server, next_agent_state.time_step)
         self._add_trajectory(obs, action, next_obs, self.failed_auction_reward if action == 0 else 0)
 
 
@@ -286,7 +286,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
 
     @staticmethod
     @abstractmethod
-    def network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
+    def _network_obs(task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> np.ndarray:
         """
         Returns a numpy array for the network observation
 
@@ -324,13 +324,13 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             return
 
         for task, action in actions.items():
-            obs = self.network_obs(task, agent_state.tasks, agent_state.server, agent_state.time_step)
+            obs = self._network_obs(task, agent_state.tasks, agent_state.server, agent_state.time_step)
             reward = sum(self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward
                          for finished_task in finished_tasks if not task == finished_task) * self.other_task_discount
             if task in next_agent_state.tasks:
                 if 1 < len(next_agent_state.tasks):
                     next_task = next(next_task for next_task in next_agent_state.tasks if next_task == task)
-                    next_obs = self.network_obs(next_task, next_agent_state.tasks, next_agent_state.server, next_agent_state.time_step)
+                    next_obs = self._network_obs(next_task, next_agent_state.tasks, next_agent_state.server, next_agent_state.time_step)
                     self._add_trajectory(obs, action, next_obs, reward)
             else:
                 next_obs = np.zeros((1, self.resource_obs_width))

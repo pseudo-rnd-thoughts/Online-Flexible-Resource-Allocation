@@ -28,7 +28,8 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
     """
 
     def __init__(self, network: tf.keras.Model, target_update_tau: float = 1.0, target_update_frequency: int = 2500,
-                 discount_factor: float = 0.9, **kwargs):
+                 discount_factor: float = 0.9, initial_epsilon: float = 1, final_epsilon: float = 0.1,
+                 epsilon_steps: int = 10000, update_frequency: int = 25, **kwargs):
         """
         Constructor for the DQN agent
 
@@ -52,6 +53,24 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
         # Discount factor
         self.discount_factor = discount_factor
+
+        # Exploration attributes: initial, final and total steps
+        self.initial_epsilon = initial_epsilon
+        self.final_epsilon = final_epsilon
+        self.diff_epsilon = final_epsilon - initial_epsilon
+        self.epsilon_steps = epsilon_steps
+
+        # Exploration factor
+        self.epsilon = initial_epsilon
+
+        # Number of actions and exploration update frequency
+        self.total_actions = 0
+        self.update_frequency = update_frequency
+
+    def _update_epsilon(self):
+        self.total_actions += 1
+        if self.total_actions % self.update_frequency == 0:
+            self.epsilon = max(self.total_actions / self.epsilon_steps * self.diff_epsilon + self.initial_epsilon, 0)
 
     def _save(self, custom_location: Optional[str] = None):
         # Set the location to save the model
@@ -126,28 +145,14 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
         TaskPricingRLAgent.__init__(self, f'DQN TP {agent_name}' if type(agent_name) is int else agent_name, **kwargs)
 
     @staticmethod
-    def network_obs(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
-        """
-        Network observation for the Q network
-
-        Args:
-            auction_task: The pricing task
-            allocated_tasks: The allocated tasks
-            server: The server
-            time_step: The time step
-
-        Returns: numpy ndarray with shape (1, len(allocated_tasks) + 1, 9)
-
-        """
-
-        observation = [ReinforcementLearningAgent.normalise_task(auction_task, server, time_step) + [1.0]] + \
-                      [ReinforcementLearningAgent.normalise_task(allocated_task, server, time_step) + [0.0]
+    def _network_obs(auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
+        observation = [ReinforcementLearningAgent._normalise_task(auction_task, server, time_step) + [1.0]] + \
+                      [ReinforcementLearningAgent._normalise_task(allocated_task, server, time_step) + [0.0]
                        for allocated_task in allocated_tasks]
-
         return observation
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int) -> float:
-        observation = tf.expand_dims(self.network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
+        observation = tf.expand_dims(self._network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
         q_values = self.model_network(observation)
         action = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
         return action
@@ -168,7 +173,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
                                           **kwargs)
 
     @staticmethod
-    def network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
+    def _network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
         """
         Network observation for the Q network
 
@@ -183,16 +188,16 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
         """
         assert 1 < len(allocated_tasks)
 
-        task_observation = ReinforcementLearningAgent.normalise_task(weighting_task, server, time_step)
+        task_observation = ReinforcementLearningAgent._normalise_task(weighting_task, server, time_step)
         observation = [
-            task_observation + ReinforcementLearningAgent.normalise_task(allocated_task, server, time_step)
+            task_observation + ReinforcementLearningAgent._normalise_task(allocated_task, server, time_step)
             for allocated_task in allocated_tasks if weighting_task != allocated_task
         ]
 
         return observation
 
     def _get_actions(self, tasks: List[Task], server: Server, time_step: int) -> Dict[Task, float]:
-        observations = tf.convert_to_tensor([self.network_obs(task, tasks, server, time_step) for task in tasks],
+        observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
                                             dtype='float32')
         q_values = self.model_network(observations)
         actions = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
