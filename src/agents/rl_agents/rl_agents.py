@@ -46,10 +46,9 @@ class ReinforcementLearningAgent(ABC):
     """
 
     def __init__(self, batch_size: int = 32, optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
-                 error_loss_fn: tf.keras.losses.Loss = tf.compat.v1.losses.huber_loss,
-                 initial_training_replay_size: int = 5000, update_frequency: int = 4,
-                 replay_buffer_length: int = 100000, save_frequency: int = 25000, save_folder: str = 'checkpoint',
-                 **kwargs):
+                 error_loss_fn=tf.compat.v1.losses.huber_loss, initial_training_replay_size: int = 5000,
+                 update_frequency: int = 4, replay_buffer_length: int = 100000, save_frequency: int = 25000,
+                 save_folder: str = 'checkpoint', **kwargs):
         """
         Constructor that is generalised for the deep q networks and policy gradient agents
         Args:
@@ -121,7 +120,7 @@ class ReinforcementLearningAgent(ABC):
         dones = tf.cast(tf.stack(dones), tf.float32)
 
         training_loss = self._train(states, actions, next_states, rewards, dones)
-        tf.summary.scalar(f'{self.name} agent training loss', training_loss, step=self.total_observations)
+        tf.summary.scalar(f'{self.name} agent training loss', training_loss, self.total_observations)
         self.total_updates += 1
 
         if self.total_updates % self.save_frequency == 0:

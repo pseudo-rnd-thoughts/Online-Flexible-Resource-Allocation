@@ -30,7 +30,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
     def __init__(self, network: tf.keras.Model, target_update_tau: float = 1.0, target_update_frequency: int = 2500,
                  discount_factor: float = 0.9, initial_epsilon: float = 1, final_epsilon: float = 0.1,
-                 epsilon_steps: int = 10000, update_frequency: int = 25, **kwargs):
+                 epsilon_steps: int = 10000, epsilon_update_frequency: int = 25, **kwargs):
         """
         Constructor for the DQN agent
 
@@ -66,12 +66,13 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
         # Number of actions and exploration update frequency
         self.total_actions = 0
-        self.update_frequency = update_frequency
+        self.epsilon_update_frequency = epsilon_update_frequency
 
     def _update_epsilon(self):
         self.total_actions += 1
-        if self.total_actions % self.update_frequency == 0:
-            self.epsilon = max(self.total_actions / self.epsilon_steps * self.diff_epsilon + self.initial_epsilon, 0)
+        if self.total_actions % self.epsilon_update_frequency == 0:
+            self.epsilon = max(self.total_actions / self.epsilon_steps * self.diff_epsilon + self.initial_epsilon,
+                               self.final_epsilon)
 
     def _save(self, custom_location: Optional[str] = None):
         # Set the location to save the model
