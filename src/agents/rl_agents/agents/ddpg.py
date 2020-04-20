@@ -27,8 +27,8 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
                  critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
                  initial_epsilon_std: float = 0.8, final_epsilon_std: float = 0.1, epsilon_steps: int = 10000,
                  epsilon_update_frequency: int = 25, min_value: float = -15.0, max_value: float = 15,
-                 target_update_tau: float = 1.0, actor_update_frequency: int = 2500,
-                 critic_update_frequency: int = 1000, **kwargs):
+                 target_update_tau: float = 1.0, actor_target_update_frequency: int = 2500,
+                 critic_target_update_frequency: int = 1000, **kwargs):
         assert actor_network.output_shape[-1] == 1 and critic_network.output_shape[-1] == 1
 
         ReinforcementLearningAgent.__init__(self, **kwargs)
@@ -47,8 +47,8 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
         self.min_value = min_value
         self.max_value = max_value
         self.target_update_tau = target_update_tau
-        self.actor_update_frequency = actor_update_frequency
-        self.critic_update_frequency = critic_update_frequency
+        self.actor_target_update_frequency = actor_target_update_frequency
+        self.critic_target_update_frequency = critic_target_update_frequency
 
         # Exploration
         self.initial_epsilon_std = initial_epsilon_std
@@ -87,14 +87,13 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
         critic_grads = critic_tape.gradient(critic_loss, critic_network_variables)
         self.critic_optimiser.apply_gradients(zip(critic_grads, critic_network_variables))
 
-        # update the actor network
         actor_loss = self._actor_loss(states)
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
-        if self.total_updates % self.actor_update_frequency == 0:
+        if self.total_updates % self.actor_target_update_frequency == 0:
             ReinforcementLearningAgent._update_target_network(self.model_actor_network, self.target_actor_network,
                                                               self.target_update_tau)
-        if self.total_updates % self.critic_update_frequency == 0:
+        if self.total_updates % self.critic_target_update_frequency == 0:
             ReinforcementLearningAgent._update_target_network(self.model_critic_network, self.target_critic_network,
                                                               self.target_update_tau)
 
@@ -175,7 +174,8 @@ class TD3Agent(DdpgAgent, ABC):
     """
 
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model, twin_critic_network: tf.keras.Model,
-                 twin_critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(), **kwargs):
+                 twin_critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
+                 actor_update_frequency: int = 2, **kwargs):
         DdpgAgent.__init__(self, actor_network, critic_network, **kwargs)
 
         # Twin critic
@@ -183,6 +183,10 @@ class TD3Agent(DdpgAgent, ABC):
         self.twin_model_critic_network = twin_critic_network
         self.twin_target_critic_network = tf.keras.models.clone_model(twin_critic_network)
         self.twin_critic_optimiser = twin_critic_optimiser
+
+        # Training attributes
+        self.actor_update_frequency = actor_update_frequency
+
 
     def _train(self, states, actions, next_states, rewards, dones) -> float:
         rewards, dones = tf.expand_dims(rewards, axis=1), tf.expand_dims(dones, axis=1)
@@ -215,14 +219,17 @@ class TD3Agent(DdpgAgent, ABC):
         self.critic_optimiser.apply_gradients(zip(critic_grads, critic_network_variables))
         self.twin_critic_optimiser.apply_gradients(zip(twin_critic_grads, twin_critic_network_variables))
 
-        # Update the actor network
-        actor_loss = self._actor_loss(states)
+        if self.total_updates % self.actor_update_frequency == 0:
+            # update the actor network
+            actor_loss = self._actor_loss(states)
+        else:
+            actor_loss = 0
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
-        if self.total_updates % self.actor_update_frequency == 0:
+        if self.total_updates % self.actor_target_update_frequency == 0:
             ReinforcementLearningAgent._update_target_network(self.model_actor_network, self.target_actor_network,
                                                               self.target_update_tau)
-        if self.total_updates % self.critic_update_frequency == 0:
+        if self.total_updates % self.critict_target_update_frequency == 0:
             ReinforcementLearningAgent._update_target_network(self.model_critic_network, self.target_critic_network,
                                                               self.target_update_tau)
             ReinforcementLearningAgent._update_target_network(self.twin_model_critic_network,
