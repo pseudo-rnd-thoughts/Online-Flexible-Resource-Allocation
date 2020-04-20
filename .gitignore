@@ -5,7 +5,7 @@
 *.pyc
 
 # Agent training results and evaluation environments
-src/training/results/logs/
+src/training/results/old_logs/
 src/training/results/checkpoints/
 src/training/results/.ipynb_checkpoints/
 
@@ -26,5 +26,5 @@ src/training/results/.ipynb_checkpoints/
 # Testing tmp files
 /tests/env/settings/tmp/
 /tests/agent/checkpoints/
-/tests/training/tmp/
+/tests/training/results/tmp/
 /tests/training/settings/tmp/
