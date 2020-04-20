@@ -141,7 +141,7 @@ class Task(NamedTuple):
                         assert self.sending_progress < self.required_results_data
                     else:
                         if self.stage is TaskStage.COMPLETED:
-                            assert self.required_results_data == self.sending_progress
+                            assert self.required_results_data <= self.sending_progress
                         else:
                             assert self.stage is TaskStage.FAILED
 
