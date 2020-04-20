@@ -6,6 +6,7 @@
 
 # Agent training results and evaluation environments
 src/training/results/old_logs/
+src/training/results/logs/
 src/training/results/checkpoints/
 src/training/results/.ipynb_checkpoints/
 
