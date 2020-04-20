@@ -4,7 +4,8 @@ Tests the dqn agents training method
 
 from typing import List
 
-from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent
+from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent, ResourceWeightingTD3Agent, \
+    TaskPricingTD3Agent
 from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent, ResourceWeightingDdqnAgent, \
     ResourceWeightingDuelingDqnAgent, TaskPricingDqnAgent, TaskPricingDdqnAgent, TaskPricingDuelingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
@@ -13,16 +14,22 @@ from agents.rl_agents.rl_agents import ResourceWeightingRLAgent, TaskPricingStat
     ResourceAllocationState
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.task_stage import TaskStage
+from training.scripts.train_agents import setup_tensorboard
 
 
 def test_task_price_training():
     print()
+    setup_tensorboard('training/results/results/tmp/', 'price_training')
+
     # List of agents
     agents: List[TaskPricingRLAgent] = [
-        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10), batch_size=2),
-        TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 10), batch_size=2),
-        TaskPricingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(9, 10), batch_size=2),
-        TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9), batch_size=2)
+        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
+        TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
+        TaskPricingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
+        TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9), batch_size=2,
+                             save_folder='tmp'),
+        TaskPricingTD3Agent(4, create_lstm_actor_network(9), create_lstm_critic_network(9),
+                            create_lstm_critic_network(9), batch_size=2, save_folder='tmp')
     ]
 
     # Load the environment
@@ -60,12 +67,17 @@ def test_task_price_training():
 
 def test_resource_allocation_training():
     print()
+    setup_tensorboard('training/results/results/tmp/', 'resource_allocation_training')
+
     # List of agents
     agents: List[ResourceWeightingRLAgent] = [
-        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 10), batch_size=4),
-        ResourceWeightingDdqnAgent(1, create_lstm_dqn_network(16, 10), batch_size=4),
-        ResourceWeightingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(16, 10), batch_size=4),
-        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16), batch_size=4)
+        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 10), batch_size=4, save_folder='tmp'),
+        ResourceWeightingDdqnAgent(1, create_lstm_dqn_network(16, 10), batch_size=4, save_folder='tmp'),
+        ResourceWeightingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(16, 10), batch_size=4, save_folder='tmp'),
+        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16), batch_size=4,
+                                   save_folder='tmp'),
+        ResourceWeightingTD3Agent(4, create_lstm_actor_network(16), create_lstm_critic_network(16),
+                                  create_lstm_critic_network(16), batch_size=4, save_folder='tmp')
     ]
 
     # Load the environment

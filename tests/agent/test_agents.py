@@ -6,14 +6,15 @@ from __future__ import annotations
 
 import tensorflow as tf
 
-from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent
+from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent, TaskPricingTD3Agent, \
+    ResourceWeightingTD3Agent
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, TaskPricingDdqnAgent, TaskPricingDuelingDqnAgent, \
     ResourceWeightingDqnAgent, ResourceWeightingDdqnAgent, ResourceWeightingDuelingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_critic_network, create_lstm_actor_network
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
 
-# TODO add comments
+# TODO add comments and new agents
 
 
 def test_build_agent():
@@ -48,11 +49,9 @@ def test_build_agent():
     weighting_arguments = {'other_task_discount': 0.2, 'success_reward': 1, 'failed_reward': -2,
                            'reward_multiplier': 2.0, 'ignore_empty_next_obs': False}
 
+    # DQN Agent arguments ----------------------------------------------------------------------
     dqn_pricing_arguments = {**reinforcement_learning_arguments, **dqn_arguments, **pricing_arguments}
     dqn_weighting_arguments = {**reinforcement_learning_arguments, **dqn_arguments, **weighting_arguments}
-
-    ddpg_pricing_arguments = {**reinforcement_learning_arguments, **ddpg_arguments, **pricing_arguments}
-    ddpg_weighting_arguments = {**reinforcement_learning_arguments, **ddpg_arguments, **weighting_arguments}
 
     pricing_network = create_lstm_dqn_network(9, 10)
     pricing_agents = [
@@ -72,12 +71,26 @@ def test_build_agent():
     for agent in weighting_agents:
         assert_args(agent, dqn_weighting_arguments)
 
-    pricing_agent = TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9),
-                                         **ddpg_pricing_arguments)
-    weighting_agent = ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16),
-                                                 **ddpg_weighting_arguments)
-    assert_args(pricing_agent, ddpg_pricing_arguments)
-    assert_args(weighting_agent, ddpg_weighting_arguments)
+    # PG Agent arguments ----------------------------------------------------------------------------------
+    ddpg_pricing_arguments = {**reinforcement_learning_arguments, **ddpg_arguments, **pricing_arguments}
+    ddpg_weighting_arguments = {**reinforcement_learning_arguments, **ddpg_arguments, **weighting_arguments}
+
+    pricing_agents = [
+        TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9), **ddpg_pricing_arguments),
+        TaskPricingTD3Agent(4, create_lstm_actor_network(9), create_lstm_critic_network(9),
+                            create_lstm_critic_network(9), **ddpg_pricing_arguments)
+    ]
+    for pricing_agent in pricing_agents:
+        assert_args(pricing_agent, ddpg_pricing_arguments)
+
+    weighting_agents = [
+        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16),
+                                   **ddpg_weighting_arguments),
+        ResourceWeightingTD3Agent(4, create_lstm_actor_network(16), create_lstm_critic_network(16),
+                                  create_lstm_critic_network(16), **ddpg_weighting_arguments)
+    ]
+    for weighting_agent in weighting_agents:
+        assert_args(weighting_agent, ddpg_weighting_arguments)
 
 
 def test_saving_agent():
@@ -104,13 +117,17 @@ def test_agent_actions():
         TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5)),
         TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 5)),
         TaskPricingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(9, 5)),
-        TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9))
+        TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9)),
+        TaskPricingTD3Agent(4, create_lstm_actor_network(9), create_lstm_critic_network(9),
+                            create_lstm_critic_network(9))
     ]
     weighting_agents = [
-        ResourceWeightingDqnAgent(3, create_lstm_dqn_network(16, 5)),
-        ResourceWeightingDdqnAgent(4, create_lstm_dqn_network(16, 5)),
-        ResourceWeightingDuelingDqnAgent(5, create_lstm_dueling_dqn_network(16, 5)),
-        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16))
+        ResourceWeightingDqnAgent(1, create_lstm_dqn_network(16, 5)),
+        ResourceWeightingDdqnAgent(2, create_lstm_dqn_network(16, 5)),
+        ResourceWeightingDuelingDqnAgent(3, create_lstm_dueling_dqn_network(16, 5)),
+        ResourceWeightingDdpgAgent(4, create_lstm_actor_network(16), create_lstm_critic_network(16)),
+        ResourceWeightingTD3Agent(5, create_lstm_actor_network(16), create_lstm_critic_network(16),
+                                  create_lstm_critic_network(16))
     ]
 
     env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/actions.env')

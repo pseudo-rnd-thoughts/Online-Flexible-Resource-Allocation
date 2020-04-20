@@ -5,6 +5,7 @@ Checks that neural networks can be differentiated using DQN loss function
 from __future__ import annotations
 
 import tensorflow as tf
+import numpy as np
 
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
@@ -99,3 +100,17 @@ def test_networks():
         print(f'Network - actor: {pricing_actor.name}, critic: {pricing_critic.name}'
               f'\n\tAuction Actor: {auction_output}, critic: {pricing_critic([auction_obs, auction_action])}'
               f'\n\tWeighting Actor: {weighting_action}, critic: {weighting_critic([resource_obs, weighting_action])}')
+
+
+def test_critic_networks():
+    networks = [
+        create_lstm_critic_network(9)
+    ]
+
+    obs = tf.random.normal((5, 3, 9), 0, 4)
+    action = tf.random.normal((5, 1), 0, 2)
+    print(f'\nObs: {obs}')
+    print(f'action: {action}')
+
+    for network in networks:
+        print(network([obs, action]))

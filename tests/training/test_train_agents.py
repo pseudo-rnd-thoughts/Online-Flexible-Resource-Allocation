@@ -17,7 +17,7 @@ from training.scripts.train_agents import generate_eval_envs, eval_agent, train_
 
 def test_agent_evaluation():
     print()
-    setup_tensorboard('training/tmp/', 'agent_eval')
+    setup_tensorboard('training/results/tmp/', 'agent_eval')
 
     env = OnlineFlexibleResourceAllocationEnv('training/settings/basic.env')
 
@@ -30,12 +30,12 @@ def test_agent_evaluation():
         total_resource_allocation += env._total_time_steps + 1
 
     pricing_agents = [
-        RandomTaskPricingAgent(0),
-        TaskPricingDqnAgent(1, create_bidirectional_dqn_network(9, 5))
+        TaskPricingDqnAgent(0, create_bidirectional_dqn_network(9, 5)),
+        TaskPricingDdpgAgent(1, create_lstm_actor_network(9), create_lstm_critic_network(9))
     ]
     weighting_agents = [
-        RandomResourceWeightingAgent(2),
-        ResourceWeightingDqnAgent(2, create_bidirectional_dqn_network(16, 5))
+        ResourceWeightingDqnAgent(2, create_bidirectional_dqn_network(16, 5)),
+        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16))
     ]
 
     results = eval_agent(eval_envs, 0, pricing_agents, weighting_agents)
