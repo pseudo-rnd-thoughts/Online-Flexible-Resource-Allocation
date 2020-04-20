@@ -1,0 +1,6 @@
+tensorflow
+gym
+gin-config
+tqdm
+jupyter
+pytest
