@@ -9,4 +9,4 @@ module load conda
 source activate py37env
 
 echo 'Running RNN Network DQN multi-agent'
-python -m  training.scripts.network_training.rnn_multi_agent
+python -m training.scripts.network_training.rnn_multi_agent
