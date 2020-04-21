@@ -16,22 +16,23 @@ if __name__ == "__main__":
     writer = setup_tensorboard('training/results/logs/', folder)
 
     env = OnlineFlexibleResourceAllocationEnv([
-        './train_agents/env_settings/basic_env.json',
-        # Todo add additional environments
+        './train_agents/env_settings/basic.env',
+        './train_agents/env_settings/large_tasks_servers.env',
+        './train_agents/env_settings/limited_resources.env',
+        './train_agents/env_settings/mixture_tasks_servers.env'
     ])
-    eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/{folder}/')
+    eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/{folder}/')
 
     task_pricing_agents = [
-        TaskPricingDqnAgent(agent_num, create_lstm_dqn_network(9, 10), save_folder=folder)
-        for agent_num in range(3)
+        TaskPricingDqnAgent(agent_num, create_lstm_dqn_network(9, 16), save_folder=folder)
+        for agent_num in range(4)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDqnAgent(agent_num, create_lstm_dqn_network(16, 10), save_folder=folder)
-        for agent_num in range(3)
+        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 10), save_folder=folder)
     ]
 
     with writer.as_default():
-        run_training(env, eval_envs, 150, task_pricing_agents, resource_weighting_agents, 5)
+        run_training(env, eval_envs, 600, task_pricing_agents, resource_weighting_agents, 5)
 
     for agent in task_pricing_agents:
         agent.save()
