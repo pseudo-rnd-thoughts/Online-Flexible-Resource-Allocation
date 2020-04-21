@@ -1,15 +1,17 @@
 \chapter{Proposed solution to problem}\label{ch:proposed-solution-to-problem}
-In chapter~\ref{ch:project-problem}, the problem that this project address was outlined along with the reasoning for the
-project. This chapter builds upon that giving a format mathematical model of the problem
+In chapter~\ref{ch:project-problem}, the problem that this project aims to address was outlined along with a short
+description of the proposed solution. This chapter builds upon that giving a format mathematical model for the problem
 (section~\ref{sec:optimisation-problem}). While the overall problem is about resource allocation, we believe that cloud
 provider would wish to be paid for the use of their services so this additional problem is addressed in
-section~\ref{sec:auctioning-of-tasks}. Using these two problems from the previous two sections,
-section~\ref{sec:proposed-agents} proposed agents who can learn how to maximise their profit over time.
+section~\ref{sec:auctioning-of-tasks} for the auctioning of tasks. With the two problems explained in the previous two
+sections, section~\ref{sec:proposed-agents} proposed auction agent (subsection~\ref{subsec:proposed-auction-agents})
+who can learn how to maximise their profits over time and resource allocation agents
+(subsection~\ref{subsec:proposed-resource-allocation-agents}) to determine how to complete all of the tasks.
 
 \section{Resource Allocation Optimisation problem}\label{sec:optimisation-problem}
 Using the flexible resource allocation principle presented in~\cite{FlexibleResourceAllocation}, a format mathematical
-description of the model can developed. The principle is that for certain resources, the time taken for a operation to occur,
-e.g.\ loading of a program, computing the program and sending of results, etc, is proportional to the amount of
+description of the model can developed. This principle is that for certain resources, the time taken for a operation to
+occur, e.g.\ loading of a program, computing the program and sending of results, etc, is proportional to the amount of
 resources allocated to completed the operation. \footnote{This principle is not always true, for example, video
 decompression is a generally a single thread operation and cannot be effectively multi-threaded. However for this
 project we only consider tasks that can be parallelised effectively.}
@@ -23,7 +25,7 @@ resource allocation formulation can be described to maximise social welfare.
 
 A sketch of the system is shown in Fig.~\ref{fig:system_model}.
 We assume that in the system there is a set of $I = \{1,2,\ldots,\left|I\right|\}$ servers are heterogeneous in all
-characters. Each server has a fixed availability of resources: storage for the code/data needed to run a task
+characteristics. Each server has a fixed availability of resources: storage for the code/data needed to run a task
 (e.g., measured in GB), computation capacity in terms of CPU cycles per time interval (e.g., measured in FLOP/s),
 and communication bandwidth to receive the data and to send back the results of the task after execution
 (e.g., measured in Mbit/s). We denote these resources for server $i$: the storage capacity as $S_i$, computation
@@ -49,7 +51,7 @@ has a beginning time, denoted by $b_j$ and a deadline, denoted by $d_j$. This is
 completed in order for the user to derive its value. This time includes: the time required to send the data/code to the
 server, run it on the server, and get back the results. Therefore for the task to be successfully completed, it must
 completed fulfill the constraint in equation~\eqref{eq:deadline}. These operations must occur in order (loading,
-computing then sending of results) as a server couldn't compute a task that was not fully loaded on the machine.
+computing then sending of results) as a server couldn't start computing a task that was not fully loaded on the machine.
 
 \begin{align}
     \frac{s_j}{\sum^{d_j}_{t=b_j} s^{'}_{i,j,t}} + \frac{w_j}{\sum^{d_j}_{t=b_j} w^{'}_{i,j,t}}  +
@@ -61,13 +63,12 @@ The storage constraint (equation~\eqref{eq:server_storage_capacity}) is unique a
 loaded in kept till the end of a program on server. While the computation capacity
 (equation~\eqref{eq:server_computation_capacity} is the sum of compute used by all of the tasks on a server $i$ at time $t$ and the
 bandwidth capacity (equation~\eqref{eq:server_bandwidth_capacity}) is the sum of loading and sending usages by tasks.
+
 \begin{align}
     \sum_{j \in J} \left(\sum^{d_j}_{t=b_j} s^{'}_{i,j,t} \right) \leq S_i, && \forall{i \in I} \label{eq:server_storage_capacity} \\
     \sum_{j \in J} w^{'}_{i,j,t} \leq W_i, && \forall{i \in I, t \in T} \label{eq:server_computation_capacity} \\
     \sum_{j \in J} s^{'}_{i,j,t} + r^{'}_{i,j,t} \leq R_i, && \forall{i \in I, t \in T} \label{eq:server_bandwidth_capacity} \\
 \end{align}
-
-% Todo add complete mathematical description of the problem
 
 \section{Auctioning of Tasks}\label{sec:auctioning-of-tasks}
 While the mathematically description of the problem presented above doesn't contain any auctioning properties, in real
