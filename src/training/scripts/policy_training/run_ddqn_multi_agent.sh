@@ -9,4 +9,4 @@ module load conda
 source activate py37env
 
 echo 'Running Double DQN agent'
-python -m  training.scripts.policy_training.ddqn_multi_agent
+python -m training.scripts.policy_training.ddqn_multi_agent

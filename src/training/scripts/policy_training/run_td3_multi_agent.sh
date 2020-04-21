@@ -9,4 +9,4 @@ module load conda
 source activate py37env
 
 echo 'Running TD3 agent'
-python -m  training.scripts.policy_training.td3_multi_agent
+python -m training.scripts.policy_training.td3_multi_agent

@@ -9,4 +9,4 @@ module load conda
 source activate py37env
 
 echo 'Running Dueling DQN agent'
-python -m  training.scripts.policy_training.dueling_multi_agent
+python -m training.scripts.policy_training.dueling_multi_agent
