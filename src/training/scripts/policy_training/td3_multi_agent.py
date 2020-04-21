@@ -13,7 +13,7 @@ from training.scripts.train_agents import generate_eval_envs, run_training, setu
 if __name__ == "__main__":
     gin.parse_config_file('./training/settings/standard_config.gin')
 
-    folder = 'ddpg_agents'
+    folder = 'td3_agent'
     writer = setup_tensorboard('training/results/logs/', folder)
 
     env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
