@@ -27,13 +27,12 @@ if __name__ == "__main__":
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDqnAgent(agent_num, create_bidirectional_dqn_network(16, 10), save_folder=folder)
-        for agent_num in range(3)
+        ResourceWeightingDqnAgent(0, create_bidirectional_dqn_network(16, 10), save_folder=folder)
     ]
 
     # Train the agents
     with writer.as_default():
-        run_training(env, eval_envs, 300, task_pricing_agents, resource_weighting_agents, 5)
+        run_training(env, eval_envs, 450, task_pricing_agents, resource_weighting_agents, 5)
 
     for agent in task_pricing_agents:
         agent._save()
