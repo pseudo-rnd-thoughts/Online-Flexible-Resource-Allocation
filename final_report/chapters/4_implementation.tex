@@ -1,63 +1,60 @@
 \chapter{Implementation of the solution}\label{ch:implementation-of-the-solution}
-Using the proposed solution in chapter~\ref{ch:proposed-solution-to-problem}, there are several stages in implementing
-the problem. These stages are: the environment, in order to simulate edge cloud computing servers
-(explained in section~\ref{sec:simulating-edge-cloud-computing-services}), defining server auction agents and
-resource allocation agents (explained in section~\ref{sec:agent-definition}) and finally to train the agents on the
-environment (explained in section~\ref{sec:training-of-agents}).
+In order to implement a solution from chapter~\ref{ch:proposed-solution-to-problem}, a edge cloud computing environment
+must be simulated due to the impractically of setting up such a network and in order to train the agents proposed
+in section~\ref{sec:proposed-agents}. This chapter splits the implementation into three sections: the environment
+simulation (section~\ref{sec:simulating-edge-cloud-computing-services}), define server auction agents and resource
+allocation agents (section~\ref{sec:agent-definition}) and finally training the agents
+(section~\ref{sec:training-of-agents}).
 
 The implementation discussed below as written in Python and available to download from Github at
-\burl{https://github.com/stringtheorys/Online-Flexible-Resource-Allocation}
+\burl{https://github.com/stringtheorys/Online-Flexible-Resource-Allocation}. The reason for the use of python is number
+of modules available for reinforcement learning and the speed of development.
 
 \section{Simulating edge cloud computing services}\label{sec:simulating-edge-cloud-computing-services}
-As the aim of the environment is to train agents to learn how to action optimally then the way that agents interact
-with the environments matters. OpenAI have create a large number of open source popular reinforcement learning
-environment using the python module gym~\citep{openaigym}. Due to the wide scale use of the environment specification
-by reinforcement learning researchers, this project follows the specification with three primary functions: make,
-step and reset. An example of using the environment is given in in listing~\ref{listing:example_flexible_resource_env}
-with generating of the actions.
+While the aim of the environment is the simulate accurately edge cloud computing server, the implementation of the
+environment must allow agents to train on interact and training on the environment. Therefore it has been implemented
+using as an OpenAI gym~\citep{openaigym}, the de facto standard for implementing reinforcement learning
+environment for researchers. However the standard specification must be modified due to the problem being multi-agent,
+multi-step and as a centralised system.
+%% TODO add explanation of environment funtions
 
-\begin{table}
-    \centering
-    \begin{tabular}{|p{3cm}|p{10cm}|} \hline
-    Function name & Function purpose \\ \hline
-    make(settings) & Accept a list of environment settings filenames in order to setup the environment with the
-        specifications of how to generate new and random environments. The function returns a new flexible resource
-        allocation environment with the settings assigned as an attribute. \\ \hline
-    step(actions) & Accepts a dictionary of actions for each of the servers with the step type (auction or resource
-        allocation) being determined by the state having an auction task specified or not. The function returns a tuple
-        of updated state, reward, is environment done and information. \\ \hline
-    reset() & Resets the environment using the environment specifications settings set from the make function arguments
-        and returns the new state. \\ \hline
-    \end{tabular}
-    \label{tab:env_funcs}
-    \caption{Table of flexible resource environment functions}
-\end{table}
+%% TODO Server resource allocation
+A particular complication of the system is to distribute server resources due to the fact that server provide a
+dictionary of task with a resource weighting that much be converted to the allocated resources for each task.
 
-\begin{lstlisting}[language=Python, frame=single]
-env = FlexibleResourceEnv.make('basic_settings')
-state = env.reset()
-done = False
-while not done:
-    if state.auction_task:
+
+\begin{lstlisting}[language=Python, frame=single, caption={An example for running the environment},captionpos=b]
+# Load the environment with a setting
+env = OnlineFlexibleResourceAllocationEnv('settings')
+
+# Generate the environment state
+server_state = env.reset()
+
+for _ in range(1000):
+    # Select actions based on if it is auction or resource allocation step
+    if server_state.auction_task:
         actions = {
             server: server_auction_agent.bid(state)
-            for server in state
+            for server in server_state
         }
     else:
         actions = {
-            server: {
-                task: server_resource_agent.weight(state)
-            }
+            server: server_resource_agent.weights(state)
+            for server in server_state
         }
-    state, reward, done, info = env.step(actions)
 
+    # Take environment step
+    server_state, reward, done, info = env.step(actions)
+
+    # If the environment is finished then reset it
     if done:
-        obs = env.reset()
+        server_state = env.reset()
 env.close()
 \label{listing:example_flexible_resource_env}
 \end{lstlisting}
 
 \section{Defining the agents}\label{sec:agent-definition}
+%% TODO Add tensorflow difficults
 Each server has to have a unique policy for bidding on tasks and allocating resources that is explained in
 section~\ref{sec:proposed-agents}. Even those the state space and action space are exactly the same, the optimal
 policies for task pricing and resource allocation are completely different.
@@ -74,21 +71,24 @@ evaluate the performance of the different policies learning methods.
     \begin{tabular}{|p{3cm}|p{12cm}|} \hline
         Policy Type & Explanation \\ \hline
         Dqn~\citep{mnih2015humanlevel} & A standard deep Q learning agent that discretizes the action space \\ \hline
+        Double Dueling DQN~\icte{double_dqn, dueling_dqn} & A combination of two heuristics for the standard deep Q
+            learning agents that uses a modified td target and a modified networks where the state value and advantage
+            is separated out and recombined for the q values. \\ \hline
         Distributional Dqn~\citep{distributional_dqn} & Standard deep Q learning agents return a scalar value
             (representing the q value) for each action. Distributional Dqn changes the output value to a probability
             distribution over the possible values that the agent returns. \\ \hline
-        Rainbow Dqn~\citep{rainbow} & Using a vary of additional heuristic this will expand the previous distributional
-            dqn and dqn agents. The additional that the rainbow uses is explained in
-            section~\ref{sec:related-work-in-machine-learning}\\ \hline
         Deep deterministic policy gradient~\citep{ddpg} & As the action space is continuous, DDPG allows for
             investigation of the difference between continuous and discrete action spaces and policy gradient can be
             more effective at learning a policy where the reward function is too complex. \\ \hline
+        Twin delay DDPG~\citep{td3} & \\ \hline
+        D4PG~\citep{d4pg} &
     \end{tabular}
     \caption{Table of policy types}
     \label{tab:reinforcement_learning_policies}
 \end{table}
 
-% Todo Add additional heuristic policies
-
 \section{Training of agents}\label{sec:training-of-agents}
-This is currently unknown as this training being investigated currently.
+% Todo
+% Single resource allocation agent
+% Different environments
+% Reward functions
