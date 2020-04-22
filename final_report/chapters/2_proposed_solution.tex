@@ -23,13 +23,6 @@ bottleneck can occur on certain resource preventing additional tasks from being 
 having the requested resources available for the task. Therefore using this principle, a modified version of a standard
 resource allocation formulation can be described to maximise social welfare.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=8cm]{figures/system_model.pdf}
-    \caption{System model}
-    \label{fig:system_model}
-\end{figure}
-
 A sketch of the system is shown in Fig.~\ref{fig:system_model}.
 We assume that in the system there is a set of $I = \{1,2,\ldots,\left|I\right|\}$ servers are heterogeneous in all
 characteristics. Each server has a fixed availability of resources: storage for the code/data needed to run a task
@@ -38,126 +31,75 @@ and communication bandwidth to receive the data and to send back the results of 
 (e.g., measured in Mbit/s). We denote these resources for server $i$: the storage capacity as $S_i$, computation
 capacity as $W_i$, and the communication capacity as $R_i$.
 
+\begin{figure}
+    \centering
+    \includegraphics[width=8cm]{figures/system_model.pdf}
+    \caption{System model}
+    \label{fig:system_model}
+\end{figure}
+
 There is a set $J = \{1,2,\ldots,\left| J \right|\}$ of  different tasks that require service from one of the servers
-in set $I = \{1,2,\ldots, \left| I \right|\}$. Time is denoted by $T = \{1, 2, \ldots, \left| T \right|\}$. For a task
-to be allocated to a server, $x_{i,j} = 1$ such that $x_{i,j}$ represents if a task $j$ is allocated to server $i$.
-The aims of the system is to maximise task values that are completed, called the social welfare is
-equation~\ref{eq:objective}. Task allocation is restricted such that only a task can only be allocated to a single task
-(constraint~\ref{eq:server_task_binary} and~\ref{eq:server_task_limit}).
+in set $I = \{1,2,\ldots, \left| I \right|\}$. To run any of these tasks on a server requires storing the appropriate
+code/data on the same server. These could be, for example, a set of images, videos or CNN layers in identification
+tasks. The storage size of task $j$ is denoted as $s_j$ with the rate at which the program is transferred to the server
+$i$ at time $t$ being $s^{'}_{i,j,t}$. For a task to be computed successfully, it must fetch and execute instructions
+on a CPU. We consider the total number of CPU cycles required for the program to be $w_j$, where the rate at which the
+CPU cycles are assigned to the task on server $i$ at time $t$ is $w^{'}_{i,j,t}$. Finally, after the task is run and
+the results obtained, the latter need to be sent back to the user. The size of the results for task $j$ is denoted with
+$r_j$, and the rate at which they are sent back to the user is $r^{'}_{i,j,t}$ on server $i$ at time $t$. Every task
+has a beginning time, denoted by $b_j$ and a deadline, denoted by $d_j$. This is the maximum time for the task to be
+completed in order for the user to derive its value. This time includes: the time required to send the data/code to the
+server, run it on the server, and get back the results. Therefore for the task to be successfully completed, it must
+completed fulfill the constraint in equation~\eqref{eq:deadline}. These operations must occur in order (loading,
+computing then sending of results) as a server couldn't start computing a task that was not fully loaded on the machine.
 
 \begin{align}
-    \text{max} \sum{j \in J} v_j \left( \sum_{i \in I} x_{i,j} \right) \label{eq:objective} \\
-    x_{i,j} \in \{0, 1\} && \forall{j \in J, i \in I} \label{eq:server_task_binary} \\
-    \sum_{i \in I} x_{i,j} \leq 1 && \forall{j \in J} \label{eq:server_task_limit} \\
-\end{align}
-
-%% Todo probably fixed
-Due to the addition of time, modifications must be previous work in~\cite{FlexibleResourceAllocation} as tasks can
-be allocated resources at each time step and tasks arrive over time.
-Each task is auctioned at time step, denoted by $a_j$ and must be completed by the deadline, denoted by $d_j$.
-To run any of these tasks on a server requires storing the appropriate code/data on the same server. These could be,
-for example, a set of images, videos or CNN layers in identification tasks. The storage size of task $j$ is denoted
-as $s_j$ with the rate at which the program is transferred at time $t$ being $s^{'}_{j,t}$. For a task to be computed
-successfully, it must fetch and execute instructions on a CPU. We consider the total number of CPU cycles required
-for the program to be $w_j$, where the rate at which the CPU cycles are assigned to the task at time $t$ is
-$w^{'}_{j,t}$. Finally, after the task is run and the results obtained, the latter need to be sent back to the user.
-The size of the results for task $j$ is denoted with $r_j$, and the rate at which they are sent back to the user
-is $r^{'}_{j,t}$ at time $t$.
-
-As each task must complete each stage is serial order (loading, computing then sending of
-results) due to practical problem that server's couldn't start computing a task that was not fully loaded. This is in
-comparison to previous work that allowed task stages to be completed in parallel. The progress is denoted by
-$\hat{s}_{j,t}$ for the loading progress, $\hat{w}_{j,t}$ for the compute progress and $\hat{r}_{j,t}$ for the sending
-progress. These variables are updated recursively from the previous value plus the resources allocated
-(equations~\ref{eq:loading_progress},~\ref{eq:compute_progress} and~\ref{eq:sending_progress}). In the case of compute
-progress and sending progress (equations~\ref{eq:compute_progress} and~\ref{eq:sending_progress}), resources can't be
-allocated till the previous stage is completed. Therefore, the resource allocated multiple by the floor of the ratio
-between the previous stage progress and the required resources of the stage. Meaning that if the previous stage is not
-completed, no new resources can be allocated. For the task to be completed successfully, the sending results stage
-must be completed before the task deadline (equation~\ref{eq:deadline}).
-
-\begin{align}
-    \hat{s}_{j,t+1} = \hat{s}_{j,t} + s^{'}_{j,t} &&
-        \forall{j \in J, t \in \{a_j, \dots, d_j\}} \label{eq:loading_progress} \\
-    \hat{w}_{j,t+1} = \hat{w}_{j,t} + w^{'}_{j,t} \left \lfloor{\frac{\hat{s}_{j,t}}{s_j}}\right \rfloor &&
-        \forall{j \in J, t \in \{a_j, \dots, d_j\}} \label{eq:compute_progress} \\
-    \hat{r}_{j,t+1} = \hat{r}_{j,t} + r^{'}_{j,t} \left \lfloor{\frac{\hat{s}_{j,t}}{s_j}}\right \rfloor &&
-        \forall{j \in J, t \in \{a_j, \dots, d_j\}} \label{eq:sending_progress} \\
-
-    \hat{r}_{j,d_j} = r_j && \forall{j \in J} \label{eq:deadline} \\
-\end{align}
-
-Additional constraints are to initialise the progress variables and to limit the range of valid values.
-Constraints~\ref{eq:init_loading_progress},~\ref{eq:init_compute_progress} and~\ref{eq:init_sending_progress} initialise
-the stage progress at the first time step of the task at $a_j$, the task auction time. To limit the range of resource
-usage, two sets of constraints are used, the first is to limit the range of progress to be less than or equal to the
-required resources of the task (constraints~\ref{eq:limit_loading_progress},~\ref{eq:limit_compute_progress}
-and~\ref{eq:limit_sending_progress}). The second is to limit the resource usage to be a positive real number
-(constraints~\ref{eq:limit_loading_usage},~\ref{eq:limit_compute_usage} and~\ref{eq:limit_sending_usage}).
-
-\begin{align}
-    \hat{s}_{j, a_j} = 0 && \forall{j \in J} \label{eq:init_loading_progress} \\
-    \hat{w}_{j, a_j} = 0 && \forall{j \in J} \label{eq:init_compute_progress} \\
-    \hat{r}_{j, a_j} = 0 && \forall{j \in J} \label{eq:init_sending_progress} \\
-
-    0 \leq \hat{s}_{j,t} \leq s_j && \forall{j \in J, t \in \{a_j, \dots, d_j\}} \label{eq:limit_loading_progress} \\
-    0 \leq \hat{w}_{j,t} \leq w_j && \forall{j \in J, t \in \{a_j, \dots, d_j\}} \label{eq:limit_compute_progress} \\
-    0 \leq \hat{r}_{j,t} \leq r_j && \forall{j \in J, t \in \{a_j, \dots, d_j\}} \label{eq:limit_sending_progress} \\
-
-    0 \leq s^{j,t} < \infty && \forall{j in J, t \in T} \label{eq:limit_loading_usage} \\
-    0 \leq w^{j,t} < \infty && \forall{j in J, t \in T} \label{eq:limit_compute_usage} \\
-    0 \leq r^{j,t} < \infty && \forall{j in J, t \in T} \label{eq:limit_sending_usage} \\
+    \frac{s_j}{\sum^{d_j}_{t=b_j} s^{'}_{i,j,t}} + \frac{w_j}{\sum^{d_j}_{t=b_j} w^{'}_{i,j,t}}  +
+    \frac{r_j}{\sum^{d_j}_{t=b_j} r^{'}_{i,j,t}} \leq d_j && \forall{j \in J}  \label{eq:deadline}
 \end{align}
 
 As server have limited capacity, the total resource usages for all tasks running on a server must be capped.
 The storage constraint (equation~\eqref{eq:server_storage_capacity}) is unique as the previous amount
 loaded in kept till the end of a program on server. While the computation capacity
-(equation~\eqref{eq:server_computation_capacity} is the sum of compute used by all of the tasks on a server $i$ at
-time $t$ and the bandwidth capacity (equation~\eqref{eq:server_bandwidth_capacity}) is the sum of loading and sending
-usages by tasks.
+(equation~\eqref{eq:server_computation_capacity} is the sum of compute used by all of the tasks on a server $i$ at time $t$ and the
+bandwidth capacity (equation~\eqref{eq:server_bandwidth_capacity}) is the sum of loading and sending usages by tasks.
 
 \begin{align}
-    \sum_{j \in J} \hat{s}_{j,t} \dot x_{i,j} \leq S_i, &&
-        \forall{i \in I, t \in T} \label{eq:server_storage_capacity} \\
-    \sum_{j \in J} w^{'}_{j,t} \dot x_{i,j} \leq W_i, &&
-        \forall{i \in I, t \in T} \label{eq:server_computation_capacity} \\
-    \sum_{j \in J} (s^{'}_{j,t} + r^{'}_{j,t}) \dot x_{i,j} \leq R_i, &&
-        \forall{i \in I, t \in T} \label{eq:server_bandwidth_capacity} \\
+    \sum_{j \in J} \left(\sum^{d_j}_{t=b_j} s^{'}_{i,j,t} \right) \leq S_i, && \forall{i \in I} \label{eq:server_storage_capacity} \\
+    \sum_{j \in J} w^{'}_{i,j,t} \leq W_i, && \forall{i \in I, t \in T} \label{eq:server_computation_capacity} \\
+    \sum_{j \in J} s^{'}_{i,j,t} + r^{'}_{i,j,t} \leq R_i, && \forall{i \in I, t \in T} \label{eq:server_bandwidth_capacity} \\
 \end{align}
 
 \section{Auctioning of Tasks}\label{sec:auctioning-of-tasks}
-While the mathematical description of the problem presented above doesn't contain any auctioning properties as it
-aims to maximise the social welfare, in real life cloud providers normally wish to be paid to the use of their services.
-However all of auction mechanisms that were discussed in section~\ref{sec:related-work-in-cloud-computing} are not
-applicable as the metrics used to calculate the cost, total resource usage or server resource demand are not possible
-to compute prior to the task starting. Because of this, a novel or modified auction mechanism must be used to deal with
-these changes. Due to the complexities of devising new auction mechanism and the large corpus of research on auctions,
-this project has chosen to use the Vickrey auction~\citep{vickrey}. This decision is justified in
-section~\ref{sec:justification-of-vickrey-auction-mechanisms} on why this auction was chosen over other alternatives.
+While the mathematically description of the problem presented above doesn't contain any auctioning properties, in real
+life cloud providers normally wish to be paid to the use of their services. However due to the modifications that
+this project has to make to the optimisation problems compared to a traditional cloud computing optimisation problem.
+All traditional auction mechanisms that have been discussed in section~\ref{sec:related-work-in-cloud-computing} cannot
+be used as the user is not requesting a fixed amount of resources nor can the available resources be easily computed
+as this is dynamic depending on the currently allocated tasks to a server. This means that a novel or modified auction
+mechanism must be used to deal with these changes. Due to the complexities of devising new auction mechanism and the
+large corpus of research on auctions already, this project has chosen to use the Vickrey auction~\citep{vickrey}.
+This decision is justified in section~\ref{sec:justification-of-vickrey-auction-mechanisms} on why auction over other
+alternatives was chosen.
 
-The modifications made to the Vickrey auction is to reverse the auction as server are bidding on tasks instead of
-a task buying servers. Meaning that the server with the minimum price is wins the task with the task paying the
-second minimum price. Because of this, the auction is referenced to as the reverse Vickrey auction. The auction works
-by allowing servers to all submit their bid for the task with the winner being the server with the lowest
-price but actually gains the second lowest price which the task pays. The advantage of using the Vickrey auction is
-that it is incentive compatible meaning that the dominant strategy for bidding on a task is to bid your truthful value.
-This should help server as they dont need to learn how to outbid another agent as it only needs to consider its own
-evaluation. This also allows agents to learn through self-play effectively. A second advantage is that the auction only
-a single round of bidding compared to alternative auctions like English or Dutch auctions. This makes auctioning fast
-no matter the number of servers. An advantage for tasks is reverse price can be put in place to prevent servers from
-bidding to high however this is believed to be unnecessary as it wouldn't affect how server's bid.
+The modification that is made to the Vickrey auction is to reverse the auction as server are bidding on tasks instead of
+a task paying servers. Because of this, the auction is referenced to as the reverse Vickrey auction. The auction works
+by allowing servers all submit their bid for the task with the winner being the server with the lowest
+price but actually only gains second lowest price. The advantage of using the Vickrey auction is that it is  incentive
+compatible meaning that the dominant strategy for bidding on a task is to bid your truthful value. This should help
+server as they dont need to learn how to outbid another agent as it only needs to consider its own evaluation.
+This also allows agents to learn through self-play effectively. The auction also has only a single round of bidding
+compared to alternative auctions like English or Dutch auctions. This makes auctioning fast no matter the number of
+servers and it also allows for tasks to set a reserve price.
 
 \section{Proposed Agents}\label{sec:proposed-agents}
-Using the optimisation formulation and vickrey auction explained in the previous two sections, a solution for the
-project can be devised. To model the solution, a markov decision process (MDP)~\cite{Bel} is used as this is a common
-method of describing discrete time stochastic processes from the perspective of an individual agent.
-Figure~\ref{fig:mdp_system_model} is a MDP model for this project with the auction and resource allocation sections
-separated out. This is important as server can't have a single agent for both sections as the policies have both
-different state space and reward functions. Because of this, each agent is imagined to exist in solely the auction
-environment or the resource allocation environment as the agents can't be trained on the whole environment.
-Therefore unique agents are proposed for each environment, auction agents in
-subsection~\ref{subsec:proposed-auction-agents} and resource allocation agents
-in~\ref{subsec:proposed-resource-allocation-agents}.
+Using the optimisation formulation and auction problem from the previous two sections, the problem can explained
+using the markov decision process format in figure~\ref{fig:mdp_system_model}. The format separates out the auction
+parts of the problem and the resource allocation part of the problem with separate agents to act during these
+parts of the problem. While the state and action spaces of the agents can be the same, the policies that the agents
+will be following are completely different therefore making it impossible to merge the two agents into one.
+In subsection~\ref{subsec:proposed-auction-agents} and~\ref{subsec:proposed-resource-allocation-agents} agents are
+proposed for the auction environment and resource allocation environment respectively.
 
 \begin{figure}
     \centering
@@ -166,38 +108,35 @@ in~\ref{subsec:proposed-resource-allocation-agents}.
     \label{fig:mdp_system_model}
 \end{figure}
 
-This author believes this environment is particularly interesting in multi-agent reinforcement learning due to the fact
-that the aim of the environment is cooperative (to maximise the social welfare) but the servers (auction agents) are in
-competition to maximise their individual profits. But then the resource allocation agent must be cooperative in its
-actions to allocate resources to each task as the server wish to complete as many tasks as they can.
+The overall problem is of particularly interesting for multi-agent reinforcement learning environment as aim of the
+environment is cooperative (to maximise the social welfare) but the servers in competition during the auctions
+in order to maximise their profit. But then the server must be cooperative in allocating of resources to each task
+as the server wish to complete as many tasks as they can.
 
 \subsection{Proposed auction agents}\label{subsec:proposed-auction-agents}
-Traditionally pricing mechanisms~\citep{al2013cloud} rely on mixture of metrics: resource availability, resource demand,
-quality of service, task resource requirements, task resource allocation quantity, etc. However these metrics are
-difficult to approximate at the point of server bidding due to the unknown task resource usage of any task in the
-future without restricting possible rebalancing of tasks in the future. Therefore to derive a price function would wish
-to take into account a range of attributes like server capacity, progress of currently allocated tasks, availability
-of future tasks and the required of the task being auctioned. Therefore due to the expected complexity of this function,
-reinforcement learning, a subset of machine learning, is proposed as a method to learn neural networks that are
-universal function appromixated approximators~\citep{csaji2001approximation}. Meaning that these agents can learn
-without human support the optimal pricing function to maximise server profits. In conjunction to this, simple
-heuristics will also be implemented in order compare the effectiveness of the reinforcement learning to untrained
-heuristics.
+Traditionally pricing mechanisms~\citep{al2013cloud} rely on mixture of metrics; resource availability, resource demand,
+quality of service, task resource requirements, task resource allocation quantity, etc. However these values are
+difficult to approximate at the point of server bidding. Due to the complexity of a function to this, reinforcement
+learning will be used to learn this function in order to maximise the profits of the server. Simple heuristics will
+also be implemented in order compare the effectiveness of the reinforcement learning to untrained heuristics.
 
-Due to the auction environment having a discrete state space and a continuous action space, both policy gradient and
-deep q networks are feasible training methods. A explanation of these algorithm are described in
-section~\ref{sec:related-work-in-machine-learning}. Therefore a deep deterministic policy gradient~\citep{ddpg}
-agent and deep q networks~\cite{atari} (with a discretized action space) will be implemented in order to compare the
-agent capability. While the state space is discrete, it is not fixed, actions dont have a fixed number of tasks
-already allocated to a server therefore the neural networks proposed for these agents require recurrent neural networks.
-Because of this, a long/short term memory (LSTM) layer will be first layer of the network, piping to linearly
-activated neurons for the deep q and critic networks and ReLU activated neurons for the policy gradient actor networks.
+As the space of prices, the action space of the agent, is continuous value greater than zero. Therefore a
+deep deterministic policy gradient~\citep{ddpg} agent that allows for discrete state spaces and continuous action spaces
+will be implemented. Also as the action space can be discretized then several deep Q learning agents will be trained
+that use different heuristics in order to compare the results.
+
+These agents will use neural networks, as they function as universal function
+approximators~\citep{csaji2001approximation}, for the agents to use to learn. Because of this, a long/short term
+memory (LSTM) layer will be used as it allows for multiple inputs and provides a single output that will have
+several additional layers to allow additional complexity. With the network ending at a single ReLU neuron for DDPG
+or multiple linear activation neurons for DQN agents. The justification for this network over other neural network
+models is explained in section~\ref{subsec:justification-for-auctioning-networks}
 
 \subsection{Proposed resource allocation agents}\label{subsec:proposed-resource-allocation-agents}
-At each time step, the server has the ability to redistribute it resources between its allocated tasks. While this
-problem isn't believed to be as complex as the pricing function due to being a cooperative function rather than a
-competitive function. However due to the complexity of knowing how to allocate resources between multiple tasks at the
-same time, both deep q networks and policy gradient agents will be implemented.
+When a new task is allocated to the server or a task completes a stage then the server resource will be redistributed.
+As the problem of how to allocation resources isn't as complex as the agent pricing in
+section~\ref{subsec:proposed-auction-agents}, both simple heuristics and reinforcement learning agents will be
+implemented in order to compare effectiveness.
 
 However a similar problem exists to the proposed auction agents (in subsection~\ref{subsec:proposed-auction-agents}) as
 to know how to allocate resources to be single task is be aware of the other tasks that the server currently contains.
