@@ -5,7 +5,6 @@ Checks that neural networks can be differentiated using DQN loss function
 from __future__ import annotations
 
 import tensorflow as tf
-import numpy as np
 
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network

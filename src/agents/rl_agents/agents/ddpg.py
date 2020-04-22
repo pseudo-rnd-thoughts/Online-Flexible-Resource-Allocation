@@ -8,7 +8,8 @@ from typing import List, Dict, Union
 
 import tensorflow as tf
 
-from agents.rl_agents.rl_agents import ReinforcementLearningAgent, TaskPricingRLAgent, ResourceWeightingRLAgent
+from agents.rl_agents.rl_agents import ReinforcementLearningAgent, TaskPricingRLAgent, ResourceWeightingRLAgent, \
+    ResourceAllocationState
 from env.server import Server
 from env.task import Task
 
@@ -255,13 +256,12 @@ class TaskPricingTD3Agent(TD3Agent, TaskPricingDdpgAgent):
     Task pricing twin-delayed ddpg agent
     """
 
-    def __init__(self, agent_name: Union[int, str], actor_network: tf.keras.Model, critic_network: tf.keras.Model,
+    def __init__(self, agent_num: int, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
                  twin_critic_network: tf.keras.Model, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
         TD3Agent.__init__(self, actor_network, critic_network, twin_critic_network, **kwargs)
-        name = f'Task pricing TD3 agent {agent_name}' if type(agent_name) is int else agent_name
-        TaskPricingDdpgAgent.__init__(self, name, actor_network, critic_network, **kwargs)
+        TaskPricingDdpgAgent.__init__(self, f'Task pricing TD3 agent {agent_num}', actor_network, critic_network, **kwargs)
 
 
 class ResourceWeightingTD3Agent(TD3Agent, ResourceWeightingDdpgAgent):
