@@ -48,7 +48,7 @@ class ReinforcementLearningAgent(ABC):
     def __init__(self, batch_size: int = 32, error_loss_fn=tf.compat.v1.losses.huber_loss,
                  initial_training_replay_size: int = 5000, update_frequency: int = 4, discount_factor: float = 0.9,
                  replay_buffer_length: int = 100000, save_frequency: int = 25000, save_folder: str = 'checkpoint',
-                 log_frequency: int = 100, **kwargs):
+                 log_frequency: int = 250, **kwargs):
         """
         Constructor that is generalised for the deep q networks and policy gradient agents
         Args:
@@ -128,8 +128,9 @@ class ReinforcementLearningAgent(ABC):
         training_loss = self._train(states, actions, next_states, rewards, dones)
         if self.total_updates % self.log_frequency == 0:
             tf.summary.scalar(f'{self.name} agent training loss', training_loss, self.total_observations)
+            tf.summary.scalar(f'Training loss', training_loss, self.total_observations)
         if self.total_updates % self.save_frequency == 0:
-            self._save()
+            self.save()
         self.total_updates += 1
 
     @abstractmethod
@@ -149,7 +150,7 @@ class ReinforcementLearningAgent(ABC):
         pass
 
     @abstractmethod
-    def _save(self, custom_location: Optional[str] = None):
+    def save(self, custom_location: Optional[str] = None):
         """
         Saves a copy of the reinforcement learning agent models at this current total obs
         """

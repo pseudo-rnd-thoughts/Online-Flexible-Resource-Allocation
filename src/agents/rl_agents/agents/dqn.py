@@ -68,8 +68,15 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
             self.epsilon = max(self.total_actions / self.grad_epsilon + self.initial_epsilon, self.final_epsilon)
             if self.total_actions % 1000 == 0:
                 tf.summary.scalar(f'{self.name} agent epsilon', self.epsilon, self.total_actions)
+                tf.summary.scalar(f'Epsilon', self.epsilon, self.total_actions)
 
-    def _save(self, location: str = 'training/results/checkpoints/'):
+    def save(self, location: str = 'training/results/checkpoints/'):
+        """
+        Saves the agent neural networks
+
+        Args:
+            location: Save location
+        """
         # Set the location to save the model and setup the directory
         path = f'{os.getcwd()}/{location}/{self.save_folder}'
         if not os.path.exists(path):
