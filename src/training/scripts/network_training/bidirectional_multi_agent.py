@@ -14,7 +14,7 @@ if __name__ == "__main__":
     gin.parse_config_file('./training/settings/standard_config.gin')
 
     # Setup tensorboard
-    folder = 'bidirectional_lstm_agents'
+    folder = 'bidirectional_agents'
     writer = setup_tensorboard('training/results/logs/', folder)
 
     # Load the environment
@@ -32,9 +32,9 @@ if __name__ == "__main__":
 
     # Train the agents
     with writer.as_default():
-        run_training(env, eval_envs, 450, task_pricing_agents, resource_weighting_agents, 5)
+        run_training(env, eval_envs, 600, task_pricing_agents, resource_weighting_agents, 5)
 
     for agent in task_pricing_agents:
-        agent._save()
+        agent.save()
     for agent in resource_weighting_agents:
-        agent._save()
+        agent.save()

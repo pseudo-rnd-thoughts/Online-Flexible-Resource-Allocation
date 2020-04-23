@@ -27,9 +27,9 @@ if __name__ == "__main__":
     ]
 
     with writer.as_default():
-        run_training(env, eval_envs, 450, task_pricing_agents, resource_weighting_agents, 10)
+        run_training(env, eval_envs, 500, task_pricing_agents, resource_weighting_agents, 10)
 
     for agent in task_pricing_agents:
-        agent._save()
+        agent.save()
     for agent in resource_weighting_agents:
-        agent._save()
+        agent.save()
