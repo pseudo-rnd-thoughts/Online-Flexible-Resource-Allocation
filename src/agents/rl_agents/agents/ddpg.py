@@ -25,10 +25,10 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
                  actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0001),
                  critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0005),
-                 initial_epsilon_std: float = 0.8, final_epsilon_std: float = 0.1, epsilon_steps: int = 20000,
-                 epsilon_update_frequency: int = 25, min_value: float = -15.0, max_value: float = 15,
+                 initial_epsilon_std: float = 0.8, final_epsilon_std: float = 0.05, epsilon_steps: int = 20000,
+                 epsilon_update_frequency: int = 100, min_value: float = -15.0, max_value: float = 15,
                  target_update_tau: float = 1.0, actor_target_update_frequency: int = 3000,
-                 critic_target_update_frequency: int = 1500, upper_action_bound: float = 50, **kwargs):
+                 critic_target_update_frequency: int = 1500, upper_action_bound: float = 50.0, **kwargs):
         assert actor_network.output_shape[-1] == 1 and critic_network.output_shape[-1] == 1
 
         ReinforcementLearningAgent.__init__(self, **kwargs)
@@ -65,6 +65,7 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
                                    self.final_epsilon_std)
             if self.total_actions % 1000 == 0:
                 tf.summary.scalar(f'{self.name} agent epsilon std', self.epsilon_std, self.total_actions)
+                tf.summary.scalar('Epsilon std', self.epsilon_std, self.total_actions)
 
     def _train(self, states, actions, next_states, rewards, dones) -> float:
         # The rewards and dones dims need to be expanded for the td_target to have the same shape as the q values
@@ -86,9 +87,10 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
             # Calculate the element wise loss
             critic_loss = self.error_loss_fn(td_target, state_q_values)
         critic_grads = critic_tape.gradient(critic_loss, critic_network_variables)
-        clipped_critic_grads = [(tf.clip_by_value(grad, -1., 1.), var) for grad, var in critic_grads]
+        clipped_critic_grads = [tf.clip_by_value(grad, -1.0, 1.0) for grad in critic_grads]
         self.critic_optimiser.apply_gradients(zip(clipped_critic_grads, critic_network_variables))
 
+        # Actor loss
         actor_loss = self._actor_loss(states)
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
@@ -130,7 +132,7 @@ class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
     """
 
     def __init__(self, agent_name: Union[int, str], actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 min_value: float = 0, max_value: float = 0, **kwargs):
+                 min_value: float = -100.0, max_value: float = 100.0, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
         DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value, **kwargs)
@@ -232,7 +234,7 @@ class TD3Agent(DdpgAgent, ABC):
         if self.total_updates % self.actor_target_update_frequency == 0:
             ReinforcementLearningAgent._update_target_network(self.model_actor_network, self.target_actor_network,
                                                               self.target_update_tau)
-        if self.total_updates % self.critict_target_update_frequency == 0:
+        if self.total_updates % self.critic_target_update_frequency == 0:
             ReinforcementLearningAgent._update_target_network(self.model_critic_network, self.target_critic_network,
                                                               self.target_update_tau)
             ReinforcementLearningAgent._update_target_network(self.twin_model_critic_network,
