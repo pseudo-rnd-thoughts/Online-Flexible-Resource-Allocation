@@ -27,14 +27,14 @@ TaskPricingRLAgent.failed_reward_multiplier = -1.5
 
 
 #                       Resource Weighting RL Agent
-ResourceWeightingRLAgent.other_task_reward_discount = 0.4
-ResourceWeightingRLAgent.successful_task_reward = 1
-ResourceWeightingRLAgent.failed_task_reward = -2
+ResourceWeightingRLAgent.other_task_discount = 0.4
+ResourceWeightingRLAgent.success_reward = 1
+ResourceWeightingRLAgent.failed_reward = -1.5
 
 #========================================================================
 #                        Dqn Agent
 DqnAgent.discount_factor = 0.9
-DqnAgent.initial_epsilon = 1.0
+DqnAgent.initial_epsilon = 0.8
 DqnAgent.final_epsilon = 0.1
 DqnAgent.epsilon_steps = 35000
 DqnAgent.epsilon_update_frequency = 100

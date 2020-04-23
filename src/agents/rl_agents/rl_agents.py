@@ -263,17 +263,15 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
     network_obs_width: int = 16
 
     def __init__(self, name: str, other_task_discount: float = 0.2, success_reward: float = 1,
-                 failed_reward: float = -2, reward_multiplier: float = 2.0, **kwargs):
+                 failed_reward: float = -2, **kwargs):
         """
         Constructor of the resource weighting reinforcement learning agent
 
         Args:
             name: The name of the agent
-            network_input_width: The network input width
-            network_output_width: The max action value
-            other_task_reward_discount: The discount for when other tasks are completed
-            successful_task_reward: The reward for when tasks have completed successful
-            failed_task_reward: The reward for when tasks have failed
+            other_task_discount: The discount for when other tasks are completed
+            success_reward: The reward for when tasks have completed successful
+            failed_reward: The reward for when tasks have failed
             **kwargs: Additional arguments for the reinforcement learning agent base class
         """
         ResourceWeightingAgent.__init__(self, name)
@@ -282,10 +280,9 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
         # Agent reward variables
         assert 0 < other_task_discount
         self.other_task_discount = other_task_discount
-        assert 0 < success_reward
+        assert failed_reward < 0 < success_reward
         self.success_reward = success_reward
         self.failed_reward = failed_reward
-        self.reward_multiplier = reward_multiplier
 
     @staticmethod
     def _network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
@@ -327,13 +324,12 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             reward = sum(self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward
                          for finished_task in finished_tasks if not task == finished_task) * self.other_task_discount
             if task in next_agent_state.tasks:
-                if 1 < len(next_agent_state.tasks):
-                    next_task = next(next_task for next_task in next_agent_state.tasks if next_task == task)
-                    next_obs = self._network_obs(next_task, next_agent_state.tasks, next_agent_state.server, next_agent_state.time_step)
-                    self._add_trajectory(obs, action, next_obs, reward)
+                next_task = next(next_task for next_task in next_agent_state.tasks if next_task == task)
+                next_obs = self._network_obs(next_task, next_agent_state.tasks, next_agent_state.server, next_agent_state.time_step)
+                self._add_trajectory(obs, action, next_obs, reward)
             else:
                 next_obs = np.zeros((1, self.network_obs_width))
                 finished_task = next(finished_task for finished_task in finished_tasks if finished_task == task)
-                reward += (self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward) * self.reward_multiplier
+                reward += (self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward)
 
                 self._add_trajectory(obs, action, next_obs, reward, done=True)
