@@ -24,12 +24,12 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
     """
 
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
-                 critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
-                 initial_epsilon_std: float = 0.8, final_epsilon_std: float = 0.1, epsilon_steps: int = 10000,
+                 actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.001),
+                 critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.005),
+                 initial_epsilon_std: float = 0.8, final_epsilon_std: float = 0.1, epsilon_steps: int = 20000,
                  epsilon_update_frequency: int = 25, min_value: float = -15.0, max_value: float = 15,
-                 target_update_tau: float = 1.0, actor_target_update_frequency: int = 2500,
-                 critic_target_update_frequency: int = 1000, **kwargs):
+                 target_update_tau: float = 1.0, actor_target_update_frequency: int = 3000,
+                 critic_target_update_frequency: int = 1500, **kwargs):
         assert actor_network.output_shape[-1] == 1 and critic_network.output_shape[-1] == 1
 
         ReinforcementLearningAgent.__init__(self, **kwargs)
@@ -129,10 +129,10 @@ class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
     """
 
     def __init__(self, agent_name: Union[int, str], actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 **kwargs):
+                 min_value: float = 0, max_value: float = 0, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
-        DdpgAgent.__init__(self, actor_network, critic_network, **kwargs)
+        DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value, **kwargs)
         name = f'Task pricing Ddpg agent {agent_name}' if type(agent_name) is int else agent_name
         TaskPricingRLAgent.__init__(self, name, **kwargs)
 
@@ -152,10 +152,10 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
     """
 
     def __init__(self, agent_name: Union[int, str], actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 **kwargs):
+                 min_value: float = -20, max_value: float = 15, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
-        DdpgAgent.__init__(self, actor_network, critic_network, **kwargs)
+        DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value, **kwargs)
         name = f'Resource weighting Ddpg agent {agent_name}' if type(agent_name) is int else agent_name
         ResourceWeightingRLAgent.__init__(self, name, **kwargs)
 
