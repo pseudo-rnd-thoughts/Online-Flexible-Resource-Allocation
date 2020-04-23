@@ -16,31 +16,38 @@ environment must allow agents to train on interact and training on the environme
 using as an OpenAI gym~\citep{openaigym}, the de facto standard for implementing reinforcement learning
 environment for researchers. However the standard specification must be modified due to the problem being multi-agent,
 multi-step and as a centralised system.
-%% TODO add explanation of environment funtions
 
-%% TODO Server resource allocation
-A particular complication of the system is to distribute server resources due to the fact that server provide a
-dictionary of task with a resource weighting that much be converted to the allocated resources for each task.
-
+An example for running the environment is in figure~\ref{listing:example_flexible_resource_env}. There are three
+sections to the code; the first is the construct an environment using the constructor, where the environment settings
+are passed that determines the number of servers and tasks and there attributes. These attributes are determined using
+uniform random numbers between a maximum and minimum values that are synthesis individually for each variable. The
+second is to create the environment using the reset function returning the current environment state. The environment
+state contains a task to be auctioned if any task's auction time step is equal to the environment's current time step
+as well as a dictionary of server to their current state. Using these states, each server generate's actions either
+using the auction agent or resource allocation agent depending if if task needs auctioning. The third step is to
+take a step in environment using the server actions that returns an updated server state, the rewards for the actions,
+if the environment is finished and an extra information from the steps taken. The rewards are a dictionary of each of
+the servers with either the winning price for the auctioned task or a list of tasks that have finished either because
+they ran out of time or completed the task early.
 
 \begin{lstlisting}[language=Python, frame=single, caption={An example for running the environment},captionpos=b]
 # Load the environment with a setting
-env = OnlineFlexibleResourceAllocationEnv('settings')
+env = OnlineFlexibleResourceAllocationEnv('settings.env')
 
 # Generate the environment state
 server_state = env.reset()
 
 for _ in range(1000):
-    # Select actions based on if it is auction or resource allocation step
+    # Generate actions
     if server_state.auction_task:
         actions = {
-            server: server_auction_agent.bid(state)
-            for server in server_state
+            server: auction_agent.bid(state)
+            for server, state in server_state
         }
     else:
         actions = {
-            server: server_resource_agent.weights(state)
-            for server in server_state
+            server: resource_allocation_agent.weights(state)
+            for server, state in server_state
         }
 
     # Take environment step
@@ -49,22 +56,42 @@ for _ in range(1000):
     # If the environment is finished then reset it
     if done:
         server_state = env.reset()
-env.close()
 \label{listing:example_flexible_resource_env}
 \end{lstlisting}
 
+\subsection{Server resource allocation}\label{subsec:server-resource-allocation}
+A particular complication of the system is to distribute server resources due to the fact that server provide a
+dictionary of task with a resource weighting that much be converted to the allocated resources for each task.
+To allocate the compute resources is relatively simple compared to allocating resources for both storage and bandwidth.
+The algorithm checks first if the weighted resources is greater than the quantity required for the task to finish the
+compute stage, if this is true then a resources needed for the task to complete the compute stage are allocated. However,
+this means that the weight resources available for each task is increased due to a task not using all of the resources
+it could. This means that the algorithm loops till no task can be completed with the weighted resources allocated.
+Then all of the reminding compute resources are allocated to the remaining tasks.
+
+For allocating storage and bandwidth, the reason for this being more difficult is due to when the server is still
+loading the task, the server must allocate both storage and bandwidth resources while the bandwidth must be allocated
+to the task sending results. Because of this, a tension exists between these two operation for allocating resources.
+The implemented algorithm, gives priority for allocating resources to the tasks sending results as these tasks are more
+likely to be finished and will not penalise the server for not completing the task within the deadline. To allocate
+resources, a similar function to used to the one for allocating compute resources. First a check if done using the
+weighted bandwidth resources to see if any task sending results will be finished with the resources, if so these
+resources are allocated. This process if repeat for the server loading any task with the additional check that there
+is enough available storage for the bandwidth resources being allocated. For any remaining task, this process if
+repeated till all of the available resources are allocated in the time step. As a results, using this algorithm, the
+converting between weightings to resources allowing for allocating of almost all of the server's resources with no
+resources unused.
+
 \section{Defining the agents}\label{sec:agent-definition}
 %% TODO Add tensorflow difficults
-Each server has to have a unique policy for bidding on tasks and allocating resources that is explained in
-section~\ref{sec:proposed-agents}. Even those the state space and action space are exactly the same, the optimal
-policies for task pricing and resource allocation are completely different.
-
-These policies are referred to as the auction agents, for bidding on tasks and the resource weighting agent,
-for allocating of resources. However determining these policies is a difficult due to the complexity and the interaction
-of task attributes and the server resources. Because of this, the ability of reinforcement learning to interact
-an environment and learn a policy in order to maximise its reward over time is helpful. Therefore a range of different
-reinforcement learning policies have been implemented as Table~\ref{tab:reinforcement_learning_policies} in order to
-evaluate the performance of the different policies learning methods.
+Each server has to have a unique policy for bidding on tasks and allocating resources that are proposed in
+section~\ref{sec:proposed-agents}. These policies are referred to as the auction agents, for bidding on tasks and the
+resource weighting agent, for allocating of resources. However determining these policies is a difficult due to the
+complexity and the interaction of task attributes and the server resources. Because of this, the ability of
+reinforcement learning to interact an environment and learn a policy in order to maximise its reward over time is
+integratial to this project. Therefore a range of different reinforcement learning techniques have been implemented,
+outlined in Table~\ref{tab:reinforcement_learning_policies}, in order to explore the different options that a server
+would have available to learn its policies.
 
 \begin{table}
     \centering
@@ -72,20 +99,43 @@ evaluate the performance of the different policies learning methods.
         Policy Type & Explanation \\ \hline
         Dqn~\citep{mnih2015humanlevel} & A standard deep Q learning agent that discretizes the action space \\ \hline
         Double Dueling DQN~\icte{double_dqn, dueling_dqn} & A combination of two heuristics for the standard deep Q
-            learning agents that uses a modified td target and a modified networks where the state value and advantage
-            is separated out and recombined for the q values. \\ \hline
-        Distributional Dqn~\citep{distributional_dqn} & Standard deep Q learning agents return a scalar value
+            learning agents that uses a modified td target function and a modified networks that separates state value
+            and action advantage. \\ \hline
+        Categorical Dqn~\citep{distributional_dqn} & Standard deep Q learning agents return a scalar value
             (representing the q value) for each action. Distributional Dqn changes the output value to a probability
-            distribution over the possible values that the agent returns. \\ \hline
+            distribution over action values that is helpful due to the stochastic nature from the problem (from the
+            agents perspective). \\ \hline
         Deep deterministic policy gradient~\citep{ddpg} & As the action space is continuous, DDPG allows for
-            investigation of the difference between continuous and discrete action spaces and policy gradient can be
-            more effective at learning a policy where the reward function is too complex. \\ \hline
-        Twin delay DDPG~\citep{td3} & \\ \hline
-        D4PG~\citep{d4pg} &
+            investigation of the difference between continuous and discrete action spaces of the DQN agents and policy
+            gradient can be more effective at learning a policy where the reward function is too complex for DQN to
+            model. \\ \hline
+        Twin delay DDPG~\citep{td3} & Like the Double Dueling DQN agents, TD3 includes a couple new heuristics, like a
+            twin critic to prevent the actor tricking the critic and delaying the updates for actors compared to
+            critic.\\ \hline
+        D4PG~\citep{d4pg} & Like the categorical dqn, d4pg add a heuristic for the critic to output a value probability
+            distribution that allows for better approximation for environment that are stochastic in nature.
     \end{tabular}
     \caption{Table of policy types}
     \label{tab:reinforcement_learning_policies}
 \end{table}
+
+These policies were implemented using tensorflow~\cite{tensorflow2015-whitepaper}, a python module developed by Google
+that provides programmers the ability to construct neural network and backpropagation with a loss function. A
+particular problem with this project is the use of recurrent neural network and inputs not having a fixed length. This
+causes an issue with tensorflow due to the requirement for tensor, the base for tensorflow operation, to have a fixed
+size. To allow for efficient using of backpropagation with multiple inputs being computed at the same time in order to
+compute a minibatch not just stochastic gradient descent. To do requires the use of the tensorflow preprocessing module
+to pad all of the input to be the same size.
+
+\subsection{Rewards functions}\label{subsec:rewards-functions}
+As explained in the background review for reinforcement learning (section~\ref{sec:related-work-in-machine-learning}),
+the q values is an approximation for the estimated discounted reward in the future given an action. Therefore the
+rewards that an agent receives for taking an action is extremely important to enable the agent to learn. This problem
+of complex reward functions are a known problem for DQN agent to deal with~\citep{atari} while policy gradients can
+deal with this due to learning the policy rather than the q values~\citep{Sutton1998}.
+
+For the auction, the reward is based on if the agent wins
+%% TODO
 
 \section{Training of agents}\label{sec:training-of-agents}
 % Todo
