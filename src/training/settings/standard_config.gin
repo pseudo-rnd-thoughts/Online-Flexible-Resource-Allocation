@@ -12,9 +12,8 @@ import agents.rl_agents.neural_networks.dqn_networks
 #========================================================================
 #                       Reinforcement learning Agent
 ReinforcementLearningAgent.batch_size = 32
-ReinforcementLearningAgent.learning_rate = 0.001
 
-ReinforcementLearningAgent.replay_buffer_length = 20000
+ReinforcementLearningAgent.replay_buffer_length = 25000
 ReinforcementLearningAgent.initial_training_replay_size = 2500
 
 ReinforcementLearningAgent.update_frequency = 1
@@ -32,7 +31,6 @@ ResourceWeightingRLAgent.other_task_reward_discount = 0.2
 ResourceWeightingRLAgent.successful_task_reward = 1
 ResourceWeightingRLAgent.failed_task_reward = -2
 ResourceWeightingRLAgent.task_multiplier = 2.0
-ResourceWeightingRLAgent.ignore_empty_next_obs = False
 
 #========================================================================
 #                        Dqn Agent
