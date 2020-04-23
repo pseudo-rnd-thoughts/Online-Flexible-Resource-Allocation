@@ -6,8 +6,10 @@
 import agents.rl_agents.rl_agents
 
 import agents.rl_agents.agents.dqn
+import agents.rl_agents.agents.ddpg
 
 import agents.rl_agents.neural_networks.dqn_networks
+import agents.rl_agents.neural_networks.ddpg_networks
 
 #========================================================================
 #                       Reinforcement learning Agent
@@ -70,4 +72,4 @@ create_lstm_dueling_dqn_network.combiner = 'avg'
 #                        Distributional Dqn Networks
 create_lstm_categorical_dqn_network.lstm_width = 32
 create_lstm_categorical_dqn_network.relu_width = 32
-create_lstm_categorical_dqn_network.num_atoms = 21
+create_lstm_categorical_dqn_network.num_atoms = 51
