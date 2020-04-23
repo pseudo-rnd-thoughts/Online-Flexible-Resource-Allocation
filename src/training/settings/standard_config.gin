@@ -27,42 +27,41 @@ TaskPricingRLAgent.failed_reward_multiplier = -1.5
 
 
 #                       Resource Weighting RL Agent
-ResourceWeightingRLAgent.other_task_reward_discount = 0.2
+ResourceWeightingRLAgent.other_task_reward_discount = 0.4
 ResourceWeightingRLAgent.successful_task_reward = 1
 ResourceWeightingRLAgent.failed_task_reward = -2
-ResourceWeightingRLAgent.task_multiplier = 2.0
 
 #========================================================================
 #                        Dqn Agent
 DqnAgent.discount_factor = 0.9
 DqnAgent.initial_epsilon = 1.0
 DqnAgent.final_epsilon = 0.1
-DqnAgent.epsilon_steps = 25000
-DqnAgent.epsilon_update_frequency = 25
+DqnAgent.epsilon_steps = 35000
+DqnAgent.epsilon_update_frequency = 100
 
 #                        Dueling Dqn Agent
 DuelingDQN.double_loss = True
 
 #========================================================================
 #                        Dqn Networks
-create_bidirectional_dqn_network.lstm_width = 40
-create_bidirectional_dqn_network.relu_width = 20
+create_bidirectional_dqn_network.lstm_width = 32
+create_bidirectional_dqn_network.relu_width = 32
 
-create_lstm_dqn_network.lstm_width = 40
-create_lstm_dqn_network.relu_width = 20
+create_lstm_dqn_network.lstm_width = 32
+create_lstm_dqn_network.relu_width = 32
 
-create_gru_dqn_network.gru_width = 40
-create_gru_dqn_network.relu_width = 20
+create_gru_dqn_network.gru_width = 32
+create_gru_dqn_network.relu_width = 32
 
-create_rnn_dqn_network.rnn_width = 40
-create_rnn_dqn_network.relu_width = 20
+create_rnn_dqn_network.rnn_width = 32
+create_rnn_dqn_network.relu_width = 32
 
 #                        Dueling Dqn Networks
-create_lstm_dueling_dqn_network.lstm_width = 40
-create_lstm_dueling_dqn_network.relu_width = 20
+create_lstm_dueling_dqn_network.lstm_width = 32
+create_lstm_dueling_dqn_network.relu_width = 32
 create_lstm_dueling_dqn_network.combiner = 'avg'
 
 #                        Distributional Dqn Networks
-create_lstm_categorical_dqn_network.lstm_width = 40
-create_lstm_categorical_dqn_network.relu_width = 20
+create_lstm_categorical_dqn_network.lstm_width = 32
+create_lstm_categorical_dqn_network.relu_width = 32
 create_lstm_categorical_dqn_network.num_atoms = 21
