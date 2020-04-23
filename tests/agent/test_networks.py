@@ -99,17 +99,3 @@ def test_networks():
         print(f'Network - actor: {pricing_actor.name}, critic: {pricing_critic.name}'
               f'\n\tAuction Actor: {auction_output}, critic: {pricing_critic([auction_obs, auction_action])}'
               f'\n\tWeighting Actor: {weighting_action}, critic: {weighting_critic([resource_obs, weighting_action])}')
-
-
-def test_critic_networks():
-    networks = [
-        create_lstm_critic_network(9)
-    ]
-
-    obs = tf.random.normal((5, 3, 9), 0, 4)
-    action = tf.random.normal((5, 1), 0, 2)
-    print(f'\nObs: {obs}')
-    print(f'action: {action}')
-
-    for network in networks:
-        print(network([obs, action]))

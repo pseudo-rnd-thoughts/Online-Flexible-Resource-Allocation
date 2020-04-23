@@ -6,12 +6,14 @@ from __future__ import annotations
 
 import tensorflow as tf
 
+from agents.rl_agents.agents.c51 import TaskPricingCategoricalDqnAgent, ResourceWeightingCategoricalDqnAgent
 from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent, TaskPricingTD3Agent, \
     ResourceWeightingTD3Agent
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, TaskPricingDdqnAgent, TaskPricingDuelingDqnAgent, \
     ResourceWeightingDqnAgent, ResourceWeightingDdqnAgent, ResourceWeightingDuelingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_critic_network, create_lstm_actor_network
-from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network
+from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network, \
+    create_lstm_categorical_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
 
 # TODO add comments and new agents
@@ -46,8 +48,7 @@ def test_build_agent():
         'max_value': 15
     }
     pricing_arguments = {'failed_auction_reward': -100, 'failed_multiplier': -100}
-    weighting_arguments = {'other_task_discount': 0.2, 'success_reward': 1, 'failed_reward': -2,
-                           'reward_multiplier': 2.0, 'ignore_empty_next_obs': False}
+    weighting_arguments = {'other_task_discount': 0.2, 'success_reward': 1, 'failed_reward': -2}
 
     # DQN Agent arguments ----------------------------------------------------------------------
     dqn_pricing_arguments = {**reinforcement_learning_arguments, **dqn_arguments, **pricing_arguments}
@@ -98,10 +99,13 @@ def test_saving_agent():
     # Different agents
     dqn_agent = TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10), save_folder='tmp')
     ddpg_agent = TaskPricingDdpgAgent(1, create_lstm_actor_network(9), create_lstm_critic_network(9), save_folder='tmp')
+    td3_agent = TaskPricingTD3Agent(2, create_lstm_actor_network(9), create_lstm_critic_network(9),
+                                    create_lstm_critic_network(9), save_folder='tmp')
 
     # Save the agent
-    dqn_agent._save('agent/checkpoints/')
-    ddpg_agent._save('agent/checkpoints/')
+    dqn_agent.save('agent/checkpoints/')
+    ddpg_agent.save('agent/checkpoints/')
+    td3_agent.save('agent/checkpoints/')
 
     # Check that loading works
     loaded_model = create_lstm_dqn_network(9, 10)
@@ -117,16 +121,18 @@ def test_agent_actions():
         TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5)),
         TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 5)),
         TaskPricingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(9, 5)),
+        TaskPricingCategoricalDqnAgent(5, create_lstm_categorical_dqn_network(9, 5)),
         TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9)),
         TaskPricingTD3Agent(4, create_lstm_actor_network(9), create_lstm_critic_network(9),
                             create_lstm_critic_network(9))
     ]
     weighting_agents = [
-        ResourceWeightingDqnAgent(1, create_lstm_dqn_network(16, 5)),
-        ResourceWeightingDdqnAgent(2, create_lstm_dqn_network(16, 5)),
-        ResourceWeightingDuelingDqnAgent(3, create_lstm_dueling_dqn_network(16, 5)),
-        ResourceWeightingDdpgAgent(4, create_lstm_actor_network(16), create_lstm_critic_network(16)),
-        ResourceWeightingTD3Agent(5, create_lstm_actor_network(16), create_lstm_critic_network(16),
+        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 5)),
+        ResourceWeightingDdqnAgent(1, create_lstm_dqn_network(16, 5)),
+        ResourceWeightingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(16, 5)),
+        ResourceWeightingCategoricalDqnAgent(5, create_lstm_categorical_dqn_network(16, 5)),
+        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16)),
+        ResourceWeightingTD3Agent(4, create_lstm_actor_network(16), create_lstm_critic_network(16),
                                   create_lstm_critic_network(16))
     ]
 

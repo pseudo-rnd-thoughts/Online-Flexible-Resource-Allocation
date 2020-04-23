@@ -38,12 +38,12 @@ def test_agent_evaluation():
     ]
 
     results = eval_agent(eval_envs, 0, pricing_agents, weighting_agents)
-    print(f'Results - Total prices: {results.total_prices}, Number of completed tasks: {results.number_completed_tasks}, '
-          f'failed tasks: {results.number_failed_tasks}, winning prices: {results.winning_prices}, '
+    print(f'Results - Total prices: {results.total_prices}, Number of completed tasks: {results.num_completed_tasks}, '
+          f'failed tasks: {results.num_failed_tasks}, winning prices: {results.winning_prices}, '
           f'Number of auctions: {results.num_auctions}, resource allocations: {results.num_resource_allocations}')
     assert 0 < results.winning_prices
-    assert 0 < results.number_completed_tasks
-    assert 0 < results.number_failed_tasks
+    assert 0 < results.num_completed_tasks
+    assert 0 < results.num_failed_tasks
 
     assert results.num_auctions == total_auctions
     assert results.num_resource_allocations == total_resource_allocation

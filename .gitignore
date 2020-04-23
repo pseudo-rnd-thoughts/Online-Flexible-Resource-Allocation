@@ -27,5 +27,5 @@ src/training/results/.ipynb_checkpoints/
 # Testing tmp files
 /tests/env/settings/tmp/
 /tests/agent/checkpoints/
-/tests/training/results/tmp/
 /tests/training/settings/tmp/
+/tests/training/tmp/
