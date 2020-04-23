@@ -274,7 +274,6 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
             other_task_reward_discount: The discount for when other tasks are completed
             successful_task_reward: The reward for when tasks have completed successful
             failed_task_reward: The reward for when tasks have failed
-            task_multiplier: The multiplied for when the action of actual task is completed
             **kwargs: Additional arguments for the reinforcement learning agent base class
         """
         ResourceWeightingAgent.__init__(self, name)
@@ -320,7 +319,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
                    for finished_task in finished_tasks)
         assert all(task in next_agent_state.tasks or task in finished_tasks for task in agent_state.tasks)
 
-        if len(agent_state.tasks) <= 1 or (len(next_agent_state.tasks) <= 1 and self.ignore_empty_next_obs):
+        if len(agent_state.tasks) <= 1 or len(next_agent_state.tasks) <= 1:
             return
 
         for task, action in actions.items():
