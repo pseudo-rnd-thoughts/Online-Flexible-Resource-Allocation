@@ -83,7 +83,6 @@ converting between weightings to resources allowing for allocating of almost all
 resources unused.
 
 \section{Defining the agents}\label{sec:agent-definition}
-%% TODO Add tensorflow difficults
 Each server has to have a unique policy for bidding on tasks and allocating resources that are proposed in
 section~\ref{sec:proposed-agents}. These policies are referred to as the auction agents, for bidding on tasks and the
 resource weighting agent, for allocating of resources. However determining these policies is a difficult due to the
@@ -134,11 +133,25 @@ rewards that an agent receives for taking an action is extremely important to en
 of complex reward functions are a known problem for DQN agent to deal with~\citep{atari} while policy gradients can
 deal with this due to learning the policy rather than the q values~\citep{Sutton1998}.
 
-For the auction, the reward is based on if the agent wins
-%% TODO
+For the auction, the reward is based on the winning price of the task at the time step when the auction is won. If the
+task fails, the reward is instead multiplied by a negative constant (referred to as "failed_reward_multiplier") in
+order to discourage the auction agent from bidding on tasks that it wouldn't be able to complete. Because of this,
+the price of zero is treated as a non-bid, resulting in the agent getting a reward of zero and not being considered in
+the auction. The final possible reward for an auction agent is that the agent fails to win the task in the auction by
+bidding too high, as a result, the reward is constant called "failed_auction_reward". The constant's default value is
+-0.05 as a way of encouraging the agent to change there bid.
+
+For resource allocation, the reward function is much simpler than the auction reward function as it only needs to
+consider the task being weighted at the time and rewards from other tasks allocated at the time. This is as,
+a task must consider its actions in consider with the resource requirements of other allocated tasks. For successfully
+finishing a task, the reward is 1 while the reward for if the task has failed is -1.5 to make failing a task more
+costly than completing a task. But when a task's action is not under consideration, this reward is multiplied by
+0.4 as while this rewards impact the task, their value is not as important to the task current consideration.
+While these rewards don't consider the price payed for the task instead valuing each task equally with the aim of
+forcing the task allocate resources to finish all tasks not just the valuable ones. Using this information, the reward
+function simply just the sum of finished tasks rewards in the next time step.
 
 \section{Training of agents}\label{sec:training-of-agents}
 % Todo
 % Single resource allocation agent
 % Different environments
-% Reward functions
