@@ -36,8 +36,8 @@ class EvalResults:
         self.num_auctions: int = 0
 
         # Resource allocation attributes
-        self.number_completed_tasks: int = 0
-        self.number_failed_tasks: int = 0
+        self.num_completed_tasks: int = 0
+        self.num_failed_tasks: int = 0
         self.total_prices: float = 0
         self.num_resource_allocations: int = 0
 
@@ -64,10 +64,10 @@ class EvalResults:
         for server, tasks in rewards.items():
             for task in tasks:
                 if task.stage is TaskStage.COMPLETED:
-                    self.number_completed_tasks += 1
+                    self.num_completed_tasks += 1
                     self.total_prices += task.price
                 elif task.stage is TaskStage.FAILED:
-                    self.number_failed_tasks += 1
+                    self.num_failed_tasks += 1
                     self.total_prices -= task.price
                 else:
                     raise Exception(f'Unexpected task stage: {task.stage}, {str(task)}')
@@ -81,9 +81,11 @@ class EvalResults:
             episode: Episode number
         """
         tf.summary.scalar('Eval winning prices', self.winning_prices, episode)
-        tf.summary.scalar('Eval number of completed tasks', self.number_completed_tasks, episode)
-        tf.summary.scalar('Eval number of failed tasks', self.number_failed_tasks, episode)
+        tf.summary.scalar('Eval number of completed tasks', self.num_completed_tasks, episode)
+        tf.summary.scalar('Eval number of failed tasks', self.num_failed_tasks, episode)
         tf.summary.scalar('Eval total prices', self.total_prices, episode)
+        tf.summary.scalar('Eval percent tasks', (self.num_completed_tasks + self.num_failed_tasks) / self.num_auctions)
+        tf.summary.scalar('Eval completed failed task ratio', self.num_completed_tasks / (self.num_failed_tasks + 1))
 
 
 def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent],
