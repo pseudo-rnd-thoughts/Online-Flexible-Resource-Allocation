@@ -19,7 +19,7 @@ if __name__ == "__main__":
     eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/{folder}/')
 
     task_pricing_agents = [
-        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10), save_folder=folder)
+        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 21), save_folder=folder)
     ]
     resource_weighting_agents = [
         ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 10), save_folder=folder)
