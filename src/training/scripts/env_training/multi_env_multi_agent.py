@@ -16,10 +16,10 @@ if __name__ == "__main__":
     writer = setup_tensorboard('training/results/logs/', folder)
 
     env = OnlineFlexibleResourceAllocationEnv([
-        './train_agents/env_settings/basic.env',
-        './train_agents/env_settings/large_tasks_servers.env',
-        './train_agents/env_settings/limited_resources.env',
-        './train_agents/env_settings/mixture_tasks_servers.env'
+        './training/settings/basic.env',
+        './training/settings/large_tasks_servers.env',
+        './training/settings/limited_resources.env',
+        './training/settings/mixture_tasks_servers.env'
     ])
     eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/{folder}/')
 
