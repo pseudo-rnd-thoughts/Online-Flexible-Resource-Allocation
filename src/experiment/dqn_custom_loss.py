@@ -103,8 +103,8 @@ if __name__ == "__main__":
         training_step(train_env, training_policy, replay_buffer)
 
         experience, _ = next(iterator)
-        # training_loss = agent.train(experience).loss
-        training_loss = train_agent(agent, experience)
+        training_loss = agent.train(experience).loss
+        # training_loss = train_agent(agent, experience)
 
         if step % 2000 == 0:
             eval_reward = eval_agent(eval_env, eval_policy)
