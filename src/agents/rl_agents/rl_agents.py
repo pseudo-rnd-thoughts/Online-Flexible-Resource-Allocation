@@ -263,8 +263,7 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
     network_obs_width: int = 16
 
     def __init__(self, name: str, other_task_discount: float = 0.2, success_reward: float = 1,
-                 failed_reward: float = -2, reward_multiplier: float = 2.0,
-                 ignore_empty_next_obs: bool = True, **kwargs):
+                 failed_reward: float = -2, reward_multiplier: float = 2.0, **kwargs):
         """
         Constructor of the resource weighting reinforcement learning agent
 
@@ -288,7 +287,6 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
         self.success_reward = success_reward
         self.failed_reward = failed_reward
         self.reward_multiplier = reward_multiplier
-        self.ignore_empty_next_obs = ignore_empty_next_obs
 
     @staticmethod
     def _network_obs(weighting_task: Task, allocated_tasks: List[Task], server: Server, time_step: int):
@@ -340,42 +338,3 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
                 reward += (self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward) * self.reward_multiplier
 
                 self._add_trajectory(obs, action, next_obs, reward, done=True)
-
-    """
-    if len(tasks) > 1:
-    # Get the agent state for each task
-    for weighted_task in tasks:
-        # Get the last agent state that generated the weighting
-        last_agent_state = ResourceAllocationState(weighted_task, tasks, server, state.time_step)
-        last_action = resource_weighting_actions[server][weighted_task]
-
-        # Get the modified task in the next state, the task may be missing if the task is finished
-        updated_task = next((next_task for next_task in next_state.server_tasks[server]
-                             if weighted_task == next_task), None)
-
-        # If the task wasn't finished
-        if updated_task:
-            # Check if the next state contains other tasks than the updated task
-            if len(next_state.server_tasks[server]) > 1:
-                # Get the next observation (imagining that no new tasks were auctioned)
-                next_agent_state = AgentState(updated_task, next_state.server_tasks[server], server,
-                                              next_state.time_step)
-
-                # Add the task observation with the rewards of other tasks completed
-                server_resource_weighting_agents[server].allocation_obs(last_agent_state, last_action,
-                                                                        next_agent_state,
-                                                                        finished_server_tasks[server])
-            else:
-                # Add the task observation but without the next observations
-                server_resource_weighting_agents[server].allocation_obs(last_agent_state, last_action, None,
-                                                                        finished_server_tasks[server])
-        else:
-            # The weighted task was finished so using the finished task in the finished_server_tasks dictionary
-            finished_task = next(finished_task for finished_task in finished_server_tasks[server]
-                                 if finished_task == weighted_task)
-
-            # Update the resource allocation with teh finished task observation
-            server_resource_weighting_agents[server].finished_task_obs(last_agent_state, last_action,
-                                                                       finished_task,
-                                                                       finished_server_tasks[server])
-    """
