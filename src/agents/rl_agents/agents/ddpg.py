@@ -23,12 +23,12 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
     """
 
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.001),
-                 critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.005),
+                 actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0001),
+                 critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0005),
                  initial_epsilon_std: float = 0.8, final_epsilon_std: float = 0.1, epsilon_steps: int = 20000,
                  epsilon_update_frequency: int = 25, min_value: float = -15.0, max_value: float = 15,
                  target_update_tau: float = 1.0, actor_target_update_frequency: int = 3000,
-                 critic_target_update_frequency: int = 1500, **kwargs):
+                 critic_target_update_frequency: int = 1500, upper_action_bound: float = 50, **kwargs):
         assert actor_network.output_shape[-1] == 1 and critic_network.output_shape[-1] == 1
 
         ReinforcementLearningAgent.__init__(self, **kwargs)
@@ -49,6 +49,7 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
         self.target_update_tau = target_update_tau
         self.actor_target_update_frequency = actor_target_update_frequency
         self.critic_target_update_frequency = critic_target_update_frequency
+        self.upper_action_bound = upper_action_bound
 
         # Exploration
         self.initial_epsilon_std = initial_epsilon_std
@@ -76,7 +77,7 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
 
             # Calculate the state and next state q values with the actions and the actor next actions
             state_q_values = self.model_critic_network([states, tf.expand_dims(actions, axis=1)])
-            next_actions = self.model_actor_network(next_states)
+            next_actions = tf.clip_by_value(self.model_actor_network(next_states), 0, self.upper_action_bound)
             next_state_q_values = self.target_critic_network([next_states, next_actions])
 
             # Calculate the target using the rewards, discount factor, next q values and dones
@@ -85,7 +86,8 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
             # Calculate the element wise loss
             critic_loss = self.error_loss_fn(td_target, state_q_values)
         critic_grads = critic_tape.gradient(critic_loss, critic_network_variables)
-        self.critic_optimiser.apply_gradients(zip(critic_grads, critic_network_variables))
+        clipped_critic_grads = [(tf.clip_by_value(grad, -1., 1.), var) for grad, var in critic_grads]
+        self.critic_optimiser.apply_gradients(zip(clipped_critic_grads, critic_network_variables))
 
         actor_loss = self._actor_loss(states)
 
@@ -105,13 +107,13 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
         with tf.GradientTape() as tape:
             tape.watch(actor_network_variables)
 
-            next_action = self.model_actor_network(states)
+            next_action = tf.clip_by_value(self.model_actor_network(states), 0, self.upper_action_bound)
             actor_loss = -tf.reduce_mean(self.model_critic_network([states, next_action]))
         actor_grad = tape.gradient(actor_loss, actor_network_variables)
         self.actor_optimiser.apply_gradients(zip(actor_grad, actor_network_variables))
         return actor_loss
 
-    def _save(self, location: str = 'training/results/checkpoints/'):
+    def save(self, location: str = 'training/results/checkpoints/'):
         # Set the location to save the model and setup the directory
         path = f'{os.getcwd()}/{location}/{self.save_folder}/'
         if not os.path.exists(path):
@@ -140,7 +142,7 @@ class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
         observation = tf.expand_dims(self._network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
         action = self.model_actor_network(observation)
         if training:
-            return max(0.0, action + tf.random.normal(action.shape, 0, self.epsilon_std))
+            return max(0.0, action + tf.random.normal(action.shape, 0, self.epsilon_std), self.upper_action_bound)
         else:
             return action
 
@@ -165,7 +167,7 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
         actions = self.model_actor_network(observations)
         if training:
             actions += tf.random.normal(actions.shape, 0, self.epsilon_std)
-        return {task: max(0.0, float(action)) for task, action in zip(tasks, actions)}
+        return {task: max(0.0, float(action), self.upper_action_bound) for task, action in zip(tasks, actions)}
 
 
 class TD3Agent(DdpgAgent, ABC):
@@ -203,8 +205,10 @@ class TD3Agent(DdpgAgent, ABC):
 
             # Calculate the target using the rewards, discount factor, next q values and dones
             next_actions = self.model_actor_network(next_states) + tf.random.normal((self.batch_size, 1), 0, 0.1)
-            next_state_q_values = tf.reduce_min([self.target_critic_network([next_states, next_actions]),
-                                                 self.twin_target_critic_network([next_states, next_actions])], axis=0)
+            clipped_next_actions = tf.clip_by_value(next_actions, 0, self.upper_action_bound)
+            next_state_q_values = tf.reduce_min([self.target_critic_network([next_states, clipped_next_actions]),
+                                                 self.twin_target_critic_network([next_states, clipped_next_actions])],
+                                                axis=0)
             td_target = tf.stop_gradient(rewards + self.discount_factor * next_state_q_values * dones)
 
             # Calculate the element wise loss
@@ -237,7 +241,7 @@ class TD3Agent(DdpgAgent, ABC):
         return critic_loss + actor_loss
 
     # noinspection DuplicatedCode
-    def _save(self, location: str = 'training/results/checkpoints/'):
+    def save(self, location: str = 'training/results/checkpoints/'):
         # Set the location to save the model and setup the directory
         path = f'{os.getcwd()}/{location}/{self.save_folder}/'
         if not os.path.exists(path):
