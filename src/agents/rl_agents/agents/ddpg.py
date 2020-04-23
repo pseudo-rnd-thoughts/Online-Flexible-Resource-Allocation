@@ -8,8 +8,7 @@ from typing import List, Dict, Union
 
 import tensorflow as tf
 
-from agents.rl_agents.rl_agents import ReinforcementLearningAgent, TaskPricingRLAgent, ResourceWeightingRLAgent, \
-    ResourceAllocationState
+from agents.rl_agents.rl_agents import ReinforcementLearningAgent, TaskPricingRLAgent, ResourceWeightingRLAgent
 from env.server import Server
 from env.task import Task
 
@@ -187,7 +186,6 @@ class TD3Agent(DdpgAgent, ABC):
 
         # Training attributes
         self.actor_update_frequency = actor_update_frequency
-
 
     def _train(self, states, actions, next_states, rewards, dones) -> float:
         rewards, dones = tf.expand_dims(rewards, axis=1), tf.expand_dims(dones, axis=1)

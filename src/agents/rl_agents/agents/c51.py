@@ -106,7 +106,6 @@ class CategoricalDqnTaskPricingAgent(CategoricalDqnAgent, TaskPricingRLAgent):
 
 class CategoricalDqnResourceWeightingAgent(CategoricalDqnAgent, ResourceWeightingRLAgent):
 
-
     def _get_actions(self, tasks: List[Task], server: Server, time_step: int,
                      training: bool = False) -> Dict[Task, float]:
         if training:

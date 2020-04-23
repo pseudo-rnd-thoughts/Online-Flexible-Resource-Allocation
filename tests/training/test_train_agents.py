@@ -5,7 +5,6 @@ Tests the src/training/scripts/train_agents.py file
 import os
 from typing import List
 
-from agents.heuristic_agents.random_agent import RandomTaskPricingAgent, RandomResourceWeightingAgent
 from agents.rl_agents.agents.ddpg import ResourceWeightingDdpgAgent, TaskPricingDdpgAgent
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
