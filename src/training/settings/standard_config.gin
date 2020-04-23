@@ -34,13 +34,19 @@ ResourceWeightingRLAgent.failed_reward = -1.5
 #========================================================================
 #                        Dqn Agent
 DqnAgent.discount_factor = 0.9
-DqnAgent.initial_epsilon = 0.8
+DqnAgent.initial_epsilon = 1.0
 DqnAgent.final_epsilon = 0.1
-DqnAgent.epsilon_steps = 35000
 DqnAgent.epsilon_update_frequency = 100
+
+TaskPricingDqnAgent.epsilon_steps = 50000
+ResourceWeightingDqnAgent.epsilon_steps = 30000
 
 #                        Dueling Dqn Agent
 DuelingDQN.double_loss = True
+
+#                        Deep deterministic policy gradient
+TaskPricingDdpgAgent.epsilon_steps = 50000
+ResourceWeightingDdpgAgent.epsilon_steps = 30000
 
 #========================================================================
 #                        Dqn Networks
