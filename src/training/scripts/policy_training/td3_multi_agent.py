@@ -25,9 +25,8 @@ if __name__ == "__main__":
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingTD3Agent(agent_num, create_lstm_actor_network(16), create_lstm_critic_network(16),
+        ResourceWeightingTD3Agent(0, create_lstm_actor_network(16), create_lstm_critic_network(16),
                                   create_lstm_critic_network(16), save_folder=folder)
-        for agent_num in range(3)
     ]
 
     with writer.as_default():
