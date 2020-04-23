@@ -18,8 +18,9 @@ from env.task import Task
 @gin.configurable
 class CategoricalDqnAgent(DqnAgent, ABC):
 
-    def __init__(self, network: tf.keras.Model, max_value: float = -20.0, min_value: float = 25.0, num_atoms: int = 21):
-        DqnAgent.__init__(self, network)
+    def __init__(self, network: tf.keras.Model, max_value: float = -20.0, min_value: float = 25.0, num_atoms: int = 21,
+                 **kwargs):
+        DqnAgent.__init__(self, network, **kwargs)
 
         self.v_min = min_value
         self.v_max = max_value
@@ -31,6 +32,7 @@ class CategoricalDqnAgent(DqnAgent, ABC):
                dones: tf.Tensor) -> float:
         rewards = tf.expand_dims(rewards, axis=-1)
         dones = tf.expand_dims(dones, axis=-1)
+        actions = tf.cast(actions, tf.int32)
 
         network_variables = self.model_network.trainable_variables
         with tf.GradientTape() as tape:
@@ -85,11 +87,11 @@ class CategoricalDqnAgent(DqnAgent, ABC):
         return loss
 
 
-class CategoricalDqnTaskPricingAgent(CategoricalDqnAgent, TaskPricingRLAgent):
+class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
 
     def __init__(self, agent_num: int, network: tf.keras.Model, **kwargs):
         CategoricalDqnAgent.__init__(self, network, **kwargs)
-        TaskPricingRLAgent.__init__(self, f'C51 Dqn agent {agent_num}', **kwargs)
+        TaskPricingRLAgent.__init__(self, f'Task pricing C51 agent {agent_num}', **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
                     training: bool = False):
@@ -104,7 +106,11 @@ class CategoricalDqnTaskPricingAgent(CategoricalDqnAgent, TaskPricingRLAgent):
         return action
 
 
-class CategoricalDqnResourceWeightingAgent(CategoricalDqnAgent, ResourceWeightingRLAgent):
+class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightingRLAgent):
+
+    def __init__(self, agent_num: int, network: tf.keras.Model, **kwargs):
+        CategoricalDqnAgent.__init__(self, network, **kwargs)
+        ResourceWeightingRLAgent.__init__(self, f'Resource weighting C51 agent {agent_num}', **kwargs)
 
     def _get_actions(self, tasks: List[Task], server: Server, time_step: int,
                      training: bool = False) -> Dict[Task, float]:
