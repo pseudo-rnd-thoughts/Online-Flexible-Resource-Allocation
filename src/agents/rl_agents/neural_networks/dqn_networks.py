@@ -50,7 +50,8 @@ def create_lstm_dqn_network(input_width: int, num_actions: int, lstm_width: int 
     input_layer = tf.keras.layers.Input(shape=(None, input_width))
     lstm_layer = tf.keras.layers.LSTM(lstm_width)(input_layer)
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
-    q_layer = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
+    q_layer = tf.keras.layers.Dense(num_actions, activation='linear',
+                                    kernel_regularizer=tf.keras.regularizers.l1())(relu_layer)
 
     return tf.keras.Model(name='LSTM_Dqn', inputs=input_layer, outputs=q_layer)
 

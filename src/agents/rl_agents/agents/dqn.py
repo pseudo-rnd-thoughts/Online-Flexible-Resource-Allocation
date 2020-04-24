@@ -108,6 +108,8 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
             # Calculate the element wise loss
             loss = self.error_loss_fn(target, states_actions_q_values)
+            if self.model_network.losses:
+                loss += self.model_network.losses
 
         # Backpropagation the loss through the network variables and apply the changes to the network
         gradients = tape.gradient(loss, network_variables)
