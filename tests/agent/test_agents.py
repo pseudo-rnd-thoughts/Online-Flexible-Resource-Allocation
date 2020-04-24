@@ -16,8 +16,6 @@ from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dq
     create_lstm_categorical_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
 
-# TODO add comments and new agents
-
 
 def test_build_agent():
     def assert_args(test_agent, args):

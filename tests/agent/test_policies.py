@@ -10,6 +10,7 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 
 def test_epsilon_policy():
     print()
+    # Tests the epsilon policy by getting agent actions that should update the agent epsilon over time
     env = OnlineFlexibleResourceAllocationEnv('agent/settings/basic.env')
     state = env.reset()
 
