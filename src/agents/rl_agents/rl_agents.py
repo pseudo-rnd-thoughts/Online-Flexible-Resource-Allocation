@@ -46,9 +46,9 @@ class ReinforcementLearningAgent(ABC):
     """
 
     def __init__(self, batch_size: int = 32, error_loss_fn=tf.compat.v1.losses.huber_loss,
-                 initial_training_replay_size: int = 5000, update_frequency: int = 2, discount_factor: float = 0.9,
+                 initial_training_replay_size: int = 5000, training_freq: int = 2, discount_factor: float = 0.9,
                  replay_buffer_length: int = 25000, save_frequency: int = 25000, save_folder: str = 'checkpoint',
-                 log_frequency: int = 250, **kwargs):
+                 training_loss_log_freq: int = 250, reward_scaling: float = 1, **kwargs):
         """
         Constructor that is generalised for the deep q networks and policy gradient agents
         Args:
@@ -63,15 +63,17 @@ class ReinforcementLearningAgent(ABC):
             **kwargs:
         """
         assert 0 < batch_size
-        assert 0 < update_frequency and 0 < save_frequency
+        assert 0 < training_freq and 0 < save_frequency and 0 < training_loss_log_freq
         assert 0 < initial_training_replay_size and 0 < replay_buffer_length
 
         # Training
         self.batch_size = batch_size
         self.error_loss_fn = error_loss_fn
         self.initial_training_replay_size = initial_training_replay_size
-        self.update_frequency = update_frequency
-        self.log_frequency = log_frequency
+        self.training_freq = training_freq
+        self.training_loss_log_freq = training_loss_log_freq
+        self.reward_scaling = reward_scaling
+        self.discount_factor = discount_factor
 
         # Records the agent actions and updates
         self.total_updates: int = 0
@@ -85,9 +87,6 @@ class ReinforcementLearningAgent(ABC):
         # Save
         self.save_frequency = save_frequency
         self.save_folder = save_folder
-
-        # Discount factor
-        self.discount_factor = discount_factor
 
     @staticmethod
     def _normalise_task(task: Task, server: Server, time_step: int) -> List[float]:
@@ -126,7 +125,7 @@ class ReinforcementLearningAgent(ABC):
         dones = tf.cast(tf.stack(dones), tf.float32)
 
         training_loss = self._train(states, actions, next_states, rewards, dones)
-        if self.total_updates % self.log_frequency == 0:
+        if self.total_updates % self.training_loss_log_freq == 0:
             tf.summary.scalar(f'{self.name} agent training loss', training_loss, self.total_observations)
             tf.summary.scalar(f'Training loss', training_loss, self.total_observations)
         if self.total_updates % self.save_frequency == 0:
@@ -158,14 +157,14 @@ class ReinforcementLearningAgent(ABC):
 
     def _add_trajectory(self, state, action: float, next_state, reward: float, done: bool = False):
         if done:
-            self.replay_buffer.append((state, action, next_state, reward, 0))
+            self.replay_buffer.append((state, action, next_state, reward * self.reward_scaling, 0))
         else:
-            self.replay_buffer.append((state, action, next_state, reward, 1))
+            self.replay_buffer.append((state, action, next_state, reward * self.reward_scaling, 1))
 
         # Check if to train the agent
         self.total_observations += 1
         if self.initial_training_replay_size <= self.total_observations and \
-                self.total_observations % self.update_frequency == 0:
+                self.total_observations % self.training_freq == 0:
             self.train()
 
     @staticmethod
@@ -184,7 +183,8 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
 
     network_obs_width: int = 9
 
-    def __init__(self, name: str, failed_auction_reward: float = -0.05, failed_multiplier: float = -1.5, **kwargs):
+    def __init__(self, name: str, failed_auction_reward: float = -0.05, failed_multiplier: float = -1.5,
+                 **kwargs):
         """
         Constructor of the task pricing reinforcement learning agent
 
@@ -196,7 +196,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
             failed_reward_multiplier: Failed reward multiplier
         """
         TaskPricingAgent.__init__(self, name)
-        ReinforcementLearningAgent.__init__(self, **kwargs)
+        ReinforcementLearningAgent.__init__(self, reward_scaling=0.2, **kwargs)
 
         # Reward variable
         assert failed_auction_reward <= 0, failed_auction_reward

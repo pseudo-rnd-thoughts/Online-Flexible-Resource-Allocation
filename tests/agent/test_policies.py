@@ -14,9 +14,9 @@ def test_epsilon_policy():
     state = env.reset()
 
     pricing_dqn_agent = TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5), initial_epsilon=1, final_epsilon=0.1,
-                                            update_frequency=1, epsilon_steps=200)
+                                            training_freq=1, epsilon_steps=200)
     weighting_dqn_agent = ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 5), initial_epsilon=1,
-                                                    final_epsilon=0.1, update_frequency=1, epsilon_steps=200)
+                                                    final_epsilon=0.1, training_freq=1, epsilon_steps=200)
 
     done = False
     while not done:

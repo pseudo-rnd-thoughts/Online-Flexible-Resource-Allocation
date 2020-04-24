@@ -80,7 +80,7 @@ class CategoricalDqnAgent(DqnAgent, ABC):
         self.optimizer.apply_gradients(zip(grads, network_variables))
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
-        if self.total_updates % self.update_frequency == 0:
+        if self.total_updates % self.training_freq == 0:
             ReinforcementLearningAgent._update_target_network(self.model_network, self.target_network,
                                                               self.target_update_tau)
 

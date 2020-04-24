@@ -35,7 +35,7 @@ def test_build_agent():
     # Check inheritance arguments
     reinforcement_learning_arguments = {
         'batch_size': 16, 'error_loss_fn': tf.compat.v1.losses.mean_squared_error, 'initial_training_replay_size': 1000,
-        'update_frequency': 2, 'replay_buffer_length': 20000, 'save_frequency': 12500, 'save_folder': 'test',
+        'training_freq': 2, 'replay_buffer_length': 20000, 'save_frequency': 12500, 'save_folder': 'test',
         'discount_factor': 0.9
     }
     dqn_arguments = {

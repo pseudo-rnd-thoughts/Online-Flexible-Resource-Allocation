@@ -26,9 +26,9 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
                  actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0001),
                  critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0005),
                  initial_epsilon_std: float = 0.8, final_epsilon_std: float = 0.05, epsilon_steps: int = 20000,
-                 epsilon_update_frequency: int = 100, min_value: float = -15.0, max_value: float = 15,
+                 epsilon_update_frequency: int = 100, min_value: float = -15.0, max_value: float = 15.0,
                  target_update_tau: float = 1.0, actor_target_update_frequency: int = 3000,
-                 critic_target_update_frequency: int = 1500, upper_action_bound: float = 50.0, **kwargs):
+                 critic_target_update_frequency: int = 1500, upper_action_bound: float = 30.0, **kwargs):
         assert actor_network.output_shape[-1] == 1 and critic_network.output_shape[-1] == 1
 
         ReinforcementLearningAgent.__init__(self, **kwargs)
@@ -181,7 +181,7 @@ class TD3Agent(DdpgAgent, ABC):
 
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model, twin_critic_network: tf.keras.Model,
                  twin_critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
-                 actor_update_frequency: int = 2, **kwargs):
+                 actor_update_frequency: int = 3, **kwargs):
         DdpgAgent.__init__(self, actor_network, critic_network, **kwargs)
 
         # Twin critic
