@@ -84,8 +84,10 @@ class EvalResults:
         tf.summary.scalar('Eval number of completed tasks', self.num_completed_tasks, episode)
         tf.summary.scalar('Eval number of failed tasks', self.num_failed_tasks, episode)
         tf.summary.scalar('Eval total prices', self.total_prices, episode)
-        tf.summary.scalar('Eval percent tasks', (self.num_completed_tasks + self.num_failed_tasks) / self.num_auctions)
-        tf.summary.scalar('Eval completed failed task ratio', self.num_completed_tasks / (self.num_failed_tasks + 1))
+        tf.summary.scalar('Eval percent tasks', (self.num_completed_tasks + self.num_failed_tasks) / self.num_auctions,
+                          episode)
+        tf.summary.scalar('Eval completed failed task ratio', self.num_completed_tasks / (self.num_failed_tasks + 1),
+                          episode)
 
 
 def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent],
