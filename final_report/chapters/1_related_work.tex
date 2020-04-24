@@ -93,6 +93,12 @@ A3C~\cite{A3C}, distributional Q-learning~\citep{distributional_dqn} and noisy D
 combined to together~\cite{rainbow}, called rainbow DQN, achieving over 200\% of the original DQN algorithm and over
 50\% than any optimisation on its own in a quarter of the observations.
 
+\begin{figure}[h]
+    \includegraphics[width=10cm]{figures/actor-critic.png}
+    \caption{Actor Critic model (Source: ~\cite{Sutton1998})}
+    \label{fig:actor-critic-model}
+\end{figure}
+
 Using the base of Q-learning, policy gradient~\ref{fig:actor-critic-model} separate the action selection policy to the
 q-value policy. In Q-learning, the selection the action is based on the maximum Q-value of the actions however policy
 gradient separates. This has the advantages of being able to deal with both discrete and continuous action spaces where
@@ -100,9 +106,3 @@ Q-learning can only deal with discrete action space. Also the learning method do
 selection that can for Q-learning cause the resulting policy to differ from the optimal policy. Therefore policy
 gradient has been used to master the game of Go~\citep{silver2017mastering} and achieve top 1\% in
 Dota 2~\citep{OpenAI_dota} and Starcraft 2~\citep{starcraft2}.
-
-\begin{figure}[h]
-    \includegraphics[width=10cm]{figures/actor-critic.png}
-    \caption{Actor Critic model (Source: ~\cite{Sutton1998})}
-    \label{fig:actor-critic-model}
-\end{figure}
