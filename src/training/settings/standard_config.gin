@@ -40,15 +40,8 @@ DqnAgent.initial_epsilon = 1.0
 DqnAgent.final_epsilon = 0.1
 DqnAgent.epsilon_update_frequency = 100
 
-TaskPricingDqnAgent.epsilon_steps = 50000
-ResourceWeightingDqnAgent.epsilon_steps = 30000
-
 #                        Dueling Dqn Agent
 DuelingDQN.double_loss = True
-
-#                        Deep deterministic policy gradient
-TaskPricingDdpgAgent.epsilon_steps = 50000
-ResourceWeightingDdpgAgent.epsilon_steps = 30000
 
 #========================================================================
 #                        Dqn Networks

@@ -135,7 +135,8 @@ class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
                  min_value: float = -100.0, max_value: float = 100.0, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
-        DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value, **kwargs)
+        DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value,
+                           epsilon_steps=50000, **kwargs)
         name = f'Task pricing Ddpg agent {agent_name}' if type(agent_name) is int else agent_name
         TaskPricingRLAgent.__init__(self, name, **kwargs)
 
@@ -158,7 +159,8 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
                  min_value: float = -20, max_value: float = 15, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
-        DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value, **kwargs)
+        DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value,
+                           epsilon_steps=30000, **kwargs)
         name = f'Resource weighting Ddpg agent {agent_name}' if type(agent_name) is int else agent_name
         ResourceWeightingRLAgent.__init__(self, name, **kwargs)
 

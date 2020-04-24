@@ -46,8 +46,8 @@ class ReinforcementLearningAgent(ABC):
     """
 
     def __init__(self, batch_size: int = 32, error_loss_fn=tf.compat.v1.losses.huber_loss,
-                 initial_training_replay_size: int = 5000, update_frequency: int = 4, discount_factor: float = 0.9,
-                 replay_buffer_length: int = 100000, save_frequency: int = 25000, save_folder: str = 'checkpoint',
+                 initial_training_replay_size: int = 5000, update_frequency: int = 2, discount_factor: float = 0.9,
+                 replay_buffer_length: int = 25000, save_frequency: int = 25000, save_folder: str = 'checkpoint',
                  log_frequency: int = 250, **kwargs):
         """
         Constructor that is generalised for the deep q networks and policy gradient agents
@@ -263,8 +263,8 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
 
     network_obs_width: int = 16
 
-    def __init__(self, name: str, other_task_discount: float = 0.2, success_reward: float = 1,
-                 failed_reward: float = -2, **kwargs):
+    def __init__(self, name: str, other_task_discount: float = 0.4, success_reward: float = 1,
+                 failed_reward: float = -1.5, **kwargs):
         """
         Constructor of the resource weighting reinforcement learning agent
 

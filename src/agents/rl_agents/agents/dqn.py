@@ -28,7 +28,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
     def __init__(self, network: tf.keras.Model, optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
                  target_update_tau: float = 1.0, target_update_frequency: int = 2500,
                  initial_epsilon: float = 1, final_epsilon: float = 0.1, epsilon_steps: int = 10000,
-                 epsilon_update_frequency: int = 25, **kwargs):
+                 epsilon_update_frequency: int = 100, **kwargs):
         """
         Constructor of the dqn agent
         Args:
@@ -136,7 +136,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
     def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, **kwargs):
         assert network.input_shape[-1] == self.network_obs_width
 
-        DqnAgent.__init__(self, network, **kwargs)
+        DqnAgent.__init__(self, network, epsilon_steps=50000, **kwargs)
         name = f'Task pricing Dqn agent {agent_name}' if type(agent_name) is int else agent_name
         TaskPricingRLAgent.__init__(self, name, **kwargs)
 
@@ -162,7 +162,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
     def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, **kwargs):
         assert network.input_shape[-1] == self.network_obs_width
 
-        DqnAgent.__init__(self, network, **kwargs)
+        DqnAgent.__init__(self, network, epsilon_steps=30000, **kwargs)
         name = f'Resource weighting Dqn agent {agent_name}' if type(agent_name) is int else agent_name
         ResourceWeightingRLAgent.__init__(self, name, **kwargs)
 
@@ -238,7 +238,7 @@ class DuelingDQN(DdqnAgent, ABC):
         (https://arxiv.org/abs/1511.06581)
     """
 
-    def __init__(self, network: tf.keras.Model, double_loss: bool = False, **kwargs):
+    def __init__(self, network: tf.keras.Model, double_loss: bool = True, **kwargs):
         DqnAgent.__init__(self, network, **kwargs)
         self.double_loss = double_loss
 
