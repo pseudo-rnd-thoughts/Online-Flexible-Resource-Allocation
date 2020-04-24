@@ -5,10 +5,7 @@
 *.pyc
 
 # Agent training results and evaluation environments
-src/training/results/old_logs/
-src/training/results/logs/
-src/training/results/checkpoints/
-src/training/results/.ipynb_checkpoints/
+src/training/results/
 
 # Additional Latex files
 /final_report/chapters/*.aux
@@ -29,3 +26,4 @@ src/training/results/.ipynb_checkpoints/
 /tests/agent/checkpoints/
 /tests/training/settings/tmp/
 /tests/training/tmp/
+
