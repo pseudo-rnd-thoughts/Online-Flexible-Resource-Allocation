@@ -108,7 +108,7 @@ to pad all of the input to be the same size.
     \begin{tabular}{|p{3cm}|p{12cm}|} \hline
         Policy Type & Explanation \\ \hline
         Dqn~\citep{mnih2015humanlevel} & A standard deep Q learning agent that discretizes the action space \\ \hline
-        Double Dueling DQN~\icte{double_dqn, dueling_dqn} & A combination of two heuristics for the standard deep Q
+        Double Dueling DQN~\citep{doubledqn, duelingdqn} & A combination of two heuristics for the standard deep Q
             learning agents that uses a modified td target function and a modified networks that separates state value
             and action advantage. \\ \hline
         Categorical Dqn~\citep{distributional_dqn} & Standard deep Q learning agents return a scalar value
@@ -123,7 +123,7 @@ to pad all of the input to be the same size.
             twin critic to prevent the actor tricking the critic and delaying the updates for actors compared to
             critic.\\ \hline
         D4PG~\citep{d4pg} & Like the categorical dqn, d4pg add a heuristic for the critic to output a value probability
-            distribution that allows for better approximation for environment that are stochastic in nature.
+            distribution that allows for better approximation for environment that are stochastic in nature. \\ \hline
     \end{tabular}
     \caption{Table of implemented reinforcement learning algorithms}
     \label{tab:reinforcement_learning_algorithms}
@@ -137,11 +137,11 @@ of complex reward functions are a known problem for DQN agent to deal with~\cite
 deal with this due to learning the policy rather than the q values~\citep{Sutton1998}.
 
 For the auction, the reward is based on the winning price of the task at the time step when the auction is won. If the
-task fails, the reward is instead multiplied by a negative constant (referred to as "failed_reward_multiplier") in
+task fails, the reward is instead multiplied by a negative constant (referred to as "failed\_reward\_multiplier") in
 order to discourage the auction agent from bidding on tasks that it wouldn't be able to complete. Because of this,
 the price of zero is treated as a non-bid, resulting in the agent getting a reward of zero and not being considered in
 the auction. The final possible reward for an auction agent is that the agent fails to win the task in the auction by
-bidding too high, as a result, the reward is constant called "failed_auction_reward". The constant's default value is
+bidding too high, as a result, the reward is constant called "failed\_auction\_reward". The constant's default value is
 -0.05 as a way of encouraging the agent to change there bid.
 
 For resource allocation, the reward function is much simpler than the auction reward function as it only needs to
@@ -213,51 +213,51 @@ for each agents in order to view how agents bid and weightings are distributed.
 \subsection{Agent training hyperparameters}\label{subsec:agent-training-hyperparameters}
 % TODO
 
-\begin{longtable}{|p{3.5cm}|p{11cm}|} \hline
+\begin{longtable}{|p{3.5cm}|p{3.5cm}|p{3.5cm}|p{3.5cm}|} \hline
     \textbf{Agent} & \textbf{Properties name} & \textbf{Value} & \textbf{Explanation} \\ \hline
         % TODO
-        Task Pricing & limit_parallel_tasks & None & \\ \hline
-        RL Agent & batch_size &  32 & \\ \hline
-        RL Agent & error_loss_fn & tf.losses.huber_loss & \\ \hline
-        RL Agent & initial_training_replay_size & 5000 & \\ \hline
-        RL Agent & training_freq & 2 & \\ \hline
-        RL Agent & discount_factor & 0.9 & \\ \hline
-        RL Agent & replay_buffer_length & 25000 & \\ \hline
-        RL Agent & save_frequency & 25000 & \\ \hline
-        RL Agent & training_loss_log_freq & 250 & \\ \hline \hline
-        Task Pricing RL Agent & reward_scaling & 1 & \\ \hline
-        Task Pricing RL Agent & failed_auction_reward & -0.05 & \\ \hline
-        Task Pricing RL Agent & failed_multiplier & -1.5 & \\ \hline \hline
-        Resource weighting RL Agent & other_task_discount: float = 0.4 & \\ \hline
-        Resource weighting RL Agent & success_reward & 1 & \\ \hline
-        Resource weighting RL Agent & failed_reward & -1.5 & \\ \hline \hline
+        Task Pricing & limit\_parallel\_tasks & None & \\ \hline
+        RL Agent & batch\_size &  32 & \\ \hline
+        RL Agent & error\_loss\_fn & tf.losses.huber\_loss & \\ \hline
+        RL Agent & initial\_training\_replay\_size & 5000 & \\ \hline
+        RL Agent & training\_freq & 2 & \\ \hline
+        RL Agent & discount\_factor & 0.9 & \\ \hline
+        RL Agent & replay\_buffer\_length & 25000 & \\ \hline
+        RL Agent & save\_frequency & 25000 & \\ \hline
+        RL Agent & training\_loss\_log\_freq & 250 & \\ \hline \hline
+        Task Pricing RL Agent & reward\_scaling & 1 & \\ \hline
+        Task Pricing RL Agent & failed\_auction\_reward & -0.05 & \\ \hline
+        Task Pricing RL Agent & failed\_multiplier & -1.5 & \\ \hline \hline
+        Resource weighting RL Agent & other\_task\_discount: float = 0.4 & \\ \hline
+        Resource weighting RL Agent & success\_reward & 1 & \\ \hline
+        Resource weighting RL Agent & failed\_reward & -1.5 & \\ \hline \hline
         Dqn Agent & optimiser & tf.keras.optimizers.Adam() & \\ \hline
-        Dqn Agent & target_update_tau & 1.0 & \\ \hline
-        Dqn Agent & target_update_frequency & 2500 & \\ \hline
-        Dqn Agent & initial_epsilon & 1 & \\ \hline
-        Dqn Agent & final_epsilon & 0.1 & \\ \hline
-        Dqn Agent & epsilon_steps & 10000 & \\ \hline
-        Dqn Agent & epsilon_update_frequency & 100 & \\ \hline \hline
-        Dueling Dqn Agent & double_loss & True & \\ \hline \hline
-        Categorical Dqn Agent & max_value & -20.0 & \\ \hline
-        Categorical Dqn Agent & min_value & 25.0 & \\ \hline
-        Categorical Dqn Agent & num_atoms & 21 & \\ \hline \hline
-        Ddpg Agent & actor_optimiser & tf.keras.optimizers.RMSprop(lr=0.0001) & \\ \hline
-        Ddpg Agent & critic_optimiser & tf.keras.optimizers.RMSprop(lr=0.0005) & \\ \hline
-        Ddpg Agent & initial_epsilon_std & 0.8 & \\ \hline
-        Ddpg Agent & final_epsilon_std & 0.05 & \\ \hline
-        Ddpg Agent & epsilon_steps & 20000 & \\ \hline
-        Ddpg Agent & epsilon_update_frequency & 100 & \\ \hline
-        Ddpg Agent & target_update_tau & 1.0 & \\ \hline
-        Ddpg Agent & actor_target_update_frequency & 3000 & \\ \hline
-        Ddpg Agent & critic_target_update_frequency & 1500 & \\ \hline
-        Ddpg Agent & upper_action_bound & 30.0 & \\ \hline \hline
-        Task pricing Ddpg Agent & min_value & -100.0 & \\ \hline
-        Task pricing Ddpg Agent & max_value & 100.0 & \\ \hline \hline
-        Resource allocation Ddpg Agent & min_value & -20 & \\ \hline
-        Resource allocation Ddpg Agent & max_value & 15 & \\ \hline \hline
-        TD3 Agent & twin_critic_optimiser & tf.keras.optimizers.Adam() & \\ \hline
-        TD3 Agent & actor_update_frequency & 3 & \\ \hline
+        Dqn Agent & target\_update\_tau & 1.0 & \\ \hline
+        Dqn Agent & target\_update\_frequency & 2500 & \\ \hline
+        Dqn Agent & initial\_epsilon & 1 & \\ \hline
+        Dqn Agent & final\_epsilon & 0.1 & \\ \hline
+        Dqn Agent & epsilon\_steps & 10000 & \\ \hline
+        Dqn Agent & epsilon\_update\_frequency & 100 & \\ \hline \hline
+        Dueling Dqn Agent & double\_loss & True & \\ \hline \hline
+        Categorical Dqn Agent & max\_value & -20.0 & \\ \hline
+        Categorical Dqn Agent & min\_value & 25.0 & \\ \hline
+        Categorical Dqn Agent & num\_atoms & 21 & \\ \hline \hline
+        Ddpg Agent & actor\_optimiser & tf.keras.optimizers.RMSprop(lr=0.0001) & \\ \hline
+        Ddpg Agent & critic\_optimiser & tf.keras.optimizers.RMSprop(lr=0.0005) & \\ \hline
+        Ddpg Agent & initial\_epsilon\_std & 0.8 & \\ \hline
+        Ddpg Agent & final\_epsilon\_std & 0.05 & \\ \hline
+        Ddpg Agent & epsilon\_steps & 20000 & \\ \hline
+        Ddpg Agent & epsilon\_update\_frequency & 100 & \\ \hline
+        Ddpg Agent & target\_update\_tau & 1.0 & \\ \hline
+        Ddpg Agent & actor\_target\_update\_frequency & 3000 & \\ \hline
+        Ddpg Agent & critic\_target\_update\_frequency & 1500 & \\ \hline
+        Ddpg Agent & upper\_action\_bound & 30.0 & \\ \hline \hline
+        Task pricing Ddpg Agent & min\_value & -100.0 & \\ \hline
+        Task pricing Ddpg Agent & max\_value & 100.0 & \\ \hline \hline
+        Resource allocation Ddpg Agent & min\_value & -20 & \\ \hline
+        Resource allocation Ddpg Agent & max\_value & 15 & \\ \hline \hline
+        TD3 Agent & twin\_critic\_optimiser & tf.keras.optimizers.Adam() & \\ \hline
+        TD3 Agent & actor\_update\_frequency & 3 & \\ \hline
     \caption{Agent hyperparameters}
     \label{tab:agent_hyperparameters}
 \end{longtable}
