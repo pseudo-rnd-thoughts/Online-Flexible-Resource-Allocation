@@ -4,11 +4,11 @@ Tests the dqn agents training method
 
 from typing import List
 
-from agents.rl_agents.agents.c51 import TaskPricingCategoricalDqnAgent, ResourceWeightingCategoricalDqnAgent
 from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent, ResourceWeightingTD3Agent, \
     TaskPricingTD3Agent
 from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent, ResourceWeightingDdqnAgent, \
-    ResourceWeightingDuelingDqnAgent, TaskPricingDqnAgent, TaskPricingDdqnAgent, TaskPricingDuelingDqnAgent
+    ResourceWeightingDuelingDqnAgent, TaskPricingDqnAgent, TaskPricingDdqnAgent, TaskPricingDuelingDqnAgent, \
+    TaskPricingCategoricalDqnAgent, ResourceWeightingCategoricalDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network, \
     create_lstm_categorical_dqn_network
@@ -28,7 +28,7 @@ def test_task_price_training():
         TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
         TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
         TaskPricingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
-        TaskPricingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
+        # TaskPricingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
         TaskPricingDdpgAgent(4, create_lstm_actor_network(9), create_lstm_critic_network(9), batch_size=2,
                              save_folder='tmp'),
         TaskPricingTD3Agent(5, create_lstm_actor_network(9), create_lstm_critic_network(9),

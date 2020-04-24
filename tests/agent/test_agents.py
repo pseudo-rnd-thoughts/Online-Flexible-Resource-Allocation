@@ -6,11 +6,11 @@ from __future__ import annotations
 
 import tensorflow as tf
 
-from agents.rl_agents.agents.c51 import TaskPricingCategoricalDqnAgent, ResourceWeightingCategoricalDqnAgent
 from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent, TaskPricingTD3Agent, \
     ResourceWeightingTD3Agent
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, TaskPricingDdqnAgent, TaskPricingDuelingDqnAgent, \
-    ResourceWeightingDqnAgent, ResourceWeightingDdqnAgent, ResourceWeightingDuelingDqnAgent
+    ResourceWeightingDqnAgent, ResourceWeightingDdqnAgent, ResourceWeightingDuelingDqnAgent, \
+    ResourceWeightingCategoricalDqnAgent, TaskPricingCategoricalDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_critic_network, create_lstm_actor_network
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network, \
     create_lstm_categorical_dqn_network

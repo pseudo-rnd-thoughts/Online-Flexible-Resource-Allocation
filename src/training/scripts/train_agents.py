@@ -153,7 +153,8 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
 
                 # Update the server auction agent states with the current agent state
                 server_auction_agent_states[server] = (current_state, auction_prices[server], server in rewards)
-            assert len(successful_auction_agent_states) == sum(len(tasks) for tasks in next_state.server_tasks.values())
+
+            assert len(successful_auction_agent_states) == sum(len(tasks) for tasks in next_state.server_tasks.values()) - 1
             assert all(agent_state is not None for agent_state in server_auction_agent_states.values())
         else:  # Else the environment is at resource allocation stage
             # For each server and each server task calculate its relative weighting

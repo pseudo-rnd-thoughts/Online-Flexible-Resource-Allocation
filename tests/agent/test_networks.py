@@ -74,8 +74,8 @@ def test_networks():
     print(f'Network: {pricing_network.name}'
           f'\n\tAuction: {auction_output}'
           f'\n\tResource allocation: {resource_output}')
-    assert all(output.shape == (1, 10) for output in auction_output)
-    assert all(output.shape == (1, 10) for output in resource_output)
+    assert auction_output.shape == (1, 3, 10)
+    assert resource_output.shape == (1, 3, 10)
 
     # Check for the ddpg networks as it is a special case
     pricing_actor_networks = [
