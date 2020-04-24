@@ -154,8 +154,7 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
                 # Update the server auction agent states with the current agent state
                 server_auction_agent_states[server] = (current_state, auction_prices[server], server in rewards)
 
-            assert len(successful_auction_agent_states) == sum(len(tasks) for tasks in next_state.server_tasks.values()) - 1
-            assert all(agent_state is not None for agent_state in server_auction_agent_states.values())
+            # assert len(successful_auction_agent_states) == sum(len(tasks) for tasks in next_state.server_tasks.values()) - 1
         else:  # Else the environment is at resource allocation stage
             # For each server and each server task calculate its relative weighting
             weighting_actions: Dict[Server, Dict[Task, float]] = {
@@ -170,12 +169,16 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
             #    therefore add the task pricing auction agent states with the finished tasks
             for server, finished_tasks in finished_server_tasks.items():
                 for finished_task in finished_tasks:
-                    assert 0 < len(successful_auction_agent_states)
-
                     # Get the successful auction agent state from the list of successful auction agent states
                     successful_auction = next((auction_agent_state
                                                for auction_agent_state in successful_auction_agent_states
                                                if auction_agent_state[0].auction_task == finished_task), None)
+                    if successful_auction is None:
+                        print(f'Number of successful auction agent states: {len(successful_auction_agent_states)}')
+                        print(f'Number of server tasks: {sum(len(tasks) for tasks in next_state.server_tasks.values())}')
+                        print(f'Finished task: {str(finished_task)}')
+                        print(f'State: {str(state)}')
+                        print(f'Next state: {str(next_state)}')
                     assert successful_auction is not None
 
                     # Remove the successful auction agent state
