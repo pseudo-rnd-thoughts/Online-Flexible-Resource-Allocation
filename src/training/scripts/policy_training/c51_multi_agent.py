@@ -5,7 +5,7 @@ from __future__ import annotations
 import gin
 
 from agents.rl_agents.agents.dqn import TaskPricingCategoricalDqnAgent, ResourceWeightingCategoricalDqnAgent
-from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network
+from agents.rl_agents.neural_networks.dqn_networks import create_lstm_categorical_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from training.scripts.train_agents import generate_eval_envs, run_training, setup_tensorboard
 
@@ -19,11 +19,11 @@ if __name__ == "__main__":
     eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/{folder}/')
 
     task_pricing_agents = [
-        TaskPricingCategoricalDqnAgent(agent_num, create_lstm_dqn_network(9, 10), save_folder=folder)
+        TaskPricingCategoricalDqnAgent(agent_num, create_lstm_categorical_dqn_network(9, 16), save_folder=folder)
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingCategoricalDqnAgent(0, create_lstm_dqn_network(16, 10), save_folder=folder)
+        ResourceWeightingCategoricalDqnAgent(0, create_lstm_categorical_dqn_network(16, 11), save_folder=folder)
     ]
 
     with writer.as_default():
