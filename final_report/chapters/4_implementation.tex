@@ -3,8 +3,8 @@ In order to implement a solution from chapter~\ref{ch:proposed-solution-to-probl
 must be simulated due to the impractically of setting up such a network and in order to train the agents proposed
 in section~\ref{sec:proposed-agents}. This chapter splits the implementation into three sections: the environment
 simulation (section~\ref{sec:simulating-edge-cloud-computing-services}), define server auction agents and resource
-allocation agents (section~\ref{sec:agent-definition}) and finally training the agents
-(section~\ref{sec:training-of-agents}).
+allocation agents (section~\ref{sec:implementing-auction-and-resource-allocation-agents}) and finally training the
+agents (section~\ref{sec:training-agents}).
 
 The implementation discussed below as written in Python and available to download from Github at
 \burl{https://github.com/stringtheorys/Online-Flexible-Resource-Allocation}. The reason for the use of python is number
@@ -82,15 +82,26 @@ repeated till all of the available resources are allocated in the time step. As 
 converting between weightings to resources allowing for allocating of almost all of the server's resources with no
 resources unused.
 
-\section{Defining the agents}\label{sec:agent-definition}
+\section{Implementing Auction and resource allocation agents}\label{sec:implementing-auction-and-resource-allocation-agents}
 Each server has to have a unique policy for bidding on tasks and allocating resources that are proposed in
 section~\ref{sec:proposed-agents}. These policies are referred to as the auction agents, for bidding on tasks and the
 resource weighting agent, for allocating of resources. However determining these policies is a difficult due to the
 complexity and the interaction of task attributes and the server resources. Because of this, the ability of
 reinforcement learning to interact an environment and learn a policy in order to maximise its reward over time is
-integratial to this project. Therefore a range of different reinforcement learning techniques have been implemented,
-outlined in Table~\ref{tab:reinforcement_learning_policies}, in order to explore the different options that a server
+integral to this project. Therefore a range of different reinforcement learning techniques have been implemented,
+outlined in Table~\ref{tab:reinforcement_learning_algorithms}, in order to explore the different options that a server
 would have available to learn its policies.
+
+% Todo auction and resource allocation agents
+
+\subsection{Implementing reinforcement learning policies}\label{subsec:implementing-auction-and-resource-allocation-agents}
+These policies were implemented using tensorflow~\cite{tensorflow2015-whitepaper}, a python module developed by Google
+that provides programmers the ability to construct neural network and backpropagation with a loss function. A
+particular problem with this project is the use of recurrent neural network and inputs not having a fixed length. This
+causes an issue with tensorflow due to the requirement for tensor, the base for tensorflow operation, to have a fixed
+size. To allow for efficient using of backpropagation with multiple inputs being computed at the same time in order to
+compute a minibatch not just stochastic gradient descent. To do requires the use of the tensorflow preprocessing module
+to pad all of the input to be the same size.
 
 \begin{table}
     \centering
@@ -114,17 +125,9 @@ would have available to learn its policies.
         D4PG~\citep{d4pg} & Like the categorical dqn, d4pg add a heuristic for the critic to output a value probability
             distribution that allows for better approximation for environment that are stochastic in nature.
     \end{tabular}
-    \caption{Table of policy types}
-    \label{tab:reinforcement_learning_policies}
+    \caption{Table of implemented reinforcement learning algorithms}
+    \label{tab:reinforcement_learning_algorithms}
 \end{table}
-
-These policies were implemented using tensorflow~\cite{tensorflow2015-whitepaper}, a python module developed by Google
-that provides programmers the ability to construct neural network and backpropagation with a loss function. A
-particular problem with this project is the use of recurrent neural network and inputs not having a fixed length. This
-causes an issue with tensorflow due to the requirement for tensor, the base for tensorflow operation, to have a fixed
-size. To allow for efficient using of backpropagation with multiple inputs being computed at the same time in order to
-compute a minibatch not just stochastic gradient descent. To do requires the use of the tensorflow preprocessing module
-to pad all of the input to be the same size.
 
 \subsection{Rewards functions}\label{subsec:rewards-functions}
 As explained in the background review for reinforcement learning (section~\ref{sec:related-work-in-machine-learning}),
@@ -152,19 +155,111 @@ forcing the task allocate resources to finish all tasks not just the valuable on
 function simply just the sum of finished tasks rewards in the next time step.
 
 \subsection{Agent observations}\label{subsec:agent-observations}
-%% Todo
-%% Dealing
+Both deep q networks and policy gradient algorithm are based on the Q function (explained in
+section~\ref{sec:related-work-in-machine-learning})) which tries to approximate the reward at the next time step. To do
+this required a reward function and a next observation to compare to in order to train these agents. This can be
+described as a tree with the current state being the root and all lefts being the next states however for this problem,
+this formulation has several problems due to there being two environment happening at the same time meaning that the
+next state is not clear as shown in figure~\ref{fig:environment-observations}.
 
+\begin{figure}
+    \centering
+    \includegraphics[width=14cm]{figures/env_server_agents_observations.pdf}
+    \caption{Environment server agents observations}
+    \label{fig:environment-observations}
+\end{figure}
 
-\section{Training of agents}\label{sec:training-of-agents}
-Using the environment from section~\ref{sec:simulating-edge-cloud-computing-services} to simulate edge cloud computing
-servers and the agents from section~\ref{sec:agent-definition}, using both of these together allows for the training
-of reinforcement learning agent.
+For the resource allocation agent, a trick is implemented such that the next observation for the agent is not the
+actual next resource allocation observation as shown in the figure but a generated observation from the resulting
+server state due to agent's actions. This is identical to the last case in the figure where no auction occurs between
+resource allocation steps. Because of this, the resource allocation q value is able to approximate the reward for the
+results of its actions directly and makes it appear to the agent that there is no auction steps with the observations
+and next observations for training.
+% Todo add number of tasks observations problems
 
+For the auction agent, as the agent observations require an auction task to compare to and select an action (the task
+bidding price), a trick like the one implemented for the resource allocation agent is not possible to implement.
+Therefore during each server's last observation to recorded such that when the next auction occurs, this new task
+observation can be used as the server's next observation. This is a suboptimal solution as the agent as the next task
+been auctioned in completely random as well as between the current task observation and the next auction observation,
+an unknown number of resource allocation steps could have been taken meaning that the resource demand by the other
+currently allocated tasks has changed. A possible solution that has not been implement in this project is N step
+prediction~\citep{multi-step-dqn} where the agent doesn't predict the q value of the next environment, but the q value
+of the environment in N steps time. This is believed to help reduce the amount of randomness in the server's
+observation to train on.
 
-\subsection{Environment evaluation of agents}\label{subsec:environment-evaluation-of-agents}
+\section{Training agents}\label{sec:training-agents}
+The first section of this chapter simulates edge cloud computing servers (section~\ref{sec:simulating-edge-cloud-computing-services})
+while the second section implements auction and resource allocation agents that can interact with such environment
+and use a range of algorithms to learn from. By combining both of these together allows agents to continually interact
+with environments in order to learn over time their respective policies.
 
-% Todo
-% Single resource allocation agent
-% Different environments
+Neural networks, the bases of the reinforcement learning agents implemented, often require huge amounts of data and
+high spec GPUs to run efficiently. Because of this, Iridis 5, University of Southampton supercomputer was utilised with
+GTX1050 GPUs to train these agents for long periods of time and on mass. During training, for each episode a random
+environment was generated from a list of possible settings in which the agents would be allocated to random servers. The
+environment was run till the end, with the agent observation being added to their replay buffers after each actions
+that were chosen epsilon greedily.
+
+But after every 5 episodes, the agents would be evaluated using a set of environment that were pre-generated and
+saved at the beginning of training. This allows the same environments over training in order to have a constant metric
+in order to compare the agents over time. The actions taken are recorded to be used in evaluation
+(chapter~\ref{ch:evaluation-of-the-implementation}) with the number of completed and failed tasks being stored about
+the resource allocation agent and the winning prices being stored about the auction agents. Plus an action histograms
+for each agents in order to view how agents bid and weightings are distributed.
+
+% TODO Single resource allocation agent
+
+\subsection{Agent training hyperparameters}\label{subsec:agent-training-hyperparameters}
+% TODO
+
+\begin{longtable}{|p{3.5cm}|p{11cm}|} \hline
+    \textbf{Agent} & \textbf{Properties name} & \textbf{Value} & \textbf{Explanation} \\ \hline
+        % TODO
+        Task Pricing & limit_parallel_tasks & None & \\ \hline
+        RL Agent & batch_size &  32 & \\ \hline
+        RL Agent & error_loss_fn & tf.losses.huber_loss & \\ \hline
+        RL Agent & initial_training_replay_size & 5000 & \\ \hline
+        RL Agent & training_freq & 2 & \\ \hline
+        RL Agent & discount_factor & 0.9 & \\ \hline
+        RL Agent & replay_buffer_length & 25000 & \\ \hline
+        RL Agent & save_frequency & 25000 & \\ \hline
+        RL Agent & training_loss_log_freq & 250 & \\ \hline \hline
+        Task Pricing RL Agent & reward_scaling & 1 & \\ \hline
+        Task Pricing RL Agent & failed_auction_reward & -0.05 & \\ \hline
+        Task Pricing RL Agent & failed_multiplier & -1.5 & \\ \hline \hline
+        Resource weighting RL Agent & other_task_discount: float = 0.4 & \\ \hline
+        Resource weighting RL Agent & success_reward & 1 & \\ \hline
+        Resource weighting RL Agent & failed_reward & -1.5 & \\ \hline \hline
+        Dqn Agent & optimiser & tf.keras.optimizers.Adam() & \\ \hline
+        Dqn Agent & target_update_tau & 1.0 & \\ \hline
+        Dqn Agent & target_update_frequency & 2500 & \\ \hline
+        Dqn Agent & initial_epsilon & 1 & \\ \hline
+        Dqn Agent & final_epsilon & 0.1 & \\ \hline
+        Dqn Agent & epsilon_steps & 10000 & \\ \hline
+        Dqn Agent & epsilon_update_frequency & 100 & \\ \hline \hline
+        Dueling Dqn Agent & double_loss & True & \\ \hline \hline
+        Categorical Dqn Agent & max_value & -20.0 & \\ \hline
+        Categorical Dqn Agent & min_value & 25.0 & \\ \hline
+        Categorical Dqn Agent & num_atoms & 21 & \\ \hline \hline
+        Ddpg Agent & actor_optimiser & tf.keras.optimizers.RMSprop(lr=0.0001) & \\ \hline
+        Ddpg Agent & critic_optimiser & tf.keras.optimizers.RMSprop(lr=0.0005) & \\ \hline
+        Ddpg Agent & initial_epsilon_std & 0.8 & \\ \hline
+        Ddpg Agent & final_epsilon_std & 0.05 & \\ \hline
+        Ddpg Agent & epsilon_steps & 20000 & \\ \hline
+        Ddpg Agent & epsilon_update_frequency & 100 & \\ \hline
+        Ddpg Agent & target_update_tau & 1.0 & \\ \hline
+        Ddpg Agent & actor_target_update_frequency & 3000 & \\ \hline
+        Ddpg Agent & critic_target_update_frequency & 1500 & \\ \hline
+        Ddpg Agent & upper_action_bound & 30.0 & \\ \hline \hline
+        Task pricing Ddpg Agent & min_value & -100.0 & \\ \hline
+        Task pricing Ddpg Agent & max_value & 100.0 & \\ \hline \hline
+        Resource allocation Ddpg Agent & min_value & -20 & \\ \hline
+        Resource allocation Ddpg Agent & max_value & 15 & \\ \hline \hline
+        TD3 Agent & twin_critic_optimiser & tf.keras.optimizers.Adam() & \\ \hline
+        TD3 Agent & actor_update_frequency & 3 & \\ \hline
+    \caption{Agent hyperparameters}
+    \label{tab:agent_hyperparameters}
+\end{longtable}
+
 
