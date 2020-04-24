@@ -386,7 +386,7 @@ class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightin
                     actions[task] = float(rnd.randint(0, self.num_actions - 1))
                 else:
                     observation = tf.expand_dims(self._network_obs(task, tasks, server, time_step), axis=0)
-                    q_values = self.model_network(observation) * self.support
+                    q_values = tf.reduce_sum(self.support * self.model_network(observation), axis=-1)
                     actions[task] = float(tf.math.argmax(q_values, axis=1, output_type=tf.int32))
             return actions
         else:
