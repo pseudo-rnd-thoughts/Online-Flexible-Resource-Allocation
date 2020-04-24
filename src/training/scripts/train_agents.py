@@ -16,86 +16,13 @@ from agents.rl_agents.rl_agents import TaskPricingState, ResourceAllocationState
 from env.env_state import EnvState
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.task import Task
-from env.task_stage import TaskStage
+from training.scripts.eval_results import EvalResults
 
 if TYPE_CHECKING:
     from env.server import Server
     from agents.resource_weighting_agent import ResourceWeightingAgent
     from agents.rl_agents.rl_agents import TaskPricingRLAgent, ResourceWeightingRLAgent
     from agents.task_pricing_agent import TaskPricingAgent
-
-
-class EvalResults:
-    """
-    Agent evaluation results
-    """
-
-    def __init__(self):
-        # Auction attributes
-        self.total_winning_prices: float = 0
-        self.winning_prices: List[float] = []
-        self.num_auctions: int = 0
-        self.auction_actions: List[List[float]] = []
-
-        # Resource allocation attributes
-        self.num_completed_tasks: int = 0
-        self.num_failed_tasks: int = 0
-        self.total_prices: float = 0
-        self.num_resource_allocations: int = 0
-        self.weighting_actions: Dict[int, int] = {}
-
-    def auction(self, actions, rewards):
-        """
-        Auction case
-
-        Args:
-            actions: Dictionary of actions
-            rewards: Dictionary of rewards
-        """
-        for server, price in rewards.items():
-            self.total_winning_prices += price
-            self.winning_prices.append(price)
-        self.auction_actions.append([action for action in actions.values()])
-        self.num_auctions += 1
-
-    def resource_allocation(self, actions, rewards):
-        """
-        Resource allocation case
-
-        Args:
-            actions: Dictionary of actions
-            rewards: Dictionary of rewards
-        """
-        for server, tasks in rewards.items():
-            for task in tasks:
-                if task.stage is TaskStage.COMPLETED:
-                    self.num_completed_tasks += 1
-                    self.total_prices += task.price
-                elif task.stage is TaskStage.FAILED:
-                    self.num_failed_tasks += 1
-                    self.total_prices -= task.price
-                else:
-                    raise Exception(f'Unexpected task stage: {task.stage}, {str(task)}')
-        self.num_resource_allocations += 1
-
-    def save(self, episode):
-        """
-        Save the evaluation results
-
-        Args:
-            episode: Episode number
-        """
-        tf.summary.scalar('Eval total winning prices', self.total_winning_prices, episode)
-        tf.summary.scalar('Eval total prices', self.total_prices, episode)
-        tf.summary.histogram('Eval auction actions', tf.convert_to_tensor(self.auction_actions), episode)
-        tf.summary.histogram('Eval winning auction prices', tf.convert_to_tensor(self.winning_prices), episode)
-
-        tf.summary.scalar('Eval number of completed tasks', self.num_completed_tasks, episode)
-        tf.summary.scalar('Eval number of failed tasks', self.num_failed_tasks, episode)
-        percent = (self.num_completed_tasks + self.num_failed_tasks) / self.num_auctions
-        tf.summary.scalar('Eval percent all tasks run', percent, episode)
-        percent = self.num_completed_tasks / (self.num_failed_tasks + 1)
-        tf.summary.scalar('Eval completed failed task ratio', percent, episode)
 
 
 def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent],
