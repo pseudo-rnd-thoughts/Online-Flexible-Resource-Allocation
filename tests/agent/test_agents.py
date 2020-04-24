@@ -119,34 +119,36 @@ def test_agent_actions():
         TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5)),
         TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 5)),
         TaskPricingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(9, 5)),
-        TaskPricingCategoricalDqnAgent(5, create_lstm_categorical_dqn_network(9, 5)),
-        TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9)),
-        TaskPricingTD3Agent(4, create_lstm_actor_network(9), create_lstm_critic_network(9),
+        TaskPricingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(9, 5)),
+        TaskPricingDdpgAgent(4, create_lstm_actor_network(9), create_lstm_critic_network(9)),
+        TaskPricingTD3Agent(5, create_lstm_actor_network(9), create_lstm_critic_network(9),
                             create_lstm_critic_network(9))
     ]
     weighting_agents = [
         ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 5)),
         ResourceWeightingDdqnAgent(1, create_lstm_dqn_network(16, 5)),
         ResourceWeightingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(16, 5)),
-        ResourceWeightingCategoricalDqnAgent(5, create_lstm_categorical_dqn_network(16, 5)),
-        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16)),
-        ResourceWeightingTD3Agent(4, create_lstm_actor_network(16), create_lstm_critic_network(16),
+        ResourceWeightingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(16, 5)),
+        ResourceWeightingDdpgAgent(4, create_lstm_actor_network(16), create_lstm_critic_network(16)),
+        ResourceWeightingTD3Agent(5, create_lstm_actor_network(16), create_lstm_critic_network(16),
                                   create_lstm_critic_network(16))
     ]
 
     env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/actions.env')
-    actions = {
-        server: pricing_agents[pos].bid(state.auction_task, tasks, server, state.time_step)
-        for pos, (server, tasks) in enumerate(state.server_tasks.items())
-    }
+    for agent in pricing_agents:
+        actions = {
+            server: agent.bid(state.auction_task, tasks, server, state.time_step)
+            for server, tasks in state.server_tasks.items()
+        }
     print(f'Actions: {{{", ".join([f"{server.name}: {action}" for server, action in actions.items()])}}}')
 
     state, rewards, done, _ = env.step(actions)
 
-    actions = {
-        server: weighting_agents[pos].weight(tasks, server, state.time_step)
-        for pos, (server, tasks) in enumerate(state.server_tasks.items())
-    }
+    for agent in weighting_agents:
+        actions = {
+            server: agent.weight(tasks, server, state.time_step)
+            for server, tasks in state.server_tasks.items()
+        }
     print(f'Actions: {{{", ".join([f"{server.name}: {list(task_action.values())}" for server, task_action in actions.items()])}}}')
     assert any(0 < action for server, task_actions in actions.items() for task, action in task_actions.items())
 
