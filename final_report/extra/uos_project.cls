@@ -429,18 +429,15 @@ I confirm that:
 \vfil\null
 \cleardoublepage
 }
-\renewcommand\bibname{References}
-\let\oldappendix\appendix % Put full appendix name in ToC
-\renewcommand{\appendix}{%
-  \oldappendix
-  \let\oldacl@pp=\addcontentsline
-  \def\addcontentsline##1##2##3{\oldacl@pp{##1}{##2}{\appendixname\space ##3}}
-}
-\let\oldbackmatter\backmatter
-\def\backmatter{%
-  \oldbackmatter
-  \let\addcontentsline=\oldacl@pp
-  }
+\renewcommand\backmatter{
+  \if@openright
+    \cleardoublepage
+  \else
+    \clearpage
+  \fi
+  \addtotoc{\bibname}
+  \btypeout{\bibname}
+  \@mainmatterfalse}
 \endinput
 %%
 %% End of file `uosproject.cls'.
