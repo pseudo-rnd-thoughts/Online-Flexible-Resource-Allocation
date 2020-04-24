@@ -39,7 +39,21 @@ def train_agent(dqn_agent, trajectories, gamma=1.0):
 
         # q_logits contains the Q-value logits for all actions.
         q_logits, _ = dqn_agent._q_network(time_steps.observation, time_steps.step_type)
-        next_q_distribution = dqn_agent._next_q_distribution(next_time_steps)
+
+        next_target_logits, _ = dqn_agent._target_q_network(next_time_steps.observation)
+        next_target_probabilities = tf.nn.softmax(next_target_logits)
+        next_target_q_values = tf.reduce_sum(dqn_agent._support * next_target_probabilities, axis=-1)
+        print(f'Next target q values: {next_target_q_values}')
+        # Find the greedy actions using our target greedy policy. This ensures that
+        # action constraints are respected and helps centralize the greedy logic.
+        greedy_actions = tf.math.argmax(next_target_q_values, axis=1, output_type=tf.int32)[:, None]
+        print(f'Greedy actions: {greedy_actions}')
+        batch_indices = tf.range(tf.cast(tf.shape(next_target_q_values)[0], tf.int32))[:, None]
+        print(f'Batch indices: {batch_indices}')
+        next_qt_argmax = tf.concat([batch_indices, greedy_actions], axis=-1)
+        print(f'Next qt argmax: {next_qt_argmax}')
+        next_q_distribution = tf.gather_nd(next_target_probabilities, next_qt_argmax)
+        print(f'Next q distribution: {next_q_distribution}')
 
         # Project the sample Bellman update \hat{T}Z_{\theta} onto the original
         # support of Z_{\theta} (see Figure 1 in paper).
@@ -90,7 +104,7 @@ def train_agent(dqn_agent, trajectories, gamma=1.0):
 
 
 if __name__ == "__main__":
-    batch_size = 64
+    batch_size = 8
     num_atoms = 51
     env_name = 'CartPole-v0'
 
@@ -123,7 +137,7 @@ if __name__ == "__main__":
 
     experience, _ = next(iterator)
     train_agent(agent, experience)
-
+    """
     for step in range(20000):
         training_step(train_env, training_policy, replay_buffer)
 
@@ -142,3 +156,4 @@ if __name__ == "__main__":
     plt.ylabel('Eval Average Rewards')
     plt.xlabel('Iteration')
     plt.show()
+"""
