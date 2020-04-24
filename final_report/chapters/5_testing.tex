@@ -1,7 +1,11 @@
 \chapter{Testing}\label{ch:testing-of-the-implementation}
-To test the effectiveness of the implemented policies from chapter~\ref{ch:implementation-of-the-solution}, a range of
-tests are proposed in order to compare the solutions. These tests aim to compare the effectiveness of training
-techniques, policy hyperparameters and to fixed heuristics. These tests fall into several distinct sections that are
+To compare the implemented agent policies and neural networks architectures from
+chapter~\ref{ch:implementation-of-the-solution}, tests are implemented to evaluation the effectiveness of training for
+each of these agents and %% TODO.
+In order to compare the effectiveness of training techniques, a range of metrics are used for each agent. For the
+auction agent the metrics are a histogram winning prices, number of no bids, number of failed tasks, number of completed
+tasks and a histogram of actions taken. For the resource allocation agents the metrics are a histogram of weighting,
+number of failed tasks and number of completed tasks. These training tests fall into several distinct sections that are
 explained in Table~\ref{tab:testing_areas}.
 
 \begin{table}[h]
@@ -13,11 +17,15 @@ explained in Table~\ref{tab:testing_areas}.
             a new environment and how agents compare on an environment when an agent is only trained on that
             environment or on multiple environments. \\ \hline
         Multi vs Single agent environment training settings & As the Vickrey auction is incentive compatible then it is
-            possible to train both the auction agents and resource allocation against itself. This test investigates
-            the difference between the agent policies when self-trained or train with other agents. \\ \hline
+            possible to train both the auction agents and resource allocation against itself with a single agent. This
+            test investigates the difference between the agent policies when self-trained or train with other
+            agents. \\ \hline
         Reinforcement Learning Policy testing & As multiple different reinforcement learning policy outlined in
             table~\ref{tab:reinforcement_learning_policies}, this test compares the results of the different agents
             against each other. \\ \hline
+        Neural network architecture testing & There are a wide-range of compatible neural network architectures that
+            agents can use, as outlined in table~\ref{tab:neural_network_layers}. To use these agents, the underlying
+            policies are kept the same with a range of model networks are trained.
         Fixed heuristic policies testing & In order to compare to the reinforcement learning policies, a number of
             fixed heuristic policies are investigated both against other heuristics and reinforcement learning
             policies. \\ \hline
