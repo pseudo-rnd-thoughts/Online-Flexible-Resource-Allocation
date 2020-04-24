@@ -42,6 +42,7 @@ class EvalResults:
         self.num_failed_tasks: int = 0
         self.total_prices: float = 0
         self.num_resource_allocations: int = 0
+        self.weighting_actions: Dict[int, int] = {}
 
     def auction(self, actions, rewards):
         """
@@ -91,10 +92,10 @@ class EvalResults:
 
         tf.summary.scalar('Eval number of completed tasks', self.num_completed_tasks, episode)
         tf.summary.scalar('Eval number of failed tasks', self.num_failed_tasks, episode)
-        tf.summary.scalar('Eval percent tasks', (self.num_completed_tasks + self.num_failed_tasks) / self.num_auctions,
-                          episode)
-        tf.summary.scalar('Eval completed failed task ratio', self.num_completed_tasks / (self.num_failed_tasks + 1),
-                          episode)
+        percent = (self.num_completed_tasks + self.num_failed_tasks) / self.num_auctions
+        tf.summary.scalar('Eval percent all tasks run', percent, episode)
+        percent = self.num_completed_tasks / (self.num_failed_tasks + 1)
+        tf.summary.scalar('Eval completed failed task ratio', percent, episode)
 
 
 def allocate_agents(state: EnvState, task_pricing_agents: List[TaskPricingAgent],
@@ -211,12 +212,12 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
                 # Generate the current agent's state
                 current_state = TaskPricingState(state.auction_task, tasks, server, state.time_step)
 
-                if server_auction_agent_states[server]:  # If a server auction observation exists
+                if server_auction_agent_states[server] is not None:  # If a server auction observation exists
                     # Get the last time steps agent state, action and if the server won the auction
-                    previous_state, previous_action, previous_auction_win = server_auction_agent_states[server]
+                    previous_state, previous_action, is_previous_auction_win = server_auction_agent_states[server]
 
                     # If the server won the auction in the last time step then add the info to the auction trajectories
-                    if previous_auction_win:
+                    if is_previous_auction_win:
                         successful_auction_agent_states.append((previous_state, previous_action, current_state))
                     else:
                         # Else add the agent state to the agent's replay buffer as a failed auction bid
@@ -225,6 +226,8 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
 
                 # Update the server auction agent states with the current agent state
                 server_auction_agent_states[server] = (current_state, auction_prices[server], server in rewards)
+            assert len(successful_auction_agent_states) == sum(len(tasks) for tasks in next_state.server_tasks.values())
+            assert all(agent_state is not None for agent_state in server_auction_agent_states.values())
         else:  # Else the environment is at resource allocation stage
             # For each server and each server task calculate its relative weighting
             weighting_actions: Dict[Server, Dict[Task, float]] = {
@@ -239,10 +242,14 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
             #    therefore add the task pricing auction agent states with the finished tasks
             for server, finished_tasks in finished_server_tasks.items():
                 for finished_task in finished_tasks:
+                    assert 0 < len(successful_auction_agent_states)
+
                     # Get the successful auction agent state from the list of successful auction agent states
-                    successful_auction = next(auction_agent_state
-                                              for auction_agent_state in successful_auction_agent_states
-                                              if auction_agent_state[0].auction_task == finished_task)
+                    successful_auction = next((auction_agent_state
+                                               for auction_agent_state in successful_auction_agent_states
+                                               if auction_agent_state[0].auction_task == finished_task), None)
+                    assert successful_auction is not None
+
                     # Remove the successful auction agent state
                     successful_auction_agent_states.remove(successful_auction)
 
