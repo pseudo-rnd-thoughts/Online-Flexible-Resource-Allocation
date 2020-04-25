@@ -25,7 +25,7 @@ def create_lstm_actor_network(input_width: int, lstm_width: int = 32, relu_width
     input_layer = tf.keras.layers.Input(shape=(None, input_width))
     lstm_layer = tf.keras.layers.LSTM(lstm_width)(input_layer)
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
-    action = tf.keras.layers.Dense(1, activation='relu')(relu_layer)
+    action = tf.keras.layers.Dense(1, activation='relu', kernel_regularizer=tf.keras.regularizers.l1())(relu_layer)
 
     return tf.keras.Model(name='LSTM_Actor', inputs=input_layer, outputs=action)
 
@@ -47,6 +47,6 @@ def create_lstm_critic_network(input_width: int, lstm_width: int = 32, relu_widt
     lstm_layer = tf.keras.layers.LSTM(lstm_width)(input_layer)
     concat = tf.keras.layers.concatenate([lstm_layer, action_input_layer])
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(concat)
-    q_values = tf.keras.layers.Dense(1, activation='linear')(relu_layer)
+    q_values = tf.keras.layers.Dense(1, activation='linear', kernel_regularizer=tf.keras.regularizers.l1())(relu_layer)
 
     return tf.keras.Model(name='LSTM_Critic', inputs=[input_layer, action_input_layer], outputs=q_values)
