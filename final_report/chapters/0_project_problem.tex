@@ -1,81 +1,80 @@
 \chapter{Project problem}\label{ch:project-problem}
-Cloud computing is a rapidly growing service with competition from Google, Amazon, Microsoft and more that aims to
+Cloud computing is a rapidly growing technology with competition from Google, Amazon, Microsoft and others that aims to
 allow users to run computer programs that are too large, difficult or time consuming for users to run locally.
-These services provide the computational resources, e.g.\ cpu cores, RAM, hard drive space, bandwidth, etc
+These services provide the computational resources, e.g.\ CPU cores, RAM, hard drive space, bandwidth, etc
 to be able to run such programs. However, as these resources are limited, bottlenecks can occur when
-numerous users all require large amounts of these resources, limiting the number of tasks
+numerous users require large amounts of these resources, limiting the number of tasks
 \footnote{Tasks, Programs and Jobs will be used interchangeable to refer to the same idea of a computer programs that
 has a fixed amount of resources required to compute.} that can be run on the cloud servers simultaneously.
 
 For Google Cloud Services (GCP), Microsoft Azure or Amazon Web Services, their cloud computing facilities contain huge
-server nodes limiting the probability of such a bottleneck from occurring. And if such an event does occur users also
+server nodes limiting the probability of such a bottleneck from occurring. If such an event does occur users also
 have a range of data centres across the global to use instead if a single data centre does becomes overloaded.
-Therefore this work considers still a developing paradigm~\citep{mobile_edge_survey} called Edge/Mobile cloud computing.
-Edge cloud computing is believed to have a wide range of application where traditional cloud computing would be
-impractical. This could be due to tasks being highly delay-sensitive, intermittent internet connectivity
-or high operational security that prevent or limit the effectiveness of traditional cloud computing.
+Therefore this work considers a developing paradigm~\citep{mobile_edge_survey} called mobile edge
+computing~\citep{hu2015mobile} referred to as MEC in this work. This aims to provide the ability for users to run their
+tasks closer to them reducing latency, network congestion and providing better application performance.
 
 Currently disaster response~\citep{mobile_edge_disaster}, smart cities~\citep{smart_disaster_management} and
-internet-of-things~\citep{mobile_edge_IoT} are all area that utilise edge cloud computing due to its ability
+internet-of-things~\citep{mobile_edge_IoT} are all areas that utilise MEC due to its ability
 to process computationally small tasks locally with low latency. For example, in smart cities, this
-allows for smart intersection systems using of road-side sensors or smart traffic lights based
-on cameras to minimise the waiting times~\citep{smart_cities_traffic_lights}. Or for the police to analysis
+allows for smart intersection systems using road-side sensors or smart traffic lights based
+on cameras to minimise waiting times~\citep{smart_cities_traffic_lights}. Or for the police to analysis
 CCTV footage to spot suspicious behaviour or to track people between cameras~\citep{Sreenu2019}. In the case
 of disaster response, maps can be produced using data from autonomous vehicles sensors that can then be used in the
 search for potential victims and support responders~\citep{smart_disaster_management}.
 
-However the problem of bottlenecking is of particular relevant in edge cloud computing, as instead of large server farms
-that can be geographically distant from the users. Edge cloud computing server are significantly smaller, possibly
+However the problem of bottlenecking is of particular relevant to MEC. As instead of large server farms
+that can be geographically distant from the users, servers are significantly smaller, possibly
 just high powered desktop computers and single server nodes. This results in greater demand on server resources,
-meaning that efficient allocation of resources is extremely important. Because of this, resource allocation in edge
-cloud computing is an important and interesting research area within edge cloud computing.
+meaning that efficient allocation of resources is extremely important and an interesting research area.
 
-However it is believed that there are shortcoming in existing work about resource allocation within edge cloud
-computing~\citep{vaji_infocom, Bi2019} due to the nature of how task resource usage is determined. Traditionally,
-a user would submit a request for a fixed amount of resources, i.e.\ 2 cpu cores, 8Gb of ram, 20Gb of storage, that
-would be allocated for the user. As a result, these resources can be redistributed till the user finishes with them.
-This resource allocation mechanism is effective for cloud computing due to its simplicity for the user for  deciding
-resource requirements, can utilise a linear pricing mechanisms and services having large resource pool making
-bottlenecking rare.
+However it is believed that there are shortcomings in existing research about resource allocation within
+MEC~\citep{vaji_infocom, Bi2019} due to the nature of how task resource usage is determined. Traditionally,
+a user would submit a request for a fixed amount of resources, i.e.\ 2 CPU cores, 8GB of ram, 20GB of storage, that
+would be allocated for the user. As a result, these resources can't be redistributed until the user finishes with them.
+The reason that this form of resource allocation is used and effective within cloud computing is due to its simplicity
+for the user to decide resource requirements, utilisation a simple linear pricing mechanisms and that server have large
+resource capacity making bottlenecks rare. However it is believed that the problem of bottlenecks within MEC, warrant
+investigation of alternative resource allocation mechanism.
 
 Therefore in previous work by this author~\citep{FlexibleResourceAllocation} a novel resource allocation mechanism was
 proposed to allow for significantly more flexibility in determining resource usage with the aims of reducing possible
-bottlenecking. Mechanism is based on the principle that the time taken for an operation to complete is generally
+bottlenecks. The mechanism is based on the principle that the time taken for an operation to complete is generally
 proportional to the resources provided for the operation. An example for this is downloading an image, the time taken
-is proportional to the bandwidth allocated. This sort of flexibility is similarly true for computing a
-task~\footnote{This is not always true for all computational tasks, however for this work we presume this and leave
-this case to future work} or sending results back to the user as well. Then by requesting that users provide the task's
-total resource usage over its lifetime instead of the requested resource usage. Using this information task resource
-usage is determined by the server rather than the user. Therefore using a deadline, provided by the user, it is possible
-to reallocate resources around tasks to reduce the overall strain on certain resources while still finishing the task
-with its deadline. Using this alternative resource allocation mechanism, it was found that results could achieve
-20\% better than traditional resource allocation mechanisms in static cases investigated
-in~\cite{FlexibleResourceAllocation}. This is due to the ability to proper balancing of resources, preventing
-bottlenecks occurring as often, that in turn allowed more tasks to run simultaneously and to reduce the price for user
-to run a task.
+is proportional to the bandwidth allocated. This sort of flexibility is similarly true for computing most
+tasks~\footnote{It is well known that some algorithm are not scalable making this principle incompatible with those
+tasks. Therefore in this work, all algorithms can presumed to scalable linearly and leave that case to future work.}
+or sending results back to the user. Based on this principle, a modified resource allocation mechanism can be
+reconstructed such that the users provide the task's total resource usage over its lifetime instead of the requested
+resource usage. Meaning that a task's resource usage is determined by the server rather than the user. Using this
+alternative resource allocation mechanism, it was found that results could achieve 20\% better than traditional
+resource allocation mechanisms in one-shot cases investigated by~\cite{FlexibleResourceAllocation}. This is due to the
+ability to proper balance resources, preventing bottlenecks occurring as often, that in turn allowed more tasks to
+run simultaneously and to reduce the price for user to run a task.
 
 But in this previous work~\citep{FlexibleResourceAllocation}, the flexible resource allocation mechanism was only
 considered in a static or one-shot approach where all tasks were presented at the first time step. At which point tasks
 would be auctioned and resource allocated. As a result, practically the proposed algorithms would require tasks to
 be processed in batches such that servers would bid on all tasks submitted every 5 minutes for example. Therefore
 previous work could also not dynamically change the resources allocated between batches making it impractical to be
-used commercially, this work aims to address these problems in previous work.
+used commercially, this work aims to address these problems.
 
-These problems are addressed by introducing time into the optimisation problem (outlined in
-section~\ref{sec:optimisation-problem}) but due to this addition, all previous mechanism proposed
-in~\cite{FlexibleResourceAllocation} are incompatible with the new optimisation problem. Therefore using a standard
-auction mechanism, this project investigates different methods of learning how to bid on tasks based on their resource
-requirements and to efficiently allocate resources to tasks by a server.
+These problems are addressed by introducing time fully into the optimisation problem (outlined in
+section~\ref{sec:optimisation-problem}). As a result, all previous mechanisms proposed
+in~\cite{FlexibleResourceAllocation} are incompatible with this modified flexible optimisation problem. Therefore this
+work investigates methods to bid on tasks based resource requirements and to efficiently allocate resources to tasks by
+a server.
 
-This report is set out is following chapters. Chapter~\ref{ch:proposed-solution-to-problem} proposed a solution
-to the project outline in this chapter with chapter~\ref{ch:justification-of-the-solution} justifying why this
-approach as taken over alternative. Chapter~\ref{ch:background-literature} investigates the previous research
-that this project builds upon within both resource allocation in cloud computing and reinforcement learning methods.
+This report is set out in the following chapters. Chapter~\ref{ch:background-literature} investigates the previous
+research that this project builds upon within both resource allocation in cloud computing and reinforcement learning
+methods. Chapter~\ref{ch:proposed-solution-to-problem} proposed a solution to the problem outline in this chapter.
+With chapter~\ref{ch:justification-of-the-solution} justies why this approach as chosen over alternative solutions.
 The proposed solution is then implemented in chapter~\ref{ch:implementation-of-the-solution} with testing and
 evaluation in chapters~\ref{ch:testing-of-the-implementation} and~\ref{ch:evaluation-of-the-implementation} respectively.
 
-In addition to this report, the paper referred to as~\cite{FlexibleResourceAllocation}, with a copy in
-appendix~\ref{app:aamas_paper}, was completed within this academic year and thus consider part of this project's work.
-In addition to this paper, the work was presented at SPIE Defense + Commercial Sensing 2020 as a recorded digital
-presentation with a copy of the slides in appendix~\ref{app:spie_presentation} and a link provided for the recording.
+In addition to this report, the paper referred to as~\cite{FlexibleResourceAllocation} was completed within this
+academic year and thus consider part of this project's work. A copy of this paper can be found in
+appendix~\ref{app:aamas_paper}, In addition to this paper, the work was also presented at SPIE Defense and Commercial
+Sensing 2020 as a recorded digital presentation. A copy of the slides can be found in
+appendix~\ref{app:spie_presentation} with link to the recording.
 
