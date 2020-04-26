@@ -7,41 +7,39 @@ section~\ref{sec:justification-of-auctioning-and-resource-allocation-agent}.
 \section{Justification of auction mechanisms}\label{sec:justification-of-auction-mechanisms}
 In mechanism design, there are numerous types of auctions, each with different properties and applications.
 The types of auction that this project is interested in is single indivisible items where an item is sold as a single
-units. This is as while the task has multiple required resources, a server is
-required to buy the task as a whole with a single price. Table~\ref{tab:auctions_descriptions} outlines a
-description of possible applicable auction mechanisms while table~\ref{tab:auction_properties} outline the properties
-of each auction mechanisms in the previous table.
+units. This is required as while the task has multiple required resources, a server is required to buy the task as a
+whole with a single price and can't be split up as in combinations auctions~\citep{combinational_auctions}.
+Table~\ref{tab:auctions_descriptions} outlines a description of possible applicable auction mechanisms while
+table~\ref{tab:auction_properties} outline the properties of each auction mechanisms in the previous table.
 
-\begin{longtable}{|p{3cm}|p{12cm}|} \hline
+\begin{longtable}{|p{3cm}|p{10cm}|} \hline
     \textbf{Auction type} & \textbf{Description} \\ \hline
-    English auction & A traditional auction where all participant can bid on a single item with the price slowing
+    English auction & A traditional auction where all participant can bid on a single item with the price slowly
         ascending till only a single participant is left who pays the final bid price. Due to the number of rounds,
         this requires a large amount of communication. \\ \hline
 
-    Dutch auction & The reverse of the English auction, where the starting price is higher than anyone is willing to pay
-        with the price slowly dropping till the first participant "jumps in". This can result in sub-optimal pricing
-        if the starting price is not highest enough or large number of rounds is required till anyone bids. Plus due the auctions
-        occurring over the internet, latency can have a large effect on the winner. \\ \hline
+    Dutch auction & The reverse of the English auction, where the starting price is higher than anyone is willing to
+        pay with the price slowly dropping till the first participant "jumps in". This can result in sub-optimal pricing
+        if the starting price is not highest enough or a large number of rounds is required till anyone bids. Plus due
+        the auctions occurring over the internet, latency can have a large effect on the winner. \\ \hline
 
     Japanese auction & Similar to the English auction except that the auction occurs over a set period of time with the
         bid increasing over time and last highest bid being the winner. This means that it has the same disadvantages
-        as the English auction except
-        that there is no guarantee that the price will converge to the maximum. Plus additional factors like latency
-        can have a large effect on the winner and resulting price. But due to the time limit, it has a known amount
-        of time till it finishes unlike the English or Dutch auctions. \\ \hline
+        as the English auction except that there is no guarantee that the price will converge to the maximum. Plus
+        additional factors like latency can have a large effect on the winner and resulting price. But due to the time
+        limit, it has a known amount of time till it finishes unlike the English or Dutch auctions. \\ \hline
 
     Blind auction & Also known as a First-price sealed-bid auction, all participants submit a single secret bid for an
-        item with the highest bid winning. As a result there is no dominant strategy (not
-        incentive compatible) as an agent would not wish to bid higher than their task evaluation. But if all other
-        agents bid significantly lower, then it would have been beneficial for the agent to bid much lower than their
-        true evaluation. Due to there being only a single round of biding, latency doesn't affect an agent and allows many
+        item with the highest bid winning. As a result there is no dominant strategy (not incentive compatible) as an
+        agent would wish to bid only a small amount more than the next highest price in order overpay for the item.
+        But due to there being only a single round of biding, latency doesn't affect an agent and allows many
         more auctions could occur within the same time compared to the English, Dutch or Japanese auctions. \\ \hline
 
-    Vickrey auction~\citep{vickrey} & Also known as a second-price sealed bid auction, instead all participants submit
+    Vickrey auction~\citep{vickrey} & Also known as a second-price sealed bid auction, participants each submit
         a single secret bid for an item with the highest bid winning like the blind auction. However the winner only
-        pays the price of the second highest bid. Because of this, it is a dominant strategy for an agent to bid its
-        true value as even if the bid is much higher than all other participants its doesn't matter as they pay the
-        minimum required for them to win. \\ \hline
+        pays the price of the second highest bid. Because of this, it is a dominant strategy (incentive compatible)
+        for an agent to bid its true value as even if the bid is much higher than all other participants its doesn't
+        matter as they pay the minimum required for them to win. \\ \hline
     \caption{Descriptions of feasible auctions for the project: English, Dutch, Japanese, Blind and Vickrey auction}
     \label{tab:auctions_descriptions}
 \end{longtable}
@@ -60,35 +58,27 @@ of each auction mechanisms in the previous table.
     \label{tab:auction_properties}
 \end{table}
 
-The advantage of using the Vickrey auction is that it is incentive
-compatible meaning that the dominant strategy for bidding on a task is to bid your truthful value. This should help
-server as they dont need to learn how to outbid another agent as it only needs to consider its own evaluation.
-This also allows agents to learn through self-play effectively. The auction also has only a single round of bidding
-compared to alternative auctions like English or Dutch auctions. This makes auctioning fast no matter the number of
-servers and it also allows for tasks to set a reserve price.
-
-Due to the properties that the Vickrey auction has in comparison to the other auctions, of incentive compatibility and
-only taking a single round to finish. Therefore the Vickrey auction is believe the most appropriate for this project. The
-believed advantage of the auction being incentive compatible is that agent only need to learn the true value of a task
-compared to the minimum price that the agent believes they could buy the task for. This has the advantage of allowing
-agents to self-train as the agents don't need to learn how to "out price" other agents to win. Another advantage of the auction
-is that it is not iterative, making the auction fast with only a single round of bidding required. This means that for the auction
-is known to complete within a fixed amount of time.
-
-%% Todo justification that reserve vickrey auction is still incentive compatible
+The advantage of using the Vickrey auction is that it is incentive compatible meaning that the dominant strategy for
+bidding on a task is to bid your truthful value. This should help auction agents as they dont need to learn how to
+outbid another agent, it only needs learn to efficiently evaluation each task. This also allows agents to learn through
+self-play effectively as only agents are not required in order to "out play" other agents. The auction also has only a
+single round of bidding compared to alternative auctions like English or Dutch auctions. This makes auctioning fast
+no matter the number of servers. Due to the properties that the Vickrey auction has in comparison to the other auctions,
+of incentive compatibility and only taking a single round to finish. The Vickrey auction is believe to be the most
+appropriate for this project.
 
 \section{Justification of Auctioning and Resource allocation agent}\label{sec:justification-of-auctioning-and-resource-allocation-agent}
-There are a range of possibly neural network layers that allow for multiple inputs,
-table~\ref{tab:neural_network_layers} outlines the most common of these layers. This information is for both the
+There are a range of possibly neural network layers that allow for multiple inputs and a single output,
+table~\ref{tab:neural_network_layers} outlines the most common of these layers. This information is used for both the
 auction and resource allocation agents neural network architectures.
 
-\begin{longtable}{|p{3.5cm}|p{11cm}|} \hline
+\begin{longtable}{|p{3.5cm}|p{10cm}|} \hline
     \textbf{Neural Network} & \textbf{Description} \\ \hline
     Artificial neural networks~\citep{ANN} & Originally developed as a theoretically approximation for the brain, it
-        was found that for networks with at least one hidden layer could approximate any
+        was found that for networks with at least one hidden layer, neural networks could approximate any
         function~\citep{csaji2001approximation}. This made neural networks extremely helpful for cases where it would
-        normally be too difficult for a human to specify the exact function. Artificial neural network can be trained
-        through gradient descent to find a close approximation to the true function. \\ \hline
+        normally be too difficult for a human to specify the exact function as they can be trained through gradient
+        descent and supervised learning to find a close approximation to the true function. \\ \hline
 
     Recurrent neural network~\citep{RNN} & A major weakness of artificial neural networks is that it must use a fixed
         number of inputs and outputs making it unusable with text, sound or video where previous data is important
@@ -104,11 +94,11 @@ auction and resource allocation agents neural network architectures.
 
     Gated Recurrent unit~\citep{GRU} & Gated recurrent unit are very similar to long/short term memory, except for the
         use of a different wiring mechanisms and the one less gate, an update date instead of two forgot gates.
-        These changes mean that gated recurrent units run faster and are easier to code than
-        long/short term memory, however are not as expressive meaning that less complex functions can be encoded. \\ \hline
+        These changes mean that gated recurrent units run faster and are easier to code than long/short term memory,
+        however are not as expressive meaning that less complex functions can be encoded. \\ \hline
 
     Neural Turing Machine~\citep{NTM} & Inspired by computers, neural turing machines build on long/short term memory
-        by using an external memory module instead of memory being inbuild to the network. This allows for external
+        by using an external memory module instead of memory being inbuilt to the network. This allows for external
         observers to understand what is going on much better than other networks due to their black-box nature. \\ \hline
 
     Differentiable neural computer~\citep{DNC} & An expansion to the neural turing machine that allows the memory
@@ -119,21 +109,20 @@ auction and resource allocation agents neural network architectures.
 
 \subsection{Justification for Auction agent network architectures}\label{subsec:justification-for-auction-agent-network-architectures}
 Outlined in Table~\ref{tab:neural_network_layers} are the properties of popular neural network layer architectures that
-would allow for a multiple inputs (except for artificial neural networks) with a single output. Of the available architecture, long/Short
-term memory model is believed to have the simplest model, that still has the complexity to encode the optimal policy. With the neural turing
-machine and differentiable neural network, these networks are extremely complex and require a large amount of data to
-train the networks. Also the ability of these networks to be able to store data in external storage is not important as
-the data doesn't need to be store for future inputs. The opposite problem exists for the recurrent neural network or
-the gated recurrent unit that they are possibly not complex enough to encode the policy. Because of this, the LSTM
-network is believed to be the most appropriate network for the proposed agents.
+would allow for a multiple inputs (except for artificial neural networks) with a single output. Of the available
+architecture, long/Short term memory model is believed to have the simplest model, that still has the complexity to
+encode the optimal policy. With the neural turing machine and differentiable neural network, these networks are
+extremely complex and require a large amount of data to train the networks. Also the ability of these networks to be
+able to store data in external storage is not important as the data doesn't need to be store for future inputs. The
+opposite problem exists for the recurrent neural network or the gated recurrent unit that they are possibly not complex
+enough to encode the policy. Because of this, the LSTM network is believed to be the most appropriate network for the
+proposed agents.
 
 \subsection{Justification for Resource allocation agent network architecture}\label{subsec:justification-for-resource-allocation-agent-network-architecture}
-The justification for the resource allocation agent neural network is very similar justification to the auction agent from
-subsections~\ref{subsec:justification-for-auction-agent-network-architectures}. The long/short term memory architecture should be
-complex enough but it is possible that the ability to use external storage of neural turing machine and differentiable
-neural network to store the allocation of resource to previous tasks would be helpful. However due to its complexity,
-it was implemented.
+The justification for the resource allocation agent neural network is very similar justification to the auction agent
+from subsection~\ref{subsec:justification-for-auction-agent-network-architectures}. The long/short term memory
+architecture should be complex enough but it is possible that the ability to use external storage of neural turing
+machine and differentiable neural network to store the allocation of resource to previous tasks would be helpful.
+However due to its complexity, it was implemented.
 
-The reason for the output to be the resource weighting rather than the actual resources is it would require the network
-to learn a less complex function in comparison. This means that the network learns instead how important the allocation
-of resources are for a task instead of the exact amount of resources allocated.
+% TODO ADD SEQ2SEQ
