@@ -60,20 +60,18 @@ auction is incentive compatible and inherits the social welfare performance and 
 greedy mechanism.
 
 \section{Reinforcement learning}\label{sec:reinforcement-learning}
-Computer scientists have always been interested in comparing computers against humans~\citep{turing1950computing} and a
-key characters of humans is the ability to learn from experience. For computers this ability is complex to perform with
-researchers finding a variety of ways for computers to do this. These methods are broadly grouped into three categories:
-supervised, unsupervised and reinforcement learning. Supervised learning uses inputs that mapped to outputs, an example
-is image classifications. While unsupervised learning doesn't have a known output for inputs to be mapped to, instead
-these algorithms tries to find links between similar data, for example data clustering.
+Computer scientists have always been interested in comparing computers against humans~\citep{turing1950computing}. A
+key characters of humans is the ability to learn from experience that for computers is must be programed in. Researchers
+have invented a variety of ways for computers to do this, that are broadly grouped into three categories:
+supervised, unsupervised and reinforcement learning. Supervised learning uses inputs that mapped to a known outputs, an
+example is image classifications. Unsupervised learning instead doesn't have a known output for its inputs to be mapped
+to, instead algorithms tries to find links between similar data, for example data clustering.
 
 However both of these techniques are not applicable for case where agents must interact with an environment making a
 series of actions that result in rewards over time. Algorithms designed for these problems fall into the category of
-Reinforcement Learning that aim to maximise the agent rewards. These algorithms utilise environments that can be
-formulated as a Markov Decision Process~\citep{Bel}. Because of the number of application for reinforcement learning,
-it is a rapidly growing field of research within AI particularly in the last 5 years.
-
-% Figure reinforcement learning model
+Reinforcement Learning. Algorithms utilise environments that can be generally formulated as a Markov Decision
+Process~\citep{Bel} where agents select actions based on the environment state that results in a new state and resulting
+reward as shown in figure~\ref{fig:reinforcement_learning}.
 
 \begin{figure}[h]
     \includegraphics[width=10cm]{figures/reinforcement_learning.png}
@@ -81,30 +79,36 @@ it is a rapidly growing field of research within AI particularly in the last 5 y
     \label{fig:reinforcement_learning}
 \end{figure}
 
-
 Q-learning algorithm~\cite{watkins1992q-learning} is a learning method used for estimating the action-value function,
-one of the bases on for modern reinforcement learning. As the series of actions can be formed into a tree of
-actions, an agent is interested in which actions will result in the largest reward in the future. This is formulated
-as in equation~\eqref{eq:q_learning}.
+called the Q value is the bases for modern reinforcement learning algorithms. The Q value represents the estimated
+discounted reward in the future given an action in a particular state. Equation~\eqref{eq:q_value} gives a
+mathematically description where rewards in the future discounted. A recursive version of this equation can be
+formulated as equation~\eqref{eq:q_learning} where the next state is the max Q value of the next state-action.
 
 \begin{align}
     Q(s_t, a_t) = E[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+2} + \cdots ] \label{eq:q_value} \\
     Q(s_t, a_t) = Q(s_t, a_t) + \alpha \cdot (r_t + \gamma \cdot \text{max}_a Q(s_{t+1} , a) - Q(s_t, a_t) ) \label{eq:q_learning} \\
 \end{align}
-% TODO
-However the curse of dimensionally was found to be a major problem as to use Q learning required
-forming a table of state-actions in order to calculate and as the number of dimensions increase, the number of
-state-actions will increase exponentially. Therefore making the method impractical for problem that had large state
-space. Therefore use of a function approximate is used to circumvent this problem, traditionally done using a neural
-network. Work by~\cite{atari} using a deep convolution neural network was able to achieve state of the art in six of seven
-games tried on atari with three of these scores being superhuman. This work was followed up by~\cite{mnih2015humanlevel}
-and found that with no modifications to the hyperparameters, neural network and training method; state of the art results were
-achieved in almost all 49 atari games and superhuman results in 29 of these games. Additional heuristics have been
-proposed for deep Q learning: double DQN~\citep{doubledqn}, prioritized experience replay~\citep{prioritizedexperiencereplay},
-dueling network architecture~\citep{duelingdqn}, multi-step bootstrap targets~\citep{multi-step-dqn, Sutton1998},
-A3C~\cite{A3C}, distributional Q-learning~\citep{distributional_dqn} and noisy DQN~\citep{noisy_dqn}. These methods were
-combined to together~\cite{rainbow}, called rainbow DQN, achieving over 200\% of the original DQN algorithm and over
-50\% than any optimisation on its own in a quarter of the observations.
+
+However the curse of dimensionally was found to be a major problem for using Q learning as it required a table of
+every state-actions pairs that as the number of state dimensions or action numbers increased resulted in the table
+also growing exponentially. This make the method impractical for problem with large state space due to both the table
+size and the training time plus it was incompatible with continuous action spaces.
+
+Therefore function approximators were used to circumvent this problem, traditionally done using neural networks.
+Work by~\cite{atari} using a deep convolution neural network to achieve state-of-the-art performance in six of seven
+games tested of the atari game engine, with three of these scores being superhuman. This was done through using of two
+different neural network, a model and target network where the target network was slowly updated by the model network.
+An experience replay buffer was implemented as well to enabled the agent to learn from actions previously made.
+Follow up by~\cite{mnih2015humanlevel} found that with no modifications to the hyperparameters, neural network or
+training method; state-of-the-art results were achieved in almost all 49 atari games with superhuman results in 29 of
+these games. The work showed that deep neural networks could be trained through observation the raw game pixels and
+knowledge of the game score over time.
+
+Because of this research, a large number of heuristics have been proposed to the loss function~\citep{doubledqn},
+network architecture~\cite{duelingdqn}, experience replay buffer~\citep{prioritizedexperiencereplay} and more to
+improve the optimality of the agent. A combined agent~\citep{rainbow} applying a range of heuristic achieved over
+200\% of the original DQN algorithm.
 
 \begin{figure}[h]
     \includegraphics[width=10cm]{figures/actor-critic.png}
@@ -112,10 +116,12 @@ combined to together~\cite{rainbow}, called rainbow DQN, achieving over 200\% of
     \label{fig:actor-critic-model}
 \end{figure}
 
-Using the base of Q-learning, policy gradient~\ref{fig:actor-critic-model} separate the action selection policy to the
-q-value policy. In Q-learning, the selection the action is based on the maximum Q-value of the actions however policy
-gradient separates. This has the advantages of being able to deal with both discrete and continuous action spaces where
-Q-learning can only deal with discrete action space. Also the learning method doesn't require $\epsilon$-greedy action
-selection that can for Q-learning cause the resulting policy to differ from the optimal policy. Therefore policy
-gradient has been used to master the game of Go~\citep{silver2017mastering} and achieve top 1\% in
-Dota 2~\citep{OpenAI_dota} and Starcraft 2~\citep{starcraft2}.
+Using the base of Q-learning, policy gradient~\ref{fig:actor-critic-model} agents separate the action selection policy
+from the Q-value function known as the critic. In deep Q networks, actions are selected on the maximum Q-value for all
+of the actions, however this requires actions to be discretized. By splitting the actions from the Q values, an actor
+choose an action based on the environment state allowing for both discrete and continuous action space. With the
+actor being trained by the value of the critic agent that using both the state and actor actions calculates a Q value
+for the agent. This has the additional advantage of agents dont requiring epsilon greedy action selection during
+training which can result in the DQN policy differing from the optimal policy. As a result policy gradient has been
+used to master the game of Go~\citep{silver2017mastering} and achieve top 1\% in both
+Dota 2~\citep{OpenAI_dota} and Starcraft 2~\citep{starcraft2} video games.
