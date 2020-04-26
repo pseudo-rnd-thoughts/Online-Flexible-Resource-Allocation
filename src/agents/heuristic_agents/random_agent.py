@@ -5,11 +5,12 @@ Agent that randoms choose the price or weight of a task
 from __future__ import annotations
 
 import random as rnd
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 import gin
 
 from agents.resource_weighting_agent import ResourceWeightingAgent
+from agents.rl_agents.rl_agents import TaskPricingRLAgent, ResourceWeightingRLAgent
 from agents.task_pricing_agent import TaskPricingAgent
 from env.server import Server
 from env.task import Task
@@ -69,3 +70,19 @@ class RandomResourceWeightingAgent(ResourceWeightingAgent):
 
         """
         return {task: float(rnd.randint(0, self.upper_weight_bound)) for task in allocated_tasks}
+
+
+class RandomTaskPricingRLAgent(RandomTaskPricingAgent, TaskPricingRLAgent):
+    def _train(self, states, actions, next_states, rewards, dones) -> float:
+        return 0
+
+    def save(self, custom_location: Optional[str] = None):
+        pass
+
+
+class RandomResourceWeightingRLAgent(RandomResourceWeightingAgent, ResourceWeightingRLAgent):
+    def _train(self, states, actions, next_states, rewards, dones) -> float:
+        return 0
+
+    def save(self, custom_location: Optional[str] = None):
+        pass

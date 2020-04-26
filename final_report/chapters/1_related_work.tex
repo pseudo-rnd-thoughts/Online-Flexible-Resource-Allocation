@@ -1,73 +1,69 @@
 %! Suppress = MissingImport
-\chapter{Related Work}\label{ch:background-literature}
-There is a considerable amount of research in the area of pricing and resource allocation in cloud computing,
-of which some use auction mechanisms to deal with competition~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019} as this
-project does. Therefore section~\ref{sec:related-work-in-cloud-computing} presents the similar approaches to
-resource allocation in cloud computing and edge cloud computing to the one taken in this project.
+\chapter{Literature Review}\label{ch:literature-review}
+There is a considerable amount of research in the area of resource allocation and task pricing in cloud computing,
+in case auction mechanisms are used to deal with competition~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
+Section~\ref{sec:resource-allocation-and-auctions-in-cloud-computing} presents the different approaches to resource
+allocation and pricing mechanisms in cloud computing and MEC.
 
 The proposed solution of the project (presented in chapter~\ref{ch:proposed-solution-to-problem}) uses a form of
-machine learning, called reinforcement learning. Section~\ref{sec:related-work-in-machine-learning} explores the
-research and the current state of the art algorithms of deep Q learning and policy gradient that are used in this
-project.
+machine learning, called Reinforcement Learning. Section~\ref{sec:reinforcement-learning} explains the algorithms
+implemented from Q learning and policy gradient research.
 
-\section{Related Work in Cloud Computing}\label{sec:related-work-in-cloud-computing}
-A majority of approaches for pricing and resource allocation in cloud computing use a fixed resource allocation
-mechanism such that user request a fixed amount of certain resource from the cloud provider. However this mechanism,
-as previously explained, provides no control over the resources quantity allocated to the server but means that no
-specially resource allocation mechanism is needed. Therefore a majority of research has focused on designing efficient
-and incentive compatible auction mechanism. A survey of these approaches for double auction mechanism in cloud computing
-is outlined by~\cite{KUMAR2017234},
-% Todo on pricing on cloud computing
-\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
+\section{Resource allocation and auctions in Cloud Computing}\label{sec:resource-allocation-and-auctions-in-cloud-computing}
+A majority of approaches taken for task pricing and resource allocation in cloud computing uses a fixed resource
+allocation mechanism, such that each user requests a fixed amount of resources from a server for a task. However this
+mechanism, as previously explained, provides no control over the quantity of resource allocated to a task for a server,
+only the task price. As a result, a majority of approaches don't consider the server may manage resource allocation,
+rather research has focused on designing efficient and strategyproof auction mechanisms.
+% TODO on pricing on cloud computing
+% Actuall present the different approaches to auction mechanisms in cloud computing
+% A survey of these approaches for double auction mechanism in cloud computing is outlined by~\cite{KUMAR2017234},
+% \citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
 
-Other closely related work on resource allocation in edge clouds~\cite{vaji_infocom} considers both the placement of
-code/data needed to run a specific task, as well as the scheduling of tasks to different edge clouds. The goal there
-is to maximize the expected rate of successfully accomplished tasks over time. Our work is different both in the setup
-and the objective function. Our objective is to maximize the value over all tasks. In terms of the setup, they assume
-that data/code can be shared and they do not consider the elasticity of resources.
+Research by~\cite{vaji_infocom}, considers the placement of code/data needed to run specific tasks as a the scheduling
+of tasks to different edge server as an alternative method to increase the flexible when running tasks. The goal is to
+maximise the expected rate of completed tasks over time with the assumption that data/code can be shared.
+% TODO read the paper and add another two sentences explaining the work
 
-Previous work by this author in~\cite{FlexibleResourceAllocation} proposed the novel resource allocation (explained in
-chapter~\ref{ch:project-problem}) along with an optimisation problem mathematically describing the resource allocation.
-The goal of the problem is to maximise the social welfare, the sum of all task values that are run and completed
-successfully within the task deadline.
-The paper presents three mechanism for the optimisation problem, one to maximise the social welfare and two auction
-mechanisms. A greedy algorithm presented allows for quick approximation of a solution through the use of several
-heuristics in order to maximise the social welfare. Results found that this mechanism could achieves over 90\% of the
-optimal solution given certain heuristics compared to fixed resource allocatiom methods with only 70\% of
-the solution solution. The algorithm is a polynomial time algorithm that will find solution within $\frac{1}{n}$
-of the optimal social welfare. The heuristics were for ordering the task by density then for each task,
-selecting a server based on available resource on each servers then to allocate resources that minimises the final
-resource heuristics. The first of the auction mechanisms is a novel distributed iterative auction developed using
-a reverse vcg principle~\citep{vickrey, Clarke, groves} to calculate a task price. That meant that a task doesnt need
-to reveal its private value also that the auction could be run in a decentralised way. This means that the auction is
-budget balanced however it is not economically efficient or incentive compatible. The mechanism achieves over 90\% of
-the optimal solution due to its solving of the optimisation problem allowing it to find optimal resource allocations.
-The third algorithm is an implementation of a single parameter auctions~\citep{nisan2007algorithmic_critical_value}
-using the greedy algorithm (explained previously) to find the critical value of a task. Using this mechanism with
-a monotonic value density heuristic results in the auction being incentive compatible also well a inherienting the
-social welfare properties of the greedy mechanism.
+Previous work by this author in~\cite{FlexibleResourceAllocation} proposed the novel resource allocation mechanism and
+optimisation problem that this project works to expand. The paper presents three mechanism for the optimisation problem,
+one to maximise the social welfare and two auction mechanisms. The Greedy algorithm presented allows for quick
+approximation of a solution through the use of several heuristics in order to maximise the social welfare. Results
+found that the algorithm achieved over 90\% of the optimal solution given certain heuristics compared to fixed
+resource allocation solution that achieved 70\%. The algorithm has polynomial time complexity with a lower bound of
+$\frac{1}{n}$ however in practice achieves significantly better results.
 
-\section{Related Work in Reinforcement learning}\label{sec:related-work-in-machine-learning}
-Computer scientists have always been interested in testing computers against humans~\citep{turing_test} and a key
-element of humans is the ability to learn from rewards. For computers this ability is much more complex and
-researchers have found a variety of ways to allow computers to do this. These methods are broadly grouped into three
-categories of supervised, unsupervised and reinforcement learning. Supervised learning uses pairs of inputs to true
-outputs like in case of image classifications where each image has a correct category for the image to be mapped to.
-Unsupervised learning instead doesn't have a true output meaning that algorithms tries to find links between similar data.
+The work also presented a novel decentralised iterative auction mechanism developed using the VCG
+principle~\citep{vickrey, Clarke, groves} in order to iterative increase a task's price. As a result, a task doesn't
+reveal its private task value that is viewed as advantageous for users who wish to not reveal how important their task
+is to them, particularly in tactical network. The auction mechanism achieves over 90\% of the optimal solution due to
+iteratively solving of a specialised server optimisation problem. The third algorithm is an implementation of a single
+parameter auction~\citep{nisan2007algorithmic_critical_value} using the greedy algorithm to find the critical value for
+each task. Using the greedy algorithm with a monotonic value density function means the auction is incentive compatible
+and inherits the social welfare performance and polynomial time complexity of the greedy mechanism.
 
-However both of these methods are not effective for real world interactions as agents must make a series of
-actions that result in rewards. Algorithms designed for these problems with a series of actions fall into the category
-of reinforcement learning which aims to maximise the agent rewards over time (an example environment has the
-format~\ref{fig:reinforcement_learning}). This is the area of machine learning that this
-project utilises as the problem can be modelled as a markov decision process (explained in section~\ref{sec:proposed-agents})
-that allows agents to interact with the environment to learn over time. Reinforcement learning is a rapidly growing
-field of research within AI due to its real world applications like driving a car, playing games, etc.
+\section{Reinforcement learning}\label{sec:reinforcement-learning}
+Computer scientists have always been interested in comparing computers against humans~\citep{turing1950computing} and a
+key characters of humans is the ability to learn from experience. For computers this ability is complex to perform with
+researchers finding a variety of ways for computers to do this. These methods are broadly grouped into three categories:
+supervised, unsupervised and reinforcement learning. Supervised learning uses inputs that mapped to outputs, an example
+is image classifications. While unsupervised learning doesn't have a known output for inputs to be mapped to, instead
+these algorithms tries to find links between similar data, for example data clustering.
 
-\begin{figure}
+However both of these techniques are not applicable for case where agents must interact with an environment making a
+series of actions that result in rewards over time. Algorithms designed for these problems fall into the category of
+Reinforcement Learning that aim to maximise the agent rewards. These algorithms utilise environments that can be
+formulated as a Markov Decision Process~\citep{Bel}. Because of the number of application for reinforcement learning,
+it is a rapidly growing field of research within AI particularly in the last 5 years.
+
+% Figure reinforcement learning model
+
+\begin{figure}[h]
     \includegraphics[width=10cm]{figures/reinforcement_learning.png}
     \caption{Reinforcement learning model (Source: ~\cite{Sutton1998})}
     \label{fig:reinforcement_learning}
 \end{figure}
+
 
 Q-learning algorithm~\cite{watkins1992q-learning} is a learning method used for estimating the action-value function,
 one of the bases on for modern reinforcement learning. As the series of actions can be formed into a tree of

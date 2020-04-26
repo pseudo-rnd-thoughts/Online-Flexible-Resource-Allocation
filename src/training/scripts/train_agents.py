@@ -112,13 +112,13 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
 
     # Store each server's auction observations with it being (None for first auction because no observation was seen previously)
     #   the agent state for the auction (auction task, server tasks, server, time), the action taken and if the auction task was won
-    server_auction_agent_states: Dict[Server, Optional[Tuple[TaskPricingState, float, bool]]] = {
+    server_auction_states: Dict[Server, Optional[Tuple[TaskPricingState, float, bool]]] = {
         server: None for server in state.server_tasks.keys()
     }
 
     # For successful auctions, then the agent state of the winning bid, the action taken and the following observation are
     #   all stored in order to be added as an agent observation after the task finishes in order to know if the task was completed or not
-    successful_auction_agent_states: List[Tuple[TaskPricingState, float, TaskPricingState]] = []
+    successful_auction_states: List[Tuple[TaskPricingState, float, TaskPricingState]] = []
 
     # The environment is looped over till the environment is done (the current time step > environment total time steps)
     done = False
@@ -127,7 +127,8 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
         if state.auction_task:
             # Get the bids for each server
             auction_prices = {
-                server: server_pricing_agents[server].bid(state.auction_task, tasks, server, state.time_step, training=True)
+                server: server_pricing_agents[server].bid(state.auction_task, tasks, server, state.time_step,
+                                                          training=True)
                 for server, tasks in state.server_tasks.items()
             }
 
@@ -139,22 +140,20 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
                 # Generate the current agent's state
                 current_state = TaskPricingState(state.auction_task, tasks, server, state.time_step)
 
-                if server_auction_agent_states[server] is not None:  # If a server auction observation exists
+                if server_auction_states[server]:  # If a server auction observation exists
                     # Get the last time steps agent state, action and if the server won the auction
-                    previous_state, previous_action, is_previous_auction_win = server_auction_agent_states[server]
+                    previous_state, previous_action, is_previous_auction_win = server_auction_states[server]
 
                     # If the server won the auction in the last time step then add the info to the auction trajectories
                     if is_previous_auction_win:
-                        successful_auction_agent_states.append((previous_state, previous_action, current_state))
+                        successful_auction_states.append((previous_state, previous_action, current_state))
                     else:
                         # Else add the agent state to the agent's replay buffer as a failed auction bid
                         # Else add the observation as a failure to the task pricing rl_agents
                         server_pricing_agents[server].failed_auction_bid(previous_state, previous_action, current_state)
 
                 # Update the server auction agent states with the current agent state
-                server_auction_agent_states[server] = (current_state, auction_prices[server], server in rewards)
-
-            # assert len(successful_auction_agent_states) == sum(len(tasks) for tasks in next_state.server_tasks.values()) - 1
+                server_auction_states[server] = (current_state, auction_prices[server], server in rewards)
         else:  # Else the environment is at resource allocation stage
             # For each server and each server task calculate its relative weighting
             weighting_actions: Dict[Server, Dict[Task, float]] = {
@@ -171,18 +170,18 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
                 for finished_task in finished_tasks:
                     # Get the successful auction agent state from the list of successful auction agent states
                     successful_auction = next((auction_agent_state
-                                               for auction_agent_state in successful_auction_agent_states
+                                               for auction_agent_state in successful_auction_states
                                                if auction_agent_state[0].auction_task == finished_task), None)
                     if successful_auction is None:
-                        print(f'Number of successful auction agent states: {len(successful_auction_agent_states)}')
+                        print(f'Number of successful auction agent states: {len(successful_auction_states)}')
                         print(f'Number of server tasks: {sum(len(tasks) for tasks in next_state.server_tasks.values())}')
-                        print(f'Finished task: {str(finished_task)}')
-                        print(f'State: {str(state)}')
+                        print(f'Finished task: {str(finished_task)}\n\n')
+                        print(f'State: {str(state)}\n')
                         print(f'Next state: {str(next_state)}')
                     assert successful_auction is not None
 
                     # Remove the successful auction agent state
-                    successful_auction_agent_states.remove(successful_auction)
+                    successful_auction_states.remove(successful_auction)
 
                     # Unwrap the successful auction agent state tuple
                     auction_state, action, next_auction_state = successful_auction

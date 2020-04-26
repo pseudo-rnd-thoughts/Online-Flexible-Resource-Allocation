@@ -12,7 +12,7 @@ from training.scripts.train_agents import generate_eval_envs, run_training, setu
 if __name__ == "__main__":
     gin.parse_config_file('./training/settings/standard_config.gin')
 
-    folder = 'ddqn_agents'
+    folder = 'c51_agents'
     writer = setup_tensorboard('training/results/logs/', folder)
 
     env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')

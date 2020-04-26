@@ -27,8 +27,8 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
                  critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0005),
                  initial_epsilon_std: float = 0.8, final_epsilon_std: float = 0.05, epsilon_steps: int = 20000,
                  epsilon_update_frequency: int = 100, min_value: float = -15.0, max_value: float = 15.0,
-                 target_update_tau: float = 1.0, actor_target_update_frequency: int = 3000,
-                 critic_target_update_frequency: int = 1500, upper_action_bound: float = 30.0, **kwargs):
+                 target_update_tau: float = 0.01, actor_target_update_frequency: int = 1,
+                 critic_target_update_frequency: int = 1, upper_action_bound: float = 30.0, **kwargs):
         assert actor_network.output_shape[-1] == 1 and critic_network.output_shape[-1] == 1
 
         ReinforcementLearningAgent.__init__(self, **kwargs)
@@ -181,8 +181,9 @@ class TD3Agent(DdpgAgent, ABC):
 
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model, twin_critic_network: tf.keras.Model,
                  twin_critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
-                 actor_update_frequency: int = 3, **kwargs):
-        DdpgAgent.__init__(self, actor_network, critic_network, **kwargs)
+                 actor_update_frequency: int = 3, actor_target_update_frequency: int = 3, **kwargs):
+        DdpgAgent.__init__(self, actor_network, critic_network,
+                           actor_target_update_frequency=actor_target_update_frequency, **kwargs)
 
         # Twin critic
         assert id(critic_network) != id(twin_critic_network) and twin_critic_network.output_shape[-1] == 1
@@ -195,6 +196,7 @@ class TD3Agent(DdpgAgent, ABC):
 
     def _train(self, states, actions, next_states, rewards, dones) -> float:
         rewards, dones = tf.expand_dims(rewards, axis=1), tf.expand_dims(dones, axis=1)
+
         # Update the critic network
         critic_network_variables = self.model_critic_network.trainable_variables
         twin_critic_network_variables = self.twin_model_critic_network.trainable_variables
@@ -208,7 +210,7 @@ class TD3Agent(DdpgAgent, ABC):
             twin_critic_state_q_values = self.twin_model_critic_network(obs)
 
             # Calculate the target using the rewards, discount factor, next q values and dones
-            next_actions = self.model_actor_network(next_states) + tf.random.normal((self.batch_size, 1), 0, 0.1)
+            next_actions = self.model_actor_network(next_states) + tf.random.normal((self.batch_size, 1), 0, 0.2)
             clipped_next_actions = tf.clip_by_value(next_actions, 0, self.upper_action_bound)
             next_state_q_values = tf.reduce_min([self.target_critic_network([next_states, clipped_next_actions]),
                                                  self.twin_target_critic_network([next_states, clipped_next_actions])],

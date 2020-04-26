@@ -192,6 +192,9 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
                 else:
                     next_server_tasks[server], rewards[server] = [], []
 
+            assert sum(len(tasks) for tasks in self._state.server_tasks.values()) == sum(
+                len(tasks) for tasks in next_server_tasks.values()) + sum(len(tasks) for tasks in rewards.values())
+
             # The updated state
             next_state = EnvState(next_server_tasks,
                                   self._next_auction_task(self._state.time_step + 1),

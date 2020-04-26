@@ -5,6 +5,7 @@ Tests the src/training/scripts/train_agents.py file
 import os
 from typing import List
 
+from agents.heuristic_agents.random_agent import RandomTaskPricingRLAgent, RandomResourceWeightingRLAgent
 from agents.rl_agents.agents.ddpg import ResourceWeightingDdpgAgent, TaskPricingDdpgAgent
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
@@ -50,6 +51,7 @@ def test_agent_evaluation():
 
 
 def test_train_agents():
+    print()
     setup_tensorboard('training/tmp/', 'train_agents')
 
     env = OnlineFlexibleResourceAllocationEnv('training/settings/basic.env')
@@ -72,3 +74,20 @@ def test_train_agents():
     agents: List[ReinforcementLearningAgent] = pricing_agents + weighting_agents
     for agent in agents:
         assert 0 < agent.total_updates
+
+
+def test_train_rnd_agents():
+    print()
+    setup_tensorboard('training/tmp/', 'train_rnd_agents')
+    env = OnlineFlexibleResourceAllocationEnv([
+        '../src/training/settings/basic.env',
+        '../src/training/settings/large_tasks_servers.env',
+        '../src/training/settings/mixture_tasks_servers.env',
+        '../src/training/settings/limited_resources.env',
+    ])
+
+    pricing_agents = [RandomTaskPricingRLAgent(0)]
+    weighting_agents = [RandomResourceWeightingRLAgent(0)]
+
+    for _ in range(100):
+        train_agent(env, pricing_agents, weighting_agents)

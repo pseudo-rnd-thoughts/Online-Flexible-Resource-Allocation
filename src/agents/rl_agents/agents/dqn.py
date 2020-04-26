@@ -338,6 +338,8 @@ class CategoricalDqnAgent(DqnAgent, ABC):
             target_distribution = tf.stop_gradient(projection)
 
             loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(target_distribution, chosen_action_logits))
+            if self.model_network.losses:
+                loss += tf.reduce_mean(self.model_network.losses)
 
         grads = tape.gradient(loss, network_variables)
         self.optimiser.apply_gradients(zip(grads, network_variables))

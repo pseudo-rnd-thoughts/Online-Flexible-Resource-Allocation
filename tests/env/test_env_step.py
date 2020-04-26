@@ -19,7 +19,12 @@ def test_env_step_rnd_action():
     print()
 
     # Generate the environment
-    env = OnlineFlexibleResourceAllocationEnv('env/settings/basic.env')
+    env = OnlineFlexibleResourceAllocationEnv([
+        '../src/training/settings/basic.env',
+        '../src/training/settings/large_tasks_servers.env',
+        '../src/training/settings/mixture_tasks_servers.env',
+        '../src/training/settings/limited_resources.env',
+    ])
 
     # Random action agents
     random_task_pricing, random_resource_weighting = RandomTaskPricingAgent(0), RandomResourceWeightingAgent(0)
