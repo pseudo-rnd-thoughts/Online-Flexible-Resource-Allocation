@@ -1,9 +1,9 @@
 \chapter{Implementation of the solution}\label{ch:implementation-of-the-solution}
-In order to implement a solution from chapter~\ref{ch:proposed-solution-to-problem}, a edge cloud computing environment
-must be simulated due to the impractically of setting up such a network and in order to train the agents proposed
+In order to implement a solution from chapter~\ref{ch:proposed-solution}, an MEC network environment
+must be simulated due to the impractically of setting up such a network and in order to train the agents offline as proposed
 in section~\ref{sec:proposed-agents}. This chapter splits the implementation into three sections: the environment
-simulation (section~\ref{sec:simulating-edge-cloud-computing-services}), define server auction agents and resource
-allocation agents (section~\ref{sec:implementing-auction-and-resource-allocation-agents}) and finally training the
+simulation (section~\ref{sec:simulating-edge-cloud-computing-services}), server auction and resource
+allocation agents (section~\ref{sec:implementing-auction-and-resource-allocation-agents}) and training of the
 agents (section~\ref{sec:training-agents}).
 
 The implementation discussed below as written in Python and available to download from Github at
@@ -11,24 +11,24 @@ The implementation discussed below as written in Python and available to downloa
 of modules available for reinforcement learning and the speed of development.
 
 \section{Simulating edge cloud computing services}\label{sec:simulating-edge-cloud-computing-services}
-While the aim of the environment is the simulate accurately edge cloud computing server, the implementation of the
+While the aim of the environment is the simulate accurately MEC servers, the implementation of the
 environment must allow agents to train on interact and training on the environment. Therefore it has been implemented
-using as an OpenAI gym~\citep{openaigym}, the de facto standard for implementing reinforcement learning
-environment for researchers. However the standard specification must be modified due to the problem being multi-agent,
-multi-step and as a centralised system.
+ as an OpenAI gym~\citep{openaigym}, the de facto standard for implementing reinforcement learning
+environment for researchers. However the standard specification must be modified due to the problem being multi-agent
+and multi-step.
 
-An example for running the environment is in figure~\ref{listing:example_flexible_resource_env}. There are three
-sections to the code; the first is the construct an environment using the constructor, where the environment settings
-are passed that determines the number of servers and tasks and there attributes. These attributes are determined using
-uniform random numbers between a maximum and minimum values that are synthesis individually for each variable. The
-second is to create the environment using the reset function returning the current environment state. The environment
-state contains a task to be auctioned if any task's auction time step is equal to the environment's current time step
-as well as a dictionary of server to their current state. Using these states, each server generate's actions either
-using the auction agent or resource allocation agent depending if if task needs auctioning. The third step is to
-take a step in environment using the server actions that returns an updated server state, the rewards for the actions,
-if the environment is finished and an extra information from the steps taken. The rewards are a dictionary of each of
-the servers with either the winning price for the auctioned task or a list of tasks that have finished either because
-they ran out of time or completed the task early.
+An example for running the environment is in listing~\ref{listing:example_flexible_resource_env}. There are three
+sections to the code: the first is the construct an environment using the constructor, where the environment settings
+are passed that determines the number of servers, tasks and their attributes. These attributes are determined using
+uniform random numbers between a maximum and minimum values that are synthetically generated for each variable. The
+second step is to create the environment using the reset function returning the new environment state. The environment
+state contains a task if one needs to be auctioned and a dictionary of server to their current task state. Using these
+states, each server can generate actions either
+using the auction agent or resource allocation agent depending if if task needs auctioning. The final part is to
+take a step using the server actions that returns an updated server state, the rewards for the actions,
+if the environment is finished and an extra information from the steps taken. The rewards is a dictionary of each of
+servers with either the winning price for the auctioned task or a list of tasks that have finished either because
+they ran out of time or completed the task early, depending on the step taken.
 
 \begin{lstlisting}[language=Python, frame=single, caption={An example for running the environment},captionpos=b]
 # Load the environment with a setting
@@ -59,53 +59,60 @@ for _ in range(1000):
 \label{listing:example_flexible_resource_env}
 \end{lstlisting}
 
-\subsection{Server resource allocation}\label{subsec:server-resource-allocation}
-A particular complication of the system is to distribute server resources due to the fact that server provide a
-dictionary of task with a resource weighting that much be converted to the allocated resources for each task.
+\subsection{Weighted server resource allocation}\label{subsec:weighted-server-resource-allocation}
+A particular complication of the environment is to distribute server resources due to the fact that server provide a
+dictionary of task with a resource weighting that much be converted to the actually allocated resources for each task.
 To allocate the compute resources is relatively simple compared to allocating resources for both storage and bandwidth.
-The algorithm checks first if the weighted resources is greater than the quantity required for the task to finish the
-compute stage, if this is true then a resources needed for the task to complete the compute stage are allocated. However,
+For computational resources, the algorithm checks first if the weighted resources is greater than the quantity required for the task to finish the
+computing of a task, if this is true then a resources needed for the task to complete the compute stage are allocated. However,
 this means that the weight resources available for each task is increased due to a task not using all of the resources
-it could. This means that the algorithm loops till no task can be completed with the weighted resources allocated.
-Then all of the reminding compute resources are allocated to the remaining tasks.
+it could. This checking is looped until no task can be completed with the weighted resources allocated.
+For the remaining task that can't be computed with their weighted resource within this time step are allocated their
+weighted task bandwidth resources.
 
-For allocating storage and bandwidth, the reason for this being more difficult is due to when the server is still
-loading the task, the server must allocate both storage and bandwidth resources while the bandwidth must be allocated
-to the task sending results. Because of this, a tension exists between these two operation for allocating resources.
+For allocating storage and bandwidth, the reason for this being more difficult is due to the fact that when the server is still
+loading the task, the server must allocate both storage and bandwidth resources while also be allocated
+to the tasks sending results. Because of this, a tension exists between allocating bandwidth and storage resources for all of the tasks.
 The implemented algorithm, gives priority for allocating resources to the tasks sending results as these tasks are more
-likely to be finished and will not penalise the server for not completing the task within the deadline. To allocate
+likely to be finished and will not penalise the server for not completing the task within the deadline.
+
+To allocate
 resources, a similar function to used to the one for allocating compute resources. First a check if done using the
-weighted bandwidth resources to see if any task sending results will be finished with the resources, if so these
-resources are allocated. This process if repeat for the server loading any task with the additional check that there
-is enough available storage for the bandwidth resources being allocated. For any remaining task, this process if
+weighted bandwidth resources to see if any task sending results will be finished with the resources.
+This process is also repeated for the tasks loaded onto a server with the additional check that there
+is enough available storage the new data to be added. For any remaining task, this process is
 repeated till all of the available resources are allocated in the time step. As a results, using this algorithm, the
 converting between weightings to resources allowing for allocating of almost all of the server's resources with no
 resources unused.
 
 \section{Implementing Auction and resource allocation agents}\label{sec:implementing-auction-and-resource-allocation-agents}
-Each server has to have a unique policy for bidding on tasks and allocating resources that are proposed in
-section~\ref{sec:proposed-agents}. These policies are referred to as the auction agents, for bidding on tasks and the
-resource weighting agent, for allocating of resources. However determining these policies is a difficult due to the
-complexity and the interaction of task attributes and the server resources. Because of this, the ability of
-reinforcement learning to interact an environment and learn a policy in order to maximise its reward over time is
-integral to this project. Therefore a range of different reinforcement learning techniques have been implemented,
-outlined in Table~\ref{tab:reinforcement_learning_algorithms}, in order to explore the different options that a server
-would have available to learn its policies.
+% TODO as this doesn't explain how the agents implemented
+%Each server has to have a unique policy for bidding on tasks and allocating resources that are proposed in
+%section~\ref{sec:proposed-agents}. These policies are referred to as the auction agents, for bidding on tasks and the
+%resource weighting agent, for allocating of resources. However determining these policies is a difficult due to the
+%complexity and the interaction of task attributes and the server resources. Because of this, the ability of
+%reinforcement learning to interact an environment and learn a policy in order to maximise its reward over time is
+%integral to this project. Therefore a range of different reinforcement learning techniques have been implemented,
+%outlined in Table~\ref{tab:reinforcement_learning_algorithms}, in order to explore the different options that a server
+%would have available to learn its policies.
 
 % Todo auction and resource allocation agents
 
 \subsection{Implementing reinforcement learning policies}\label{subsec:implementing-auction-and-resource-allocation-agents}
-These policies were implemented using tensorflow~\cite{tensorflow2015-whitepaper}, a python module developed by Google
-that provides programmers the ability to construct neural network and backpropagation with a loss function. A
-particular problem with this project is the use of recurrent neural network and inputs not having a fixed length. This
-causes an issue with tensorflow due to the requirement for tensor, the base for tensorflow operation, to have a fixed
+The policies outlined in table~\ref{tab:reinforcement_learning_algorithms} were implemented using
+tensorflow~\citep{tensorflow2015-whitepaper}, a python module developed by Google
+that provides programmers the ability to construct neural network, backpropagation with custom loss function and more. A
+particular problem that this project encounter was the use for recurrent neural network as inputs not having a fixed length.
+Originally this was done by calculating the loss for each input together. However this slowed training siftnificantally
+resulting in slow convergence making it impractical. This causes an issue with tensorflow due to the requirement for
+tensor, the bases for tensorflow operation, to have a fixed
 size. To allow for efficient using of backpropagation with multiple inputs being computed at the same time in order to
 compute a minibatch not just stochastic gradient descent. To do requires the use of the tensorflow preprocessing module
 to pad all of the input to be the same size.
 
 \begin{table}
     \centering
-    \begin{tabular}{|p{3cm}|p{12cm}|} \hline
+    \begin{tabular}{|p{3cm}|p{10cm}|} \hline
         Policy Type & Explanation \\ \hline
         Dqn~\citep{mnih2015humanlevel} & A standard deep Q learning agent that discretizes the action space \\ \hline
         Double Dueling DQN~\citep{doubledqn, duelingdqn} & A combination of two heuristics for the standard deep Q
@@ -121,7 +128,7 @@ to pad all of the input to be the same size.
             model. \\ \hline
         Twin delay DDPG~\citep{td3} & Like the Double Dueling DQN agents, TD3 includes a couple new heuristics, like a
             twin critic to prevent the actor tricking the critic and delaying the updates for actors compared to
-            critic.\\ \hline
+            the critic in order to learn quickly.\\ \hline
         D4PG~\citep{d4pg} & Like the categorical dqn, d4pg add a heuristic for the critic to output a value probability
             distribution that allows for better approximation for environment that are stochastic in nature. \\ \hline
     \end{tabular}
@@ -131,34 +138,35 @@ to pad all of the input to be the same size.
 
 \subsection{Rewards functions}\label{subsec:rewards-functions}
 As explained in the background review for reinforcement learning (section~\ref{sec:related-work-in-machine-learning}),
-the q values is an approximation for the estimated discounted reward in the future given an action. Therefore the
-rewards that an agent receives for taking an action is extremely important to enable the agent to learn. This problem
-of complex reward functions are a known problem for DQN agent to deal with~\citep{atari} while policy gradients can
-deal with this due to learning the policy rather than the q values~\citep{Sutton1998}.
+the Q values is the estimated discounted reward in the future given an action. Therefore the
+rewards that an agent receives for taking an action is extremely important to enable the agent to learn a predictable
+reward function. This problem of complex reward functions are a known problem for DQN agent to deal with~\citep{atari} while policy gradients can
+deal with this due to directly learning the policy~\citep{Sutton1998}.
 
-For the auction, the reward is based on the winning price of the task at the time step when the auction is won. If the
-task fails, the reward is instead multiplied by a negative constant (referred to as "failed\_reward\_multiplier") in
-order to discourage the auction agent from bidding on tasks that it wouldn't be able to complete. Because of this,
-the price of zero is treated as a non-bid, resulting in the agent getting a reward of zero and not being considered in
-the auction. The final possible reward for an auction agent is that the agent fails to win the task in the auction by
-bidding too high, as a result, the reward is constant called "failed\_auction\_reward". The constant's default value is
--0.05 as a way of encouraging the agent to change there bid.
+For the auction, the reward is based on the winning price of the task which is award for the winning action. If the
+task fails, the reward is instead multiplied by a negative constant in order to discourage the auction agent from
+bidding on tasks that it wouldn't be able to complete.
+% TODO Add reasoning why reward instead not later
+As the price of zero is treated as a non-bid, the agent gets a reward of zero. The final possible reward for an auction
+agent is that the agent fails to win the task in the auction by
+bidding too high, as a result, the reward is constant of -0.05 as a way of encouraging the agent to change there bid but
+not enough to force it.
 
 For resource allocation, the reward function is much simpler than the auction reward function as it only needs to
-consider the task being weighted at the time and rewards from other tasks allocated at the time. This is as,
+consider the task being weighted at the time and rewards from other tasks allocated at the time. This is as
 a task must consider its actions in consider with the resource requirements of other allocated tasks. For successfully
-finishing a task, the reward is 1 while the reward for if the task has failed is -1.5 to make failing a task more
+finishing a task, the reward is 1 while the reward for if the task has failed is -1.5. This makes failing a task more
 costly than completing a task. But when a task's action is not under consideration, this reward is multiplied by
 0.4 as while this rewards impact the task, their value is not as important to the task current consideration.
 While these rewards don't consider the price payed for the task instead valuing each task equally with the aim of
 forcing the task allocate resources to finish all tasks not just the valuable ones. Using this information, the reward
-function simply just the sum of finished tasks rewards in the next time step.
+function simply the sums the rewards of the finished tasks in the next time step.
 
 \subsection{Agent observations}\label{subsec:agent-observations}
-Both deep q networks and policy gradient algorithm are based on the Q function (explained in
+Both deep Q networks and policy gradient algorithm are based on the Q function (explained in
 section~\ref{sec:related-work-in-machine-learning})) which tries to approximate the reward at the next time step. To do
-this required a reward function and a next observation to compare to in order to train these agents. This can be
-described as a tree with the current state being the root and all lefts being the next states however for this problem,
+this requires a reward function and a next observation to compare to in order to train these agents. This can be
+described as a tree with the current state being the root and all leafs being the next states however for this problem,
 this formulation has several problems due to there being two environment happening at the same time meaning that the
 next state is not clear as shown in figure~\ref{fig:environment-observations}.
 
@@ -172,27 +180,24 @@ next state is not clear as shown in figure~\ref{fig:environment-observations}.
 For the resource allocation agent, a trick is implemented such that the next observation for the agent is not the
 actual next resource allocation observation as shown in the figure but a generated observation from the resulting
 server state due to agent's actions. This is identical to the last case in the figure where no auction occurs between
-resource allocation steps. Because of this, the resource allocation q value is able to approximate the reward for the
-results of its actions directly and makes it appear to the agent that there is no auction steps with the observations
-and next observations for training.
+resource allocation steps. Because of this, the resource allocation Q value is able to approximate the reward for the
+results of its actions directly and makes it appear to the agent that there is no auction steps between observations
+and next observations in training.
 % Todo add number of tasks observations problems
 
-For the auction agent, as the agent observations require an auction task to compare to and select an action (the task
-bidding price), a trick like the one implemented for the resource allocation agent is not possible to implement.
-Therefore during each server's last observation to recorded such that when the next auction occurs, this new task
-observation can be used as the server's next observation. This is a suboptimal solution as the agent as the next task
-been auctioned in completely random as well as between the current task observation and the next auction observation,
-an unknown number of resource allocation steps could have been taken meaning that the resource demand by the other
-currently allocated tasks has changed. A possible solution that has not been implement in this project is N step
-prediction~\citep{multi-step-dqn} where the agent doesn't predict the q value of the next environment, but the q value
-of the environment in N steps time. This is believed to help reduce the amount of randomness in the server's
-observation to train on.
+For the auction agent, as the agent observations require an auction task to select an action (the task
+bidding price). A trick like the one implemented for the resource allocation agent can't be to implement.
+Therefore during each servers last observation is recorded, such that when the next auction occurs, this new task
+observation can be used as the server's next observation in training. This is a suboptimal solution for the agent as the next observation
+has an unknown number of resource allocation steps resulting in changes to the current allocated tasks.
+A possible solution that has not been implement in this project is n step prediction~\citep{multi-step-dqn}. The agent
+doesn't predict the Q value of the next environment, but the value in n steps time. This is believed to possible help
+reduce the amount of randomness in the server's observations and improve bidding performance. 0
 
 \section{Training agents}\label{sec:training-agents}
-The first section of this chapter simulates edge cloud computing servers (section~\ref{sec:simulating-edge-cloud-computing-services})
-while the second section implements auction and resource allocation agents that can interact with such environment
-and use a range of algorithms to learn from. By combining both of these together allows agents to continually interact
-with environments in order to learn over time their respective policies.
+The first section of this chapter simultanting MEC servers (section~\ref{sec:simulating-edge-cloud-computing-services})
+as a reinforcement learning environment. While the second section implements auction and resource allocation agents that
+can interact with the porposed environmetn and train the agents using a range of algorithm. 
 
 Neural networks, the bases of the reinforcement learning agents implemented, often require huge amounts of data and
 high spec GPUs to run efficiently. Because of this, Iridis 5, University of Southampton supercomputer was utilised with
