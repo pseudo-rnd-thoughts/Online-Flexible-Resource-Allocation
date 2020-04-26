@@ -1,46 +1,63 @@
-%! Suppress = MissingImport
 \chapter{Literature Review}\label{ch:literature-review}
 There is a considerable amount of research in the area of resource allocation and task pricing in cloud computing,
 in case auction mechanisms are used to deal with competition~\citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
 Section~\ref{sec:resource-allocation-and-auctions-in-cloud-computing} presents the different approaches to resource
-allocation and pricing mechanisms in cloud computing and MEC.
+allocation and pricing mechanisms in cloud computing.
 
-The proposed solution of the project (presented in chapter~\ref{ch:proposed-solution-to-problem}) uses a form of
-machine learning, called Reinforcement Learning. Section~\ref{sec:reinforcement-learning} explains the algorithms
-implemented from Q learning and policy gradient research.
+The proposed solution of the project (presented in chapter~\ref{ch:proposed-solution}) uses a form of
+machine learning, called Reinforcement Learning. Section~\ref{sec:reinforcement-learning} covers the current
+state-of-the-art algorithms with Q learning and policy gradient research.
 
 \section{Resource allocation and auctions in Cloud Computing}\label{sec:resource-allocation-and-auctions-in-cloud-computing}
 A majority of approaches taken for task pricing and resource allocation in cloud computing uses a fixed resource
 allocation mechanism, such that each user requests a fixed amount of resources from a server for a task. However this
-mechanism, as previously explained, provides no control over the quantity of resource allocated to a task for a server,
-only the task price. As a result, a majority of approaches don't consider the server may manage resource allocation,
-rather research has focused on designing efficient and strategyproof auction mechanisms.
-% TODO on pricing on cloud computing
-% Actuall present the different approaches to auction mechanisms in cloud computing
-% A survey of these approaches for double auction mechanism in cloud computing is outlined by~\cite{KUMAR2017234},
-% \citep{KUMAR2017234,Zhang2017,Du2019,Bi2019}.
+mechanism, as previously explained, provides no control for the server over the quantity of resource allocated to task,
+only determining the task price. As a result, a majority of approaches don't consider the server management of resource
+allocation. Thus research has focused on designing efficient and strategyproof auction mechanisms.
 
-Research by~\cite{vaji_infocom}, considers the placement of code/data needed to run specific tasks as a the scheduling
-of tasks to different edge server as an alternative method to increase the flexible when running tasks. The goal is to
-maximise the expected rate of completed tasks over time with the assumption that data/code can be shared.
-% TODO read the paper and add another two sentences explaining the work
+Work by~\cite{KUMAR2017234} provides a systematic study of double auction mechanisms for cloud computing covering
+inter-cloud ("Cloud of Clouds") auctions~\citep{interclouds}. Inter-cloud enable auction with multiple cloud service
+provider which aims to provide advantages to both cloud provider and customer such as improved quality of services for
+customer, increased cost efficiency, better services during peak times and reduced overall energy consumption.
+The work reviewed 21 different proposed auction mechanism over a range of important properties like Economic Efficiency,
+Incentive Compatibility and Budget-Balance. In a majority of the proposed auction mechanisms, truthfulness was only
+considered for the user, thus a truthful multi-unit double auction mechanism was presented as novel double-sided
+truthful auction meaning both users and server should act truthfully.
+
+Deep reinforcement learning was implemented by~\cite{Du2019} to learn resource allocation and pricing in order to
+maximise cloud profits. Deep neural network models with long/short term memory units enabled state-of-the-art online
+cloud resource allocation and task pricing algorithms that had significantly better results than traditionally
+online mechanisms in terms of profit made and number of users accepted. The system considered both the pricing and
+placement of virtual machines in the system to maximise the profits of cloud providers through the use of deep
+deterministic policy gradient~\citep{ddpg} to train agents. Users would request a type of virtual machine from the
+system that a server would allocate to user where the price and placement of the virtual machine within possible
+servers by a neural network agent. The deep reinforcement learning models were trained using real-world cloud workloads
+and achieved significantly high profit even in worst-case scenarios.
+
+Some approaches have been taken to increase flexible within fog cloud computing by~\cite{Bi2019} enabled efficient
+distribution of data centers and connections to maximise social welfare. A truthful online mechanism was
+proposed that was incentive compatible and individually rational that allows tasks to arrive over time by solving a
+integer programming optimisation problem. Similar research in~\cite{vaji_infocom}, considers the placement of code/data
+needed to run specific tasks over time as demand changes while considering operational costs and system stability.
+An approximation algorithm achieved 90\% of the optimal social welfare by converting the problem to a set function
+optimisation problem.
 
 Previous work by this author in~\cite{FlexibleResourceAllocation} proposed the novel resource allocation mechanism and
 optimisation problem that this project works to expand. The paper presents three mechanism for the optimisation problem,
-one to maximise the social welfare and two auction mechanisms. The Greedy algorithm presented allows for quick
-approximation of a solution through the use of several heuristics in order to maximise the social welfare. Results
-found that the algorithm achieved over 90\% of the optimal solution given certain heuristics compared to fixed
-resource allocation solution that achieved 70\%. The algorithm has polynomial time complexity with a lower bound of
-$\frac{1}{n}$ however in practice achieves significantly better results.
-
+one to maximise the social welfare and two auction mechanisms for self-interested users. The Greedy algorithm presented
+allows for quick approximation of a solution through the use of several heuristics in order to maximise the social
+welfare. Results found that the algorithm achieved over 90\% of the optimal solution given certain heuristics compared
+to fixed resource allocation solution that achieved 70\%. The algorithm has polynomial time complexity with a lower
+bound of $\frac{1}{n}$ however in practice achieves significantly better results. \\
 The work also presented a novel decentralised iterative auction mechanism developed using the VCG
-principle~\citep{vickrey, Clarke, groves} in order to iterative increase a task's price. As a result, a task doesn't
-reveal its private task value that is viewed as advantageous for users who wish to not reveal how important their task
-is to them, particularly in tactical network. The auction mechanism achieves over 90\% of the optimal solution due to
-iteratively solving of a specialised server optimisation problem. The third algorithm is an implementation of a single
-parameter auction~\citep{nisan2007algorithmic_critical_value} using the greedy algorithm to find the critical value for
-each task. Using the greedy algorithm with a monotonic value density function means the auction is incentive compatible
-and inherits the social welfare performance and polynomial time complexity of the greedy mechanism.
+mechanism~\citep{vickrey, Clarke, groves} in order to iterative increase a task's price. As a result, a task doesn't
+reveal its private task value. This may be particularly interesting with military tactical network such that countries
+do not need to reveal the important of a task to another coalition country. The auction mechanism achieves over 90\% of
+the optimal solution due to iteratively solving a specialised server optimisation problem. The third algorithm is an
+implementation of a single parameter auction~\citep{nisan2007algorithmic_critical_value} using the greedy algorithm to
+find the critical value for each task. Using the greedy algorithm with a monotonic value density function means the
+auction is incentive compatible and inherits the social welfare performance and polynomial time complexity of the
+greedy mechanism.
 
 \section{Reinforcement learning}\label{sec:reinforcement-learning}
 Computer scientists have always been interested in comparing computers against humans~\citep{turing1950computing} and a
@@ -74,7 +91,7 @@ as in equation~\eqref{eq:q_learning}.
     Q(s_t, a_t) = E[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+2} + \cdots ] \label{eq:q_value} \\
     Q(s_t, a_t) = Q(s_t, a_t) + \alpha \cdot (r_t + \gamma \cdot \text{max}_a Q(s_{t+1} , a) - Q(s_t, a_t) ) \label{eq:q_learning} \\
 \end{align}
-
+% TODO
 However the curse of dimensionally was found to be a major problem as to use Q learning required
 forming a table of state-actions in order to calculate and as the number of dimensions increase, the number of
 state-actions will increase exponentially. Therefore making the method impractical for problem that had large state
