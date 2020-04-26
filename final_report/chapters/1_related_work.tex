@@ -74,6 +74,7 @@ Process~\citep{Bel} where agents select actions based on the environment state t
 reward as shown in figure~\ref{fig:reinforcement_learning}.
 
 \begin{figure}[h]
+    \centering
     \includegraphics[width=10cm]{figures/reinforcement_learning.png}
     \caption{Reinforcement learning model (Source: ~\cite{Sutton1998})}
     \label{fig:reinforcement_learning}
@@ -87,7 +88,7 @@ formulated as equation~\eqref{eq:q_learning} where the next state is the max Q v
 
 \begin{align}
     Q(s_t, a_t) = E[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+2} + \cdots ] \label{eq:q_value} \\
-    Q(s_t, a_t) = Q(s_t, a_t) + \alpha \cdot (r_t + \gamma \cdot \text{max}_a Q(s_{t+1} , a) - Q(s_t, a_t) ) \label{eq:q_learning} \\
+    Q(s_t, a_t) = Q(s_t, a_t) + \alpha \cdot (r_t + \gamma \cdot \text{max}_a Q(s_{t+1} , a) - Q(s_t, a_t) ) \label{eq:q_learning}
 \end{align}
 
 However the curse of dimensionally was found to be a major problem for using Q learning as it required a table of
@@ -110,11 +111,12 @@ network architecture~\cite{duelingdqn}, experience replay buffer~\citep{prioriti
 improve the optimality of the agent. A combined agent~\citep{rainbow} applying a range of heuristic achieved over
 200\% of the original DQN algorithm.
 
-\begin{figure}[h]
-    \includegraphics[width=10cm]{figures/actor-critic.png}
+\begin{wrapfigure}{l}{0.5\textwidth}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/actor-critic.png}
     \caption{Actor Critic model (Source: ~\cite{Sutton1998})}
     \label{fig:actor-critic-model}
-\end{figure}
+\end{wrapfigure}
 
 Using the base of Q-learning, policy gradient~\ref{fig:actor-critic-model} agents separate the action selection policy
 from the Q-value function known as the critic. In deep Q networks, actions are selected on the maximum Q-value for all
