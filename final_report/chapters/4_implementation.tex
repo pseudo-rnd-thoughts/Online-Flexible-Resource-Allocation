@@ -228,7 +228,7 @@ for each agents in order to view how agents bid and weightings are distributed.
 \subsection{Agent training hyperparameters}\label{subsec:agent-training-hyperparameters}
 During training there are a range of hyperparameters for each agent, table~\ref{tab:agent_hyperparameters} provides
 an explanation of value for all of the hyperparameters used in the project.
-\begin{longtable}{|p{3.5cm}|p{5cm}|p{3.5cm}|p{3.5cm}|} \hline
+\begin{longtable}{|p{2.5cm}|p{3cm}|p{3cm}|p{4cm}|} \hline
     \textbf{Agent} & \textbf{Properties name} & \textbf{Value} & \textbf{Explanation} \\ \hline
         RL Agent & batch\_size & 32 & The number of trajectories from the experience replay buffer that are used each
             time to train an agent. \\ \hline
@@ -244,18 +244,18 @@ an explanation of value for all of the hyperparameters used in the project.
         RL Agent & save\_frequency & 25000 & The agent networks are saved after 25000 time that agent has been trained
             \\ \hline
         RL Agent & training\_loss\_log\_freq & 250 & Tensorboard allows for data to be saved using training, after every
-            the agent has been trained 250 time, the agents loss is logged for future analysis. \\ \hline \hline
+            the agent has been trained 250 time, the agents loss is logged for future analysis. \\ \hline
         Task Pricing RL Agent & reward\_scaling & 1 & \\ \hline
         Task Pricing RL Agent & failed\_auction\_reward & -0.05 & The reward for when the agent bids on a task but fails
             to win the auctioned task. \\ \hline
         Task Pricing RL Agent & failed\_multiplier & -1.5 & A multiplier applied to the winning price is the task fails
-            to be computed within its deadline. \\ \hline \hline
+            to be computed within its deadline. \\ \hline
         Resource weighting RL Agent & other\_task\_discount & 0.4 & The multiplier to tasks not under consideration for
             a weighting action. \\ \hline
         Resource weighting RL Agent & success\_reward & 1 & The reward when the agent successfully completes a task
             \\ \hline
         Resource weighting RL Agent & failed\_reward & -1.5 & The reward when the agent fails to complete a task within
-            its deadline. \\ \hline \hline
+            its deadline. \\ \hline
         Dqn Agent & target\_update\_tau & 1.0 & The update tau value for use in the target update frequency. \\ \hline
         Dqn Agent & target\_update\_frequency & 2500 & The target network in the DQN agent is updated after the agent
             has been updated 2500 times. \\ \hline
@@ -275,7 +275,7 @@ an explanation of value for all of the hyperparameters used in the project.
             used  during training \\ \hline
         Ddpg Agent & actor\_target\_update\_frequency & 3000 & The actor target network update frequency \\ \hline
         Ddpg Agent & critic\_target\_update\_frequency & 1500 & The critic target network update frequency \\ \hline
-        Ddpg Agent & upper\_action\_bound & 30.0 & The upper action bound for the actor network \\ \hline \hline
+        Ddpg Agent & upper\_action\_bound & 30.0 & The upper action bound for the actor network \\ \hline
         Task pricing Ddpg Agent & min\_value & -100.0 & The minimum value for the critic network to estimate for an
             action \\ \hline
         Task pricing Ddpg Agent & max\_value & 100.0 & The maximum value for the critic network to estimate for an
@@ -283,7 +283,7 @@ an explanation of value for all of the hyperparameters used in the project.
         Resource allocation Ddpg Agent & min\_value & -20 & The minimum value for the critic network to estimate for an
             action \\ \hline
         Resource allocation Ddpg Agent & max\_value & 15 & The maximum value for the critic network to estimate for an
-            action\\ \hline \hline
+            action\\ \hline
         TD3 Agent & actor\_update\_frequency & 3 & The actor network update frequency for each critic network update. \\ \hline
     \caption{Agent hyperparameters}
     \label{tab:agent_hyperparameters}
