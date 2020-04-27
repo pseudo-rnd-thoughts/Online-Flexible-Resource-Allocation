@@ -3,7 +3,8 @@ Tests the linear exploration method used in the DQN agent
 """
 
 # TODO add comments
-from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
+from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent
+from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent, TaskPricingCategoricalDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
 
@@ -11,27 +12,30 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 def test_epsilon_policy():
     print()
     # Tests the epsilon policy by getting agent actions that should update the agent epsilon over time
-    env = OnlineFlexibleResourceAllocationEnv('agent/settings/basic.env')
-    state = env.reset()
+    env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/basic.env')
 
-    pricing_dqn_agent = TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5), initial_epsilon=1, final_epsilon=0.1,
-                                            training_freq=1, epsilon_steps=200)
-    weighting_dqn_agent = ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 5), initial_epsilon=1,
-                                                    final_epsilon=0.1, training_freq=1, epsilon_steps=200)
+    pricing_agents = [
+        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5)),
+        TaskPricingCategoricalDqnAgent(1, create_categorical_lstm_network(9, 5)),
+        TaskPricingDdpgAgent(2, create_actor_lstm_network(9), create_critic_lstm_network(9))
+    ]
+
+    weighting_agents = [
+        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(9, 5)),
+        ResourceWeightingCategoricalDqnAgent(1, create_categorical_lstm_network(9, 5)),
+        ResourceWeightingDdpgAgent(2, create_actor_lstm_network(9), create_critic_lstm_network(9))
+    ]
 
     done = False
     while not done:
         if state.auction_task is not None:
             actions = {
-                server: pricing_dqn_agent.bid(state.auction_task, tasks, server, state.time_step, training=True)
-                for server, tasks in state.server_tasks.items()
+                server: pricing_agents[pos].bid(state.auction_task, tasks, server, state.time_step, training=True)
+                for pos, (server, tasks) in enumerate(state.server_tasks.items())
             }
         else:
             actions = {
-                server: weighting_dqn_agent.weight(tasks, server, state.time_step, training=True)
-                for server, tasks in state.server_tasks.items()
+                server: weighting_agents[pos].weight(tasks, server, state.time_step, training=True)
+                for pos, (server, tasks) in enumerate(state.server_tasks.items())
             }
         state, rewards, done, _ = env.step(actions)
-
-    assert 0 < pricing_dqn_agent.total_actions
-    assert 0 < weighting_dqn_agent.total_actions
