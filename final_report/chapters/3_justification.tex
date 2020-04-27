@@ -12,7 +12,7 @@ whole with a single price and can't be split up as in combinations auctions~\cit
 Table~\ref{tab:auctions_descriptions} outlines a description of possible applicable auction mechanisms while
 table~\ref{tab:auction_properties} outline the properties of each auction mechanisms in the previous table.
 
-\begin{longtable}{|p{3cm}|p{10cm}|} \hline
+\begin{longtable}{|p{3.5cm}|p{11cm}|} \hline
     \textbf{Auction type} & \textbf{Description} \\ \hline
     English auction & A traditional auction where all participant can bid on a single item with the price slowly
         ascending till only a single participant is left who pays the final bid price. Due to the number of rounds,
@@ -47,12 +47,12 @@ table~\ref{tab:auction_properties} outline the properties of each auction mechan
 \begin{table}[h]
     \centering
     \begin{tabular}{|l|c|c|c|} \hline
-        Auction  & Incentive compatible & Number of rounds & Fixed time length\\ \hline
-        English  & False                & Multiple         & False            \\ \hline
-        Japanese & False                & Multiple         & True             \\ \hline
-        Dutch    & False                & Multiple         & False            \\ \hline
-        Blind    & False                & Single           & True             \\ \hline
-        Vickrey  & True                 & Single           & True             \\ \hline
+        \textbf{Auction}  & \textbf{Incentive compatible} & \textbf{Number of rounds} & \textbf{Fixed time length} \\ \hline
+        English           & False                         & Multiple                  & False            \\ \hline
+        Japanese          & False                         & Multiple                  & True             \\ \hline
+        Dutch             & False                         & Multiple                  & False            \\ \hline
+        Blind             & False                         & Single                    & True             \\ \hline
+        Vickrey           & True                          & Single                    & True             \\ \hline
     \end{tabular}
     \caption{Properties of the auctions described in Table~\ref{tab:auctions_descriptions}}
     \label{tab:auction_properties}
