@@ -23,9 +23,9 @@ def test_epsilon_policy():
     ]
 
     weighting_agents = [
-        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(9, 5)),
-        ResourceWeightingCategoricalDqnAgent(1, create_lstm_categorical_dqn_network(9, 5)),
-        ResourceWeightingDdpgAgent(2, create_lstm_actor_network(9), create_lstm_critic_network(9))
+        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 5)),
+        ResourceWeightingCategoricalDqnAgent(1, create_lstm_categorical_dqn_network(16, 5)),
+        ResourceWeightingDdpgAgent(2, create_lstm_actor_network(16), create_lstm_critic_network(16))
     ]
 
     done = False
