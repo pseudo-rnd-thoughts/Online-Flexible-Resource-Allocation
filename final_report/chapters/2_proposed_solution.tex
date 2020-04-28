@@ -1,21 +1,22 @@
 \chapter{Proposed solution}\label{ch:proposed-solution}
 In chapter~\ref{ch:project-problem}, the problem that this project aims to address was outlined along with a short
-description of the proposed solution. This chapter builds upon that, giving a format mathematical model for the problem
+description of the proposed solution. This chapter builds upon that, giving a formal mathematical model for the problem
 in section~\ref{sec:optimisation-problem}. Section~\ref{sec:auctioning-of-tasks} proposes an auction mechanism in order
-to pay servers for their resources as while the overall problem is about resource allocation, servers are normally
-payed for running a task. Using the optimisation problem and auction mechanism from the previous sections,
-agents for both auction and resource allocation are proposed, in section~\ref{sec:proposed-agents}, that learn to
-together to maximise a server's profits over time.
+to pay servers for their resources in order to deal with self-interested users and as server are payed for use of their
+services. \\
+Using the optimisation problem and auction mechanism from the previous sections, agents for both auction and resource
+allocation are proposed, in section~\ref{sec:proposed-agents}, that learns together to maximise a server's profits
+over time.
 
 \section{Resource allocation optimisation problem}\label{sec:optimisation-problem}
-Using the flexible resource principle, that the time taken for a operation to
-occur, e.g.\ loading of a program, computing the program and sending of results, etc, is proportional to the amount of
-resources allocated to completed the operation. A modified version of a resource allocation optimisation model can be
-formatted by building upon a similar formulation in~\cite{FlexibleResourceAllocation}.
+Using the flexible resource principle, the time taken for a operation to occur, e.g.\ loading of a program, computing
+the program and sending of results, etc, is proportional to the amount of resources allocated to complete the operation.
+A modified version of a resource allocation optimisation model can be formatted by building upon a similar formulation
+in~\cite{FlexibleResourceAllocation}.
 
 A sketch of the whole system is shown in figure~\ref{fig:system_model}.
 The system is assumed to contain a set of $I = \{1,2,\ldots,\left|I\right|\}$ servers that are heterogeneous in all
-characteristics. Each server has a fixed resources capacity: storage for the code/data needed to run a task
+characteristics. Each server has a fixed resource capacity: storage for the code/data needed to run a task
 (e.g., measured in GB), computation capacity in terms of CPU cycles per time interval (e.g., measured in GHz),
 and communication bandwidth to receive the data and to send back the results of the task after execution
 (e.g., measured in Mbit/s). The resources for server $i$ are denoted: $S_i$ for storage capacity, $W_i$ for computation
@@ -30,16 +31,16 @@ $T = \{1,2,\ldots,\left|T\right|\}$.
 \end{wrapfigure}
 
 The system is also assumed to contain a set of $J = \{1,2,\ldots,\left| J \right|\}$ heterogeneous tasks that require
-service from one of the servers in set $I$. To run any of these tasks on a server requires storing the appropriate
-code/data on the same server. This could be, for example, a set of images, videos or convolutional neural network
+services from one of the servers in set $I$. To run any of these tasks on a server requires storing the appropriate
+code/data on the same server. This could be, for example, a set of images, videos or Convolutional neural network
 layers used in identification tasks.\\
 The storage size of task $j$ is denoted as $s_j$ with the rate at which the program is transferred to a server at time
 $t$ being $s^{'}_{j,t}$. For a task to be computed successfully, it must fetch and execute instructions
 on a CPU. We consider the total number of CPU cycles required for the program to be $w_j$, where the number of
 CPU cycles assigned to the task at time $t$ is $w^{'}_{j,t}$. Finally, after the task is run and
-the results obtained, the latter need to be sent back to the user. The size of the results for task $j$ is denoted with
+the results obtained, the latter needs to be sent back to the user. The size of the results for task $j$ is denoted with
 $r_j$, and the rate at which they are sent back to the user is $r^{'}_{j,t}$ on a server at time $t$. \\
-The allocation of task to server is denoted by $x_{i,j}$ for each task $j \in J$ and each server $i \in I$. This is
+The allocation of a task to server is denoted by $x_{i,j}$ for each task $j \in J$ and each server $i \in I$. This is
 constrained by equation~\eqref{eq:server_task_allocation} meaning that a task can only be allocated to a single server
 at any point in time.
 
@@ -48,7 +49,7 @@ at any point in time.
     x_{i,j} \in \{0, 1\} && \forall{i \in I, j \in J} \label{eq:server_task_binary}
 \end{align}
 
-As the task must complete each of the stage in series, an additional variables are required to track the progress of
+As the task must complete each stage in series, additional variables are required to track the progress of
 each task stage. $\hat{s}_{j,t}$ denotes the loading progress of the task, $\hat{w}_{j,t}$ denotes the compute progress
 and $\hat{r}_{j,t}$ denotes the sending progress of the task. Each of these variables are updated recursively depending
 on the progress in the previous time step plus the resources allocated. Progress is also limited to each of the tasks
@@ -65,7 +66,7 @@ and~\eqref{eq:sending_progress_limit}.
 \end{align}
 
 Every task has an auction time, denoted by $a_j$ and a deadline, denoted by $d_j$. This is the time step when the task
-is auctioned and the last time for which the task can be completed successful at. During this time, the time required
+is auctioned and the last time for which the task can be completed successfully. During this time, the time required
 to send the data/code to the server, run it on the server, and get back the results to the user which must occur in
 order. As a server couldn't start computing a task that was already fully loaded on the machine, for example. A
 deadline constraint can simply be constructed such that the sending results progress is finished on the deadline
@@ -75,8 +76,8 @@ time step (equation~\eqref{eq:deadline}).
     \hat{r}_{j, d_j} = r_j && \forall{j \in J} \label{eq:deadline}
 \end{align}
 
-As server have limited capacity, the total resource usages for all tasks running on a server must be capped.
-The storage constraint (equation~\eqref{eq:server_storage_capacity}) is unique it the sum of the loading progress for
+As servers have limited capacity, the total resource usage for all tasks running on a server must be capped.
+The storage constraint (equation~\eqref{eq:server_storage_capacity}) is unique as the sum of the loading progress for
 each task allocated to the server. While the computation capacity (equation~\eqref{eq:server_computation_capacity} is
 the sum of compute resources used by all of the tasks on a server $i$ at time $t$ and the bandwidth capacity
 (equation~\eqref{eq:server_bandwidth_capacity}) being less than the sum of resources used to load and send results back
@@ -90,28 +91,28 @@ by all allocated tasks.
 
 \section{Auctioning of Tasks}\label{sec:auctioning-of-tasks}
 While the mathematically description of the problem presented in the previous section doesn't consider any auctions
-occurring. In real life servers normally wish to be paid to the use of their resources. However due to the modifications
-that this project has to make to the optimisation problems. All of the auction mechanisms discussed in
-section~\ref{sec:resource-allocation-and-auctions-in-cloud-computing} cannot be used. This is true as the user is not
+occurring. In real life servers normally wish to be paid for the use of their resources. However due to the modifications
+that this project has to make to the optimisation problems, all of the auction mechanisms discussed in
+section~\ref{sec:resource-allocation-and-pricing-in-cloud-computing} cannot be used. This is true as the user is not
 requesting a fixed amount of resources nor can the available resources be easily computed as this is dynamic, depending
-on the different stages of tasks allocated to a server. The modification also affect the algorithms presented
+on the different stages of tasks allocated to a server. The modification also affects the algorithms presented
 in~\cite{FlexibleResourceAllocation} as they assume that all of the task stages can occur concurrently. This means that
-a novel or modified auction mechanism must be used to deal with these changes. Due to the complexities of devising new
-auction mechanism and the large corpus of research on auctions already, this project choose to use the Vickrey
+a novel or modified auction mechanism must be used to deal with these changes. Due to the complexities of devising a new
+auction mechanism and the large corpus of research on auctions already, this project chooses to use the Vickrey
 auction~\citep{vickrey}.
 
-But a modification must be made as servers generate the prices for tasks rather than task suggesting a price to servers.
+However a modification must be made due to servers generate the prices for tasks rather than task suggesting a price to servers.
 Because of this, the auction is reversed, such that the bid with the minimum price wins the task instead of the maximum
-price winning. The auction therefore works by allowing all servers to submit their bids for a task with the winner
-being the server with the lowest price, with the task actually pays second lowest price. The reason this auction being
+price. The auction therefore works by allowing all servers to submit their bids for a task with the winner
+being the server with the lowest price, with the task actually paying second lowest price. The reason this auction is
 selected over alternatives is explained in section~\ref{sec:justification-of-auction-mechanisms}.
 
 \section{Proposed Agents}\label{sec:proposed-agents}
-Using the optimisation formulation and auction mechanism from the previous two sections, the problem can modelled as
-Markov Decision Process~\cite{Bel} which allows the environment to be model as figure~\ref{fig:mdp_system_model}.
+Using the optimisation formulation and auction mechanism from the previous two sections, the problem can be modelled as
+Markov Decision Process~\citep{Bel} which allows the environment to be model as figure~\ref{fig:mdp_system_model}.
 This separates out the auction and resource allocation part of the problem with
 separate agents into almost similar environments to act during their respective part of the problem.
-Subsection~\ref{subsec:proposed-auction-agents} and~\ref{subsec:proposed-resource-allocation-agents} proposed agents
+Subsection~\ref{subsec:proposed-auction-agents} and~\ref{subsec:proposed-resource-allocation-agents} proposes agents
 for the auction environment and resource allocation environment respectively.
 
 \begin{figure}
@@ -122,8 +123,8 @@ for the auction environment and resource allocation environment respectively.
 \end{figure}
 
 The environment is believed to possibly be of interest for multi-agent reinforcement learning researchers as the aim
-of the environment is cooperative (to maximise the social welfare) but knowing that servers acts self-interestedly
-during the auctions in order to maximise their private profits. But that the resource allocation agent must work
+of the environment is cooperative (to maximise the social welfare) but knowing that servers can act self-interestedly
+during the auctions in order to maximise their private profits. But the resource allocation agent must work
 cooperatively in allocating of resources for each task as the server wishes to complete as many tasks as they can.
 This author believes that this type of environment is unique within reinforcement learning.
 
@@ -137,15 +138,17 @@ reinforcement learning to untrained heuristics.
 
 As the action space of the agent is continuous, a deep deterministic policy gradient~\citep{ddpg} agent
 will be implemented. The action shape can also be discretized allow deep Q learning agents~\cite{atari} to be trained
-as well. In order to compare alternative learning methods and the affect of discretizing the action space on results.
-To learn, agents will use neural networks as it is known to be able to approximate any
+as well. In order to compare alternative learning methods and the affect of discretizing the action space on results,
+agents will use neural networks as it is known to be able to approximate any
 function~\citep{csaji2001approximation}. Because of this, a long/short term memory~\citep{LSTM} layer will be used as
 it allows for multiple inputs, and outputs are single vector that will have several additional layers to allow
 additional complexity. The network will end at a single ReLU neuron for DDPG or multiple logit activation neurons for
 DQN agents. The justification for this network over other neural network models is explained in
 section~\ref{subsec:justification-for-auction-agent-network-architectures}.
 
-% Todo add image of proposed network
+\begin{wrapfig}
+    % Todo add image of proposed network
+\end{wrapfig}
 
 \subsection{Proposed resource allocation agents}\label{subsec:proposed-resource-allocation-agents}
 When a new task is allocated to the server or a task completes a stage, server resource need to be redistributed
@@ -153,13 +156,18 @@ to the task. As the problem of how to allocation resources isn't as complex as t
 section~\ref{subsec:proposed-auction-agents}, both simple heuristics and reinforcement learning agents will be
 implemented in order to compare effectiveness.
 
-However a similar problem exists to the proposed auction agents (in subsection~\ref{subsec:proposed-auction-agents}) as
-to know how to allocate resources to be single task requires being aware of the resource requirements of other tasks
-that are allocated to the same server. Therefore a similar network is proposed to allow for the other tasks to be
-passed in in order to compare the current task having resources allocated to and the other tasks also allocated to the
-server. A weighting heuristic for the resource allocation is proposed to convert the environment action space from the
-exact task resource usage to a task weighted resource usage. This has the advantage of being a simpler function to
-approximated for agents with a similar expressiveness as an exact resource usage function while avoiding the problem of
-over allocating the resources to tasks.
+However a similar problem exists as with the proposed auction agents (in subsection~\ref{subsec:proposed-auction-agents}).
+Due to knowing how to allocate resources to a single task requires being aware of the resource requirements of other
+tasks and how they are being weighted on the server. Therefore a similar network is proposed to allow for the other tasks
+to be passed into the network at the same time it is weighting a task. This is show in figure~\ref{fig:resource_weighting_network_architecture}
 
-% TODO Add iamge of proposed network
+A weighting heuristic is proposed for the network output as well, such that the network doesn't output the raw
+resources allocated for a task but rather a weighted value for the resources needing to allocated for the task.
+This has the advantage of being a simpler function to approximate for agents but with a similar expressiveness as an
+exact resource usage function. This also avoids the problem of the network either over allocating the resources to tasks
+or severely unallocating resources.
+
+\begin{wrapfig}
+    % TODO Add iamge of proposed network
+\end{wrapfig}
+

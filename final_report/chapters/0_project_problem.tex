@@ -1,14 +1,14 @@
 \chapter{Project problem}\label{ch:project-problem}
-Cloud computing is a rapidly growing technology with competition from Google, Amazon, Microsoft and more that aims to
+Cloud computing is a rapidly growing technology with competition from Google, Amazon, Microsoft and others that aims to
 allow users to run computer programs that are too large, difficult or time consuming for users to run locally.
 These services provide the computational resources, e.g.\ CPU cores, RAM, hard drive space, bandwidth, etc
 to be able to run such programs. However, as these resources are limited, bottlenecks can occur when
 numerous users require large amounts of these resources, limiting the number of tasks
 \footnote{Tasks, Programs and Jobs will be used interchangeable to refer to the same idea of a computer programs that
-has a fixed amount of resources required to compute.} that can be run on the cloud servers simultaneously.
+has a fixed amount of resources required to compute.} that can be run on servers simultaneously.
 
 For Google Cloud Services (GCP), Microsoft Azure or Amazon Web Services, their cloud computing facilities contain huge
-server nodes limiting the probability of such a bottleneck occurs. But if such an event does occur, users
+server nodes limiting the probability that such a bottleneck occurs. But if such an event does occur, users
 have a range of data centres across the global to use if a single data centre does becomes overloaded with requests.
 Therefore this work considers a developing paradigm~\citep{mobile_edge_survey} called mobile edge
 computing~\citep{hu2015mobile} referred to as MEC in this work. MEC aims to provide users the ability to run their
@@ -17,13 +17,13 @@ tasks closer to them reducing latency, network congestion and providing better a
 Currently disaster response~\citep{mobile_edge_disaster}, smart cities~\citep{smart_disaster_management} and the
 internet-of-things~\citep{mobile_edge_IoT} are all areas that utilise MEC due to its ability
 to process computationally small tasks locally with low latency. For example, in smart cities, this
-allows for smart intersection systems using road-side sensors or smart traffic lights, that based
+allows for smart intersection systems using road-side sensors or smart traffic lights, that are based
 on cameras works to minimise cars waiting times at traffic lights~\citep{smart_cities_traffic_lights}. Or for the
-police to analysis CCTV footage to spot suspicious behaviour or to track people between cameras~\citep{Sreenu2019}.
+police to analyse CCTV footage to spot suspicious behaviour or to track people between cameras~\citep{Sreenu2019}.
 In the case of disaster response, maps can be produced using data from autonomous vehicles' sensors that can then be
 used in the search for potential victims and support responders in planning rescues~\citep{smart_disaster_management}.
 
-However the problem of bottlenecking is of particular relevant to mobile edge computing. As instead of large server
+However the problem of bottlenecks is of particular relevant to mobile edge computing. As instead of large server
 farms that can be geographically distant from the users, servers are significantly smaller, possibly
 just high powered desktop computers or single server nodes. This results in greater demand on individual server
 resources, meaning that efficient allocation of these resources is of growing importance as the technology continues to
@@ -31,12 +31,12 @@ grow.
 
 However it is believed that there are shortcomings in existing research about resource allocation within
 MEC~\citep{vaji_infocom, Bi2019} due to the nature of how task resource usage is determined. Traditionally,
-a user would submit a request for a fixed amount of resources, i.e.\ 2 CPU cores, 8GB of ram, 20GB of storage, that
+a user would submit a request for a fixed amount of resources, i.e.\ 2 CPU cores, 8GB of RAM, 20GB of storage, that
 would be allocated for the user. As a result, these resources can't be redistributed until the user finishes with them.
 The reason that this form of resource allocation is used and effective within cloud computing is due to its simplicity
-for the user to decide resource requirements, utilisation of simple linear pricing mechanisms and that server have large
-resource capacity making bottlenecks rare. However it is believed that the problem of bottlenecks within MEC systems,
-warrant investigation of alternative resource allocation mechanism.
+for the user to decide resource requirements, utilisation of simple linear pricing mechanisms and it is rare for servers
+with large resource capacity to have bottlenecks. However it is believed that the problem of bottlenecks within MEC systems,
+warrant the investigation of an alternative resource allocation mechanism.
 
 In previous work by this author~\citep{FlexibleResourceAllocation} a novel resource allocation mechanism was
 proposed to allow for significantly more flexibility in determining resource usage with the aims of reducing possible
@@ -48,35 +48,35 @@ tasks. Therefore in this work consider the case for algorithms that can be scala
 non-scalable tasks to future work.}
 or sending results back to the user. Based on this principle, a modified resource allocation mechanism can be
 reconstructed such that the users provide the task's total resource usage over its lifetime instead of the requested
-resource usage. As a result, a task's resource usage is determined by the server rather than the user increasing the
-flexibility that server control. Using this flexible resource allocation mechanism, algorithms proposed achieved 20\%
+resource usage. As a result, a task's resource usage is determined by the server rather than the user increasing a
+server's flexibility. Using this flexible resource allocation mechanism, algorithms proposed achieved 20\%
 better than fixed resource allocation mechanisms in one-shot cases investigated by~\cite{FlexibleResourceAllocation}.
-This is due to the ability to proper balance resources, preventing bottlenecks occurring as often, which in turn allowed
+This is due to the ability to properly balance resources, preventing bottlenecks occurring as often, which in turn allowed
 more tasks to run simultaneously and to reduce the price for users.
 
-But this work only considered the proposed mechanism within a static or one-shot case where all tasks were presented
+Moreover this work only considered the proposed mechanism within a static or one-shot case where all tasks were presented
 at the first time step, where tasks would be auctioned and resource allocated. As a result, practically the proposed
 algorithms would require tasks to be processed in batches such that servers would bid on all tasks submitted every 5
-minutes for example. This also meant that while resource could dynamically allocation at the first time step, they
-would not be changed during the next batches till the task was completed. This work aims to address this problem.
+minutes for example. This also means that while resources could dynamically allocated at the first time step, they
+would not be changed during the next batches until the task was completed. This work aims to address this problem.
 
-This was done by introducing time into the optimisation problem (outlined in section~\ref{sec:optimisation-problem})
-to allow tasks to arrive over time. However, as a result, all previous mechanisms proposed
-in~\cite{FlexibleResourceAllocation} are incompatible with this modified flexible optimisation problem. Therefore this
-work investigates reinforcement learning methods that train agents to efficiently bid on tasks based on their resource
-requirements and to efficiently allocate resources to tasks running on a server.
+This was achieved by introducing time into the optimisation problem (outlined in section~\ref{sec:optimisation-problem}).
+As a result, task can now arrive over time and for servers to redistribute resources at each time step. However, all
+previous mechanisms proposed in~\cite{FlexibleResourceAllocation} are incompatible with this modified flexible
+optimisation problem. Therefore this work investigates reinforcement learning methods that train agents to optimally
+bid on tasks based on their resource requirements and efficiently allocate resources to tasks running on a server.
 
 This report is set out in the following chapters. Chapter~\ref{ch:literature-review} investigates previous research
 that this project builds upon within both resource allocation in cloud computing and reinforcement learning.
-Chapter~\ref{ch:proposed-solution} proposed a solution to the problem outline in this chapter.
-With chapter~\ref{ch:justification-of-the-solution} justifying why this approach as chosen over alternative solutions.
+Chapter~\ref{ch:proposed-solution} proposes a solution to the problem outline in Chapter~\ref{ch:project-problem}.
+Chapter~\ref{ch:justification-of-the-solution} justifies why this approach is chosen over alternative solutions.
 The proposed solution is then implemented in chapter~\ref{ch:implementation-of-the-solution} with testing and
 evaluation in chapters~\ref{ch:testing-of-the-implementation} and~\ref{ch:evaluation-of-the-solution} respectively.
-Chapter~\ref{ch:conclusion-and-future-work} presents a conclusion along with possible future work on the project.
+Chapter~\ref{ch:conclusion-and-future-work} presents the conclusion along with possible future work on the project.
 
 In addition to this report, the paper referred to as~\cite{FlexibleResourceAllocation} was completed within this
-academic year and thus consider part of this project's work. A copy of the paper can be found in
-appendix~\ref{app:aamas_paper}. In addition to this paper, the work was also presented at SPIE Defense and Commercial
+academic year and thus considered part of this project's work. A copy of the paper can be found in
+Appendix~\ref{app:aamas_paper}. In addition to this paper, the work was also presented at SPIE Defense and Commercial
 Sensing 2020 as a recorded digital presentation. A copy of the slides can be found in
-appendix~\ref{app:spie_presentation} with link to the recording.
+Appendix~\ref{app:spie_presentation} with a link to the recording.
 
