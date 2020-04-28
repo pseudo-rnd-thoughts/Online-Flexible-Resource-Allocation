@@ -14,7 +14,7 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 def test_epsilon_policy():
     print()
     # Tests the epsilon policy by getting agent actions that should update the agent epsilon over time
-    env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/basic.env')
+    env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/actions.env')
 
     pricing_agents = [
         TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5)),

@@ -57,15 +57,12 @@ def test_train_agents():
     env = OnlineFlexibleResourceAllocationEnv('training/settings/basic.env')
 
     pricing_agents = [
-        TaskPricingDqnAgent(0, create_bidirectional_dqn_network(9, 5), batch_size=16, initial_training_replay_size=16),
-        TaskPricingDdpgAgent(1, create_lstm_actor_network(9), create_lstm_critic_network(9), batch_size=16,
-                             initial_training_replay_size=16)
+        TaskPricingDqnAgent(0, create_bidirectional_dqn_network(9, 5), batch_size=16, initial_training_replay_size=16,
+                            training_freq=100),
     ]
     weighting_agents = [
         ResourceWeightingDqnAgent(2, create_bidirectional_dqn_network(16, 5), batch_size=16,
-                                  initial_training_replay_size=16),
-        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16), batch_size=16,
-                                   initial_training_replay_size=16)
+                                  initial_training_replay_size=16, training_freq=100)
     ]
 
     for _ in range(2):
