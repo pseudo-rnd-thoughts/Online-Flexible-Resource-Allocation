@@ -68,7 +68,8 @@ def test_train_agents():
                                    initial_training_replay_size=16)
     ]
 
-    train_agent(env, pricing_agents, weighting_agents)
+    for _ in range(2):
+        train_agent(env, pricing_agents, weighting_agents)
 
     # noinspection PyTypeChecker
     agents: List[ReinforcementLearningAgent] = pricing_agents + weighting_agents

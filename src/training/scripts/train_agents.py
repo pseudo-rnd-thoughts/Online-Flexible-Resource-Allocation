@@ -178,7 +178,7 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
                         print(f'Finished task: {str(finished_task)}\n\n')
                         print(f'State: {str(state)}\n')
                         print(f'Next state: {str(next_state)}')
-                    assert successful_auction is not None
+                        break
 
                     # Remove the successful auction agent state
                     successful_auction_states.remove(successful_auction)
@@ -255,7 +255,7 @@ def generate_eval_envs(eval_env: OnlineFlexibleResourceAllocationEnv, num_evals:
     return eval_files
 
 
-def setup_tensorboard(folder: str, training_name: str) -> ResourceSummaryWriter:
+def setup_tensorboard(folder: str, training_name: str) -> Tuple[ResourceSummaryWriter, str]:
     """
     Setups the tensorboard for the training and evaluation results
 
@@ -264,4 +264,4 @@ def setup_tensorboard(folder: str, training_name: str) -> ResourceSummaryWriter:
         training_name: Name of the training script
     """
     datetime = dt.datetime.now().strftime("%m-%d_%H-%M-%S")
-    return tf.summary.create_file_writer(f'{folder}/{training_name}_{datetime}')
+    return tf.summary.create_file_writer(f'{folder}/{training_name}_{datetime}'), datetime

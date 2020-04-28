@@ -135,7 +135,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
     Task Pricing DQN agent
     """
 
-    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=50000, **kwargs):
+    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=80000, **kwargs):
         assert network.input_shape[-1] == self.network_obs_width
 
         DqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
@@ -161,7 +161,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
     Resource weighting DQN agent
     """
 
-    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=30000, **kwargs):
+    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=40000, **kwargs):
         assert network.input_shape[-1] == self.network_obs_width
 
         DqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
@@ -367,7 +367,7 @@ class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
                 return float(rnd.randint(0, self.num_actions - 1))
 
         observation = tf.expand_dims(self._network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
-        q_values = tf.reduce_sum(self.support * self.model_network(observation), axis=-1)
+        q_values = tf.reduce_sum(self.support * self.model_network(observation), axis=1)
         action = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
         return action
 
@@ -390,7 +390,7 @@ class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightin
                     actions[task] = float(rnd.randint(0, self.num_actions - 1))
                 else:
                     observation = tf.expand_dims(self._network_obs(task, tasks, server, time_step), axis=0)
-                    q_values = tf.reduce_sum(self.support * self.model_network(observation), axis=-1)
+                    q_values = tf.reduce_sum(self.support * self.model_network(observation), axis=1)
                     actions[task] = float(tf.math.argmax(q_values, axis=1, output_type=tf.int32))
             return actions
         else:

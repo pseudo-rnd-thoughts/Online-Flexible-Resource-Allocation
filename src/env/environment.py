@@ -303,7 +303,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
         with open(filename) as file:
             json_data = json.load(file)
 
-            name: str = json_data['env name']
+            name: str = json_data['name']
             time_step: int = json_data['time step']
             total_time_steps: int = json_data['total time steps']
 

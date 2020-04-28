@@ -13,17 +13,24 @@ if __name__ == "__main__":
     gin.parse_config_file('./training/settings/standard_config.gin')
 
     folder = 'dueling_multi_agents'
-    writer = setup_tensorboard('training/results/logs/', folder)
+    writer, datetime = setup_tensorboard('training/results/logs/', folder)
 
-    env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
-    eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/{folder}/')
+    save_folder = f'{folder}_{datetime}'
+
+    env = OnlineFlexibleResourceAllocationEnv([
+        './training/settings/basic.env',
+        './training/settings/large_tasks_servers.env',
+        './training/settings/limited_resources.env',
+        './training/settings/mixture_tasks_servers.env'
+    ])
+    eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/policy_training/')
 
     task_pricing_agents = [
-        TaskPricingDuelingDqnAgent(agent_num, create_lstm_dueling_dqn_network(9, 10), save_folder=folder)
+        TaskPricingDuelingDqnAgent(agent_num, create_lstm_dueling_dqn_network(9, 21), save_folder=save_folder)
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDuelingDqnAgent(0, create_lstm_dueling_dqn_network(16, 10), save_folder=folder)
+        ResourceWeightingDuelingDqnAgent(0, create_lstm_dueling_dqn_network(16, 11), save_folder=save_folder)
     ]
 
     with writer.as_default():

@@ -25,7 +25,7 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
                  actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0001),
                  critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0005),
-                 initial_epsilon_std: float = 0.8, final_epsilon_std: float = 0.05, epsilon_steps: int = 20000,
+                 initial_epsilon_std: float = 2.5, final_epsilon_std: float = 0.5, epsilon_steps: int = 20000,
                  epsilon_update_frequency: int = 100, min_value: float = -15.0, max_value: float = 15.0,
                  target_update_tau: float = 0.01, actor_target_update_frequency: int = 1,
                  critic_target_update_frequency: int = 1, upper_action_bound: float = 30.0, **kwargs):
@@ -136,7 +136,7 @@ class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
         DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value,
-                           epsilon_steps=50000, **kwargs)
+                           epsilon_steps=80000, **kwargs)
         name = f'Task pricing Ddpg agent {agent_name}' if type(agent_name) is int else agent_name
         TaskPricingRLAgent.__init__(self, name, **kwargs)
 
@@ -156,11 +156,11 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
     """
 
     def __init__(self, agent_name: Union[int, str], actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 min_value: float = -20, max_value: float = 15, **kwargs):
+                 min_value: float = -35, max_value: float = 25, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
         DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value,
-                           epsilon_steps=30000, **kwargs)
+                           epsilon_steps=40000, **kwargs)
         name = f'Resource weighting Ddpg agent {agent_name}' if type(agent_name) is int else agent_name
         ResourceWeightingRLAgent.__init__(self, name, **kwargs)
 

@@ -15,19 +15,24 @@ if __name__ == "__main__":
 
     # Setup tensorboard
     folder = 'bidirectional_agents'
-    writer = setup_tensorboard('training/results/logs/', folder)
+    writer, datetime = setup_tensorboard('training/results/logs/', folder)
 
-    # Load the environment
-    env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
-    eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/{folder}/')
+    save_folder = f'{folder}_{datetime}'
 
-    # Setup the pricing agents
+    env = OnlineFlexibleResourceAllocationEnv([
+        './training/settings/basic.env',
+        './training/settings/large_tasks_servers.env',
+        './training/settings/limited_resources.env',
+        './training/settings/mixture_tasks_servers.env'
+    ])
+    eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/policy_training/')
+
     task_pricing_agents = [
-        TaskPricingDqnAgent(agent_num, create_bidirectional_dqn_network(9, 10), save_folder=folder)
+        TaskPricingDqnAgent(agent_num, create_bidirectional_dqn_network(9, 21), save_folder=save_folder)
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDqnAgent(0, create_bidirectional_dqn_network(16, 10), save_folder=folder)
+        ResourceWeightingDqnAgent(0, create_bidirectional_dqn_network(16, 11), save_folder=save_folder)
     ]
 
     # Train the agents

@@ -14,19 +14,26 @@ if __name__ == "__main__":
     gin.parse_config_file('./training/settings/standard_config.gin')
 
     folder = 'td3_agent'
-    writer = setup_tensorboard('training/results/logs/', folder)
+    writer, datetime = setup_tensorboard('training/results/logs/', folder)
 
-    env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
-    eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/{folder}/')
+    save_folder = f'{folder}_{datetime}'
+
+    env = OnlineFlexibleResourceAllocationEnv([
+        './training/settings/basic.env',
+        './training/settings/large_tasks_servers.env',
+        './training/settings/limited_resources.env',
+        './training/settings/mixture_tasks_servers.env'
+    ])
+    eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/policy_training/')
 
     task_pricing_agents = [
         TaskPricingTD3Agent(agent_num, create_lstm_actor_network(9), create_lstm_critic_network(9), create_lstm_critic_network(9),
-                            save_folder=folder)
+                            save_folder=save_folder)
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
         ResourceWeightingTD3Agent(0, create_lstm_actor_network(16), create_lstm_critic_network(16),
-                                  create_lstm_critic_network(16), save_folder=folder)
+                                  create_lstm_critic_network(16), save_folder=save_folder)
     ]
 
     with writer.as_default():

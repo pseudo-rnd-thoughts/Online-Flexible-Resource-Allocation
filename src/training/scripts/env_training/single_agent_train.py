@@ -13,20 +13,27 @@ if __name__ == "__main__":
     gin.parse_config_file('./training/settings/standard_config.gin')
 
     folder = 'single_agents_single_env'
-    writer = setup_tensorboard('training/results/logs/', folder)
+    writer, datetime = setup_tensorboard('training/results/logs/', folder)
 
-    env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
-    eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/{folder}/')
+    save_folder = f'{folder}_{datetime}'
+
+    env = OnlineFlexibleResourceAllocationEnv([
+        './training/settings/basic.env',
+        './training/settings/large_tasks_servers.env',
+        './training/settings/limited_resources.env',
+        './training/settings/mixture_tasks_servers.env'
+    ])
+    eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/env_training/')
 
     task_pricing_agents = [
-        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 21), save_folder=folder)
+        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 21), save_folder=save_folder)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 10), save_folder=folder)
+        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 10), save_folder=save_folder)
     ]
 
     with writer.as_default():
-        run_training(env, eval_envs, 450, task_pricing_agents, resource_weighting_agents, 5)
+        run_training(env, eval_envs, 550, task_pricing_agents, resource_weighting_agents, 5)
 
     for agent in task_pricing_agents:
         agent.save()
