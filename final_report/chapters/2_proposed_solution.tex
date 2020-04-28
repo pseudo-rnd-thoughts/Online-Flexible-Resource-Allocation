@@ -143,12 +143,15 @@ agents will use neural networks as it is known to be able to approximate any
 function~\citep{csaji2001approximation}. Because of this, a long/short term memory~\citep{LSTM} layer will be used as
 it allows for multiple inputs, and outputs are single vector that will have several additional layers to allow
 additional complexity. The network will end at a single ReLU neuron for DDPG or multiple logit activation neurons for
-DQN agents. The justification for this network over other neural network models is explained in
-section~\ref{subsec:justification-for-auction-agent-network-architectures}.
+DQN agents as shown in Figure~\ref{fig:task_pricing_network_architecture}. The justification for this network over
+other neural network models is explained in section~\ref{subsec:justification-for-auction-agent-network-architectures}.
 
-\begin{wrapfig}
-    % Todo add image of proposed network
-\end{wrapfig}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/task_pricing_network_architecture.png}
+    \caption{Task pricing network architecture}
+    \label{fig:task_pricing_network_architecture}
+\end{figure}
 
 \subsection{Proposed resource allocation agents}\label{subsec:proposed-resource-allocation-agents}
 When a new task is allocated to the server or a task completes a stage, server resource need to be redistributed
@@ -159,15 +162,20 @@ implemented in order to compare effectiveness.
 However a similar problem exists as with the proposed auction agents (in subsection~\ref{subsec:proposed-auction-agents}).
 Due to knowing how to allocate resources to a single task requires being aware of the resource requirements of other
 tasks and how they are being weighted on the server. Therefore a similar network is proposed to allow for the other tasks
-to be passed into the network at the same time it is weighting a task. This is show in figure~\ref{fig:resource_weighting_network_architecture}
+to be passed into the network at the same time it is weighting a task. This is shown in
+figure~\ref{fig:resource_weighting_network_architecture}
 
 A weighting heuristic is proposed for the network output as well, such that the network doesn't output the raw
 resources allocated for a task but rather a weighted value for the resources needing to allocated for the task.
 This has the advantage of being a simpler function to approximate for agents but with a similar expressiveness as an
 exact resource usage function. This also avoids the problem of the network either over allocating the resources to tasks
-or severely unallocating resources.
+or severely under allocating resources.
 
-\begin{wrapfig}
-    % TODO Add iamge of proposed network
-\end{wrapfig}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{figures/resource_weighting_network_architecture.png}
+    \caption{Resource weighting network architecture}
+    \label{fig:resource_weighting_network_architecture}
+\end{figure}
+
 
