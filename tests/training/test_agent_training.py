@@ -28,7 +28,7 @@ def test_task_price_training():
         TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
         TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
         TaskPricingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
-        # TaskPricingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
+        TaskPricingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
         TaskPricingDdpgAgent(4, create_lstm_actor_network(9), create_lstm_critic_network(9), batch_size=2,
                              save_folder='tmp'),
         TaskPricingTD3Agent(5, create_lstm_actor_network(9), create_lstm_critic_network(9),

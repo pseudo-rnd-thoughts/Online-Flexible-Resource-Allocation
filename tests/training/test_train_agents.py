@@ -87,5 +87,5 @@ def test_train_rnd_agents():
     pricing_agents = [RandomTaskPricingRLAgent(0)]
     weighting_agents = [RandomResourceWeightingRLAgent(0)]
 
-    for _ in range(100):
+    for _ in range(10):
         train_agent(env, pricing_agents, weighting_agents)

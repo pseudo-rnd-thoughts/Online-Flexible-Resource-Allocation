@@ -284,13 +284,13 @@ class CategoricalDqnAgent(DqnAgent, ABC):
 
     def __init__(self, network: tf.keras.Model, max_value: float = -20.0, min_value: float = 25.0,
                  **kwargs):
-        DqnAgent.__init__(self, network, **kwargs)
+        DqnAgent.__init__(self, network, error_loss_fn=tf.keras.losses.CategoricalCrossentropy(), **kwargs)
 
         self.v_min = min_value
         self.v_max = max_value
         self.num_atoms: int = network.output_shape[2]
         self.delta_z = (max_value - min_value) / self.num_atoms
-        self.support = tf.range(min_value, max_value, self.delta_z, dtype=tf.float32)
+        self.z_values = tf.range(min_value, max_value, self.delta_z, dtype=tf.float32)
 
     def _train(self, states: tf.Tensor, actions: tf.Tensor, next_states: tf.Tensor, rewards: tf.Tensor,
                dones: tf.Tensor) -> float:
@@ -302,42 +302,28 @@ class CategoricalDqnAgent(DqnAgent, ABC):
         with tf.GradientTape() as tape:
             tape.watch(network_variables)
 
-            # q_logits contains the Q-value logits for all actions.
-            q_logits = self.model_network(states)
-            action_indexes = tf.stack([tf.range(self.batch_size), actions], axis=-1)
-            chosen_action_logits = tf.gather_nd(q_logits, action_indexes)
+            q_distribution = self.model_network(states)
+            action_indexes = tf.stack([tf.range(self.batch_size), actions], axis=1)
+            action_q_distribution = tf.gather_nd(q_distribution, action_indexes)
 
-            # Next q_logits
-            next_target_logits = self.target_network(next_states)
-            next_target_q_values = tf.reduce_sum(self.support * next_target_logits, axis=-1)
+            # Next distribution
+            next_target_distribution = self.target_network(next_states)
+            next_target_q_values = tf.reduce_sum(next_target_distribution * self.z_values, axis=-1)
             next_actions = tf.math.argmax(next_target_q_values, axis=1, output_type=tf.int32)
             next_action_indexes = tf.stack([tf.range(self.batch_size), next_actions], axis=-1)
-            next_q_distribution = tf.gather_nd(next_target_logits, next_action_indexes)
+            next_distribution = tf.gather_nd(next_target_distribution, next_action_indexes)
 
-            # Project the sample Bellman update \hat{T}Z_{\theta} onto the original
-            # support of Z_{\theta} (see Figure 1 in paper).
-            tiled_support = tf.ones((self.batch_size, self.num_atoms)) * self.support
+            # Bellman update
+            target_q_value = tf.transpose([rewards]) + self.discount_factor * dones * self.z_values * tf.ones((self.batch_size, self.num_atoms))
+            clipped_q_value = tf.clip_by_value(target_q_value, self.v_min, self.v_max)
+            expanded_q_value = tf.reshape(tf.tile(clipped_q_value, [1, 1, self.num_atoms]),
+                                          [self.batch_size, self.num_atoms, self.num_atoms])
+            quotient = tf.clip_by_value(1 - tf.abs(expanded_q_value - tf.transpose([self.z_values])) / self.delta_z, 0, 1)
+            expanded_next_distribution = tf.reshape(tf.tile(next_distribution, [1, self.num_atoms]),
+                                                    [self.batch_size, self.num_atoms, self.num_atoms])
+            target_distribution = tf.stop_gradient(tf.reduce_sum(quotient * expanded_next_distribution, axis=2))
 
-            target_support = rewards + self.discount_factor * tiled_support * dones
-
-            # clipped_support = `[\hat{T}_{z_j}]^{V_max}_{V_min}` in Eq7.
-            clipped_support = tf.expand_dims(tf.clip_by_value(target_support, self.v_min, self.v_max), axis=1)
-            tiled_support = tf.tile([clipped_support], [1, 1, self.num_atoms, 1])
-            reshaped_target_support = tf.reshape(tf.ones([self.batch_size, 1]) * self.support,
-                                                 [self.batch_size, self.num_atoms, 1])
-            # numerator = `|clipped_support - z_i|` in Eq7.
-            numerator = tf.abs(tiled_support - reshaped_target_support)
-            quotient = 1 - (numerator / self.delta_z)
-            clipped_quotient = tf.clip_by_value(quotient, 0, 1)
-
-            # inner_prod = `\sum_{j=0}^{N-1} clipped_quotient * p_j(x', \pi(x'))`
-            inner_prod = clipped_quotient * tf.expand_dims(next_q_distribution, axis=1)
-            projection = tf.reduce_sum(inner_prod, 3)[0]
-
-            # Target distribution
-            target_distribution = tf.stop_gradient(projection)
-
-            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(target_distribution, chosen_action_logits))
+            loss = self.error_loss_fn(target_distribution, action_q_distribution)
             if self.model_network.losses:
                 loss += tf.reduce_mean(self.model_network.losses)
 
