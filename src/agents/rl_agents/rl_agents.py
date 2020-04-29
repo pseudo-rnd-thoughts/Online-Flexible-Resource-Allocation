@@ -47,7 +47,7 @@ class ReinforcementLearningAgent(ABC):
 
     def __init__(self, batch_size: int = 32, error_loss_fn=tf.compat.v1.losses.huber_loss,
                  initial_training_replay_size: int = 5000, training_freq: int = 2, discount_factor: float = 0.9,
-                 replay_buffer_length: int = 25000, save_frequency: int = 25000, save_folder: str = 'checkpoint',
+                 replay_buffer_length: int = 40000, save_frequency: int = 25000, save_folder: str = 'checkpoint',
                  training_loss_log_freq: int = 250, reward_scaling: float = 1, **kwargs):
         """
         Constructor that is generalised for the deep q networks and policy gradient agents
@@ -252,7 +252,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         obs = self._network_obs(agent_state.auction_task, agent_state.tasks, agent_state.server, agent_state.time_step)
         next_obs = self._network_obs(next_agent_state.auction_task, next_agent_state.tasks,
                                      next_agent_state.server, next_agent_state.time_step)
-        self._add_trajectory(obs, action, next_obs, self.failed_auction_reward if action == 0 else 0)
+        self._add_trajectory(obs, action, next_obs, 0 if action == 0 else self.failed_auction_reward)
 
 
 @gin.configurable

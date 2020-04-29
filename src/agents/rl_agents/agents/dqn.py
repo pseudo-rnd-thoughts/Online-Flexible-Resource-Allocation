@@ -135,7 +135,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
     Task Pricing DQN agent
     """
 
-    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=80000, **kwargs):
+    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=140000, **kwargs):
         assert network.input_shape[-1] == self.network_obs_width
 
         DqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
@@ -161,7 +161,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
     Resource weighting DQN agent
     """
 
-    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=40000, **kwargs):
+    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=100000, **kwargs):
         assert network.input_shape[-1] == self.network_obs_width
 
         DqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
