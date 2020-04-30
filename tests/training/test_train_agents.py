@@ -12,7 +12,7 @@ from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_net
 from agents.rl_agents.neural_networks.dqn_networks import create_bidirectional_dqn_network
 from agents.rl_agents.rl_agents import ReinforcementLearningAgent
 from env.environment import OnlineFlexibleResourceAllocationEnv
-from training.scripts.train_agents import generate_eval_envs, eval_agent, train_agent, setup_tensorboard
+from training.train_agents import generate_eval_envs, eval_agent, train_agent, setup_tensorboard
 
 
 def test_agent_evaluation():

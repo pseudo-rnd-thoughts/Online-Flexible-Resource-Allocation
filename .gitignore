@@ -5,7 +5,7 @@
 *.pyc
 
 # Agent training results and evaluation environments
-src/training/results/
+src/training/old_results/
 
 # Additional Latex files
 /final_report/chapters/*.aux

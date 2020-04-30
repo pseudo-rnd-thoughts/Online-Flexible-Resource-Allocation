@@ -16,12 +16,12 @@ from agents.rl_agents.rl_agents import ResourceWeightingRLAgent, TaskPricingStat
     ResourceAllocationState
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from env.task_stage import TaskStage
-from training.scripts.train_agents import setup_tensorboard
+from training.train_agents import setup_tensorboard
 
 
 def test_task_price_training():
     print()
-    setup_tensorboard('training/results/results/tmp/', 'price_training')
+    setup_tensorboard('training/tmp/results/', 'price_training')
 
     # List of agents
     agents: List[TaskPricingRLAgent] = [
@@ -70,7 +70,7 @@ def test_task_price_training():
 
 def test_resource_allocation_training():
     print()
-    setup_tensorboard('training/results/results/tmp/', 'resource_allocation_training')
+    setup_tensorboard('training/tmp/results/', 'resource_allocation_training')
 
     # List of agents
     agents: List[ResourceWeightingRLAgent] = [
