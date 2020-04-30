@@ -12,7 +12,7 @@ range of metrics
 
 %% Env training legend
 \begin{wrapfigure}{l}{0.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{figures/env_training_fig/env_training_legend.png}
+    \includegraphics[width=0.5\textwidth]{figures/env_training_fig/legend.png}
     \caption{Environment training legend}
     \label{fig:env-training-legend}
 \end{wrapfigure}
@@ -20,76 +20,83 @@ range of metrics
 %% Training evaluation
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/env_training_fig/num_completed_tasks.svg}
+    \includegraphics[width=15cm]{figures/env_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:env_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/env_training_fig/num_failed_tasks.svg}
-    \caption{Number of completed tasks}
+    \includegraphics[width=15cm]{figures/env_training_fig/num_failed_tasks.png}
+    \caption{Number of failed tasks}
     \label{fig:env_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/env_training_fig/percent_tasks.svg}
-    \caption{Number of completed tasks}
+    \includegraphics[width=15cm]{figures/env_training_fig/percent_tasks.png}
+    \caption{Percent of tasks attempted}
     \label{fig:env_percent_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/env_training_fig/total_prices.svg}
-    \caption{Number of completed tasks}
+    \includegraphics[width=15cm]{figures/env_training_fig/total_prices.png}
+    \caption{Total prices}
     \label{fig:env_total_prices}
 \end{figure}
 
-%% Auction prices and resource weightings histograms
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \includegraphics[width=15cm]{figures/env_training_fig/total_winning_prices.PNG}
+    \caption{Winning prices}
+    \label{fig:env_winning_prices}
+\end{figure}
+
+%% Auction prices and resource weightings histograms
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/env_training_fig/multi_agent_single_env_auction_price.png}
+        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/multi_agent_single_env_auction_price.png}
         \caption{Multi agent single environment auction prices}
         \label{fig:multi_agent_single_env_auction_prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/env_training_fig/multi_agents_single_env_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/multi_agents_single_env_weightings.png}
         \caption{Multiple agent single environment resource weightings}
         \label{fig:multi_agent_single_env_weightings}
     \end{minipage}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/env_training_fig/multi_agents_multi_envs_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/multi_agents_multi_envs_auction_prices.png}
         \caption{Multi agent multi environment auction prices}
         \label{fig:multi_agent_multi_env_auction_prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/env_training_fig/multi_agents_multi_envs_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/multi_agents_multi_envs_weightings.png}
         \caption{Multiple agent multi environment resource weightings}
         \label{fig:multi_agent_multi_env_weightings}
     \end{minipage}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/env_training_fig/single_agent_single_env_auction_price.png}
+        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/single_agent_single_env_auction_price.png}
         \caption{Single agent single environment auction prices}
         \label{fig:single_agent_single_env_auction_prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/env_training_fig/single_agent_single_env_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/single_agent_single_env_weightings.png}
         \caption{Multiple agent multi environment resource weightings}
         \label{fig:single_agent_single_env_resource_weightings}
     \end{minipage}
@@ -101,7 +108,7 @@ range of metrics
 %% Compare between agents
 %% Env training legend
 \begin{wrapfigure}{l}{0.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{figures/env_training_fig/env_training_legend.png}
+    \includegraphics[width=0.5\textwidth]{figures/env_training_fig/legend.PNG}
     \caption{Environment training legend}
     \label{fig:algo-training-legend}
 \end{wrapfigure}
@@ -109,75 +116,82 @@ range of metrics
 %% Training evaluation
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/algo_training_fig/num_completed_tasks.svg}
+    \includegraphics[width=15cm]{figures/algo_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
-    \label{fig:algo-num-completed-tasks}
+    \label{fig:algo_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/algo_training_fig/num_failed_tasks.svg}
-    \caption{Number of completed tasks}
-    \label{fig:algo-num-failed-tasks}
+    \includegraphics[width=15cm]{figures/algo_training_fig/num_failed_tasks.png}
+    \caption{Number of failed tasks}
+    \label{fig:algo_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/algo_training_fig/percent_tasks.svg}
-    \caption{Number of completed tasks}
-    \label{fig:algo-percent-tasks}
+    \includegraphics[width=15cm]{figures/algo_training_fig/percent_tasks.png}
+    \caption{Percent of tasks attempted}
+    \label{fig:algo_percent_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/algo_training_fig/total_prices.svg}
-    \caption{Number of completed tasks}
-    \label{fig:algo-total-prices}
+    \includegraphics[width=15cm]{figures/algo_training_fig/total_prices.png}
+    \caption{Total prices}
+    \label{fig:algo_total_prices}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \includegraphics[width=15cm]{figures/algo_training_fig/total_winning_prices.PNG}
+    \caption{Winning prices}
+    \label{fig:algo_winning_prices}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/algo_training_fig/dqn_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/dqn_auction_prices.png}
         \caption{Deep Q Network auction prices}
         \label{fig:dqn-auction-prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/algo_training_fig/dqn_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/dqn_weightings.png}
         \caption{Deep Q Network resource weightings}
         \label{fig:dqn-resource-weightings}
     \end{minipage}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/algo_training_fig/ddqn_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/ddqn_auction_prices.png}
         \caption{Double Deep Q Network auction prices}
         \label{fig:ddqn-auction-prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/algo_training_fig/ddqn_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/ddqn_weightings.png}
         \caption{Double Deep Q Network resource weightings}
         \label{fig:ddqn-resource-weightings}
     \end{minipage}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/algo_training_fig/dueling_dqn_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/dueling_dqn_auction_prices.png}
         \caption{Dueling Deep Q Network auction prices}
         \label{fig:dueling-dqn-auction-prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/algo_training_fig/dueling_dqn_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/dueling_dqn_weightings.png}
         \caption{Dueling Deep Q Network resource weightings}
         \label{fig:dueling-dqn-resource-weightings}
     \end{minipage}
@@ -187,7 +201,7 @@ range of metrics
 %% Compare architectures
 
 \begin{wrapfigure}{l}{0.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{figures/net_arch_training_fig/network_architecture_legend.png}
+    \includegraphics[width=0.5\textwidth]{figures/net_arch_training_fig/legend.png}
     \caption{Environment training legend}
     \label{fig:net-arch-training-legend}
 \end{wrapfigure}
@@ -195,91 +209,91 @@ range of metrics
 %% Training evaluation
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/net_arch_training_fig/num_completed_tasks.svg}
+    \includegraphics[width=15cm]{figures/net_arch_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
-    \label{fig:net-arch-num-completed-tasks}
+    \label{fig:net_arch_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/net_arch_training_fig/num_failed_tasks.svg}
-    \caption{Number of completed tasks}
-    \label{fig:net-arch-num-failed-tasks}
+    \includegraphics[width=15cm]{figures/net_arch_training_fig/num_failed_tasks.png}
+    \caption{Number of failed tasks}
+    \label{fig:net_arch_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/algo_training_fig/percent_tasks.svg}
-    \caption{Number of completed tasks}
-    \label{fig:net-arch-percent-tasks}
+    \includegraphics[width=15cm]{figures/net_arch_training_fig/percent_tasks.png}
+    \caption{Percent of tasks attempted}
+    \label{fig:net_arch_percent_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includesvg[width=10cm]{figures/net_arch_training_fig/total_prices.svg}
-    \caption{Number of completed tasks}
-    \label{fig:net-arch-total-prices}
+    \includegraphics[width=15cm]{figures/net_arch_training_fig/total_prices.png}
+    \caption{Total prices}
+    \label{fig:net_arch_total_prices}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/net_arch_training_fig/rnn_architecture_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/rnn_architecture_auction_prices.png}
         \caption{Rnn network architecture auction prices}
         \label{fig:rnn-auction-prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/net_arch_training_fig/rnn_architecture_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/rnn_architecture_weightings.png}
         \caption{Rnn network architecture resource weightings}
         \label{fig:rnn-resource-weightings}
     \end{minipage}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/net_arch_training_fig/gru_architecture_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/gru_architecture_auction_prices.png}
         \caption{GRU network architecture auction prices}
         \label{fig:gru-auction-prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/net_arch_training_fig/gru_architecture_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/gru_architecture_weightings.png}
         \caption{GRU network architecture resource weightings}
         \label{fig:gru-resource-weightings}
     \end{minipage}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/net_arch_training_fig/lstm_architecture_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/lstm_architecture_auction_prices.png}
         \caption{LSTM network architecture auction prices}
         \label{fig:lstm-auction-prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/net_arch_training_fig/lstm_architecture_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/lstm_architecture_weightings.png}
         \caption{Rnn network architecture resource weightings}
         \label{fig:lstm-resource-weightings}
     \end{minipage}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/net_arch_training_fig/bidirectional_architecture_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/bidirectional_architecture_auction_prices.png}
         \caption{Bidirectional network architecture auction prices}
         \label{fig:bidirectional-auction-prices}
     \end{minipage}\hfill
-    \begin{minipage}{0.45\textwidth}
+    \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.9\textwidth]{figures/net_arch_training_fig/bidirectional_architecture_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/bidirectional_architecture_weightings.png}
         \caption{Bidirectional network architecture resource weightings}
         \label{fig:bidirectional-resource-weightings}
     \end{minipage}
