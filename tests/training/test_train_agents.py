@@ -42,7 +42,6 @@ def test_agent_evaluation():
     print(f'Results - Total prices: {results.total_prices}, Number of completed tasks: {results.num_completed_tasks}, '
           f'failed tasks: {results.num_failed_tasks}, winning prices: {results.winning_prices}, '
           f'Number of auctions: {results.num_auctions}, resource allocations: {results.num_resource_allocations}')
-    assert 0 < results.total_winning_prices
     assert 0 < results.num_completed_tasks
     assert 0 < results.num_failed_tasks
 

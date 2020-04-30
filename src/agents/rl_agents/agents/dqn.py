@@ -353,7 +353,7 @@ class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
                 return float(rnd.randint(0, self.num_actions - 1))
 
         observation = tf.expand_dims(self._network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
-        q_values = tf.reduce_sum(self.support * self.model_network(observation), axis=1)
+        q_values = tf.reduce_sum(self.z_values * self.model_network(observation), axis=1)
         action = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
         return action
 
@@ -376,12 +376,12 @@ class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightin
                     actions[task] = float(rnd.randint(0, self.num_actions - 1))
                 else:
                     observation = tf.expand_dims(self._network_obs(task, tasks, server, time_step), axis=0)
-                    q_values = tf.reduce_sum(self.support * self.model_network(observation), axis=1)
+                    q_values = tf.reduce_sum(self.z_values * self.model_network(observation), axis=1)
                     actions[task] = float(tf.math.argmax(q_values, axis=1, output_type=tf.int32))
             return actions
         else:
             observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
                                                 dtype='float32')
-            q_values = tf.reduce_sum(self.support * self.model_network(observations), axis=-1)
+            q_values = tf.reduce_sum(self.z_values * self.model_network(observations), axis=-1)
             actions = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
             return {task: float(action) for task, action in zip(tasks, actions)}
