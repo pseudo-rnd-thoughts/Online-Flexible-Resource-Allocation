@@ -1,3 +1,6 @@
+% For the listing caption reference
+%! Suppress = UnresolvedReference
+
 \chapter{Implementation of the solution}\label{ch:implementation-of-the-solution}
 In order to implement a solution from chapter~\ref{ch:proposed-solution}, an MEC network environment
 must be simulated due to the impractically of setting up such a network and in order to train the agents offline as
@@ -219,7 +222,7 @@ that were chosen epsilon greedily.
 After every 5 episodes, the agents would be evaluated using a set of environment that were pre-generated and
 saved at the beginning of training. This allows the same environments over training in order to have a constant metric
 in order to compare the agents over time. The actions taken are recorded to be used in evaluation
-(chapter~\ref{ch:evaluation-of-the-implementation}) with the number of completed and failed tasks being stored about
+(chapter~\ref{ch:evaluation-of-the-solution}) with the number of completed and failed tasks being stored about
 the resource allocation agent and the winning prices being stored about the auction agents. Plus an action histograms
 for each agents in order to view how agents bid and weightings are distributed.
 
