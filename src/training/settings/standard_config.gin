@@ -13,56 +13,20 @@ import agents.rl_agents.neural_networks.ddpg_networks
 
 #========================================================================
 #                       Reinforcement learning Agent
-ReinforcementLearningAgent.batch_size = 32
-
-ReinforcementLearningAgent.replay_buffer_length = 25000
-ReinforcementLearningAgent.initial_training_replay_size = 2500
-
-ReinforcementLearningAgent.update_frequency = 1
-ReinforcementLearningAgent.log_frequency = 200
-ReinforcementLearningAgent.save_frequency = 25000
-
 
 #                       Task Pricing RL Agent
-TaskPricingRLAgent.failed_auction_reward = -0.05
-TaskPricingRLAgent.failed_reward_multiplier = -1.5
 
 
 #                       Resource Weighting RL Agent
-ResourceWeightingRLAgent.other_task_discount = 0.4
-ResourceWeightingRLAgent.success_reward = 1
-ResourceWeightingRLAgent.failed_reward = -1.5
 
 #========================================================================
 #                        Dqn Agent
-DqnAgent.discount_factor = 0.9
-DqnAgent.initial_epsilon = 1.0
-DqnAgent.final_epsilon = 0.1
-DqnAgent.epsilon_update_frequency = 100
 
 #                        Dueling Dqn Agent
-DuelingDQN.double_loss = True
 
 #========================================================================
 #                        Dqn Networks
-create_bidirectional_dqn_network.lstm_width = 32
-create_bidirectional_dqn_network.relu_width = 32
-
-create_lstm_dqn_network.lstm_width = 32
-create_lstm_dqn_network.relu_width = 32
-
-create_gru_dqn_network.gru_width = 32
-create_gru_dqn_network.relu_width = 32
-
-create_rnn_dqn_network.rnn_width = 32
-create_rnn_dqn_network.relu_width = 32
 
 #                        Dueling Dqn Networks
-create_lstm_dueling_dqn_network.lstm_width = 32
-create_lstm_dueling_dqn_network.relu_width = 32
-create_lstm_dueling_dqn_network.combiner = 'avg'
 
 #                        Distributional Dqn Networks
-create_lstm_categorical_dqn_network.lstm_width = 32
-create_lstm_categorical_dqn_network.relu_width = 32
-create_lstm_categorical_dqn_network.num_atoms = 51
