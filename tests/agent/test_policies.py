@@ -41,3 +41,15 @@ def test_epsilon_policy():
                 for pos, (server, tasks) in enumerate(state.server_tasks.items())
             }
         state, rewards, done, _ = env.step(actions)
+
+
+def test_epsilon():
+    steps = 10000
+    final_epsilon = 0.1
+    agent = TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5), epsilon_steps=steps, initial_epsilon=1,
+                                final_epsilon=final_epsilon)
+    assert agent.epsilon == 1
+    for _ in range(steps+1):
+        agent._update_epsilon()
+
+    assert agent.epsilon == final_epsilon
