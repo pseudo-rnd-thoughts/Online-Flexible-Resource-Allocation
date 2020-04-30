@@ -12,7 +12,7 @@ from training.train_agents import generate_eval_envs, run_training, setup_tensor
 if __name__ == "__main__":
     gin.parse_config_file('./training/settings/standard_config.gin')
 
-    folder = 'dueling_multi_agents'
+    folder = 'dueling_agents'
     writer, datetime = setup_tensorboard('training/results/logs/', folder)
 
     save_folder = f'{folder}_{datetime}'
