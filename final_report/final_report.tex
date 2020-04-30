@@ -13,6 +13,9 @@
 \pdfminorversion=7                   % Fixes warnings for importing pdf documents
 \hyphenpenalty=10000
 \exhyphenpenalty=10000
+\usepackage{svg}
+\usepackage[off]{svg-extract}
+\svgsetup{clean=true}
 
 \lstloadlanguages{Python}
 \lstset{
@@ -108,7 +111,7 @@ to investigate and implement.
 \mainmatter
 %% ------------------ MAIN MATTER (CONTENT) --------------------
 \include{chapters/0_project_problem}
-\include{chapters/1_related_work}
+\include{chapters/1_background_lit}
 \include{chapters/2_proposed_solution}
 \include{chapters/3_justification}
 \include{chapters/4_implementation}
