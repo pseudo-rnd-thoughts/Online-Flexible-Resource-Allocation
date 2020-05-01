@@ -145,7 +145,9 @@ class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
         observation = tf.expand_dims(self._network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
         action = self.model_actor_network(observation)
         if training:
-            return max(0.0, action + tf.random.normal(action.shape, 0, self.epsilon_std), self.upper_action_bound)
+            self._update_epsilon()
+            return float(tf.clip_by_value(action + tf.random.normal(action.shape, 0, self.epsilon_std),
+                                          0.0, self.upper_action_bound))
         else:
             return action
 
@@ -170,8 +172,11 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
                                             dtype='float32')
         actions = self.model_actor_network(observations)
         if training:
+            self._update_epsilon()
             actions += tf.random.normal(actions.shape, 0, self.epsilon_std)
-        return {task: max(0.0, float(action), self.upper_action_bound) for task, action in zip(tasks, actions)}
+
+        clipped_actions = tf.clip_by_value(actions, 0.0, self.upper_action_bound)
+        return {task: float(action) for task, action in zip(tasks, clipped_actions)}
 
 
 class TD3Agent(DdpgAgent, ABC):

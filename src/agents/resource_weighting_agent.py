@@ -48,7 +48,8 @@ class ResourceWeightingAgent(ABC):
             assert len(allocated_tasks) == len(actions)
             assert all(task in allocated_tasks for task in actions.keys())
             assert all(0 <= action for action in actions.values())
-            assert all(type(action) is float for action in actions.values())
+            assert all(type(action) is float for action in actions.values()), \
+                ', '.join([str(type(action)) for action in actions.values()])
 
             return actions
 

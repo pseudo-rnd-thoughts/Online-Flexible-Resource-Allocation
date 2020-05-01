@@ -140,7 +140,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
 
         DqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
         name = f'Task pricing Dqn agent {agent_name}' if type(agent_name) is int else agent_name
-        TaskPricingRLAgent.__init__(self, name, **kwargs)
+        TaskPricingRLAgent.__init__(self, name, failed_multiplier=-3, **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
                     training: bool = False) -> float:

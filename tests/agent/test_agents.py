@@ -186,3 +186,38 @@ def test_c51_actions():
         for server, tasks in state.server_tasks.items()
     }
     print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
+
+
+def test_ddpg_actions():
+    print()
+    pricing_agent = TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9),
+                                         initial_epsilon=0.5)
+    weighting_agent = ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16),
+                                                 initial_epsilon=0.5)
+
+    env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/actions.env')
+    auction_actions = {
+        server: pricing_agent.bid(state.auction_task, tasks, server, state.time_step)
+        for server, tasks in state.server_tasks.items()
+    }
+    print(f'Greedy actions: {list(auction_actions.values())}')
+
+    auction_actions = {
+        server: pricing_agent.bid(state.auction_task, tasks, server, state.time_step, training=True)
+        for server, tasks in state.server_tasks.items()
+    }
+    print(f'Epsilon Greedy actions: {list(auction_actions.values())}\n')
+
+    states, rewards, dones, _ = env.step(auction_actions)
+
+    weighting_actions = {
+        server: weighting_agent.weight(tasks, server, state.time_step)
+        for server, tasks in state.server_tasks.items()
+    }
+    print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
+
+    weighting_actions = {
+        server: weighting_agent.weight(tasks, server, state.time_step, training=True)
+        for server, tasks in state.server_tasks.items()
+    }
+    print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
