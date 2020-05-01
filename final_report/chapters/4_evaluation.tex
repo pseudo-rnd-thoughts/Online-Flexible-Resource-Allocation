@@ -1,13 +1,13 @@
 % Texcount ignores the longtables
 %TC:group longtable 0 0
 
-\chapter{Evaluation of the solution}\label{ch:evaluation-of-the-solution}
+\chapter{Testing and evaluation}\label{ch:testing-and-evaluation}
 Using the implemented solution from Chapter~\ref{ch:implementation-of-the-solution} to test and evaluate its
 effectiveness, both functional unit tests and agent training evaluation have been designed. To confirm that the
 environment and agents implemented in the previous chapter
-(section~\ref{sec:implementing-auction-and-resource-allocation-agents}) work as intended, unit testing has been added
-which are explained in Section~\ref{sec:functional-testing}. While to evaluate the effectiveness of the proposed
-solution from Section~\ref{sec:proposed-agents}, a range of metric have been gathered during training in order to
+(section~\ref{sec:implementing-auction-and-resource-allocation-agents}) works as intended, unit testing has been added
+that is explained in Section~\ref{sec:functional-testing}. While to evaluate the effectiveness of the proposed
+solution from Section~\ref{sec:proposed-agents}, a range of metric have been measured during training in order to
 test and compare implemented agents, neural network architectures and training parameters. These results are explained
 in Section~\ref{sec:agent-evaluation}.
 
@@ -15,6 +15,7 @@ in Section~\ref{sec:agent-evaluation}.
 To confirm that the implementation of the agents and environment correctly, PyTest a module within python has been used
 to design functions are valid. These tests are split into three families: agent, environment and training that are
 explained in the respective tables~\ref{tab:agent_testing},~\ref{tab:env_testing} and~\ref{tab:training_testing}.
+The results from the testing is shown in figure~\ref{fig:pytest_results}.
 
 \begin{longtable}{|p{3cm}|p{11cm}|} \hline
     \textbf{Testing name} & \textbf{Explanation} \\ \hline
@@ -68,84 +69,80 @@ explained in the respective tables~\ref{tab:agent_testing},~\ref{tab:env_testing
     \label{tab:training_testing}
 \end{longtable}
 
-\section{Agent evaluation}\label{sec:agent-evaluation}
-%% Compare training eval over time
-%% Compare agents now
-To compare the implemented agent training algorithms and neural networks architectures from
-chapter~\ref{ch:implementation-of-the-solution}, tests are implemented to evaluation the effectiveness of training for
-each of these agents. This is done using a range of metrics during the evaluation stage of training. For the
-auction agent the metrics are a histogram winning prices, number of no bids, number of failed tasks, number of completed
-tasks and a histogram of actions taken. For the resource allocation agents the metrics are a histogram of weighting,
-number of failed tasks and number of completed tasks. These training tests fall into several distinct sections that are
-explained in Table~\ref{tab:testing_areas}.
+\begin{figure}[h]
+    \centering
+    \includegraphics{figures/4_testing_eval_figs/pytest_results.PNG}
+    \caption{Results of the unit functions described in the Tables~\ref{tab:agent_testing},~\ref{tab:env_testing}
+        and~\ref{tab:training_testing}}
+    \label{fig:pytest_results}
+\end{figure}
 
-\begin{longtable}{|p{4cm}|p{10cm}|} \hline
-    Test Name & Explanation \\ \hline
-    Multi vs Single environment training settings & There are huge ranges of possible environment settings that
-        agents could be trained for. This test investigates how good single environment trained agents react to
-        a new environment and how agents compare on an environment when an agent is only trained on that
-        environment or on multiple environments. \\ \hline
-    Multi vs Single agent training settings & As the Vickrey auction is incentive compatible then it is
-        possible to train both the auction agents and resource allocation against itself with a single agent. This
-        test investigates the difference between the agent policies when self-trained or train with other
-        agents. \\ \hline
-    Reinforcement Learning algorithm testing & As multiple different reinforcement learning policy outlined in
-        table~\ref{tab:reinforcement_learning_algorithms}, this test compares the results of the different agents
-        against each other. \\ \hline
-    Neural network architecture testing & There are a wide-range of compatible neural network architectures that
-        agents can use, as outlined in table~\ref{tab:neural_network_layers}. To use these agents, the underlying
-        policies are kept the same with a range of model networks are trained. \\ \hline
-    Fixed heuristic policies testing & In order to compare to the reinforcement learning policies, a number of
-        fixed heuristic policies are investigated both against other heuristics and reinforcement learning
-        policies. \\ \hline
-    \caption{Table of Testing Areas}
-    \label{tab:testing_areas}
-\end{longtable}
+\section{Agent evaluation}\label{sec:agent-evaluation}
+In order to compare the implemented agents from Chapter~\ref{ch:implementation-of-the-solution}, a range of metric are
+used which are recorded while the agent is training. For the auction agent the metrics are: histogram winning prices,
+number of no bids, number of failed tasks, number of completed tasks and a histogram of actions taken. For the resource
+allocation agents the metrics are a histogram of weighting, number of failed tasks and number of completed tasks.
+Using these metrics evaluation of agent performance can be done between the different reinforcement learning algorithms
+implemented in Table~\ref{tab:reinforcement_learning_algorithms}, network architectures in
+Table~\ref{tab:neural_network_layers} and methods of training different agents. \\
+These evaluations fall into three families: env and agent num, algorithm and network architecture that are analysed in
+Subsections~\ref{subsec:environment-and-agent-number-training},~\ref{subsec:reinforcement-learning-algorithm-training}
+and~\ref{subsec:neural-network-architecture-training} respectively.
 
 \subsection{Environment and Agent number training}\label{subsec:environment-and-agent-number-training}
 %% Single env
 %% Multi env
 %% Comparison on single env testing and multiple env and new environments
+There are huge ranges of possible environment settings that agents could be trained for and to test the effectiveness
+of the trained agent to response to real-life environment that is unpredictable and somewhat random. Some agents were
+trained on multiple environment settings while another agent was trained on a single simple setting. To evaluate,
+agents were tested against the same environments generated from multiple environment all being
+evaluated using testing environment. Investigates how good single environment trained agents react to new environments
+and how agents compare on an environment when an agent is only trained on that environment or on multiple environments.
 
 %% Env training legend
-\begin{wrapfigure}{l}{0.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{figures/env_training_fig/legend.png}
+\begin{wrapfigure}{r}{0.5\textwidth}
+    \includegraphics[width=0.5\textwidth]{figures/4_testing_eval_figs/env_training_fig/legend.png}
     \caption{Environment training legend}
     \label{fig:env-training-legend}
 \end{wrapfigure}
 
+As the Vickrey auction is incentive compatible then it is possible to train both the auction agents and resource
+allocation against itself with a single agent. This test investigates the difference between the agent policies when
+self-trained or train with other agents.
+
 %% Training evaluation
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/env_training_fig/num_completed_tasks.PNG}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/env_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:env_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/env_training_fig/num_failed_tasks.png}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/env_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:env_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/env_training_fig/percent_tasks.png}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/env_training_fig/percent_tasks.png}
     \caption{Percent of tasks attempted}
     \label{fig:env_percent_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/env_training_fig/total_prices.png}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/env_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:env_total_prices}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/env_training_fig/total_winning_prices.PNG}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/env_training_fig/total_winning_prices.PNG}
     \caption{Winning prices}
     \label{fig:env_winning_prices}
 \end{figure}
@@ -155,13 +152,13 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/multi_agent_single_env_auction_price.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/env_training_fig/multi_agent_single_env_auction_price.png}
         \caption{Multi agent single environment auction prices}
         \label{fig:multi_agent_single_env_auction_prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/multi_agents_single_env_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/env_training_fig/multi_agents_single_env_weightings.png}
         \caption{Multiple agent single environment resource weightings}
         \label{fig:multi_agent_single_env_weightings}
     \end{minipage}
@@ -171,13 +168,13 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/multi_agents_multi_envs_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/env_training_fig/multi_agents_multi_envs_auction_prices.png}
         \caption{Multi agent multi environment auction prices}
         \label{fig:multi_agent_multi_env_auction_prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/multi_agents_multi_envs_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/env_training_fig/multi_agents_multi_envs_weightings.png}
         \caption{Multiple agent multi environment resource weightings}
         \label{fig:multi_agent_multi_env_weightings}
     \end{minipage}
@@ -187,25 +184,29 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/single_agent_single_env_auction_price.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/env_training_fig/single_agent_single_env_auction_price.png}
         \caption{Single agent single environment auction prices}
         \label{fig:single_agent_single_env_auction_prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/env_training_fig/single_agent_single_env_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/env_training_fig/single_agent_single_env_weightings.png}
         \caption{Multiple agent multi environment resource weightings}
         \label{fig:single_agent_single_env_resource_weightings}
     \end{minipage}
 \end{figure}
 
 \subsection{Reinforcement learning algorithm training}\label{subsec:reinforcement-learning-algorithm-training}
+As multiple different reinforcement learning policy outlined in table~\ref{tab:reinforcement_learning_algorithms},
+this test compares the results of the different agents against each other.
+
+% Reinforcement Learning algorithm testing
 %% Compare discretized agent
 %% Compare continuous agent
 %% Compare between agents
 %% Env training legend
 \begin{wrapfigure}{l}{0.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{figures/env_training_fig/legend.PNG}
+    \includegraphics[width=0.5\textwidth]{figures/4_testing_eval_figs/algo_training_fig/legend.PNG}
     \caption{Environment training legend}
     \label{fig:algo-training-legend}
 \end{wrapfigure}
@@ -213,35 +214,35 @@ explained in Table~\ref{tab:testing_areas}.
 %% Training evaluation
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/algo_training_fig/num_completed_tasks.PNG}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/algo_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:algo_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/algo_training_fig/num_failed_tasks.png}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/algo_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:algo_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/algo_training_fig/percent_tasks.png}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/algo_training_fig/percent_tasks.png}
     \caption{Percent of tasks attempted}
     \label{fig:algo_percent_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/algo_training_fig/total_prices.png}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/algo_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:algo_total_prices}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/algo_training_fig/total_winning_prices.PNG}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/algo_training_fig/total_winning_prices.PNG}
     \caption{Winning prices}
     \label{fig:algo_winning_prices}
 \end{figure}
@@ -250,13 +251,13 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/dqn_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/algo_training_fig/dqn_auction_prices.png}
         \caption{Deep Q Network auction prices}
         \label{fig:dqn-auction-prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/dqn_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/algo_training_fig/dqn_weightings.png}
         \caption{Deep Q Network resource weightings}
         \label{fig:dqn-resource-weightings}
     \end{minipage}
@@ -266,13 +267,13 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/ddqn_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/algo_training_fig/ddqn_auction_prices.png}
         \caption{Double Deep Q Network auction prices}
         \label{fig:ddqn-auction-prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/ddqn_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/algo_training_fig/ddqn_weightings.png}
         \caption{Double Deep Q Network resource weightings}
         \label{fig:ddqn-resource-weightings}
     \end{minipage}
@@ -282,23 +283,27 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/dueling_dqn_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/algo_training_fig/dueling_dqn_auction_prices.png}
         \caption{Dueling Deep Q Network auction prices}
         \label{fig:dueling-dqn-auction-prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/algo_training_fig/dueling_dqn_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/algo_training_fig/dueling_dqn_weightings.png}
         \caption{Dueling Deep Q Network resource weightings}
         \label{fig:dueling-dqn-resource-weightings}
     \end{minipage}
 \end{figure}
 
 \subsection{Neural network architecture training}\label{subsec:neural-network-architecture-training}
+%% Neural network architecture testing
 %% Compare architectures
+There are a wide-range of compatible neural network architectures that agents can use, as outlined in
+table~\ref{tab:neural_network_layers}. To use these agents, the underlying policies are kept the same with a range of
+model networks are trained.
 
 \begin{wrapfigure}{l}{0.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{figures/net_arch_training_fig/legend.png}
+    \includegraphics[width=0.5\textwidth]{figures/4_testing_eval_figs/net_arch_training_fig/legend.png}
     \caption{Environment training legend}
     \label{fig:net-arch-training-legend}
 \end{wrapfigure}
@@ -306,28 +311,28 @@ explained in Table~\ref{tab:testing_areas}.
 %% Training evaluation
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/net_arch_training_fig/num_completed_tasks.PNG}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/net_arch_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:net_arch_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/net_arch_training_fig/num_failed_tasks.png}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/net_arch_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:net_arch_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/net_arch_training_fig/percent_tasks.png}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/net_arch_training_fig/percent_tasks.png}
     \caption{Percent of tasks attempted}
     \label{fig:net_arch_percent_tasks}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figures/net_arch_training_fig/total_prices.png}
+    \includegraphics[width=20cm]{figures/4_testing_eval_figs/net_arch_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:net_arch_total_prices}
 \end{figure}
@@ -336,13 +341,13 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/rnn_architecture_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/net_arch_training_fig/rnn_architecture_auction_prices.png}
         \caption{Rnn network architecture auction prices}
         \label{fig:rnn-auction-prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/rnn_architecture_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/net_arch_training_fig/rnn_architecture_weightings.png}
         \caption{Rnn network architecture resource weightings}
         \label{fig:rnn-resource-weightings}
     \end{minipage}
@@ -352,13 +357,13 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/gru_architecture_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/net_arch_training_fig/gru_architecture_auction_prices.png}
         \caption{GRU network architecture auction prices}
         \label{fig:gru-auction-prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/gru_architecture_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/net_arch_training_fig/gru_architecture_weightings.png}
         \caption{GRU network architecture resource weightings}
         \label{fig:gru-resource-weightings}
     \end{minipage}
@@ -368,13 +373,13 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/lstm_architecture_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/net_arch_training_fig/lstm_architecture_auction_prices.png}
         \caption{LSTM network architecture auction prices}
         \label{fig:lstm-auction-prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/lstm_architecture_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/net_arch_training_fig/lstm_architecture_weightings.png}
         \caption{Rnn network architecture resource weightings}
         \label{fig:lstm-resource-weightings}
     \end{minipage}
@@ -384,13 +389,13 @@ explained in Table~\ref{tab:testing_areas}.
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/bidirectional_architecture_auction_prices.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/net_arch_training_fig/bidirectional_architecture_auction_prices.png}
         \caption{Bidirectional network architecture auction prices}
         \label{fig:bidirectional-auction-prices}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=1.0\textwidth]{figures/net_arch_training_fig/bidirectional_architecture_weightings.png}
+        \includegraphics[width=1.0\textwidth]{figures/4_testing_eval_figs/net_arch_training_fig/bidirectional_architecture_weightings.png}
         \caption{Bidirectional network architecture resource weightings}
         \label{fig:bidirectional-resource-weightings}
     \end{minipage}
