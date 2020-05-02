@@ -1,5 +1,5 @@
 """
-Tests that agent implementations; constructor attributes, agent saving, task pricing / resource allocation training
+Tests that agent implementations: constructor attributes, agent saving, task pricing / resource allocation training
 """
 
 from __future__ import annotations
@@ -144,6 +144,7 @@ def test_agent_actions():
             server: agent.bid(state.auction_task, tasks, server, state.time_step)
             for server, tasks in state.server_tasks.items()
         }
+    # noinspection PyUnboundLocalVariable
     print(f'Actions: {{{", ".join([f"{server.name}: {action}" for server, action in actions.items()])}}}')
 
     state, rewards, done, _ = env.step(actions)
@@ -153,15 +154,18 @@ def test_agent_actions():
             server: agent.weight(tasks, server, state.time_step)
             for server, tasks in state.server_tasks.items()
         }
-    print(f'Actions: {{{", ".join([f"{server.name}: {list(task_action.values())}" for server, task_action in actions.items()])}}}')
+    print(
+        f'Actions: {{{", ".join([f"{server.name}: {list(task_action.values())}" for server, task_action in actions.items()])}}}')
 
     state, rewards, done, _ = env.step(actions)
 
 
 def test_c51_actions():
     print()
+    # Test the C51 agent actions
     pricing_agent = TaskPricingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(9, 5), initial_epsilon=0.5)
-    weighting_agent = ResourceWeightingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(16, 5), initial_epsilon=0.5)
+    weighting_agent = ResourceWeightingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(16, 5),
+                                                           initial_epsilon=0.5)
 
     env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/actions.env')
     auction_actions = {
@@ -169,12 +173,14 @@ def test_c51_actions():
         for server, tasks in state.server_tasks.items()
     }
     print(f'Greedy actions: {list(auction_actions.values())}')
+    assert any(0 < action for server, action in auction_actions.items())
 
     auction_actions = {
         server: pricing_agent.bid(state.auction_task, tasks, server, state.time_step, training=True)
         for server, tasks in state.server_tasks.items()
     }
     print(f'Epsilon Greedy actions: {list(auction_actions.values())}\n')
+    assert any(0 < action for server, action in auction_actions.items())
 
     states, rewards, dones, _ = env.step(auction_actions)
 
@@ -183,16 +189,19 @@ def test_c51_actions():
         for server, tasks in state.server_tasks.items()
     }
     print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
+    assert any(0 < action for server, action in auction_actions.items())
 
     weighting_actions = {
         server: weighting_agent.weight(tasks, server, state.time_step, training=True)
         for server, tasks in state.server_tasks.items()
     }
     print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
+    assert any(0 < action for server, task_actions in weighting_actions.items() for task, action in task_actions.items())
 
 
 def test_ddpg_actions():
     print()
+    # Check that DDPG actions are valid
     pricing_agent = TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9),
                                          initial_epsilon=0.5)
     weighting_agent = ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16),
@@ -204,12 +213,14 @@ def test_ddpg_actions():
         for server, tasks in state.server_tasks.items()
     }
     print(f'Greedy actions: {list(auction_actions.values())}')
+    assert any(0 < action for server, action in auction_actions.items())
 
     auction_actions = {
         server: pricing_agent.bid(state.auction_task, tasks, server, state.time_step, training=True)
         for server, tasks in state.server_tasks.items()
     }
     print(f'Epsilon Greedy actions: {list(auction_actions.values())}\n')
+    assert any(0 < action for server, action in auction_actions.items())
 
     states, rewards, dones, _ = env.step(auction_actions)
 
@@ -218,9 +229,11 @@ def test_ddpg_actions():
         for server, tasks in state.server_tasks.items()
     }
     print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
+    assert any(0 < action for server, task_actions in weighting_actions.items() for task, action in task_actions.items())
 
     weighting_actions = {
         server: weighting_agent.weight(tasks, server, state.time_step, training=True)
         for server, tasks in state.server_tasks.items()
     }
     print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
+    assert any(0 < action for server, task_actions in weighting_actions.items() for task, action in task_actions.items())

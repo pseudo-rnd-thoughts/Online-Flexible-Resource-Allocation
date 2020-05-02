@@ -79,7 +79,7 @@ class ReinforcementLearningAgent(ABC):
         self.total_updates: int = 0
         self.total_actions: int = 0
 
-        # Replay buffer (todo add priority replay buffer)
+        # Replay buffer
         self.replay_buffer_length = replay_buffer_length
         self.replay_buffer = deque(maxlen=replay_buffer_length)
         self.total_observations: int = 0

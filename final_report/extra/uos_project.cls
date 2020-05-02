@@ -215,7 +215,6 @@
     \begin{center}
       \setlength{\parskip}{0pt}
       {\scshape\LARGE\textbf{\univname}\par}
-      %% TODO: Change all the descriptions to italic like the Thesis one
       \bigskip
       {\large \facname \par}
       {\large \deptname \par}

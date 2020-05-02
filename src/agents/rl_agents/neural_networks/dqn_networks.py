@@ -7,8 +7,6 @@ from __future__ import annotations
 import gin.tf
 import tensorflow as tf
 
-# Todo add regularises to the networks
-
 
 @gin.configurable
 def create_bidirectional_dqn_network(input_width: int, num_actions: int, lstm_width: int = 32, relu_width: int = 32):
@@ -28,7 +26,8 @@ def create_bidirectional_dqn_network(input_width: int, num_actions: int, lstm_wi
     lstm_layer = tf.keras.layers.LSTM(lstm_width)
     bidirectional_layer = tf.keras.layers.Bidirectional(lstm_layer)(input_layer)
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(bidirectional_layer)
-    q_layer = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
+    q_layer = tf.keras.layers.Dense(num_actions, activation='linear',
+                                    kernel_regularizer=tf.keras.regularizers.l1())(relu_layer)
 
     return tf.keras.Model(name='Bidirectional_LSTM_Dqn', inputs=input_layer, outputs=q_layer)
 

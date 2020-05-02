@@ -7,8 +7,6 @@ from __future__ import annotations
 import gin.tf
 import tensorflow as tf
 
-# Todo add regularises to the networks
-
 
 @gin.configurable
 def create_lstm_actor_network(input_width: int, lstm_width: int = 32, relu_width: int = 32):

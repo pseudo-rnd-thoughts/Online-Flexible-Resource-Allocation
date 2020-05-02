@@ -63,3 +63,11 @@ def test_env_save_load():
 def test_env_load_settings():
     env = OnlineFlexibleResourceAllocationEnv('env/settings/basic.env')
     env_state = env.reset()
+
+    for server, tasks in env_state.server_tasks.items():
+        server.assert_valid()
+        for task in tasks:
+            task.assert_valid()
+
+    for task in env._unallocated_tasks:
+        task.assert_valid()

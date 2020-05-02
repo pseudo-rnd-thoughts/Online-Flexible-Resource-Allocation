@@ -94,8 +94,15 @@ def test_networks():
 
     for pricing_actor, pricing_critic, weighting_actor, weighting_critic in zip(
             pricing_actor_networks, pricing_critic_networks, weighting_actor_networks, weighting_critic_networks):
-        auction_action = pricing_actor(auction_obs)
-        weighting_action = weighting_actor(resource_obs)
+        auction_actor_output = pricing_actor(auction_obs)
+        weighting_actor_output = weighting_actor(resource_obs)
+
+        auction_critic_output = pricing_critic([auction_obs, auction_actor_output])
+        weighting_critic_output = weighting_critic([resource_obs, weighting_actor_output])
         print(f'Network - actor: {pricing_actor.name}, critic: {pricing_critic.name}'
-              f'\n\tAuction Actor: {auction_output}, critic: {pricing_critic([auction_obs, auction_action])}'
-              f'\n\tWeighting Actor: {weighting_action}, critic: {weighting_critic([resource_obs, weighting_action])}')
+              f'\n\tAuction Actor: {auction_actor_output}, critic: {auction_critic_output}'
+              f'\n\tWeighting Actor: {weighting_actor_output}, critic: {weighting_critic_output}')
+        assert auction_actor_output.shape == (1, 1)
+        assert weighting_actor_output.shape == (1, 1)
+        assert auction_critic_output.shape == (1, 1)
+        assert weighting_critic_output.shape == (1, 1)

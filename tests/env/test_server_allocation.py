@@ -74,8 +74,3 @@ def test_allocate_bandwidth_resources(error_term=0.1):
 
         tasks = [task for task in task_resource_usage.keys() if task.stage is TaskStage.LOADING or task.stage is TaskStage.SENDING]
         it += 1
-
-
-def test_resource_allocation():
-    # TODO
-    pass

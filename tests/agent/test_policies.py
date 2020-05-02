@@ -1,8 +1,7 @@
 """
-Tests the linear exploration method used in the DQN agent
+Tests the linear exploration method used in the DQN and DDPG agent are correct
 """
 
-# TODO add comments
 import tensorflow as tf
 
 from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent
@@ -16,28 +15,25 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 def test_epsilon_policy():
     print()
     # Tests the epsilon policy by getting agent actions that should update the agent epsilon over time
+
     env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/actions.env')
-    
+
+    # Number of epsilon steps for the agents
     epsilon_steps = 25
 
+    # Agents that have a custom _get_action function
     pricing_agents = [
-        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5), epsilon_steps=epsilon_steps, epsilon_update_freq=1,
-                            epsilon_log_freq=1),
-        TaskPricingCategoricalDqnAgent(1, create_lstm_categorical_dqn_network(9, 5), epsilon_steps=epsilon_steps,
-                                       epsilon_update_freq=1, epsilon_log_freq=1),
-        TaskPricingDdpgAgent(2, create_lstm_actor_network(9), create_lstm_critic_network(9),
-                             epsilon_steps=epsilon_steps, epsilon_update_freq=1, epsilon_log_freq=1)
+        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5), epsilon_steps=epsilon_steps, epsilon_update_freq=1, epsilon_log_freq=1),
+        TaskPricingCategoricalDqnAgent(1, create_lstm_categorical_dqn_network(9, 5), epsilon_steps=epsilon_steps, epsilon_update_freq=1, epsilon_log_freq=1),
+        TaskPricingDdpgAgent(2, create_lstm_actor_network(9), create_lstm_critic_network(9), epsilon_steps=epsilon_steps, epsilon_update_freq=1, epsilon_log_freq=1)
     ]
-
     weighting_agents = [
-        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 5), epsilon_steps=epsilon_steps, epsilon_update_freq=1,
-                                  epsilon_log_freq=1),
-        ResourceWeightingCategoricalDqnAgent(1, create_lstm_categorical_dqn_network(16, 5), epsilon_steps=epsilon_steps,
-                                             epsilon_update_freq=1, epsilon_log_freq=1),
-        ResourceWeightingDdpgAgent(2, create_lstm_actor_network(16), create_lstm_critic_network(16),
-                                   epsilon_steps=epsilon_steps, epsilon_update_freq=1, epsilon_log_freq=1)
+        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 5), epsilon_steps=epsilon_steps, epsilon_update_freq=1, epsilon_log_freq=1),
+        ResourceWeightingCategoricalDqnAgent(1, create_lstm_categorical_dqn_network(16, 5), epsilon_steps=epsilon_steps, epsilon_update_freq=1, epsilon_log_freq=1),
+        ResourceWeightingDdpgAgent(2, create_lstm_actor_network(16), create_lstm_critic_network(16), epsilon_steps=epsilon_steps, epsilon_update_freq=1, epsilon_log_freq=1)
     ]
 
+    # Generate a tf writer and generate actions that will update the epsilon values for both agents
     writer = tf.summary.create_file_writer(f'agent/tmp/testing_epsilon')
     num_steps = 10
     with writer.as_default():
@@ -59,6 +55,7 @@ def test_epsilon_policy():
 
         state, rewards, done, _ = env.step(actions)
 
+    # Check that the resulting total action are valid
     for agent in pricing_agents:
         print(f'Agent: {agent.name}')
         assert agent.total_actions == num_steps * 3
@@ -67,22 +64,8 @@ def test_epsilon_policy():
         print(f'Agent: {agent.name}')
         assert agent.total_actions == num_steps * 3
 
-    print(f'Initial: {pricing_agents[2].initial_epsilon_std}, '
-          f'final: {pricing_agents[2].final_epsilon_std}, '
-          f'steps: {pricing_agents[2].epsilon_steps}, '
-          f'total actions: {pricing_agents[2].total_actions}')
-
+    # Check that the agent epsilon are correct
+    assert pricing_agents[0].final_epsilon == pricing_agents[0].epsilon and pricing_agents[1].final_epsilon == pricing_agents[1].epsilon
+    assert weighting_agents[0].final_epsilon == weighting_agents[0].epsilon and weighting_agents[1].final_epsilon == weighting_agents[1].epsilon
     assert pricing_agents[2].final_epsilon_std == pricing_agents[2].epsilon_std
     assert weighting_agents[2].final_epsilon_std == weighting_agents[2].epsilon_std
-
-
-def test_epsilon():
-    steps = 10000
-    final_epsilon = 0.1
-    agent = TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 5), epsilon_steps=steps, initial_epsilon=1,
-                                final_epsilon=final_epsilon)
-    assert agent.epsilon == 1
-    for _ in range(steps+1):
-        agent._update_epsilon()
-
-    assert agent.epsilon == final_epsilon

@@ -119,3 +119,5 @@ def test_resource_allocation_training():
         agent.resource_allocation_obs(resource_state, actions[server], next_resource_state, rewards[server])
 
         agent.train()
+
+    print(f'Rewards: {[trajectory[3] for trajectory in agents[0].replay_buffer]}')

@@ -64,6 +64,10 @@ def test_env_step_rnd_action():
             state, reward, done, info = env.step(actions)
             assert all(task.auction_time <= state.time_step <= task.deadline
                        for _, tasks in state.server_tasks.items() for task in tasks)
+            for server, tasks in state.server_tasks.items():
+                server.assert_valid()
+                for task in tasks:
+                    task.assert_valid()
 
         # Check that the number of auction and resource allocation steps are correct
         assert state.auction_task is None
