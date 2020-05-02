@@ -10,8 +10,6 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 from training.train_agents import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
-    gin.parse_config_file('./training/settings/standard_config.gin')
-
     folder = 'dqn_agents'
     writer, datetime = setup_tensorboard('training/results/logs/', folder)
 
