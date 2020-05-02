@@ -79,6 +79,6 @@ class EvalResults:
         tf.summary.scalar('Eval number of failed tasks', self.num_failed_tasks, episode)
         percent = (self.num_completed_tasks + self.num_failed_tasks) / self.num_auctions
         tf.summary.scalar('Eval percent all tasks run', percent, episode)
-        percent = self.num_completed_tasks / (self.num_failed_tasks + 1)
-        tf.summary.scalar('Eval completed failed task ratio', percent, episode)
+        ratio = self.num_completed_tasks / (self.num_failed_tasks + 1)
+        tf.summary.scalar('Eval completed failed task ratio', ratio, episode)
         tf.summary.histogram('Eval weightings', self.weighting_actions, episode)

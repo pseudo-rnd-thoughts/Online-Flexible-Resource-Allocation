@@ -265,3 +265,40 @@ def setup_tensorboard(folder: str, training_name: str) -> Tuple[ResourceSummaryW
     """
     datetime = dt.datetime.now().strftime("%m-%d_%H-%M-%S")
     return tf.summary.create_file_writer(f'{folder}/{training_name}_{datetime}'), datetime
+
+
+def multi_env_single_env_training(folder, datetime, primary_writer, task_pricing_agents, resource_weighting_agents,
+                                  multi_env_training: bool = True, total_epsiodes: int = 500, eval_freq: int = 5):
+    single_env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
+    multi_env = OnlineFlexibleResourceAllocationEnv([
+        './training/settings/basic.env',
+        './training/settings/large_tasks_servers.env',
+        './training/settings/limited_resources.env',
+        './training/settings/mixture_tasks_servers.env'
+    ])
+
+    multi_envs_eval = generate_eval_envs(multi_env, 20, f'./training/settings/eval_envs/multi_env/')
+    single_env_eval = generate_eval_envs(single_env, 5, f'./training/settings/eval_envs/single_env/')
+    single_env_eval_writer = tf.summary.create_file_writer(f'training/results/logs/{folder}_single_env_{datetime}')
+
+    # Loop over the episodes
+    for episode in range(total_epsiodes):
+        if episode % 5 == 0:
+            print(f'Episode: {episode} at {dt.datetime.now().strftime("%H:%M:%S")}')
+        with primary_writer.as_default():
+            if multi_env_training:
+                train_agent(multi_env, task_pricing_agents, resource_weighting_agents)
+            else:
+                train_agent(single_env, task_pricing_agents, resource_weighting_agents)
+
+        # Every eval_frequency episodes, the agents are evaluated
+        if episode % eval_freq == 0:
+            with primary_writer.as_default():
+                eval_agent(multi_envs_eval, episode, task_pricing_agents, resource_weighting_agents)
+            with single_env_eval_writer.as_default():
+                eval_agent(single_env_eval, episode, task_pricing_agents, resource_weighting_agents)
+
+    for agent in task_pricing_agents:
+        agent.save()
+    for agent in resource_weighting_agents:
+        agent.save()

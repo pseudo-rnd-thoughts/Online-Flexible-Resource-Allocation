@@ -8,5 +8,5 @@ cd ~/Online-Flexible-Resource-Allocation/src/
 module load conda
 source activate py37env
 
-echo 'Running standard multi-agent training'
-python -m training.env_training.multi_agent_single_env
+echo 'Running multiple agents with single training environments'
+python -m training.env_agent_num.multi_agents_single_envs
