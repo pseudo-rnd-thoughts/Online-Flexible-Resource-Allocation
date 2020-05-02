@@ -184,7 +184,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
     network_obs_width: int = 9
 
     def __init__(self, name: str, failed_auction_reward: float = -0.05, failed_multiplier: float = -1.5,
-                 **kwargs):
+                 reward_scaling=0.4, **kwargs):
         """
         Constructor of the task pricing reinforcement learning agent
 
@@ -196,7 +196,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
             failed_reward_multiplier: Failed reward multiplier
         """
         TaskPricingAgent.__init__(self, name)
-        ReinforcementLearningAgent.__init__(self, reward_scaling=0.2, **kwargs)
+        ReinforcementLearningAgent.__init__(self, reward_scaling=reward_scaling, **kwargs)
 
         # Reward variable
         assert failed_auction_reward <= 0, failed_auction_reward

@@ -140,8 +140,8 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
     Task Pricing DQN agent
     """
 
-    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=140000, failed_multiplier=-3,
-                 **kwargs):
+    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=140000,
+                 failed_multiplier=-1.5, **kwargs):
         assert network.input_shape[-1] == self.network_obs_width
 
         DqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)

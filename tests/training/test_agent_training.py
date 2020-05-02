@@ -25,14 +25,14 @@ def test_task_price_training():
 
     # List of agents
     agents: List[TaskPricingRLAgent] = [
-        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
-        TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
-        TaskPricingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
-        TaskPricingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(9, 10), batch_size=2, save_folder='tmp'),
-        TaskPricingDdpgAgent(4, create_lstm_actor_network(9), create_lstm_critic_network(9), batch_size=2,
+        TaskPricingDqnAgent(0, create_lstm_dqn_network(9, 10), batch_size=4, save_folder='tmp'),
+        TaskPricingDdqnAgent(1, create_lstm_dqn_network(9, 10), batch_size=4, save_folder='tmp'),
+        TaskPricingDuelingDqnAgent(2, create_lstm_dueling_dqn_network(9, 10), batch_size=4, save_folder='tmp'),
+        TaskPricingCategoricalDqnAgent(3, create_lstm_categorical_dqn_network(9, 10), batch_size=4, save_folder='tmp'),
+        TaskPricingDdpgAgent(4, create_lstm_actor_network(9), create_lstm_critic_network(9), batch_size=4,
                              save_folder='tmp'),
         TaskPricingTD3Agent(5, create_lstm_actor_network(9), create_lstm_critic_network(9),
-                            create_lstm_critic_network(9), batch_size=2, save_folder='tmp')
+                            create_lstm_critic_network(9), batch_size=4, save_folder='tmp')
     ]
 
     # Load the environment
@@ -59,13 +59,18 @@ def test_task_price_training():
     finished_task = next(finished_task for finished_task in next_state.server_tasks[server_1]
                          if finished_task == state.auction_task)
     finished_task = finished_task._replace(stage=TaskStage.COMPLETED)
+    failed_task = finished_task._replace(stage=TaskStage.FAILED)
 
     # Loop over the agents, add the observations and try training
     for agent in agents:
         agent.winning_auction_bid(server_1_state, actions[server_1], finished_task, next_server_1_state)
+        agent.winning_auction_bid(server_1_state, actions[server_1], failed_task, next_server_1_state)
         agent.failed_auction_bid(server_2_state, actions[server_2], next_server_2_state)
+        agent.failed_auction_bid(server_2_state, 0, next_server_2_state)
 
         agent.train()
+
+    print(f'Rewards: {[trajectory[3] for trajectory in agents[0].replay_buffer]}')
 
 
 def test_resource_allocation_training():
