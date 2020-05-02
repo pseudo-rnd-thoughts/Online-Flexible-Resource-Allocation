@@ -9,4 +9,4 @@ module load conda
 source activate py37env
 
 echo 'Running single agent with multiple training environment'
-python -m training.env_agent_num.single_agent_mutli_envs
+python -m training.env_agent_num.single_agent_multi_envs

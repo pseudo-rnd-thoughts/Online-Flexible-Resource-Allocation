@@ -154,7 +154,6 @@ def test_agent_actions():
             for server, tasks in state.server_tasks.items()
         }
     print(f'Actions: {{{", ".join([f"{server.name}: {list(task_action.values())}" for server, task_action in actions.items()])}}}')
-    assert any(0 < action for server, task_actions in actions.items() for task, action in task_actions.items())
 
     state, rewards, done, _ = env.step(actions)
 
