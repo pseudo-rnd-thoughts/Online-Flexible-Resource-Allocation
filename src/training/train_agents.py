@@ -268,7 +268,7 @@ def setup_tensorboard(folder: str, training_name: str) -> Tuple[ResourceSummaryW
 
 
 def multi_env_single_env_training(folder, datetime, primary_writer, task_pricing_agents, resource_weighting_agents,
-                                  multi_env_training: bool = True, total_epsiodes: int = 500, eval_freq: int = 5):
+                                  multi_env_training: bool = True, total_epsiodes: int = 600, eval_freq: int = 10):
     single_env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
     multi_env = OnlineFlexibleResourceAllocationEnv([
         './training/settings/basic.env',
