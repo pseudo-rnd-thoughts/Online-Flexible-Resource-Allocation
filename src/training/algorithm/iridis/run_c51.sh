@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --partition=lyceum
-#SBATCH --time=16:00:00
+#SBATCH --time=20:00:00
 
 cd ~/Online-Flexible-Resource-Allocation/src/
 
@@ -9,4 +9,4 @@ module load conda
 source activate py37env
 
 echo 'Running C51 agent'
-python -m training.policy_training.c51_multi_agent
+python -m training.algorithm.c51

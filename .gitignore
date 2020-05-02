@@ -5,7 +5,8 @@
 *.pyc
 
 # Agent training results and evaluation environments
-src/training/old_results/
+src/analysis/old_results/
+src/analysis/new_results
 
 # Additional Latex files
 /final_report/chapters/*.aux
@@ -24,6 +25,7 @@ src/training/old_results/
 # Testing tmp files
 /tests/env/settings/tmp/
 /tests/agent/checkpoints/
+/tests/agent/tmp/
 /tests/training/settings/tmp/
 /tests/training/tmp/
 
