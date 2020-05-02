@@ -90,22 +90,25 @@ Subsections~\ref{subsec:environment-and-agent-number-training},~\ref{subsec:rein
 and~\ref{subsec:neural-network-architecture-training} respectively.
 
 \subsection{Environment and Agent number training}\label{subsec:environment-and-agent-number-training}
-%% Single env
-%% Multi env
-%% Comparison on single env testing and multiple env and new environments
 The analysis of the different reinforcement learning algorithms and neural network architectures in
 Subsection~\ref{subsec:reinforcement-learning-algorithm-training} and~\ref{subsec:neural-network-architecture-training}
 respectively assume two qualities that this subsection analyses. These are the training and evaluation environments
 and the number of agents used during training. As there are huge ranges of possible environment settings that agents
-could be trained, investigating agent environment generality is a challenge and an important measure. As in real-life,
-the environment can be unpredictable and somewhat random meaning that agents must be not overfitted to particular
-environments used during training.
+could be trained, investigating agent environment generality is a challenge and an important measure within machine
+learning. This is of particular importance for this work, as in real-life, the environment that agents experiences will
+can be unpredictable and different from those trained on. Meaning that agents should learn to generalise and not
+overfit to particular environments used during training.
 
-An advantage of using the Vickrey auction over alternative auctions, explored in Section~\ref{sec:auctioning-of-tasks},
-is that it is Incentive compatible. An auction property meaning that the dominant strategy for all agents is to bid
-truthfully, that is the agent's evaluation of the task. Due to agents not need to learn to "out bid" each other, agent
-need to learn the true evaluation of a task for themselves. Because of this, another training implemented is that just
-a single agent is used that is then compared to when multiple agents are trained simultaneously.
+The other assume quality is due an advantage of the Vickrey auction over alternative auctions, explored in
+Section~\ref{sec:auctioning-of-tasks}, that it is Incentive compatible. This auction property means that the dominant
+strategy for all agents is to bid truthfully, which is the agent's true evaluation of the task. Therefore due to agents
+not needing to learn to "out bid" each other allowing for effective self-play to be used in training.
+
+Therefore this subsection compare the results of agents that are trained on a single environment setting and those
+trained on multiple environment settings and when multiple or single agents are trained together.
+These are compared using a set of pre-generated environments, one from the single environment setting and another from
+the multiple environment settings.
+
 
 %% Env training legend
 \begin{wrapfigure}{r}{0.5\textwidth}
@@ -119,8 +122,6 @@ Then in each of these evaluations, five metrics are collected: the number of com
 (figure~\ref{fig:env_num_completed_tasks}), number of failed tasks (figure~\ref{fig:env_num_failed_tasks}),
 the percentage of tasks attempted (figure~\ref{fig:env_percent_tasks}), total prices (figure~\ref{fig:env_total_prices})
 and total winning prices (figure~\ref{fig:env_winning_prices}) when the environment are run.
-
-
 
 %% Training evaluation
 \begin{figure}[h]
@@ -159,8 +160,10 @@ and total winning prices (figure~\ref{fig:env_winning_prices}) when the environm
 \end{figure}
 
 %% Analysis of the training results
+%% TODO
 
 %% Auction prices and resource weightings histograms
+%% TODO
 \begin{figure}[h]
     \centering
     \begin{minipage}{0.5\textwidth}
@@ -176,7 +179,6 @@ and total winning prices (figure~\ref{fig:env_winning_prices}) when the environm
         \label{fig:multi_agent_single_env_weightings}
     \end{minipage}
 \end{figure}
-
 \begin{figure}[h]
     \centering
     \begin{minipage}{0.5\textwidth}
@@ -192,7 +194,6 @@ and total winning prices (figure~\ref{fig:env_winning_prices}) when the environm
         \label{fig:multi_agent_multi_env_weightings}
     \end{minipage}
 \end{figure}
-
 \begin{figure}[h]
     \centering
     \begin{minipage}{0.5\textwidth}
@@ -210,8 +211,8 @@ and total winning prices (figure~\ref{fig:env_winning_prices}) when the environm
 \end{figure}
 
 \subsection{Reinforcement learning algorithm training}\label{subsec:reinforcement-learning-algorithm-training}
-As multiple different reinforcement learning policy outlined in table~\ref{tab:reinforcement_learning_algorithms},
-this test compares the results of the different agents against each other.
+In table~\ref{tab:reinforcement_learning_algorithms}, a range of reinforcement learning algorithms were proposed as
+methods of training neural networks.
 
 \begin{wrapfigure}{l}{0.5\textwidth}
     \includegraphics[width=0.5\textwidth]{figures/4_test_eval_figs/algo_training_fig/legend.PNG}
