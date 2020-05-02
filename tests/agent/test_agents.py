@@ -38,12 +38,12 @@ def test_build_agent():
     }
     dqn_arguments = {
         'target_update_tau': 1.0, 'target_update_frequency': 2500, 'optimiser': tf.keras.optimizers.Adadelta(),
-        'initial_epsilon': 0.5, 'final_epsilon': 0.2, 'epsilon_update_frequency': 25
+        'initial_epsilon': 0.5, 'final_epsilon': 0.2, 'epsilon_update_freq': 25, 'epsilon_log_freq': 10,
     }
     ddpg_arguments = {
         'actor_optimiser': tf.keras.optimizers.Adadelta(), 'critic_optimiser': tf.keras.optimizers.Adadelta(),
-        'initial_epsilon_std': 0.8, 'final_epsilon_std': 0.1, 'epsilon_update_frequency': 25, 'min_value': -15.0,
-        'max_value': 15
+        'initial_epsilon_std': 0.8, 'final_epsilon_std': 0.1, 'epsilon_update_freq': 25, 'epsilon_log_freq': 10,
+        'min_value': -15.0, 'max_value': 15
     }
     pricing_arguments = {'failed_auction_reward': -100, 'failed_multiplier': -100}
     weighting_arguments = {'other_task_discount': 0.2, 'success_reward': 1, 'failed_reward': -2}
@@ -59,6 +59,7 @@ def test_build_agent():
         TaskPricingDuelingDqnAgent(2, pricing_network, **dqn_pricing_arguments)
     ]
     for agent in pricing_agents:
+        print(f'Agent: {agent.name}')
         assert_args(agent, dqn_pricing_arguments)
 
     weighting_network = create_lstm_dqn_network(16, 10)
@@ -68,6 +69,7 @@ def test_build_agent():
         ResourceWeightingDuelingDqnAgent(2, weighting_network, **dqn_weighting_arguments)
     ]
     for agent in weighting_agents:
+        print(f'Agent: {agent.name}')
         assert_args(agent, dqn_weighting_arguments)
 
     # PG Agent arguments ----------------------------------------------------------------------------------
@@ -79,8 +81,9 @@ def test_build_agent():
         TaskPricingTD3Agent(4, create_lstm_actor_network(9), create_lstm_critic_network(9),
                             create_lstm_critic_network(9), **ddpg_pricing_arguments)
     ]
-    for pricing_agent in pricing_agents:
-        assert_args(pricing_agent, ddpg_pricing_arguments)
+    for agent in pricing_agents:
+        print(f'Agent: {agent.name}')
+        assert_args(agent, ddpg_pricing_arguments)
 
     weighting_agents = [
         ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16),
@@ -88,8 +91,9 @@ def test_build_agent():
         ResourceWeightingTD3Agent(4, create_lstm_actor_network(16), create_lstm_critic_network(16),
                                   create_lstm_critic_network(16), **ddpg_weighting_arguments)
     ]
-    for weighting_agent in weighting_agents:
-        assert_args(weighting_agent, ddpg_weighting_arguments)
+    for agent in weighting_agents:
+        print(f'Agent: {agent.name}')
+        assert_args(agent, ddpg_weighting_arguments)
 
 
 def test_saving_agent():

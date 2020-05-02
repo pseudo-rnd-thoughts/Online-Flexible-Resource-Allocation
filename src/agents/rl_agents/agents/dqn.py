@@ -28,7 +28,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
     def __init__(self, network: tf.keras.Model, optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
                  target_update_tau: float = 1.0, target_update_frequency: int = 2500,
                  initial_epsilon: float = 1, final_epsilon: float = 0.1, epsilon_steps: int = 10000,
-                 epsilon_update_frequency: int = 100, **kwargs):
+                 epsilon_update_freq: int = 250, epsilon_log_freq: int = 2000, **kwargs):
         """
         Constructor of the dqn agent
         Args:
@@ -58,15 +58,20 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         # Exploration attributes: initial, final, total steps, epsilon itself and the update frequency
         self.initial_epsilon = initial_epsilon
         self.final_epsilon = final_epsilon
-        self.grad_epsilon: float = (final_epsilon - initial_epsilon) * epsilon_steps
+        self.epsilon_steps = epsilon_steps
         self.epsilon = initial_epsilon
-        self.epsilon_update_frequency = epsilon_update_frequency
+
+        self.epsilon_update_freq = epsilon_update_freq
+        self.epsilon_log_freq = epsilon_log_freq
 
     def _update_epsilon(self):
         self.total_actions += 1
-        if self.total_actions % self.epsilon_update_frequency == 0:
-            self.epsilon = max(self.total_actions / self.grad_epsilon + self.initial_epsilon, self.final_epsilon)
-            if self.total_actions % 1000 == 0:
+
+        if self.total_actions % self.epsilon_update_freq == 0:
+            self.epsilon = max((self.final_epsilon - self.initial_epsilon) * self.total_actions / self.epsilon_steps + self.initial_epsilon,
+                               self.final_epsilon)
+
+            if self.total_actions % self.epsilon_log_freq == 0:
                 tf.summary.scalar(f'{self.name} agent epsilon', self.epsilon, self.total_actions)
                 tf.summary.scalar(f'Epsilon', self.epsilon, self.total_actions)
 
@@ -135,17 +140,19 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
     Task Pricing DQN agent
     """
 
-    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=140000, **kwargs):
+    def __init__(self, agent_name: Union[int, str], network: tf.keras.Model, epsilon_steps=140000, failed_multiplier=-3,
+                 **kwargs):
         assert network.input_shape[-1] == self.network_obs_width
 
         DqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
         name = f'Task pricing Dqn agent {agent_name}' if type(agent_name) is int else agent_name
-        TaskPricingRLAgent.__init__(self, name, failed_multiplier=-3, **kwargs)
+        TaskPricingRLAgent.__init__(self, name, failed_multiplier=failed_multiplier, **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
                     training: bool = False) -> float:
         if training:
             self._update_epsilon()
+
             if rnd.random() < self.epsilon:
                 return float(rnd.randint(0, self.num_actions-1))
 
@@ -180,6 +187,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
                 else:
                     observation = tf.expand_dims(self._network_obs(task, tasks, server, time_step), axis=0)
                     q_values = self.model_network(observation)
+
                     actions[task] = float(tf.math.argmax(q_values, axis=1, output_type=tf.int32))
             return actions
         else:
@@ -376,7 +384,7 @@ class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightin
                     actions[task] = float(rnd.randint(0, self.num_actions - 1))
                 else:
                     observation = tf.expand_dims(self._network_obs(task, tasks, server, time_step), axis=0)
-                    q_values = tf.reduce_sum(self.z_values * self.model_network(observation), axis=1)
+                    q_values = tf.reduce_sum(self.model_network(observation) * self.z_values, axis=2)
                     actions[task] = float(tf.math.argmax(q_values, axis=1, output_type=tf.int32))
             return actions
         else:

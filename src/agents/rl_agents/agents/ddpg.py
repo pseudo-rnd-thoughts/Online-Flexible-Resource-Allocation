@@ -13,10 +13,6 @@ from env.server import Server
 from env.task import Task
 
 
-# Todo agents: D4PG, MADDPG, Seq2Seq DDPG
-# Todo work out the value range
-
-
 class DdpgAgent(ReinforcementLearningAgent, ABC):
     """
     Deep deterministic policy gradient agent
@@ -25,10 +21,10 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
                  actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0001),
                  critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0005),
-                 initial_epsilon_std: float = 5, final_epsilon_std: float = 0.5, epsilon_steps: int = 20000,
-                 epsilon_update_frequency: int = 100, min_value: float = -15.0, max_value: float = 15.0,
-                 target_update_tau: float = 0.01, actor_target_update_frequency: int = 1,
-                 critic_target_update_frequency: int = 1, upper_action_bound: float = 30.0, **kwargs):
+                 initial_epsilon_std: float = 3, final_epsilon_std: float = 0.5, epsilon_steps: int = 20000,
+                 epsilon_update_freq: int = 250, epsilon_log_freq: int = 2000, min_value: float = -15.0,
+                 max_value: float = 15.0, target_update_tau: float = 0.01, actor_target_update_freq: int = 1,
+                 critic_target_update_freq: int = 1, upper_action_bound: float = 30.0, **kwargs):
         assert actor_network.output_shape[-1] == 1 and critic_network.output_shape[-1] == 1
 
         ReinforcementLearningAgent.__init__(self, **kwargs)
@@ -47,23 +43,27 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
         self.min_value = min_value
         self.max_value = max_value
         self.target_update_tau = target_update_tau
-        self.actor_target_update_frequency = actor_target_update_frequency
-        self.critic_target_update_frequency = critic_target_update_frequency
+        self.actor_target_update_freq = actor_target_update_freq
+        self.critic_target_update_freq = critic_target_update_freq
         self.upper_action_bound = upper_action_bound
 
         # Exploration
         self.initial_epsilon_std = initial_epsilon_std
         self.final_epsilon_std = final_epsilon_std
-        self.epsilon_grad: float = (initial_epsilon_std - final_epsilon_std) * epsilon_steps
+        self.epsilon_steps = epsilon_steps
         self.epsilon_std = initial_epsilon_std
-        self.epsilon_update_frequency = epsilon_update_frequency
+
+        self.epsilon_update_freq = epsilon_update_freq
+        self.epsilon_log_freq = epsilon_log_freq
 
     def _update_epsilon(self):
         self.total_actions += 1
-        if self.total_actions % self.epsilon_update_frequency == 0:
-            self.epsilon_std = max(self.total_actions / self.epsilon_grad + self.initial_epsilon_std,
+
+        if self.total_actions % self.epsilon_update_freq == 0:
+            self.epsilon_std = max((self.final_epsilon_std - self.initial_epsilon_std) * self.total_actions / self.epsilon_steps + self.initial_epsilon_std,
                                    self.final_epsilon_std)
-            if self.total_actions % 1000 == 0:
+
+            if self.total_actions % self.epsilon_log_freq == 0:
                 tf.summary.scalar(f'{self.name} agent epsilon std', self.epsilon_std, self.total_actions)
                 tf.summary.scalar('Epsilon std', self.epsilon_std, self.total_actions)
 
@@ -94,10 +94,10 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
         actor_loss = self._actor_loss(states)
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
-        if self.total_updates % self.actor_target_update_frequency == 0:
+        if self.total_updates % self.actor_target_update_freq == 0:
             ReinforcementLearningAgent._update_target_network(self.model_actor_network, self.target_actor_network,
                                                               self.target_update_tau)
-        if self.total_updates % self.critic_target_update_frequency == 0:
+        if self.total_updates % self.critic_target_update_freq == 0:
             ReinforcementLearningAgent._update_target_network(self.model_critic_network, self.target_critic_network,
                                                               self.target_update_tau)
 
@@ -132,11 +132,11 @@ class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
     """
 
     def __init__(self, agent_name: Union[int, str], actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 min_value: float = -100.0, max_value: float = 100.0, **kwargs):
+                 min_value: float = -100.0, max_value: float = 100.0, epsilon_steps=140000, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
         DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value,
-                           epsilon_steps=140000, **kwargs)
+                           epsilon_steps=epsilon_steps, **kwargs)
         name = f'Task pricing Ddpg agent {agent_name}' if type(agent_name) is int else agent_name
         TaskPricingRLAgent.__init__(self, name, **kwargs)
 
@@ -144,6 +144,7 @@ class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
                     training: bool = False):
         observation = tf.expand_dims(self._network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
         action = self.model_actor_network(observation)
+
         if training:
             self._update_epsilon()
             return float(tf.clip_by_value(action + tf.random.normal(action.shape, 0, self.epsilon_std),
@@ -158,11 +159,11 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
     """
 
     def __init__(self, agent_name: Union[int, str], actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 min_value: float = -35, max_value: float = 25, **kwargs):
+                 min_value: float = -35, max_value: float = 25, epsilon_steps=90000, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
         DdpgAgent.__init__(self, actor_network, critic_network, min_value=min_value, max_value=max_value,
-                           epsilon_steps=90000, **kwargs)
+                           epsilon_steps=epsilon_steps, **kwargs)
         name = f'Resource weighting Ddpg agent {agent_name}' if type(agent_name) is int else agent_name
         ResourceWeightingRLAgent.__init__(self, name, **kwargs)
 
@@ -171,6 +172,7 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
         observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
                                             dtype='float32')
         actions = self.model_actor_network(observations)
+
         if training:
             self._update_epsilon()
             actions += tf.random.normal(actions.shape, 0, self.epsilon_std)
@@ -240,10 +242,10 @@ class TD3Agent(DdpgAgent, ABC):
             actor_loss = 0
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
-        if self.total_updates % self.actor_target_update_frequency == 0:
+        if self.total_updates % self.actor_target_update_freq == 0:
             ReinforcementLearningAgent._update_target_network(self.model_actor_network, self.target_actor_network,
                                                               self.target_update_tau)
-        if self.total_updates % self.critic_target_update_frequency == 0:
+        if self.total_updates % self.critic_target_update_freq == 0:
             ReinforcementLearningAgent._update_target_network(self.model_critic_network, self.target_critic_network,
                                                               self.target_update_tau)
             ReinforcementLearningAgent._update_target_network(self.twin_model_critic_network,
