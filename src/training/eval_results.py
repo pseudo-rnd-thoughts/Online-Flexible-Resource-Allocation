@@ -72,8 +72,9 @@ class EvalResults:
         """
         tf.summary.scalar('Eval total winning prices', self.total_winning_prices, episode)
         tf.summary.scalar('Eval total prices', self.total_prices, episode)
-        tf.summary.histogram('Eval auction actions', self.auction_actions, episode)
-        tf.summary.histogram('Eval winning auction prices', self.winning_prices, episode)
+        if episode % 50 == 0:
+            tf.summary.histogram('Eval auction actions', self.auction_actions, episode)
+            tf.summary.histogram('Eval winning auction prices', self.winning_prices, episode)
 
         tf.summary.scalar('Eval number of completed tasks', self.num_completed_tasks, episode)
         tf.summary.scalar('Eval number of failed tasks', self.num_failed_tasks, episode)
