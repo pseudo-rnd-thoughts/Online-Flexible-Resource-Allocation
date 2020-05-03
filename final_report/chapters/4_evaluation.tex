@@ -69,7 +69,7 @@ The results from the testing is shown in figure~\ref{fig:pytest_results}.
     \label{tab:training_testing}
 \end{longtable}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics{figures/4_test_eval_figs/pytest_results.PNG}
     \caption{Results of the unit functions described in the Tables~\ref{tab:agent_testing},~\ref{tab:env_testing}
@@ -120,38 +120,38 @@ During train, every 10 episodes, the agents are trained on the environments pre-
 Then in each of these evaluations, five metrics are collected: the number of completed tasks
 (figure~\ref{fig:env_num_completed_tasks}), number of failed tasks (figure~\ref{fig:env_num_failed_tasks}),
 the percentage of tasks attempted (figure~\ref{fig:env_percent_tasks}), total prices (figure~\ref{fig:env_total_prices})
-and total winning prices (figure~\ref{fig:env_winning_prices}) when the environment are run.
+and total winning prices (figure~\ref{fig:env_winning_prices}) when the environment are run. \\
 
 %% Training evaluation
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/num_completed_tasks.png}
     \caption{Number of completed tasks}
     \label{fig:env_num_completed_tasks}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:env_num_failed_tasks}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/percent_tasks.png}
     \caption{Percentage of tasks attempted}
     \label{fig:env_percent_tasks}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:env_total_prices}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/total_winning_prices.PNG}
     \caption{Total winning prices}
@@ -168,7 +168,7 @@ and total winning prices (figure~\ref{fig:env_winning_prices}) when the environm
 In table~\ref{tab:reinforcement_learning_algorithms}, a range of reinforcement learning algorithms were proposed as
 methods of training neural networks. Using the analysis from the previous subsections, during training agents were
 trained on multiple environment settings with multiple task pricing agents and a single resource weighting agents.
-The evaluation environment were pre-generated as well to confirm uniform testing between the agents.
+The evaluation environment were pre-generated as well to confirm uniform testing between the agents. \newline
 
 \begin{wrapfigure}{l}{0.5\textwidth}
     \includegraphics[width=0.5\textwidth]{figures/4_test_eval_figs/algo_training_fig/legend.PNG}
@@ -177,35 +177,35 @@ The evaluation environment were pre-generated as well to confirm uniform testing
 \end{wrapfigure}
 
 %% Training evaluation
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:algo_num_completed_tasks}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:algo_num_failed_tasks}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/percent_tasks.png}
     \caption{Percent of tasks attempted}
     \label{fig:algo_percent_tasks}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:algo_total_prices}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/total_winning_prices.PNG}
     \caption{Winning prices}
@@ -214,9 +214,9 @@ The evaluation environment were pre-generated as well to confirm uniform testing
 
 With the agents, an action histogram is recorded for all of the actions taken every 100 episodes to analyse the change
 of actions taken over time and to investigate the difference is how algorithms evaluate the value of a position. Each
-agent has the the auction and weighting actions separated due to their difference in policy.
+agent has the the auction and weighting actions separated due to their difference in policy. \newline
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
@@ -232,7 +232,7 @@ agent has the the auction and weighting actions separated due to their differenc
     \end{minipage}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
@@ -248,7 +248,7 @@ agent has the the auction and weighting actions separated due to their differenc
     \end{minipage}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
@@ -268,7 +268,7 @@ agent has the the auction and weighting actions separated due to their differenc
 There are a wide-range of compatible neural network architectures that agents can use, as outlined in
 table~\ref{tab:neural_network_layers}. To compare these architectures, the DQN agents from the previous subsection is
 used due to its effectiveness and simplicity with four different network architectures: RNN~\citep{RNN},
-LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using an LSTM network.
+LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using an LSTM network. \\
 
 \begin{wrapfigure}{l}{0.5\textwidth}
     \includegraphics[width=0.5\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/legend.png}
@@ -277,28 +277,28 @@ LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using
 \end{wrapfigure}
 
 %% Training evaluation
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/net_arch_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:net_arch_num_completed_tasks}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/net_arch_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:net_arch_num_failed_tasks}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/net_arch_training_fig/percent_tasks.png}
     \caption{Percent of tasks attempted}
     \label{fig:net_arch_percent_tasks}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=17cm]{figures/4_test_eval_figs/net_arch_training_fig/total_prices.png}
     \caption{Total prices}
@@ -306,7 +306,7 @@ LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using
 \end{figure}
 
 %% TODO may not be needed
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
@@ -322,7 +322,7 @@ LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using
     \end{minipage}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
@@ -338,7 +338,7 @@ LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using
     \end{minipage}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
@@ -354,7 +354,7 @@ LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using
     \end{minipage}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering

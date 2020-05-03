@@ -262,14 +262,14 @@ deriving this function, reinforcement learning will be used to learn an optimal 
 profits over time.
 
 %% TODO Rewrite badly
-%As the action space of the agent is continuous, a deep deterministic policy gradient~\citep{ddpg} agent
-%will be implemented. The action shape can also be discretized allow deep Q learning agents~\cite{atari} to be trained
-%as well. In order to compare alternative learning methods and the affect of discretizing the action space on results,
-%agents will use neural networks as it is known to be able to approximate any
-%function~\citep{csaji2001approximation}. Because of this, a long/short term memory~\citep{LSTM} layer will be used as
-%it allows for multiple inputs, and outputs are single vector that will have several additional layers to allow
-%additional complexity. The network will end at a single ReLU neuron for DDPG or multiple logit activation neurons for
-%DQN agents as shown in Figure~\ref{fig:task_pricing_network_architecture}.
+As the action space of the agent is continuous, a deep deterministic policy gradient~\citep{ddpg} agent
+will be implemented. The action shape can also be discretized allow deep Q learning agents~\cite{atari} to be trained
+as well. In order to compare alternative learning methods and the affect of discretizing the action space on results,
+agents will use neural networks as it is known to be able to approximate any
+function~\citep{csaji2001approximation}. Because of this, a long/short term memory~\citep{LSTM} layer will be used as
+it allows for multiple inputs, and outputs are single vector that will have several additional layers to allow
+additional complexity. The network will end at a single ReLU neuron for DDPG or multiple logit activation neurons for
+DQN agents as shown in Figure~\ref{fig:task_pricing_network_architecture}.
 
 \begin{figure}
     \centering
