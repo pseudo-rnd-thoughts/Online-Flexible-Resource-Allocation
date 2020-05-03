@@ -349,8 +349,8 @@ class CategoricalDqnAgent(DqnAgent, ABC):
 @gin.configurable
 class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
 
-    def __init__(self, agent_num: int, network: tf.keras.Model, **kwargs):
-        CategoricalDqnAgent.__init__(self, network, **kwargs)
+    def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=140000, **kwargs):
+        CategoricalDqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
         TaskPricingRLAgent.__init__(self, f'Task pricing C51 agent {agent_num}', **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
@@ -369,8 +369,8 @@ class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
 @gin.configurable
 class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightingRLAgent):
 
-    def __init__(self, agent_num: int, network: tf.keras.Model, **kwargs):
-        CategoricalDqnAgent.__init__(self, network, **kwargs)
+    def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=100000, **kwargs):
+        CategoricalDqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
         ResourceWeightingRLAgent.__init__(self, f'Resource weighting C51 agent {agent_num}', **kwargs)
 
     def _get_actions(self, tasks: List[Task], server: Server, time_step: int,
