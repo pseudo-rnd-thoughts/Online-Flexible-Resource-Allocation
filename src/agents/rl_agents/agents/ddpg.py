@@ -95,11 +95,9 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
         if self.total_updates % self.actor_target_update_freq == 0:
-            ReinforcementLearningAgent._update_target_network(self.model_actor_network, self.target_actor_network,
-                                                              self.target_update_tau)
+            self._update_target_network(self.model_actor_network, self.target_actor_network, self.target_update_tau)
         if self.total_updates % self.critic_target_update_freq == 0:
-            ReinforcementLearningAgent._update_target_network(self.model_critic_network, self.target_critic_network,
-                                                              self.target_update_tau)
+            self._update_target_network(self.model_critic_network, self.target_critic_network, self.target_update_tau)
 
         return critic_loss + actor_loss
 
@@ -246,10 +244,8 @@ class TD3Agent(DdpgAgent, ABC):
             ReinforcementLearningAgent._update_target_network(self.model_actor_network, self.target_actor_network,
                                                               self.target_update_tau)
         if self.total_updates % self.critic_target_update_freq == 0:
-            ReinforcementLearningAgent._update_target_network(self.model_critic_network, self.target_critic_network,
-                                                              self.target_update_tau)
-            ReinforcementLearningAgent._update_target_network(self.twin_model_critic_network,
-                                                              self.twin_target_critic_network, self.target_update_tau)
+            self._update_target_network(self.model_critic_network, self.target_critic_network, self.target_update_tau)
+            self._update_target_network(self.twin_model_critic_network, self.twin_target_critic_network, self.target_update_tau)
 
         return critic_loss + actor_loss
 

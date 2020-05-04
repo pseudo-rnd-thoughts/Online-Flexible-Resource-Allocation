@@ -53,20 +53,24 @@ def test_build_agent():
     dqn_weighting_arguments = {**reinforcement_learning_arguments, **dqn_arguments, **weighting_arguments}
 
     pricing_network = create_lstm_dqn_network(9, 10)
+    categorical_pricing_network = create_lstm_categorical_dqn_network(9, 10)
     pricing_agents = [
         TaskPricingDqnAgent(0, pricing_network, **dqn_pricing_arguments),
         TaskPricingDdqnAgent(1, pricing_network, **dqn_pricing_arguments),
-        TaskPricingDuelingDqnAgent(2, pricing_network, **dqn_pricing_arguments)
+        TaskPricingDuelingDqnAgent(2, pricing_network, **dqn_pricing_arguments),
+        TaskPricingCategoricalDqnAgent(3, categorical_pricing_network, **dqn_pricing_arguments)
     ]
     for agent in pricing_agents:
         print(f'Agent: {agent.name}')
         assert_args(agent, dqn_pricing_arguments)
 
     weighting_network = create_lstm_dqn_network(16, 10)
+    categorical_weighting_network = create_lstm_categorical_dqn_network(16, 10)
     weighting_agents = [
         ResourceWeightingDqnAgent(0, weighting_network, **dqn_weighting_arguments),
         ResourceWeightingDdqnAgent(1, weighting_network, **dqn_weighting_arguments),
-        ResourceWeightingDuelingDqnAgent(2, weighting_network, **dqn_weighting_arguments)
+        ResourceWeightingDuelingDqnAgent(2, weighting_network, **dqn_weighting_arguments),
+        ResourceWeightingCategoricalDqnAgent(3, categorical_weighting_network, **dqn_weighting_arguments)
     ]
     for agent in weighting_agents:
         print(f'Agent: {agent.name}')
@@ -202,38 +206,52 @@ def test_c51_actions():
 def test_ddpg_actions():
     print()
     # Check that DDPG actions are valid
-    pricing_agent = TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9),
-                                         initial_epsilon=0.5)
-    weighting_agent = ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16),
-                                                 initial_epsilon=0.5)
-
     env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/actions.env')
-    auction_actions = {
-        server: pricing_agent.bid(state.auction_task, tasks, server, state.time_step)
-        for server, tasks in state.server_tasks.items()
-    }
-    print(f'Greedy actions: {list(auction_actions.values())}')
-    assert any(0 < action for server, action in auction_actions.items())
 
-    auction_actions = {
-        server: pricing_agent.bid(state.auction_task, tasks, server, state.time_step, training=True)
-        for server, tasks in state.server_tasks.items()
-    }
-    print(f'Epsilon Greedy actions: {list(auction_actions.values())}\n')
-    assert any(0 < action for server, action in auction_actions.items())
+    repeat, max_repeat = 0, 10
+    auction_actions = {}
+    while repeat <= max_repeat:
+        pricing_agent = TaskPricingDdpgAgent(3, create_lstm_actor_network(9), create_lstm_critic_network(9),
+                                             initial_epsilon=0.5)
+        auction_actions = {
+            server: pricing_agent.bid(state.auction_task, tasks, server, state.time_step)
+            for server, tasks in state.server_tasks.items()
+        }
+        print(f'Greedy actions: {list(auction_actions.values())}')
+        if any(0 < action for server, action in auction_actions.items()):
+
+            auction_actions = {
+                server: pricing_agent.bid(state.auction_task, tasks, server, state.time_step, training=True)
+                for server, tasks in state.server_tasks.items()
+            }
+            print(f'Epsilon Greedy actions: {list(auction_actions.values())}\n')
+            if any(0 < action for server, action in auction_actions.items()):
+                break
+        elif repeat == max_repeat:
+            raise Exception()
+        else:
+            repeat += 1
 
     states, rewards, dones, _ = env.step(auction_actions)
 
-    weighting_actions = {
-        server: weighting_agent.weight(tasks, server, state.time_step)
-        for server, tasks in state.server_tasks.items()
-    }
-    print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
-    assert any(0 < action for server, task_actions in weighting_actions.items() for task, action in task_actions.items())
-
-    weighting_actions = {
-        server: weighting_agent.weight(tasks, server, state.time_step, training=True)
-        for server, tasks in state.server_tasks.items()
-    }
-    print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
-    assert any(0 < action for server, task_actions in weighting_actions.items() for task, action in task_actions.items())
+    repeat, max_repeat = 0, 10
+    while repeat <= max_repeat:
+        weighting_agent = ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16),
+                                                     initial_epsilon=0.5)
+        weighting_actions = {
+            server: weighting_agent.weight(tasks, server, state.time_step)
+            for server, tasks in state.server_tasks.items()
+        }
+        print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
+        if any(0 < action for server, task_actions in weighting_actions.items() for task, action in task_actions.items()):
+            weighting_actions = {
+                server: weighting_agent.weight(tasks, server, state.time_step, training=True)
+                for server, tasks in state.server_tasks.items()
+            }
+            print(f'Greedy actions: {[list(actions.values()) for actions in weighting_actions.values()]}')
+            if any(0 < action for server, task_actions in weighting_actions.items() for task, action in task_actions.items()):
+                break
+        elif repeat == max_repeat:
+            raise Exception()
+        else:
+            repeat += 1

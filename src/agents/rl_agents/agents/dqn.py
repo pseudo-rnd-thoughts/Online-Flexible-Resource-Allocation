@@ -122,8 +122,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
         if self.total_updates % self.training_freq == 0:
-            ReinforcementLearningAgent._update_target_network(self.model_network, self.target_network,
-                                                              self.target_update_tau)
+            self._update_target_network(self.model_network, self.target_network, self.target_update_tau)
 
         return loss
 
@@ -290,9 +289,9 @@ class ResourceWeightingDuelingDqnAgent(DuelingDQN, ResourceWeightingDqnAgent):
 @gin.configurable
 class CategoricalDqnAgent(DqnAgent, ABC):
 
-    def __init__(self, network: tf.keras.Model, max_value: float = -20.0, min_value: float = 25.0,
-                 **kwargs):
-        DqnAgent.__init__(self, network, error_loss_fn=tf.keras.losses.CategoricalCrossentropy(), **kwargs)
+    def __init__(self, network: tf.keras.Model, max_value: float = -20.0, min_value: float = 25.0, **kwargs):
+        DqnAgent.__init__(self, network, error_loss_fn=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
+                          **kwargs)
 
         self.v_min = min_value
         self.v_max = max_value
@@ -302,46 +301,47 @@ class CategoricalDqnAgent(DqnAgent, ABC):
 
     def _train(self, states: tf.Tensor, actions: tf.Tensor, next_states: tf.Tensor, rewards: tf.Tensor,
                dones: tf.Tensor) -> float:
-        rewards = tf.expand_dims(rewards, axis=-1)
-        dones = tf.expand_dims(dones, axis=-1)
         actions = tf.cast(actions, tf.int32)
+        rewards, dones = tf.expand_dims(rewards, axis=-1), tf.expand_dims(dones, axis=-1)
 
         network_variables = self.model_network.trainable_variables
         with tf.GradientTape() as tape:
             tape.watch(network_variables)
 
-            q_distribution = self.model_network(states)
-            action_indexes = tf.stack([tf.range(self.batch_size), actions], axis=1)
-            action_q_distribution = tf.gather_nd(q_distribution, action_indexes)
+            # Q(s_t, a_t)
+            q_logits = self.model_network(states)
+            action_indexes = tf.stack([tf.range(self.batch_size, dtype=tf.int32), actions], axis=-1)
+            action_q_logits = tf.gather_nd(q_logits, action_indexes)
 
-            # Next distribution
-            next_target_distribution = self.target_network(next_states)
-            next_target_q_values = tf.reduce_sum(next_target_distribution * self.z_values, axis=-1)
+            # Q(s_t+1, a_t+1)
+            next_distribution = tf.nn.softmax(self.target_network(next_states))
+            next_target_q_values = tf.reduce_sum(next_distribution * self.z_values, axis=2)
             next_actions = tf.math.argmax(next_target_q_values, axis=1, output_type=tf.int32)
-            next_action_indexes = tf.stack([tf.range(self.batch_size), next_actions], axis=-1)
-            next_distribution = tf.gather_nd(next_target_distribution, next_action_indexes)
-
-            # Bellman update
-            target_q_value = tf.transpose([rewards]) + self.discount_factor * dones * self.z_values * tf.ones((self.batch_size, self.num_atoms))
-            clipped_q_value = tf.clip_by_value(target_q_value, self.v_min, self.v_max)
-            expanded_q_value = tf.reshape(tf.tile(clipped_q_value, [1, 1, self.num_atoms]),
-                                          [self.batch_size, self.num_atoms, self.num_atoms])
-            quotient = tf.clip_by_value(1 - tf.abs(expanded_q_value - tf.transpose([self.z_values])) / self.delta_z, 0, 1)
-            expanded_next_distribution = tf.reshape(tf.tile(next_distribution, [1, self.num_atoms]),
+            next_action_indexes = tf.stack([tf.range(self.batch_size), next_actions], axis=1)
+            next_target_distribution = tf.gather_nd(next_distribution, next_action_indexes)
+            expanded_next_distribution = tf.reshape(tf.tile(next_target_distribution, [1, self.num_atoms]),
                                                     [self.batch_size, self.num_atoms, self.num_atoms])
-            target_distribution = tf.stop_gradient(tf.reduce_sum(quotient * expanded_next_distribution, axis=2))
 
-            loss = self.error_loss_fn(target_distribution, action_q_distribution)
+            # Bellman projection update
+            next_value_term = dones * self.z_values * tf.ones((self.batch_size, self.num_atoms))
+            target_q_value = rewards + self.discount_factor * next_value_term
+            clipped_q_value = tf.clip_by_value(target_q_value, self.v_min, self.v_max)
+            expanded_q_value = tf.reshape(tf.tile(clipped_q_value, [1, self.num_atoms]),
+                                          [self.batch_size, self.num_atoms, self.num_atoms])
+            quotient = tf.clip_by_value(1 - tf.abs(expanded_q_value - tf.transpose([self.z_values])) / self.delta_z, 0,
+                                        1)
+            target_distribution = tf.reduce_sum(quotient * expanded_next_distribution, axis=2)
+
+            loss = self.error_loss_fn(target_distribution, action_q_logits)
             if self.model_network.losses:
                 loss += tf.reduce_mean(self.model_network.losses)
 
-        grads = tape.gradient(loss, network_variables)
-        self.optimiser.apply_gradients(zip(grads, network_variables))
+        gradients = tape.gradient(loss, network_variables)
+        self.optimiser.apply_gradients(zip(gradients, network_variables))
 
         # Check if to update the target, if so update each variable at a time using the target update tau variable
         if self.total_updates % self.training_freq == 0:
-            ReinforcementLearningAgent._update_target_network(self.model_network, self.target_network,
-                                                              self.target_update_tau)
+            self._update_target_network(self.model_network, self.target_network, self.target_update_tau)
 
         return loss
 
@@ -361,9 +361,8 @@ class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
                 return float(rnd.randint(0, self.num_actions - 1))
 
         observation = tf.expand_dims(self._network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
-        q_values = tf.reduce_sum(self.model_network(observation) * self.z_values, axis=2)
-        action = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
-        return action
+        q_values = tf.reduce_sum(tf.nn.softmax(self.model_network(observation)) * self.z_values, axis=2)
+        return tf.math.argmax(q_values, axis=1, output_type=tf.int32)
 
 
 @gin.configurable
@@ -390,6 +389,6 @@ class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightin
         else:
             observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
                                                 dtype='float32')
-            q_values = tf.reduce_sum(self.z_values * self.model_network(observations), axis=2)
+            q_values = tf.reduce_sum(tf.nn.softmax(self.model_network(observations)) * self.z_values, axis=2)
             actions = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
             return {task: float(action) for task, action in zip(tasks, actions)}
