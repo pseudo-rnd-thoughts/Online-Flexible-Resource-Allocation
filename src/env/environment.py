@@ -81,6 +81,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
                    f'\tServers -> {{{server_tasks_str}}}\n' \
                    f'\tUnallocated tasks: \n\t{unallocated_task_str}'
 
+    # noinspection PyUnusedLocal
     def _repr_pretty_(self, p, cycle):
         p.text(self.__str__())
 

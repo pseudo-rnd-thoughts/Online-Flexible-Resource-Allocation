@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import gin
-
 from agents.rl_agents.agents.ddpg import ResourceWeightingSeq2SeqAgent
-from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent, TaskPricingDqnAgent
+from agents.rl_agents.agents.dqn import TaskPricingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_seq2seq_actor_network, create_seq2seq_critic_network
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv

@@ -4,8 +4,6 @@ Training of Td3 agents using a central critic for the task pricing agents
 
 from __future__ import annotations
 
-import gin
-
 from agents.rl_agents.agents.ddpg import ResourceWeightingTD3Agent, \
     TaskPricingTD3Agent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network

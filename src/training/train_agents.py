@@ -268,7 +268,20 @@ def setup_tensorboard(folder: str, training_name: str) -> Tuple[ResourceSummaryW
 
 
 def multi_env_single_env_training(folder, datetime, primary_writer, task_pricing_agents, resource_weighting_agents,
-                                  multi_env_training: bool = True, total_epsiodes: int = 600, eval_freq: int = 10):
+                                  multi_env_training: bool = True, total_episodes: int = 600, eval_freq: int = 10):
+    """
+    Multi and single environment training
+
+    Args:
+        folder: Training folder name
+        datetime: The datetime of the training
+        primary_writer: The primary writer for the multiple environment
+        task_pricing_agents: List of task pricing agents
+        resource_weighting_agents: List of resource weighting agents
+        multi_env_training: If to use multi env training
+        total_episodes: Number of training episodes
+        eval_freq: The evaluation frequency
+    """
     single_env = OnlineFlexibleResourceAllocationEnv('./training/settings/basic.env')
     multi_env = OnlineFlexibleResourceAllocationEnv([
         './training/settings/basic.env',
@@ -282,7 +295,7 @@ def multi_env_single_env_training(folder, datetime, primary_writer, task_pricing
     single_env_eval_writer = tf.summary.create_file_writer(f'training/results/logs/{folder}_single_env_{datetime}')
 
     # Loop over the episodes
-    for episode in range(total_epsiodes):
+    for episode in range(total_episodes):
         if episode % 5 == 0:
             print(f'Episode: {episode} at {dt.datetime.now().strftime("%H:%M:%S")}')
         with primary_writer.as_default():

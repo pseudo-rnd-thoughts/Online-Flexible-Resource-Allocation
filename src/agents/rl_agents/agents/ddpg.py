@@ -121,7 +121,14 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
 
         return critic_loss
 
+    # noinspection DuplicatedCode
     def save(self, location: str = 'training/results/checkpoints/'):
+        """
+        Saves the DDPG agent networks, both the actor and the critic
+
+        Args:
+            location: Custom save location
+        """
         # Set the location to save the model and setup the directory
         path = f'{os.getcwd()}/{location}/{self.save_folder}/'
         if not os.path.exists(path):
@@ -265,6 +272,12 @@ class TD3Agent(DdpgAgent, ABC):
 
     # noinspection DuplicatedCode
     def save(self, location: str = 'training/results/checkpoints/'):
+        """
+        Saves the TD3 agent networks, both the actor, critic and twin critic
+
+        Args:
+            location: Custom save location
+        """
         # Set the location to save the model and setup the directory
         path = f'{os.getcwd()}/{location}/{self.save_folder}/'
         if not os.path.exists(path):
@@ -304,15 +317,18 @@ class ResourceWeightingTD3Agent(TD3Agent, ResourceWeightingDdpgAgent):
 
 
 class ResourceWeightingSeq2SeqAgent(TD3Agent, ResourceWeightingRLAgent):
+    """
+    Resource Weighting Seq2Seq Agent
+    """
 
     network_obs_width = 8
 
     def __init__(self, agent_num: int, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
-                 twin_critic_networK: tf.keras.Model, **kwargs):
+                 twin_critic_network: tf.keras.Model, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
         assert actor_network.output_shape[-1] == 1
 
-        TD3Agent.__init__(self, actor_network, critic_network, twin_critic_networK, **kwargs)
+        TD3Agent.__init__(self, actor_network, critic_network, twin_critic_network, **kwargs)
         ResourceWeightingRLAgent.__init__(self, f'Resource Weighting Seq2Seq agent {agent_num}', **kwargs)
 
     # noinspection DuplicatedCode
@@ -330,6 +346,15 @@ class ResourceWeightingSeq2SeqAgent(TD3Agent, ResourceWeightingRLAgent):
 
     def resource_allocation_obs(self, agent_state: ResourceAllocationState, actions: Dict[Task, float],
                                 next_agent_state: ResourceAllocationState, finished_tasks: List[Task]):
+        """
+        Resource allocation observation
+
+        Args:
+            agent_state: The agent state
+            actions: Dictionary of agent actions
+            next_agent_state: The next agent state
+            finished_tasks: List of finished tasks
+        """
         if len(agent_state.tasks) <= 1 or len(next_agent_state.tasks) <= 1:
             return
 

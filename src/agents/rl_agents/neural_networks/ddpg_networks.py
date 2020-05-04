@@ -52,6 +52,14 @@ def create_lstm_critic_network(input_width: int, lstm_width: int = 32, relu_widt
 
 @gin.configurable
 def create_seq2seq_actor_network(lstm_width: int = 32):
+    """
+    Create Seq2Seq actor network
+
+    Args:
+        lstm_width: Size of the LSTM network output width
+
+    Returns: Seq2Seq Actor network model
+    """
     input_layer = tf.keras.layers.Input(shape=(None, 8))
     encoder = tf.keras.layers.LSTM(lstm_width, return_state=True)
     encoder_output, encoder_state_h, encoder_state_c = encoder(input_layer)  # Ignore the encoder_output
@@ -64,6 +72,15 @@ def create_seq2seq_actor_network(lstm_width: int = 32):
 
 @gin.configurable
 def create_seq2seq_critic_network(lstm_width: int = 32, relu_width: int = 32):
+    """
+    Create Seq2Seq critic network
+
+    Args:
+        lstm_width: Size of the LSTM network output width
+        relu_width: Size of the RELU network output width
+
+    Returns: Seq2Seq Critic network model
+    """
     task_input_layer = tf.keras.layers.Input(shape=(None, 8))
     action_input_layer = tf.keras.layers.Input(shape=(None, 1))
 

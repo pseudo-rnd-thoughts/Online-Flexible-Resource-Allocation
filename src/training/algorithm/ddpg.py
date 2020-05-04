@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import gin
-
 from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
 from env.environment import OnlineFlexibleResourceAllocationEnv

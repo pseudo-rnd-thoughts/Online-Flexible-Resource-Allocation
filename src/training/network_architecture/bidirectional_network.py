@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import gin
-
 from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent, TaskPricingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import create_bidirectional_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv

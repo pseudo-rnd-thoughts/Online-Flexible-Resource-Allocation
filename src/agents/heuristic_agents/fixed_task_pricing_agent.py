@@ -41,5 +41,11 @@ class FixedTaskPricingAgent(TaskPricingRLAgent):
     def _train(self, states, actions, next_states, rewards, dones) -> float:
         return 0
 
-    def _save(self, custom_location: Optional[str] = None):
+    def save(self, custom_location: Optional[str] = None):
+        """
+        Ignored
+
+        Args:
+            custom_location: Ignored
+        """
         pass

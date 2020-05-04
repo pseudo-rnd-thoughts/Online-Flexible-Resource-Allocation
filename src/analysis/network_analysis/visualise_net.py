@@ -1,3 +1,6 @@
+"""
+Allows for the visualisation of the auction and resource weighting networks
+"""
 
 import tensorflow as tf
 

@@ -73,16 +73,35 @@ class RandomResourceWeightingAgent(ResourceWeightingAgent):
 
 
 class RandomTaskPricingRLAgent(RandomTaskPricingAgent, TaskPricingRLAgent):
+    """
+    Random Task Pricing RL agent to be used in test training
+    """
+
     def _train(self, states, actions, next_states, rewards, dones) -> float:
         return 0
 
     def save(self, custom_location: Optional[str] = None):
+        """
+        Ignored
+
+        Args:
+            custom_location: Ignored
+        """
         pass
 
 
 class RandomResourceWeightingRLAgent(RandomResourceWeightingAgent, ResourceWeightingRLAgent):
+    """
+    Random Resource Weighting RL agent to be used in test training
+    """
     def _train(self, states, actions, next_states, rewards, dones) -> float:
         return 0
 
     def save(self, custom_location: Optional[str] = None):
+        """
+        Ignored
+
+        Args:
+            custom_location: Ignored
+        """
         pass

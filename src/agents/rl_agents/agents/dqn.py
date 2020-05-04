@@ -286,6 +286,9 @@ class ResourceWeightingDuelingDqnAgent(DuelingDQN, ResourceWeightingDqnAgent):
 
 @gin.configurable
 class CategoricalDqnAgent(DqnAgent, ABC):
+    """
+    Categorical DQN agent
+    """
 
     def __init__(self, network: tf.keras.Model, max_value: float = -20.0, min_value: float = 25.0,
                  error_loss_fn=tf.keras.losses.CategoricalCrossentropy(from_logits=True), **kwargs):
@@ -346,6 +349,9 @@ class CategoricalDqnAgent(DqnAgent, ABC):
 
 @gin.configurable
 class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
+    """
+    Task pricing Categorical DQN agent
+    """
 
     def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=140000, **kwargs):
         CategoricalDqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
@@ -365,6 +371,9 @@ class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
 
 @gin.configurable
 class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightingRLAgent):
+    """
+    Resource weighting categorical DQN agent
+    """
 
     def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=100000, **kwargs):
         CategoricalDqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)

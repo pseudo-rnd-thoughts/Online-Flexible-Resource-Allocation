@@ -4,9 +4,7 @@ Training of a TD3 auction agent and a DQN agent
 
 from __future__ import annotations
 
-import gin
-
-from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent, TaskPricingTD3Agent
+from agents.rl_agents.agents.ddpg import TaskPricingTD3Agent
 from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network

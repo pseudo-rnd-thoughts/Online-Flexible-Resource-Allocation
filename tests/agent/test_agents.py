@@ -15,7 +15,6 @@ from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_critic_ne
     create_seq2seq_actor_network, create_seq2seq_critic_network
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network, \
     create_lstm_categorical_dqn_network
-from agents.rl_agents.rl_agents import ReinforcementLearningAgent
 from env.environment import OnlineFlexibleResourceAllocationEnv
 
 
