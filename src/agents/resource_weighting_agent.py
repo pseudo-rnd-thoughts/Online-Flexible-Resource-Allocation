@@ -39,7 +39,7 @@ class ResourceWeightingAgent(ABC):
                    task.stage is TaskStage.SENDING for task in allocated_tasks), \
             ', '.join([f'{task.name}: {task.stage}' for task in allocated_tasks])
         assert all(task.auction_time <= time_step <= task.deadline for task in allocated_tasks), \
-            '\n'.join([str(task) for task in allocated_tasks])
+            str(time_step) + ''.join([f'\n{task.name} {task.auction_time} {task.deadline}' for task in allocated_tasks])
 
         if len(allocated_tasks) <= 1:
             return {task: 1.0 for task in allocated_tasks}

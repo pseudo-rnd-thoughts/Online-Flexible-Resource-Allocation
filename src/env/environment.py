@@ -176,6 +176,10 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
             # Resource allocation (Action = Dict[Server, Dict[Task, float]])
             # Convert weights to resources
             info['step type'] = 'resource allocation'
+            assert all(server in actions for server in self._state.server_tasks.keys())
+            assert all(task in actions[server] for server, tasks in self._state.server_tasks.items() for task in tasks), \
+                ', '.join([f'{server.name}: {task.name}' for server, tasks in self._state.server_tasks.items()
+                           for task in tasks if task not in actions[server]])
             assert all(type(actions[server][task]) is float and 0 <= actions[server][task]
                        for server, tasks in self._state.server_tasks.items() for task in tasks)
 

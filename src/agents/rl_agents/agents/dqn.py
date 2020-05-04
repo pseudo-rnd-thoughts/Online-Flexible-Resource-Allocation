@@ -190,10 +190,8 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
                     actions[task] = float(tf.math.argmax(q_values, axis=1, output_type=tf.int32))
             return actions
         else:
-            observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
-                                                dtype='float32')
-            q_values = self.model_network(observations)
-            actions = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
+            observations = tf.cast([self._network_obs(task, tasks, server, time_step) for task in tasks], tf.float32)
+            actions = tf.math.argmax(self.model_network(observations), axis=1, output_type=tf.int32)
             return {task: float(action) for task, action in zip(tasks, actions)}
 
 
@@ -289,9 +287,9 @@ class ResourceWeightingDuelingDqnAgent(DuelingDQN, ResourceWeightingDqnAgent):
 @gin.configurable
 class CategoricalDqnAgent(DqnAgent, ABC):
 
-    def __init__(self, network: tf.keras.Model, max_value: float = -20.0, min_value: float = 25.0, **kwargs):
-        DqnAgent.__init__(self, network, error_loss_fn=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
-                          **kwargs)
+    def __init__(self, network: tf.keras.Model, max_value: float = -20.0, min_value: float = 25.0,
+                 error_loss_fn=tf.keras.losses.CategoricalCrossentropy(from_logits=True), **kwargs):
+        DqnAgent.__init__(self, network, error_loss_fn=error_loss_fn, **kwargs)
 
         self.v_min = min_value
         self.v_max = max_value
@@ -387,8 +385,7 @@ class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightin
                     actions[task] = float(tf.math.argmax(q_values, axis=1, output_type=tf.int32))
             return actions
         else:
-            observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
-                                                dtype='float32')
+            observations = tf.cast([self._network_obs(task, tasks, server, time_step) for task in tasks], tf.float32)
             q_values = tf.reduce_sum(tf.nn.softmax(self.model_network(observations)) * self.z_values, axis=2)
             actions = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
             return {task: float(action) for task, action in zip(tasks, actions)}

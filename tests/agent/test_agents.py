@@ -7,13 +7,15 @@ from __future__ import annotations
 import tensorflow as tf
 
 from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent, TaskPricingTD3Agent, \
-    ResourceWeightingTD3Agent
+    ResourceWeightingTD3Agent, ResourceWeightingSeq2SeqAgent
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, TaskPricingDdqnAgent, TaskPricingDuelingDqnAgent, \
     ResourceWeightingDqnAgent, ResourceWeightingDdqnAgent, ResourceWeightingDuelingDqnAgent, \
     ResourceWeightingCategoricalDqnAgent, TaskPricingCategoricalDqnAgent
-from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_critic_network, create_lstm_actor_network
+from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_critic_network, create_lstm_actor_network, \
+    create_seq2seq_actor_network, create_seq2seq_critic_network
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network, \
     create_lstm_categorical_dqn_network
+from agents.rl_agents.rl_agents import ReinforcementLearningAgent
 from env.environment import OnlineFlexibleResourceAllocationEnv
 
 
@@ -255,3 +257,26 @@ def test_ddpg_actions():
             raise Exception()
         else:
             repeat += 1
+
+
+def test_seq2seq_actions():
+    print()
+    # Check that Seq2seq PG actions are valid
+    env, state = OnlineFlexibleResourceAllocationEnv.load_env('agent/settings/resource_allocation.env')
+
+    actor_network = create_seq2seq_actor_network()
+    critic_network = create_seq2seq_critic_network()
+    twin_critic_network = create_seq2seq_critic_network()
+    seq2seq_agent = ResourceWeightingSeq2SeqAgent(0, actor_network, critic_network, twin_critic_network)
+
+    weighting_actions = {
+        server: seq2seq_agent.weight(tasks, server, state.time_step)
+        for server, tasks in state.server_tasks.items()
+    }
+    state, rewards, done, _ = env.step(weighting_actions)
+
+    weighting_actions = {
+        server: seq2seq_agent.weight(tasks, server, state.time_step, training=True)
+        for server, tasks in state.server_tasks.items()
+    }
+    state, rewards, done, _ = env.step(weighting_actions)

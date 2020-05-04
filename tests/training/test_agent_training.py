@@ -5,11 +5,12 @@ Tests the dqn agents training method
 from typing import List
 
 from agents.rl_agents.agents.ddpg import TaskPricingDdpgAgent, ResourceWeightingDdpgAgent, ResourceWeightingTD3Agent, \
-    TaskPricingTD3Agent
+    TaskPricingTD3Agent, ResourceWeightingSeq2SeqAgent
 from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent, ResourceWeightingDdqnAgent, \
     ResourceWeightingDuelingDqnAgent, TaskPricingDqnAgent, TaskPricingDdqnAgent, TaskPricingDuelingDqnAgent, \
     TaskPricingCategoricalDqnAgent, ResourceWeightingCategoricalDqnAgent
-from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
+from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network, \
+    create_seq2seq_critic_network, create_seq2seq_actor_network
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dueling_dqn_network, create_lstm_dqn_network, \
     create_lstm_categorical_dqn_network
 from agents.rl_agents.rl_agents import ResourceWeightingRLAgent, TaskPricingState, TaskPricingRLAgent, \
@@ -87,7 +88,9 @@ def test_resource_allocation_training():
         ResourceWeightingDdpgAgent(4, create_lstm_actor_network(16), create_lstm_critic_network(16), batch_size=4,
                                    save_folder='tmp'),
         ResourceWeightingTD3Agent(5, create_lstm_actor_network(16), create_lstm_critic_network(16),
-                                  create_lstm_critic_network(16), batch_size=4, save_folder='tmp')
+                                  create_lstm_critic_network(16), batch_size=4, save_folder='tmp'),
+        ResourceWeightingSeq2SeqAgent(6, create_seq2seq_actor_network(), create_seq2seq_critic_network(),
+                                      create_seq2seq_critic_network(), batch_size=1, save_folder='tmp')
     ]
 
     # Load the environment

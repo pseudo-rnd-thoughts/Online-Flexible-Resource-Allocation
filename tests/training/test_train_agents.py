@@ -9,7 +9,7 @@ from agents.heuristic_agents.random_agent import RandomTaskPricingRLAgent, Rando
 from agents.rl_agents.agents.ddpg import ResourceWeightingDdpgAgent, TaskPricingDdpgAgent
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
-from agents.rl_agents.neural_networks.dqn_networks import create_bidirectional_dqn_network
+from agents.rl_agents.neural_networks.dqn_networks import create_bidirectional_dqn_network, create_rnn_dqn_network
 from agents.rl_agents.rl_agents import ReinforcementLearningAgent
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from training.train_agents import generate_eval_envs, eval_agent, train_agent, setup_tensorboard
@@ -35,7 +35,7 @@ def test_agent_evaluation():
     ]
     weighting_agents = [
         ResourceWeightingDqnAgent(2, create_bidirectional_dqn_network(16, 5)),
-        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16))
+        ResourceWeightingDdpgAgent(3, create_lstm_actor_network(16), create_lstm_critic_network(16)),
     ]
 
     results = eval_agent(eval_envs, 0, pricing_agents, weighting_agents)
@@ -56,11 +56,11 @@ def test_train_agents():
     env = OnlineFlexibleResourceAllocationEnv('training/settings/basic.env')
 
     pricing_agents = [
-        TaskPricingDqnAgent(0, create_bidirectional_dqn_network(9, 5), batch_size=16, initial_training_replay_size=16,
+        TaskPricingDqnAgent(0, create_rnn_dqn_network(9, 5), batch_size=16, initial_training_replay_size=16,
                             training_freq=100),
     ]
     weighting_agents = [
-        ResourceWeightingDqnAgent(2, create_bidirectional_dqn_network(16, 5), batch_size=16,
+        ResourceWeightingDqnAgent(2, create_rnn_dqn_network(16, 5), batch_size=16,
                                   initial_training_replay_size=16, training_freq=100)
     ]
 

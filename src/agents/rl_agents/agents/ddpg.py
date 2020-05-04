@@ -8,9 +8,11 @@ from typing import List, Dict, Union
 
 import tensorflow as tf
 
-from agents.rl_agents.rl_agents import ReinforcementLearningAgent, TaskPricingRLAgent, ResourceWeightingRLAgent
+from agents.rl_agents.rl_agents import ReinforcementLearningAgent, TaskPricingRLAgent, ResourceWeightingRLAgent, \
+    ResourceAllocationState
 from env.server import Server
 from env.task import Task
+from env.task_stage import TaskStage
 
 
 class DdpgAgent(ReinforcementLearningAgent, ABC):
@@ -71,24 +73,8 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
         # The rewards and dones dims need to be expanded for the td_target to have the same shape as the q values
         rewards, dones = tf.expand_dims(rewards, axis=1), tf.expand_dims(dones, axis=1)
 
-        # Update the critic network
-        critic_network_variables = self.model_critic_network.trainable_variables
-        with tf.GradientTape() as critic_tape:
-            critic_tape.watch(critic_network_variables)
-
-            # Calculate the state and next state q values with the actions and the actor next actions
-            state_q_values = self.model_critic_network([states, tf.expand_dims(actions, axis=1)])
-            next_actions = tf.clip_by_value(self.model_actor_network(next_states), 0, self.upper_action_bound)
-            next_state_q_values = self.target_critic_network([next_states, next_actions])
-
-            # Calculate the target using the rewards, discount factor, next q values and dones
-            td_target = tf.stop_gradient(rewards + self.discount_factor * next_state_q_values * dones)
-
-            # Calculate the element wise loss
-            critic_loss = self.error_loss_fn(td_target, state_q_values)
-        critic_grads = critic_tape.gradient(critic_loss, critic_network_variables)
-        clipped_critic_grads = [tf.clip_by_value(grad, -1.0, 1.0) for grad in critic_grads]
-        self.critic_optimiser.apply_gradients(zip(clipped_critic_grads, critic_network_variables))
+        # Critic loss
+        critic_loss = self._critic_loss(states, actions, next_states, rewards, dones)
 
         # Actor loss
         actor_loss = self._actor_loss(states)
@@ -112,6 +98,28 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
         actor_grad = tape.gradient(actor_loss, actor_network_variables)
         self.actor_optimiser.apply_gradients(zip(actor_grad, actor_network_variables))
         return actor_loss
+
+    def _critic_loss(self, states, actions, next_states, rewards, dones):
+        # Update the critic network
+        critic_network_variables = self.model_critic_network.trainable_variables
+        with tf.GradientTape() as critic_tape:
+            critic_tape.watch(critic_network_variables)
+
+            # Calculate the state and next state q values with the actions and the actor next actions
+            state_q_values = self.model_critic_network([states, tf.expand_dims(actions, axis=1)])
+            next_actions = tf.clip_by_value(self.model_actor_network(next_states), 0, self.upper_action_bound)
+            next_state_q_values = self.target_critic_network([next_states, next_actions])
+
+            # Calculate the target using the rewards, discount factor, next q values and dones
+            td_target = tf.stop_gradient(rewards + self.discount_factor * next_state_q_values * dones)
+
+            # Calculate the element wise loss
+            critic_loss = self.error_loss_fn(td_target, state_q_values)
+        critic_grads = critic_tape.gradient(critic_loss, critic_network_variables)
+        clipped_critic_grads = [tf.clip_by_value(grad, -1.0, 1.0) for grad in critic_grads]
+        self.critic_optimiser.apply_gradients(zip(clipped_critic_grads, critic_network_variables))
+
+        return critic_loss
 
     def save(self, location: str = 'training/results/checkpoints/'):
         # Set the location to save the model and setup the directory
@@ -165,10 +173,10 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
         name = f'Resource weighting Ddpg agent {agent_name}' if type(agent_name) is int else agent_name
         ResourceWeightingRLAgent.__init__(self, name, **kwargs)
 
+    # noinspection DuplicatedCode
     def _get_actions(self, tasks: List[Task], server: Server, time_step: int,
                      training: bool = False) -> Dict[Task, float]:
-        observations = tf.convert_to_tensor([self._network_obs(task, tasks, server, time_step) for task in tasks],
-                                            dtype='float32')
+        observations = tf.cast([self._network_obs(task, tasks, server, time_step) for task in tasks], tf.float32)
         actions = self.model_actor_network(observations)
 
         if training:
@@ -202,6 +210,26 @@ class TD3Agent(DdpgAgent, ABC):
     def _train(self, states, actions, next_states, rewards, dones) -> float:
         rewards, dones = tf.expand_dims(rewards, axis=1), tf.expand_dims(dones, axis=1)
 
+        # Critic loss
+        critic_loss = self._twin_critic_loss(states, actions, next_states, rewards, dones)
+
+        if self.total_updates % self.actor_update_frequency == 0:
+            # update the actor network
+            actor_loss = self._actor_loss(states)
+        else:
+            actor_loss = 0
+
+        # Check if to update the target, if so update each variable at a time using the target update tau variable
+        if self.total_updates % self.actor_target_update_freq == 0:
+            ReinforcementLearningAgent._update_target_network(self.model_actor_network, self.target_actor_network,
+                                                              self.target_update_tau)
+        if self.total_updates % self.critic_target_update_freq == 0:
+            self._update_target_network(self.model_critic_network, self.target_critic_network, self.target_update_tau)
+            self._update_target_network(self.twin_model_critic_network, self.twin_target_critic_network, self.target_update_tau)
+
+        return critic_loss + actor_loss
+
+    def _twin_critic_loss(self, states, actions, next_states, rewards, dones):
         # Update the critic network
         critic_network_variables = self.model_critic_network.trainable_variables
         twin_critic_network_variables = self.twin_model_critic_network.trainable_variables
@@ -210,7 +238,7 @@ class TD3Agent(DdpgAgent, ABC):
             critic_tape.watch(twin_critic_network_variables)
 
             # Calculate the state and next state q values with the actions and the actor next actions
-            obs = [states, tf.expand_dims(actions, axis=1)]
+            obs = [states, tf.expand_dims(actions, axis=-1)]
             critic_state_q_values = self.model_critic_network(obs)
             twin_critic_state_q_values = self.twin_model_critic_network(obs)
 
@@ -233,21 +261,7 @@ class TD3Agent(DdpgAgent, ABC):
         self.critic_optimiser.apply_gradients(zip(critic_grads, critic_network_variables))
         self.twin_critic_optimiser.apply_gradients(zip(twin_critic_grads, twin_critic_network_variables))
 
-        if self.total_updates % self.actor_update_frequency == 0:
-            # update the actor network
-            actor_loss = self._actor_loss(states)
-        else:
-            actor_loss = 0
-
-        # Check if to update the target, if so update each variable at a time using the target update tau variable
-        if self.total_updates % self.actor_target_update_freq == 0:
-            ReinforcementLearningAgent._update_target_network(self.model_actor_network, self.target_actor_network,
-                                                              self.target_update_tau)
-        if self.total_updates % self.critic_target_update_freq == 0:
-            self._update_target_network(self.model_critic_network, self.target_critic_network, self.target_update_tau)
-            self._update_target_network(self.twin_model_critic_network, self.twin_target_critic_network, self.target_update_tau)
-
-        return critic_loss + actor_loss
+        return (critic_loss + twin_critic_loss) / 2
 
     # noinspection DuplicatedCode
     def save(self, location: str = 'training/results/checkpoints/'):
@@ -280,10 +294,52 @@ class ResourceWeightingTD3Agent(TD3Agent, ResourceWeightingDdpgAgent):
     Resource weighting twin-delayed ddpg agent
     """
 
-    def __init__(self, agent_name: Union[int, str], actor_network: tf.keras.Model, critic_network: tf.keras.Model,
+    def __init__(self, agent_name: int, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
                  twin_critic_network: tf.keras.Model, **kwargs):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
         TD3Agent.__init__(self, actor_network, critic_network, twin_critic_network, **kwargs)
-        name = f'Resource weighting TD3 agent {agent_name}' if type(agent_name) is int else agent_name
-        ResourceWeightingDdpgAgent.__init__(self, name, actor_network, critic_network, **kwargs)
+        ResourceWeightingDdpgAgent.__init__(self, f'Resource weighting TD3 agent {agent_name}', actor_network,
+                                            critic_network, **kwargs)
+
+
+class ResourceWeightingSeq2SeqAgent(TD3Agent, ResourceWeightingRLAgent):
+
+    network_obs_width = 8
+
+    def __init__(self, agent_num: int, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
+                 twin_critic_networK: tf.keras.Model, **kwargs):
+        assert actor_network.input_shape[-1] == self.network_obs_width
+        assert actor_network.output_shape[-1] == 1
+
+        TD3Agent.__init__(self, actor_network, critic_network, twin_critic_networK, **kwargs)
+        ResourceWeightingRLAgent.__init__(self, f'Resource Weighting Seq2Seq agent {agent_num}', **kwargs)
+
+    # noinspection DuplicatedCode
+    def _get_actions(self, tasks: List[Task], server: Server, time_step: int,
+                     training: bool = False) -> Dict[Task, float]:
+        observations = [self._normalise_task(task, server, time_step) for task in tasks]
+        actions = self.model_actor_network(tf.cast(tf.expand_dims(observations, 0), tf.float32))[0]
+
+        if training:
+            self._update_epsilon()
+            actions += tf.random.normal(actions.shape, 0, self.epsilon_std)
+
+        clipped_actions = tf.clip_by_value(actions, 0.0, self.upper_action_bound)
+        return {task: float(action) for task, action in zip(tasks, clipped_actions)}
+
+    def resource_allocation_obs(self, agent_state: ResourceAllocationState, actions: Dict[Task, float],
+                                next_agent_state: ResourceAllocationState, finished_tasks: List[Task]):
+        if len(agent_state.tasks) <= 1 or len(next_agent_state.tasks) <= 1:
+            return
+
+        reward = sum(self.success_reward if finished_task.stage is TaskStage.COMPLETED else self.failed_reward
+                     for finished_task in finished_tasks)
+        obs = tf.cast([self._normalise_task(task, agent_state.server, agent_state.time_step)
+                       for task in agent_state.tasks], tf.float32)
+        next_obs = tf.cast([self._normalise_task(task, next_agent_state.server, next_agent_state.time_step)
+                            for task in next_agent_state.tasks], tf.float32)
+        task_actions = [actions[task] for task in agent_state.tasks]
+        # noinspection PyTypeChecker
+        # Due to the action expected as a float not List[float]
+        self._add_trajectory(obs, task_actions, next_obs, reward)

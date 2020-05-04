@@ -48,3 +48,28 @@ def create_lstm_critic_network(input_width: int, lstm_width: int = 32, relu_widt
     q_values = tf.keras.layers.Dense(1, activation='linear', kernel_regularizer=tf.keras.regularizers.l1())(relu_layer)
 
     return tf.keras.Model(name='LSTM_Critic', inputs=[input_layer, action_input_layer], outputs=q_values)
+
+
+@gin.configurable
+def create_seq2seq_actor_network(lstm_width: int = 32):
+    input_layer = tf.keras.layers.Input(shape=(None, 8))
+    encoder = tf.keras.layers.LSTM(lstm_width, return_state=True)
+    encoder_output, encoder_state_h, encoder_state_c = encoder(input_layer)  # Ignore the encoder_output
+
+    decoder = tf.keras.layers.LSTM(lstm_width, return_sequences=True)
+    decoded = decoder(input_layer, initial_state=[encoder_state_h, encoder_state_c])
+    actor_layer = tf.keras.layers.Dense(1, activation='relu', kernel_regularizer=tf.keras.regularizers.l1())(decoded)
+    return tf.keras.Model(name='Seq2Seq_actor', inputs=input_layer, outputs=actor_layer)
+
+
+@gin.configurable
+def create_seq2seq_critic_network(lstm_width: int = 32, relu_width: int = 32):
+    task_input_layer = tf.keras.layers.Input(shape=(None, 8))
+    action_input_layer = tf.keras.layers.Input(shape=(None, 1))
+
+    concat_layer = tf.keras.layers.concatenate([task_input_layer, action_input_layer])
+    lstm_layer = tf.keras.layers.LSTM(lstm_width)(concat_layer)
+    relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
+    q_value = tf.keras.layers.Dense(1, activation='linear', kernel_regularizer=tf.keras.regularizers.l1())(relu_layer)
+
+    return tf.keras.Model(name='Seq2Seq_critic', inputs=[task_input_layer, action_input_layer], outputs=q_value)
