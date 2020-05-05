@@ -59,13 +59,13 @@
 \frontmatter
 \maketitle
 \begin{abstract}
-Edge clouds enable computational tasks to be completed at the edge of the network, without relying on access to remote
-data centres. A key challenge in these settings is that servers have limited computational resources that often need to
-be allocated to many self-interested users. Existing resource allocation approaches usually assume that tasks have
-inelastic resource requirements (i.e., a fixed amount of compute time, bandwidth and storage), which may result in
-inefficient resource use. In this paper, we expand previous work, that utilises an elastic resource requirement
-mechanism, to an online setting such that job will arrive over time with the task prices and resource allocation
-determined through agents trained using reinforcement learning.
+Mobile Edge clouds enable computational tasks to be completed at the edge of the network, without relying on access to
+remote data centres. A key challenge in these settings is that servers have limited computational resources that often
+need to be allocated to many self-interested users. Existing resource allocation approaches usually assume that tasks
+have inelastic resource requirements (i.e., a fixed amount of computation, bandwidth and storage), which may result in
+inefficient resource use and even bottlenecks. In this project, an elastic resource requirement mechanism is expanded
+upon to an online setting, such that tasks arrive over time with the prices and resource allocation determined by
+agents trained using reinforcement learning.
 \end{abstract}
 
 \pdfbookmark[0]{\contentsname}{toc}
@@ -107,19 +107,19 @@ to investigate and implement.
 
 \mainmatter
 %% ------------------ MAIN MATTER (CONTENT) --------------------
-\include{chapters/0_project_problem}
-\include{chapters/1_background_lit}
-\include{chapters/2_solution}
-\include{chapters/3_implementation}
-\include{chapters/4_evaluation}
-\include{chapters/5_conclusion}
+\include{chapters/1_introduction}
+\include{chapters/2_background_lit}
+\include{chapters/3_solution}
+\include{chapters/4_implementation}
+\include{chapters/5_evaluation}
+\include{chapters/6_conclusion}
 
 \bibliographystyle{plainnat}
 \bibliography{extra/references}
 
 \backmatter
 \appendix
-\include{chapters/6_appendix}
+\include{chapters/7_appendix}
 
 \end{document}
 %% ----------------------------------------------------------------
