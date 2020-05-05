@@ -56,7 +56,7 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
             self.env_name = env_name
             self._total_time_steps = total_time_steps
             self._unallocated_tasks: List[tasks] = list(tasks)
-            assert all(tasks[pos].auction_time <= tasks[pos+1].auction_time for pos in range(len(tasks)-1))
+            assert all(tasks[pos].auction_time <= tasks[pos + 1].auction_time for pos in range(len(tasks) - 1))
             if self._unallocated_tasks:
                 assert time_step <= self._unallocated_tasks[0].auction_time
 
@@ -212,8 +212,9 @@ class OnlineFlexibleResourceAllocationEnv(gym.Env):
         assert all(id(task) != id(_task)
                    for tasks in self._state.server_tasks.values() for task in tasks
                    for _tasks in next_state.server_tasks.values() for _task in _tasks)
-        assert all(task.stage is TaskStage.LOADING or task.stage is TaskStage.COMPUTING or task.stage is TaskStage.SENDING
-                   for server, tasks in next_state.server_tasks.items() for task in tasks)
+        assert all(
+            task.stage is TaskStage.LOADING or task.stage is TaskStage.COMPUTING or task.stage is TaskStage.SENDING
+            for server, tasks in next_state.server_tasks.items() for task in tasks)
         for server, tasks in next_state.server_tasks.items():
             for task in tasks:
                 task.assert_valid()

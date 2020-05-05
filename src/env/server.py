@@ -11,7 +11,7 @@ from env.task_stage import TaskStage
 if TYPE_CHECKING:
     from env.task import Task
     from typing import Dict, Tuple, List
-    
+
 
 def round_float(value: float) -> float:
     """
@@ -31,9 +31,9 @@ class Server(NamedTuple):
 
     name: str  # The name of the server
 
-    storage_cap: float        # The server storage capacity
+    storage_cap: float  # The server storage capacity
     computational_cap: float  # The server computational capacity
-    bandwidth_cap: float      # The server bandwidth capacity
+    bandwidth_cap: float  # The server bandwidth capacity
 
     def __str__(self) -> str:
         return f'{self.name} Server - Storage cap: {self.storage_cap}, Comp cap: {self.computational_cap}, ' \
@@ -105,9 +105,12 @@ class Server(NamedTuple):
             assert task in list(task_resource_usage.keys())
 
         # Assert that the resources used are less than available resources
-        assert sum(storage_usage for (storage_usage, _, _) in task_resource_usage.values()) <= self.storage_cap + error_term
-        assert sum(compute_usage for (_, compute_usage, _) in task_resource_usage.values()) <= self.computational_cap + error_term
-        assert sum(bandwidth_usage for (_, _, bandwidth_usage) in task_resource_usage.values()) <= self.bandwidth_cap + error_term
+        assert sum(
+            storage_usage for (storage_usage, _, _) in task_resource_usage.values()) <= self.storage_cap + error_term
+        assert sum(compute_usage for (_, compute_usage, _) in
+                   task_resource_usage.values()) <= self.computational_cap + error_term
+        assert sum(bandwidth_usage for (_, _, bandwidth_usage) in
+                   task_resource_usage.values()) <= self.bandwidth_cap + error_term
 
         # Group the updated tasks in those completed or failed and those still ongoing
         unfinished_tasks = [task for task in task_resource_usage.keys()

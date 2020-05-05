@@ -22,11 +22,13 @@ if __name__ == "__main__":
     eval_envs = generate_eval_envs(env, 5, f'./training/settings/eval_envs/algo/')
 
     task_pricing_agents = [
-        TaskPricingDdpgAgent(agent_num, create_lstm_actor_network(9), create_lstm_critic_network(9), save_folder=save_folder)
+        TaskPricingDdpgAgent(agent_num, create_lstm_actor_network(9), create_lstm_critic_network(9),
+                             save_folder=save_folder)
         for agent_num in range(3)
     ]
     resource_weighting_agents = [
-        ResourceWeightingDdpgAgent(0, create_lstm_actor_network(16), create_lstm_critic_network(16), save_folder=save_folder)
+        ResourceWeightingDdpgAgent(0, create_lstm_actor_network(16), create_lstm_critic_network(16),
+                                   save_folder=save_folder)
     ]
 
     with writer.as_default():

@@ -94,6 +94,7 @@ class RandomResourceWeightingRLAgent(RandomResourceWeightingAgent, ResourceWeigh
     """
     Random Resource Weighting RL agent to be used in test training
     """
+
     def _train(self, states, actions, next_states, rewards, dones) -> float:
         return 0
 

@@ -5,9 +5,9 @@ Implementation of Deep Q Network, Double DQN and Dueling DQN mechanisms for task
 from __future__ import annotations
 
 import os
+import random as rnd
 from abc import ABC
 from typing import List, Union, Dict
-import random as rnd
 
 import gin.tf
 import tensorflow as tf
@@ -68,7 +68,8 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         self.total_actions += 1
 
         if self.total_actions % self.epsilon_update_freq == 0:
-            self.epsilon = max((self.final_epsilon - self.initial_epsilon) * self.total_actions / self.epsilon_steps + self.initial_epsilon,
+            self.epsilon = max((
+                                           self.final_epsilon - self.initial_epsilon) * self.total_actions / self.epsilon_steps + self.initial_epsilon,
                                self.final_epsilon)
 
             if self.total_actions % self.epsilon_log_freq == 0:
@@ -91,7 +92,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         self.model_network.save_weights(f'{path}/{self.name.replace(" ", "_")}')
 
     def _train(self, states: tf.Tensor, actions: tf.Tensor,
-               next_states: tf.Tensor, rewards: tf.Tensor, dones: tf. Tensor) -> float:
+               next_states: tf.Tensor, rewards: tf.Tensor, dones: tf.Tensor) -> float:
         # Actions are discrete so cast to int32 from float32
         actions = tf.cast(actions, tf.int32)
 
@@ -153,7 +154,7 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
             self._update_epsilon()
 
             if rnd.random() < self.epsilon:
-                return float(rnd.randint(0, self.num_actions-1))
+                return float(rnd.randint(0, self.num_actions - 1))
 
         observation = tf.expand_dims(self._network_obs(auction_task, allocated_tasks, server, time_step), axis=0)
         q_values = self.model_network(observation)
@@ -182,7 +183,7 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
             actions = {}
             for task in tasks:
                 if rnd.random() < self.epsilon:
-                    actions[task] = float(rnd.randint(0, self.num_actions-1))
+                    actions[task] = float(rnd.randint(0, self.num_actions - 1))
                 else:
                     observation = tf.expand_dims(self._network_obs(task, tasks, server, time_step), axis=0)
                     q_values = self.model_network(observation)

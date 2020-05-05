@@ -174,7 +174,8 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
                                                if auction_agent_state[0].auction_task == finished_task), None)
                     if successful_auction is None:
                         print(f'Number of successful auction agent states: {len(successful_auction_states)}')
-                        print(f'Number of server tasks: {sum(len(tasks) for tasks in next_state.server_tasks.values())}')
+                        print(
+                            f'Number of server tasks: {sum(len(tasks) for tasks in next_state.server_tasks.values())}')
                         print(f'Finished task: {str(finished_task)}\n\n')
                         print(f'State: {str(state)}\n')
                         print(f'Next state: {str(next_state)}')
@@ -193,7 +194,8 @@ def train_agent(training_env: OnlineFlexibleResourceAllocationEnv, pricing_agent
             # Add the agent states for resource allocation
             for server, tasks in state.server_tasks.items():
                 agent_state = ResourceAllocationState(tasks, server, state.time_step)
-                next_agent_state = ResourceAllocationState(next_state.server_tasks[server], server, next_state.time_step)
+                next_agent_state = ResourceAllocationState(next_state.server_tasks[server], server,
+                                                           next_state.time_step)
 
                 server_weighting_agents[server].resource_allocation_obs(agent_state, weighting_actions[server],
                                                                         next_agent_state, finished_server_tasks[server])

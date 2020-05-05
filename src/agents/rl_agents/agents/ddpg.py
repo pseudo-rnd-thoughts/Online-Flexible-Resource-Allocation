@@ -3,6 +3,7 @@ Continuous action space policy gradient agents
 """
 
 import os
+import random as rnd
 from abc import ABC
 from typing import List, Dict, Union
 
@@ -62,7 +63,8 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
         self.total_actions += 1
 
         if self.total_actions % self.epsilon_update_freq == 0:
-            self.epsilon_std = max((self.final_epsilon_std - self.initial_epsilon_std) * self.total_actions / self.epsilon_steps + self.initial_epsilon_std,
+            self.epsilon_std = max((
+                                               self.final_epsilon_std - self.initial_epsilon_std) * self.total_actions / self.epsilon_steps + self.initial_epsilon_std,
                                    self.final_epsilon_std)
 
             if self.total_actions % self.epsilon_log_freq == 0:
@@ -199,7 +201,8 @@ class TD3Agent(DdpgAgent, ABC):
     Twin-delayed ddpg agent
     """
 
-    def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model, twin_critic_network: tf.keras.Model,
+    def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
+                 twin_critic_network: tf.keras.Model,
                  twin_critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
                  actor_update_frequency: int = 3, actor_target_update_frequency: int = 3, **kwargs):
         DdpgAgent.__init__(self, actor_network, critic_network,
@@ -232,7 +235,8 @@ class TD3Agent(DdpgAgent, ABC):
                                                               self.target_update_tau)
         if self.total_updates % self.critic_target_update_freq == 0:
             self._update_target_network(self.model_critic_network, self.target_critic_network, self.target_update_tau)
-            self._update_target_network(self.twin_model_critic_network, self.twin_target_critic_network, self.target_update_tau)
+            self._update_target_network(self.twin_model_critic_network, self.twin_target_critic_network,
+                                        self.target_update_tau)
 
         return critic_loss + actor_loss
 
@@ -299,7 +303,8 @@ class TaskPricingTD3Agent(TD3Agent, TaskPricingDdpgAgent):
         assert actor_network.input_shape[-1] == self.network_obs_width
 
         TD3Agent.__init__(self, actor_network, critic_network, twin_critic_network, **kwargs)
-        TaskPricingDdpgAgent.__init__(self, f'Task pricing TD3 agent {agent_num}', actor_network, critic_network, **kwargs)
+        TaskPricingDdpgAgent.__init__(self, f'Task pricing TD3 agent {agent_num}', actor_network, critic_network,
+                                      **kwargs)
 
 
 class ResourceWeightingTD3Agent(TD3Agent, ResourceWeightingDdpgAgent):
@@ -343,6 +348,27 @@ class ResourceWeightingSeq2SeqAgent(TD3Agent, ResourceWeightingRLAgent):
 
         clipped_actions = tf.clip_by_value(actions, 0.0, self.upper_action_bound)
         return {task: float(action) for task, action in zip(tasks, clipped_actions)}
+
+    def train(self):
+        """
+        Trains the reinforcement learning agent and logs the training loss
+        Due to the actions being a list, the actions must be padded
+        """
+        states, actions, next_states, rewards, dones = zip(*rnd.sample(self.replay_buffer, self.batch_size))
+
+        states = tf.keras.preprocessing.sequence.pad_sequences(list(states), dtype='float32')
+        actions = tf.keras.preprocessing.sequence.pad_sequences(list(actions), dtype='float32')
+        next_states = tf.keras.preprocessing.sequence.pad_sequences(list(next_states), dtype='float32')
+        rewards = tf.cast(tf.stack(rewards), tf.float32)
+        dones = tf.cast(tf.stack(dones), tf.float32)
+
+        training_loss = self._train(states, actions, next_states, rewards, dones)
+        if self.total_updates % self.training_loss_log_freq == 0:
+            tf.summary.scalar(f'{self.name} agent training loss', training_loss, self.total_observations)
+            tf.summary.scalar(f'Training loss', training_loss, self.total_observations)
+        if self.total_updates % self.save_frequency == 0:
+            self.save()
+        self.total_updates += 1
 
     def resource_allocation_obs(self, agent_state: ResourceAllocationState, actions: Dict[Task, float],
                                 next_agent_state: ResourceAllocationState, finished_tasks: List[Task]):

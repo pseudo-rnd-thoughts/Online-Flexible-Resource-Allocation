@@ -326,7 +326,8 @@ class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgen
                          for finished_task in finished_tasks if not task == finished_task) * self.other_task_discount
             if task in next_agent_state.tasks:
                 next_task = next(next_task for next_task in next_agent_state.tasks if next_task == task)
-                next_obs = self._network_obs(next_task, next_agent_state.tasks, next_agent_state.server, next_agent_state.time_step)
+                next_obs = self._network_obs(next_task, next_agent_state.tasks, next_agent_state.server,
+                                             next_agent_state.time_step)
                 self._add_trajectory(obs, action, next_obs, reward)
             else:
                 next_obs = np.zeros((1, self.network_obs_width))

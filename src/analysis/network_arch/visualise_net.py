@@ -16,7 +16,8 @@ if __name__ == "__main__":
 
     task_pricing = tf.keras.Model(inputs=[other_tasks_input_layer, auction_task_input_layer],
                                   outputs=[q_value_layer, actor_layer], name='TaskPricing')
-    tf.keras.utils.plot_model(task_pricing, to_file='../../../final_report/figures/2_solution_figs/task_pricing_network_architecture.png',
+    tf.keras.utils.plot_model(task_pricing,
+                              to_file='../../../final_report/figures/2_solution_figs/task_pricing_network_architecture.png',
                               expand_nested=True)
 
     other_tasks_input_layer = tf.keras.layers.Input(shape=(None, 8), name='Other_tasks')
