@@ -1,4 +1,6 @@
-"""Initial training of the agents using the basic environments"""
+"""
+Training of dueling DQN agents
+"""
 
 from __future__ import annotations
 

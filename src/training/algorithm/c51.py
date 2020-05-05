@@ -1,4 +1,6 @@
-"""Initial training of the agents using the basic environments"""
+"""
+Training of C51 agents
+"""
 
 from __future__ import annotations
 

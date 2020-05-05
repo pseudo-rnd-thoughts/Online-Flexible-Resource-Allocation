@@ -1,4 +1,6 @@
-"""Initial training of the agents using the basic environments"""
+"""
+Training of DDPG agents
+"""
 
 from __future__ import annotations
 

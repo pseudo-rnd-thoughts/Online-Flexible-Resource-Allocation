@@ -1,5 +1,5 @@
 """
-Training of a TD3 auction agent and a DQN agent
+Training of a TD3 auction agent and a DQN resource weighting agent
 """
 
 from __future__ import annotations
