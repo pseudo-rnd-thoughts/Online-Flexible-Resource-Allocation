@@ -10,7 +10,7 @@ from env.environment import OnlineFlexibleResourceAllocationEnv
 from training.train_agents import generate_eval_envs, run_training, setup_tensorboard
 
 if __name__ == "__main__":
-    folder = 'seq2seq'
+    folder = 'seq2seq_resource_weighting'
     writer, datetime = setup_tensorboard('training/results/logs/', folder)
 
     save_folder = f'{folder}_{datetime}'
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         './training/settings/limited_resources.env',
         './training/settings/mixture_tasks_servers.env'
     ])
-    eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/algo/')
+    eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/network_arch/')
 
     task_pricing_agents = [
         TaskPricingDqnAgent(agent_num, create_lstm_dqn_network(9, 21), save_folder=save_folder)

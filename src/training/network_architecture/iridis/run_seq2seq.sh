@@ -8,5 +8,5 @@ cd ~/Online-Flexible-Resource-Allocation/src/
 module load conda
 source activate py37env
 
-echo 'Running TD3 agent'
-python -m training.algorithm.seq2seq
+echo 'Running Seq2Seq resource weighting agent'
+python -m training.network_architecture.seq2seq_network

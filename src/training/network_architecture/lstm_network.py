@@ -19,7 +19,7 @@ if __name__ == "__main__":
         './training/settings/limited_resources.env',
         './training/settings/mixture_tasks_servers.env'
     ])
-    eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/policy_training/')
+    eval_envs = generate_eval_envs(env, 20, f'./training/settings/eval_envs/network_arch/')
 
     task_pricing_agents = [
         TaskPricingDqnAgent(agent_num, create_lstm_dqn_network(9, 21), save_folder=save_folder)
