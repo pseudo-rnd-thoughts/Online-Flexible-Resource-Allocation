@@ -4,10 +4,11 @@ Training of a TD3 auction agent and a DQN resource weighting agent
 
 from __future__ import annotations
 
+import tensorflow as tf
+
 from agents.rl_agents.agents.ddpg import TaskPricingTD3Agent
 from agents.rl_agents.agents.dqn import ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.ddpg_networks import create_lstm_actor_network, create_lstm_critic_network
-from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network
 from env.environment import OnlineFlexibleResourceAllocationEnv
 from training.train_agents import generate_eval_envs, run_training, setup_tensorboard
 
@@ -30,8 +31,10 @@ if __name__ == "__main__":
                             create_lstm_critic_network(9), save_folder=save_folder)
         for agent_num in range(3)
     ]
+
+    network = tf.keras.models.load_model('training/algorithm/checkpoint/')
     resource_weighting_agents = [
-        ResourceWeightingDqnAgent(0, create_lstm_dqn_network(16, 11), save_folder=save_folder)
+        ResourceWeightingDqnAgent(0, network, save_folder=save_folder)
     ]
 
     with writer.as_default():
