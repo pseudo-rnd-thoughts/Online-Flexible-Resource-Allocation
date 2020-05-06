@@ -121,7 +121,7 @@ environment settings to evaluate agents.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/num_completed_tasks.png}
-    \caption{Number of completed tasks}
+    \caption{Number of completed tasks for Environment and Agent numbers}
     \label{fig:env_num_completed_tasks}
 \end{figure}
 
@@ -169,8 +169,16 @@ environment settings to evaluate agents.
     \end{minipage}
 \end{figure}
 
-%% Analysis of the training results
-%% FIXME
+Figure~\ref{fig:env_num_completed_tasks} shows that for the agents trained using only a single environment, they took
+over 150 episodes for single agent and 350 episodes for the multiple agents to achieve over 25\% of the final total
+tasks allocated. This is in comparison to both the single and multiple agents that were trained with multiple
+environments were able to achieve better results faster than the single environment agents. \\
+Surprisingly, the final number of tasks allocated after 600 episodes of training all of the agents were able to achieve
+results within 6\% of each other. Despite agents being evaluated on environments not directly trained for meaning that
+either agents are able to generalised efficiently to unknown environments or that the different synthetic environment
+used where not different enough to affect the agents. The agents were simultaneously evaluated on the single environment
+setting with the single environment agents achieving 10\% higher than the multiple environment agents interesting.
+%% TODO FINISH
 
 \subsection{Reinforcement learning algorithm training}\label{subsec:reinforcement-learning-algorithm-training}
 \begin{wrapfigure}{r}{0.25\textwidth}
@@ -286,4 +294,4 @@ LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using
     \label{fig:net_arch_total_winning_prices}
 \end{figure}
 
-%% FIXME
+%% TODO FINISH
