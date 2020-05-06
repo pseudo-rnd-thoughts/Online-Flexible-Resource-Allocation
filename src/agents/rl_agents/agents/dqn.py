@@ -291,15 +291,15 @@ class CategoricalDqnAgent(DqnAgent, ABC):
     Categorical DQN agent
     """
 
-    def __init__(self, network: tf.keras.Model, max_value: float = -20.0, min_value: float = 25.0,
+    def __init__(self, network: tf.keras.Model, min_value: float = -25.0, max_value: float = 20.0,
                  error_loss_fn=tf.keras.losses.CategoricalCrossentropy(from_logits=True), **kwargs):
         DqnAgent.__init__(self, network, error_loss_fn=error_loss_fn, **kwargs)
 
         self.v_min = min_value
         self.v_max = max_value
         self.num_atoms: int = network.output_shape[2]
-        self.delta_z = (max_value - min_value) / self.num_atoms
-        self.z_values = tf.range(min_value, max_value, self.delta_z, dtype=tf.float32)
+        self.delta_z = (max_value - min_value) / (self.num_atoms - 1)
+        self.z_values = tf.range(min_value, max_value + self.delta_z, self.delta_z, dtype=tf.float32)
 
     def _train(self, states: tf.Tensor, actions: tf.Tensor, next_states: tf.Tensor, rewards: tf.Tensor,
                dones: tf.Tensor) -> float:
@@ -354,8 +354,10 @@ class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
     Task pricing Categorical DQN agent
     """
 
-    def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=140000, **kwargs):
-        CategoricalDqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
+    def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=140000, min_value: float = -25.0,
+                 max_value: float = 20.0, **kwargs):
+        CategoricalDqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, min_value=min_value,
+                                     max_value=max_value, **kwargs)
         TaskPricingRLAgent.__init__(self, f'Task pricing C51 agent {agent_num}', **kwargs)
 
     def _get_action(self, auction_task: Task, allocated_tasks: List[Task], server: Server, time_step: int,
@@ -376,8 +378,10 @@ class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightin
     Resource weighting categorical DQN agent
     """
 
-    def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=100000, **kwargs):
-        CategoricalDqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, **kwargs)
+    def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=100000, min_value: float = -10.0,
+                 max_value: float = 12.0, **kwargs):
+        CategoricalDqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, min_value=min_value,
+                                     max_value=max_value, **kwargs)
         ResourceWeightingRLAgent.__init__(self, f'Resource weighting C51 agent {agent_num}', **kwargs)
 
     def _get_actions(self, tasks: List[Task], server: Server, time_step: int,
