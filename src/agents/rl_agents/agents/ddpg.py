@@ -137,8 +137,8 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
             os.makedirs(path)
 
         # Save the actor and critic model network weights to the path
-        self.model_actor_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_actor')
-        self.model_critic_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_critic')
+        self.model_actor_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_actor/update_{self.total_updates}')
+        self.model_critic_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_critic/update_{self.total_updates}')
 
 
 class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
@@ -288,9 +288,9 @@ class TD3Agent(DdpgAgent, ABC):
             os.makedirs(path)
 
         # Save the actor and critic model network weights to the path
-        self.model_actor_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_actor')
-        self.model_critic_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_critic')
-        self.twin_model_critic_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_twin_critic')
+        self.model_actor_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_actor/update_{self.total_updates}')
+        self.model_critic_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_critic/update_{self.total_updates}')
+        self.twin_model_critic_network.save_weights(f'{path}/{self.name.replace(" ", "_")}_twin_critic/update_{self.total_updates}')
 
 
 class TaskPricingTD3Agent(TD3Agent, TaskPricingDdpgAgent):

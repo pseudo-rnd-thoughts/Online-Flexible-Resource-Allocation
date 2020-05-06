@@ -89,7 +89,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
             os.makedirs(path)
 
         # Save the model network weights to the path
-        self.model_network.save_weights(f'{path}/{self.name.replace(" ", "_")}')
+        self.model_network.save_weights(f'{path}/{self.name.replace(" ", "_")}/update_{self.total_updates}')
 
     def _train(self, states: tf.Tensor, actions: tf.Tensor,
                next_states: tf.Tensor, rewards: tf.Tensor, dones: tf.Tensor) -> float:
