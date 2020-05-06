@@ -1,4 +1,6 @@
 %! Suppress = NonBreakingSpace
+
+% Add word count of words
 %TC:group table 0 1
 
 \chapter{Optimising resource allocation in MEC}\label{ch:optimising-resource-allocation-in-mec}
@@ -182,7 +184,7 @@ architectures will be implemented and compared to evaluate the effectiveness of 
 Table~\ref{tab:reinforcement_learning_algorithms} for proposed algorithms and Table~\ref{tab:neural_network_layers} for
 networks layers.
 
-\begin{longtable}{|p{5cm}|p{10cm}|}
+\begin{longtable}{|p{5cm}|p{10cm}|} \hline
     \textbf{Algorithm} & \textbf{Description} \\ \hline
     Dqn~\citep{mnih2015humanlevel} & A standard deep Q network (DQN) agent that discretizes the action space with a
         target neural network and experience replay buffer. \\ \hline
@@ -201,7 +203,7 @@ networks layers.
     \label{tab:reinforcement_learning_algorithms}
 \end{longtable}
 
-\begin{longtable}{|p{3.5cm}|p{10cm}|} \hline
+\begin{longtable}{|p{3.5cm}|p{12cm}|} \hline
     \textbf{Neural Network} & \textbf{Description} \\ \hline
     Artificial neural networks \citep{ANN} & Originally developed as a theoretically approximation for the brain, it
         was found that for networks with at least one hidden layer, networks could approximate any
@@ -252,17 +254,17 @@ these values are difficult to approximate during the auction for this project. S
 deriving this function, reinforcement learning will be used to learn an optimal policy for a server to maximise its
 profits over time.
 
-The network used for the auction must take into account a server's current tasks and the attributes of the task being
-auctioned. Because of this, a recurrent network must be used like the RNN, GRU, LSTM and Bidirectional due to the number
-of tasks allocated to a server is unknown. For the DDPG, a single ReLU output will be used while a linear Q value output
-for DQN agent must be used as shown in Figure~\ref{fig:task_pricing_network_architecture}.
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/3_solution_figs/task_pricing_network_architecture.png}
     \caption{Task pricing network architecture}
     \label{fig:task_pricing_network_architecture}
 \end{figure}
+
+The network used for the auction must take into account a server's current tasks and the attributes of the task being
+auctioned. Because of this, a recurrent network must be used like the RNN, GRU, LSTM and Bidirectional due to the number
+of tasks allocated to a server is unknown. For the DDPG, a single ReLU output will be used while a linear Q value output
+for DQN agent must be used as shown in Figure~\ref{fig:task_pricing_network_architecture}.
 
 \subsection{Proposed resource allocation agents}\label{subsec:proposed-resource-allocation-agents}
 When a new task is allocated to the server or a task completes a stage, server resource need to be redistributed
@@ -270,7 +272,7 @@ to the task. As the problem of how to allocation resources isn't as complex as t
 section~\ref{subsec:proposed-auction-agents}, both simple heuristics and reinforcement learning agents will be
 implemented in order to compare effectiveness.
 
-%% Possible add Seq2Seq network
+%% TODO Possible add Seq2Seq network
 However a similar problem exists as with the proposed auction agents (in subsection~\ref{subsec:proposed-auction-agents}).
 Due to allocating resources to a single task requires being aware of the resource requirements of other
 tasks. Therefore a similar network is proposed to allow for the other tasks
@@ -283,7 +285,7 @@ This has the advantage of being a simpler function to approximate for agents but
 exact resource usage function. This also avoids the problem of the network either over allocating the resources to tasks
 or severely under allocating resources.
 
-\begin{figure}
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{figures/3_solution_figs/resource_weighting_network_architecture.png}
     \caption{Resource weighting network architecture}
