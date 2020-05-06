@@ -299,7 +299,9 @@ class CategoricalDqnAgent(DqnAgent, ABC):
         self.v_max = max_value
         self.num_atoms: int = network.output_shape[2]
         self.delta_z = (max_value - min_value) / (self.num_atoms - 1)
-        self.z_values = tf.range(min_value, max_value + self.delta_z, self.delta_z, dtype=tf.float32)
+        self.z_values = tf.range(min_value, max_value + self.delta_z/2, self.delta_z, dtype=tf.float32)
+
+        assert len(self.z_values) == self.num_atoms, f'Z values: {self.z_values}, len: {len(self.z_values)}'
 
     def _train(self, states: tf.Tensor, actions: tf.Tensor, next_states: tf.Tensor, rewards: tf.Tensor,
                dones: tf.Tensor) -> float:
