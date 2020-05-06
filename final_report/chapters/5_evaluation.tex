@@ -100,104 +100,114 @@ Section~\ref{sec:auctioning-of-tasks}, that is its Incentive Compatibility. This
 dominant strategy for all agents is to bid truthfully, that is the agent's true evaluation of the task. Therefore due
 to agents not needing to learn to "out bid" each other allowing for effective self-play to be used in training.
 
+\begin{wrapfigure}{r}{0.3\textwidth}
+    \includegraphics[width=0.3\textwidth]{figures/4_test_eval_figs/env_training_fig/legend.png}
+    \caption{Environment training legend}
+    \label{fig:env-training-legend}
+\end{wrapfigure}
+
 Therefore this subsection compare the results of agents that are trained on a single environment setting and those
 trained on multiple environment settings and when multiple or single agents are trained together. These are compared
 using a set of pre-generated environments, one from the single environment setting and another from the multiple
 environment settings to evaluate agents.
 
-%% Env training legend
-\begin{wrapfigure}{r}{0.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{figures/4_test_eval_figs/env_training_fig/legend.png}
-    \caption{Environment training legend}
-    \label{fig:env-training-legend}
-\end{wrapfigure}
-
-%% Training evaluation
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/num_completed_tasks.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/num_completed_tasks.png}
     \caption{Number of completed tasks}
     \label{fig:env_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/num_failed_tasks.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:env_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/percent_tasks.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/percent_tasks.png}
     \caption{Percentage of tasks attempted}
     \label{fig:env_percent_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/total_prices.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:env_total_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/env_training_fig/total_winning_prices.PNG}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/total_winning_prices.PNG}
     \caption{Total winning prices}
     \label{fig:env_winning_prices}
 \end{figure}
 
-%% Analysis of the training results
-%% TODO
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.75\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/single_env_num_completed_tasks.png}
+        \caption{Number of completed tasks for Single environment setting}
+        \label{fig:single_env_num_completed_tasks}
+    \end{minipage}\hfill
+    \begin{minipage}{0.25\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/single_env_legend.png}
+        \caption{Single environment results legend}
+        \label{fig:single_env_legend}
+    \end{minipage}
+\end{figure}
 
-%% Auction prices and resource weightings histograms
-%% TODO but Im not sure this is interesting or needed
+%% Analysis of the training results
+%% FIXME
 
 \subsection{Reinforcement learning algorithm training}\label{subsec:reinforcement-learning-algorithm-training}
+\begin{wrapfigure}{r}{0.25\textwidth}
+    \includegraphics[width=0.25\textwidth]{figures/4_test_eval_figs/algo_training_fig/legend.PNG}
+    \caption{Environment training legend}
+    \label{fig:algo-training-legend}
+\end{wrapfigure}
+
 In table~\ref{tab:reinforcement_learning_algorithms}, a range of reinforcement learning algorithms were proposed as
 methods of training neural networks. Using the analysis from the previous subsections, during training agents were
 trained on multiple environment settings with multiple task pricing agents and a single resource weighting agents.
 The evaluation environment were pre-generated as well to confirm uniform testing between the agents. \\
 
-\begin{wrapfigure}{l}{0.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{figures/4_test_eval_figs/algo_training_fig/legend.PNG}
-    \caption{Environment training legend}
-    \label{fig:algo-training-legend}
-\end{wrapfigure}
-
-%% Training evaluation
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/num_completed_tasks.PNG}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:algo_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/num_failed_tasks.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:algo_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/percent_tasks.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/percent_tasks.png}
     \caption{Percent of tasks attempted}
     \label{fig:algo_percent_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/total_prices.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:algo_total_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/algo_training_fig/total_winning_prices.PNG}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/total_winning_prices.PNG}
     \caption{Winning prices}
     \label{fig:algo_winning_prices}
 \end{figure}
@@ -206,156 +216,68 @@ With the agents, an action histogram is recorded for all of the actions taken ev
 of actions taken over time and to investigate the difference is how algorithms evaluate the value of a position. Each
 agent has the the auction and weighting actions separated due to their difference in policy. \\
 
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/dqn_auction_prices.png}
-        \caption{Deep Q Network auction prices}
-        \label{fig:dqn-auction-prices}
-    \end{minipage}\hfill
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/dqn_weightings.png}
-        \caption{Deep Q Network resource weightings}
-        \label{fig:dqn-resource-weightings}
-    \end{minipage}
-\end{figure}
+%\begin{figure}[H]
+%    \centering
+%    \begin{minipage}{0.5\textwidth}
+%        \centering
+%        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/dqn_auction_prices.png}
+%        \caption{Deep Q Network auction prices}
+%        \label{fig:dqn-auction-prices}
+%    \end{minipage}\hfill
+%    \begin{minipage}{0.5\textwidth}
+%        \centering
+%        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/dqn_weightings.png}
+%        \caption{Deep Q Network resource weightings}
+%        \label{fig:dqn-resource-weightings}
+%    \end{minipage}
+%\end{figure}
 
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/ddqn_auction_prices.png}
-        \caption{Double Deep Q Network auction prices}
-        \label{fig:ddqn-auction-prices}
-    \end{minipage}\hfill
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/ddqn_weightings.png}
-        \caption{Double Deep Q Network resource weightings}
-        \label{fig:ddqn-resource-weightings}
-    \end{minipage}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/dueling_dqn_auction_prices.png}
-        \caption{Dueling Deep Q Network auction prices}
-        \label{fig:dueling-dqn-auction-prices}
-    \end{minipage}\hfill
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/dueling_dqn_weightings.png}
-        \caption{Dueling Deep Q Network resource weightings}
-        \label{fig:dueling-dqn-resource-weightings}
-    \end{minipage}
-\end{figure}
 
 \subsection{Neural network architecture training}\label{subsec:neural-network-architecture-training}
+\begin{wrapfigure}{r}{0.25\textwidth}
+    \includegraphics[width=0.25\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/legend.png}
+    \caption{Network architecture legend}
+    \label{fig:net-arch-training-legend}
+\end{wrapfigure}
+
 There are a wide-range of compatible neural network architectures that agents can use, as outlined in
 table~\ref{tab:neural_network_layers}. To compare these architectures, the DQN agents from the previous subsection is
 used due to its effectiveness and simplicity with four different network architectures: RNN~\citep{RNN},
 LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using an LSTM network. \\
 
-\begin{wrapfigure}{l}{0.5\textwidth}
-    \includegraphics[width=0.5\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/legend.png}
-    \caption{Environment training legend}
-    \label{fig:net-arch-training-legend}
-\end{wrapfigure}
-
-%% Training evaluation
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/net_arch_training_fig/num_completed_tasks.PNG}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:net_arch_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/net_arch_training_fig/num_failed_tasks.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:net_arch_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/net_arch_training_fig/percent_tasks.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/percent_tasks.png}
     \caption{Percent of tasks attempted}
     \label{fig:net_arch_percent_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=17cm]{figures/4_test_eval_figs/net_arch_training_fig/total_prices.png}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:net_arch_total_prices}
 \end{figure}
 
-%% TODO may not be needed
 \begin{figure}[H]
     \centering
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/rnn_architecture_auction_prices.png}
-        \caption{Rnn network architecture auction prices}
-        \label{fig:rnn-auction-prices}
-    \end{minipage}\hfill
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/rnn_architecture_weightings.png}
-        \caption{Rnn network architecture resource weightings}
-        \label{fig:rnn-resource-weightings}
-    \end{minipage}
+    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/total_winning_prices.png}
+    \caption{Total winning prices}
+    \label{fig:net_arch_total_winning_prices}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/gru_architecture_auction_prices.png}
-        \caption{GRU network architecture auction prices}
-        \label{fig:gru-auction-prices}
-    \end{minipage}\hfill
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/gru_architecture_weightings.png}
-        \caption{GRU network architecture resource weightings}
-        \label{fig:gru-resource-weightings}
-    \end{minipage}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/lstm_architecture_auction_prices.png}
-        \caption{LSTM network architecture auction prices}
-        \label{fig:lstm-auction-prices}
-    \end{minipage}\hfill
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/lstm_architecture_weightings.png}
-        \caption{Rnn network architecture resource weightings}
-        \label{fig:lstm-resource-weightings}
-    \end{minipage}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/bidirectional_architecture_auction_prices.png}
-        \caption{Bidirectional network architecture auction prices}
-        \label{fig:bidirectional-auction-prices}
-    \end{minipage}\hfill
-    \begin{minipage}{0.5\textwidth}
-        \centering
-        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/bidirectional_architecture_weightings.png}
-        \caption{Bidirectional network architecture resource weightings}
-        \label{fig:bidirectional-resource-weightings}
-    \end{minipage}
-\end{figure}
+%% FIXME
