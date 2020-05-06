@@ -1,25 +1,111 @@
 %! Suppress = LabelConvention
 \setboolean{@twoside}{false}
 
-\section*{Appendix A: Paper}
+\section*{Appendix A: Paper} \label{app:paper}
 This paper was been produced with the authors being myself, Dr Sebastian Stein, Professor Tim Norman from Southampton
 University, Dr Fidan Mehmeti, Professor Tom La Porta, Caroline Rubein from Pennsylvania State University and Dr Geeth
 Demel from IBM and within this project is referred to as~\cite{FlexibleResourceAllocation}.
 
 \includepdf[pages=-, offset=25mm -20mm]{extra/aamas_2020}
 
-\section*{Appendix B: SPIE Presentation}
-This presentation was produced from the same work as the~\cite{FlexibleResourceAllocation} with the title "Analytical
-agility at the edge of the network through auction mechanisms" at was submitted to the conference on Artificial
-Intelligence and Machine Learning for Multi-Domain Operations Applications II, as part of the SPIE Defense + Commercial
-Sensing~\footnote{https://spie.org/SI/conferencedetails/artificial-intelligence-and-machine-learning-for-multi-domain-battle-applications\#2560056}.
+\section*{Appendix B: SPIE Presentation} \label{app:spie-presentation}
+The research of~\cite{FlexibleResourceAllocation} was presented at SPIE Defense + Commercial Sensing to the conference
+on Artificial Intelligence and Machine Learning for Multi-Domain Operations Applications II under the title
+"Analytical agility at the edge of the network through auction mechanisms". The
+\href{https://spie.org/SI/conferencedetails/artificial-intelligence-and-machine-learning-for-multi-domain-battle-applications#2560056}{link}
+to the recorded presentation.
 
 \includepdf[pages=-, offset=25mm -25mm, landscape=True, scale=0.95]{extra/spie_presentation}
 
-\section*{Appendix B: Project management}
-%% Risk assessment
-%% Grantt chart
-%%
-This is the progress report submitted on the 10th of December 2019.
+\section*{Appendix C: Agent hyperparameters} \label{app:agent-hyperparameters}
+During training there are a range of hyperparameters for each agent, table~\ref{tab:agent_hyperparameters} provides
+an explanation for the values for each hyperparameter used in the project.
+
+\begin{longtable}{|p{2cm}|p{3.5cm}|p{2.5cm}|p{6cm}|} \hline
+    \textbf{Agent} & \textbf{Properties name} & \textbf{Value} & \textbf{Explanation} \\ \hline
+        RL Agent & batch\_size & 32 & The number of trajectories from the experience replay buffer that are used each
+            time to train an agent. \\ \hline
+        RL Agent & error\_loss\_fn & tf.losses. huber\_loss & The loss function used in calculating a network's error. \\ \hline
+        RL Agent & initial\_training replay\_size & 5000 & The number of trajectories in the experience replay buffer
+            required before the agent begins training. \\ \hline
+        RL Agent & training\_freq & 2 & For every trajectory added to the experience replay buffer, for each 2, the
+            agent tries to be trained. \\ \hline
+        RL Agent & discount\_factor & 0.9 & Within the Q learning function (equation~\eqref{eq:q_learning}), the
+            discount factor determines how important the rewards in the future impact the Q value. \\ \hline
+        RL Agent & replay\_buffer length & 25000 & The length of the circular experience replay buffer. \\ \hline
+        RL Agent & save\_frequency & 25000 & The agent networks are saved after 25000 time that agent has been trained
+            \\ \hline
+        RL Agent & training\_loss log\_freq & 250 & Tensorboard allows for data to be saved using training, after every
+            the agent has been trained 250 time, the agents loss is logged for future analysis. \\ \hline
+        Task Pricing RL Agent & reward\_scaling & 1 & \\ \hline
+        Task Pricing RL Agent & failed\_auction reward & -0.05 & The reward for when the agent bids on a task but fails
+            to win the auctioned task. \\ \hline
+        Task Pricing RL Agent & failed\_multiplier & -1.5 & A multiplier applied to the winning price is the task fails
+            to be computed within its deadline. \\ \hline
+        Resource weighting RL Agent & other\_task\_discount & 0.4 & The multiplier to tasks not under consideration for
+            a weighting action. \\ \hline
+        Resource weighting RL Agent & success\_reward & 1 & The reward when the agent successfully completes a task
+            \\ \hline
+        Resource weighting RL Agent & failed\_reward & -1.5 & The reward when the agent fails to complete a task within
+            its deadline. \\ \hline
+        Dqn Agent & target\_update\_tau & 1.0 & The update tau value for use in the target update frequency. \\ \hline
+        Dqn Agent & target\_update\_freq & 2500 & The target network in the DQN agent is updated after the agent
+            has been updated 2500 times. \\ \hline
+        Dqn Agent & initial\_epsilon & 1 & The initial exploration factor during training \\ \hline
+        Dqn Agent & final\_epsilon & 0.1 & The final exploration factor during training \\ \hline
+        Dqn Agent & epsilon\_steps & 10000 & The number of training step for linear exploration to move between the
+            initial\_epsilon and the final\_epsilon factor. \\ \hline
+        Dueling Dqn Agent & double\_loss & True & If to use the double dqn loss function \\ \hline
+        Categorical Dqn Agent & max\_value & -20.0 & The maximum value for the value distribution \\ \hline
+        Categorical Dqn Agent & min\_value & 25.0 & The minimum value for the value distribution \\ \hline
+        Categorical Dqn Agent & num\_atoms & 21 & The number of atoms for each actions. \\ \hline
+        Ddpg Agent & actor\_learning\_rate & 0.0001 & The learning rate for the optimiser for the actor network. \\ \hline
+        Ddpg Agent & critic\_learning\_rate & 0.0005 & The learning rate for the optimiser for the critic network. \\ \hline
+        Ddpg Agent & initial\_epsilon\_std & 0.8 & The initial exploration standard deviation of the normal distribution
+            used  during training \\ \hline
+        Ddpg Agent & final\_epsilon\_std & 0.05 & The final exploration standard deviation of the normal distribution
+            used  during training \\ \hline
+        Ddpg Agent & actor\_target update\_freq & 3000 & The actor target network update frequency \\ \hline
+        Ddpg Agent & critic\_target update\_freq & 1500 & The critic target network update frequency \\ \hline
+        Ddpg Agent & upper\_action bound & 30.0 & The upper action bound for the actor network \\ \hline
+        Task pricing Ddpg Agent & min\_value & -100.0 & The minimum value for the critic network to estimate for an
+            action \\ \hline
+        Task pricing Ddpg Agent & max\_value & 100.0 & The maximum value for the critic network to estimate for an
+            action\\ \hline
+        Resource allocation Ddpg Agent & min\_value & -20 & The minimum value for the critic network to estimate for an
+            action \\ \hline
+        Resource allocation Ddpg Agent & max\_value & 15 & The maximum value for the critic network to estimate for an
+            action\\ \hline
+        TD3 Agent & actor\_update\_freq & 3 & The actor network update frequency for each critic network update. \\ \hline
+    \caption{Agent hyperparameters}
+    \label{tab:agent_hyperparameters}
+\end{longtable}
+
+\section*{Appendix D: Project management} \label{app:project-management}
+%% Outstanding planning, progress, time management, and contingency planning
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|p{3cm}|c|c|p{7cm}|} \hline
+        \textbf{Risk}  & \textbf{Severity} & \textbf{Possibility} & \textbf{Explanation} \\ \hline
+        % FIXME
+        Iridis failure & 5 & 1 & \\ \hline
+        Agent Training time & 4 & 2 & \\ \hline
+        Personal Illness or Injury & 4 & 1 & \\ \hline
+        Pandemic & 5 & 1 & While Pandemic will not prevent the project due to all work being digital, it would prevent
+            meeting with my supervisor. \\ \hline
+    \end{tabular}
+    \caption{Risk Assessment}
+    \label{tab:risk_assessment}
+\end{table}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{extra/progress_grantt_chart.pdf}
+    \caption{Progress Grantt chart}
+    \label{fig:progress_grant_chart}
+\end{figure}
+
+Progress report submitted on the 10th of December 2019.
 
 \includepdf[pages=-, offset=25mm -20mm]{extra/progress_report}
