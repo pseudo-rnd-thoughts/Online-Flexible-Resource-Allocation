@@ -24,7 +24,7 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
                  actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0001),
                  critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0005),
-                 initial_epsilon_std: float = 3, final_epsilon_std: float = 0.5, epsilon_steps: int = 20000,
+                 initial_epsilon_std: float = 4.5, final_epsilon_std: float = 0.5, epsilon_steps: int = 20000,
                  epsilon_update_freq: int = 250, epsilon_log_freq: int = 2000, min_value: float = -15.0,
                  max_value: float = 15.0, target_update_tau: float = 0.01, actor_target_update_freq: int = 1,
                  critic_target_update_freq: int = 1, upper_action_bound: float = 30.0, **kwargs):
@@ -162,7 +162,7 @@ class TaskPricingDdpgAgent(DdpgAgent, TaskPricingRLAgent):
 
         if training:
             self._update_epsilon()
-            return float(tf.clip_by_value(action + tf.random.normal(action.shape, 0, self.epsilon_std),
+            return float(tf.clip_by_value(action + tf.random.gamma(action.shape, 1, self.epsilon_std),
                                           0.0, self.upper_action_bound))
         else:
             return action
@@ -190,7 +190,7 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
 
         if training:
             self._update_epsilon()
-            actions += tf.random.normal(actions.shape, 0, self.epsilon_std)
+            actions += tf.random.gamma(actions.shape, 1, self.epsilon_std)
 
         clipped_actions = tf.clip_by_value(actions, 0.0, self.upper_action_bound)
         return {task: float(action) for task, action in zip(tasks, clipped_actions)}
@@ -344,7 +344,7 @@ class ResourceWeightingSeq2SeqAgent(TD3Agent, ResourceWeightingRLAgent):
 
         if training:
             self._update_epsilon()
-            actions += tf.random.normal(actions.shape, 0, self.epsilon_std)
+            actions += tf.random.gamma(actions.shape, 1, self.epsilon_std)
 
         clipped_actions = tf.clip_by_value(actions, 0.0, self.upper_action_bound)
         return {task: float(action) for task, action in zip(tasks, clipped_actions)}
