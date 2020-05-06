@@ -32,7 +32,7 @@ if __name__ == "__main__":
         for agent_num in range(3)
     ]
 
-    network = tf.keras.models.load_model('training/algorithm/checkpoint/')
+    network = tf.keras.models.load_model('training/algorithm/checkpoint/Resource_weighting_Double_Dqn_agent_0')
     resource_weighting_agents = [
         ResourceWeightingDqnAgent(0, network, save_folder=save_folder)
     ]
