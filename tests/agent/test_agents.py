@@ -116,7 +116,7 @@ def test_saving_agent():
 
     # Check that loading works
     loaded_model = create_lstm_dqn_network(9, 10)
-    loaded_model.load_weights(f'agent/checkpoints/tmp/Task_pricing_Dqn_agent_0')
+    loaded_model.load_weights(f'agent/checkpoints/tmp/Task_pricing_Dqn_agent_0/update_0')
 
     assert all(tf.reduce_all(weights == load_weights)
                for weights, load_weights in zip(dqn_agent.model_network.variables, loaded_model.variables))
