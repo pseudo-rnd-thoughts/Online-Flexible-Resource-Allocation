@@ -152,7 +152,7 @@ def create_lstm_categorical_dqn_network(input_width: int, num_actions: int,
     input_layer = tf.keras.layers.Input(shape=(None, input_width))
     lstm_layer = tf.keras.layers.LSTM(lstm_width)(input_layer)
     relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
-    distribution_layer = tf.keras.layers.Dense(num_atoms * num_actions, activation='softmax',
+    distribution_layer = tf.keras.layers.Dense(num_atoms * num_actions, activation='linear',
                                                kernel_regularizer=tf.keras.regularizers.l1())(relu_layer)
     reshape_layer = tf.keras.layers.Reshape((num_actions, num_atoms))(distribution_layer)
 

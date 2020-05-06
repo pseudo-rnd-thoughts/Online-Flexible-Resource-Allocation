@@ -330,10 +330,9 @@ class CategoricalDqnAgent(DqnAgent, ABC):
             next_value_term = dones * self.z_values * tf.ones((self.batch_size, self.num_atoms))
             target_q_value = rewards + self.discount_factor * next_value_term
             clipped_q_value = tf.clip_by_value(target_q_value, self.v_min, self.v_max)
-            expanded_q_value = tf.reshape(tf.tile(clipped_q_value, [1, self.num_atoms]),
+            expand_q_value = tf.reshape(tf.tile(clipped_q_value, [1, self.num_atoms]),
                                           [self.batch_size, self.num_atoms, self.num_atoms])
-            quotient = tf.clip_by_value(1 - tf.abs(expanded_q_value - tf.transpose([self.z_values])) / self.delta_z, 0,
-                                        1)
+            quotient = tf.clip_by_value(1 - tf.abs(expand_q_value - tf.transpose([self.z_values])) / self.delta_z, 0, 1)
             target_distribution = tf.reduce_sum(quotient * expanded_next_distribution, axis=2)
 
             loss = self.error_loss_fn(target_distribution, action_q_logits)
@@ -397,7 +396,7 @@ class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightin
                     actions[task] = float(rnd.randint(0, self.num_actions - 1))
                 else:
                     observation = tf.expand_dims(self._network_obs(task, tasks, server, time_step), axis=0)
-                    q_values = tf.reduce_sum(self.model_network(observation) * self.z_values, axis=2)
+                    q_values = tf.reduce_sum(tf.nn.softmax(self.model_network(observation)) * self.z_values, axis=2)
                     actions[task] = float(tf.math.argmax(q_values, axis=1, output_type=tf.int32))
             return actions
         else:
