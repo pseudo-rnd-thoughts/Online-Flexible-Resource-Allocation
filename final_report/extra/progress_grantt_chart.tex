@@ -1,0 +1,166 @@
+\documentclass[11pt]{amsart}
+\usepackage[paperwidth=12in,paperheight=18in]{geometry}
+
+%\usepackage{rcstd}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{url}
+%\twocolumn
+% \pagestyle{plain}
+\sloppy
+\flushbottom
+%\parindent 1em
+%\leftmargini 2em
+%\leftmarginv -.5em
+%\leftmarginvi .5em
+\oddsidemargin=-1.2cm
+\evensidemargin=-1.2cm
+%\marginparwidth 48pt
+%\marginparsep 10pt
+\topmargin=-8cm
+\textwidth=26.75cm
+\textheight=48.7cm
+%\parskip=1ex
+
+\usepackage{tikz}
+\usetikzlibrary{shapes,shadows,calc}
+\usepgflibrary{arrows}
+
+\usepackage{pgfgantt}
+\usepackage{pdflscape}
+
+%-----Text Box
+%-----#1 height, #2 width, #3 anchor for the label, #4 name of the node, #5
+%-----coordinate, #6 label
+\def\tbox[#1,#2,#3,#4,#5]#6{%
+    \node[draw, drop shadow={opacity=.35}, minimum height=#1, minimum width=#2, %
+    inner color=blue!5, outer color=blue!5, color=blue!40!black] (#4) at #5 {}; %
+    \node[anchor=#3,inner sep=2pt] at (#4.#3) {#6};%
+}
+%-----Rotated Text Box
+%-----#1 height, #2 width, #3 anchor for the label, #4 name of the node, #5
+%-----coordinate, #6 label
+\def\rtbox[#1,#2,#3,#4,#5]#6{%
+    \node[draw, drop shadow={opacity=.35}, minimum height=#1, minimum width=#2, %
+    inner color=blue!5, outer color=blue!5, color=blue!40!black, rotate=90] (#4) at #5 {}; %
+    \node[anchor=#3,inner sep=2pt, rotate=90] at (#4.#3) {#6};%
+}
+
+%-----Edge
+%-----#1 from node, #2 to node, #3 specification of a node (label), #4
+%-----dashed, or other parameters for draw
+\def\isedge[#1,#2,#3,#4];{
+    \draw[->,color=black!20!black,#4,fill=white] (#1) -- #3
+    (#2);
+}
+%-----Grouping box
+%-----#1 height, #2 width, #3 name of the node, #4
+%-----coordinate, #5 label
+\def\gbox[#1,#2,#3,#4,#5]#6{
+    \draw[dashed] node[draw,color=gray!50,minimum
+    height=#1,minimum width=#2] (#4) at #5 {};
+    \node[anchor=#3,inner sep=2pt] at (#4.#3)  {#6};
+}
+
+\usepackage{setspace}
+%Multibib package:
+\usepackage{multibib}
+%Change the size of the Bibliography title
+\let\stdthebibliography\thebibliography
+\renewcommand{\thebibliography}{
+    \let\section\subsection
+    \stdthebibliography}
+%The track record citations
+\newcites{track}{Proposers' References}
+\usepackage{graphicx}
+
+%\setlength{\columnsep}{.08in}
+%\usepackage{todonotes}
+
+\begin{document}
+\raggedright
+
+\thispagestyle{empty}
+
+\definecolor{barblue}{RGB}{153,204,254}
+\definecolor{groupblue}{RGB}{51,102,254}
+\definecolor{linkred}{RGB}{165,0,33}
+\renewcommand\sfdefault{phv}
+\renewcommand\mddefault{mc}
+\renewcommand\bfdefault{bc}
+\setganttlinklabel{s-s}{}
+\setganttlinklabel{f-s}{}
+\setganttlinklabel{f-f}{}
+
+\begin{landscape}
+\begin{center}
+ \textbf{Individual project: Progress}
+ \vspace{2ex}
+\end{center}
+\begin{ganttchart}[
+    x unit = 1cm,
+    y unit chart = 0.75cm,
+    canvas/.append style={fill=none, draw=black!5, line width=.75pt},
+    hgrid style/.style={draw=black!5, line width=.75pt},
+    vgrid={*1{draw=black!5, line width=.75pt}},
+    title/.style={draw=none, fill=none},
+    title label font=\bfseries\footnotesize,
+    title label node/.append style={below=7pt},
+    include title in canvas=false,
+    bar label font=\mdseries\small\color{black!70},
+    bar label node/.append style={left=2cm},
+    bar/.append style={draw=none, fill=barblue},
+    group/.append style={fill=groupblue},
+    group left shift=0,
+    group right shift=0,
+    group height=.25,
+    group peaks tip position=0,
+    group label node/.append style={left=.6cm},
+    link/.style={-latex, line width=1pt, linkred},
+    link label font=\scriptsize\bfseries,
+    link label node/.append style={below left=-2pt and 0pt}
+]{1}{12}
+    \gantttitle[title label node/.append style={below left=7pt and -3pt}]{Week (from October 1st):\quad1}{1}
+    \gantttitlelist{2,...,30}{1} \\
+
+    \ganttgroup{WP1: AAMAS Paper}{1}{6} \\
+    \ganttbar{\textbf{Task 1.1: Generate algorithm results} }{1}{2} \\
+    \ganttbar{\textbf{Task 1.2: Implement critical value auction} }{2}{3} \\
+    \ganttbar{\textbf{Task 1.3: Write up algorithms} }{3}{5} \\
+    \ganttbar{\textbf{Task 1.4: Write up results} }{5}{6} \\
+    \ganttmilestone{Deliverable 1: Paper submission}{6} \\ [grid]
+
+    \ganttgroup{WP2: Progress report}{7}{10} \\
+    \ganttbar{\textbf{Task 2.1: Read background reading} }{7}{7} \\
+    \ganttbar{\textbf{Task 2.2: Write up background reading} }{8}{8} \\
+    \ganttbar{\textbf{Task 2.3: Write up proposed solution} }{9}{9} \\
+    \ganttbar{\textbf{Task 2.4: Write up justification of solution} }{10}{10} \\
+    \ganttmilestone{Deliverable 2: Progress report submission}{10} \\ [grid]
+
+    \ganttgroup{WP3: Code the environment}{11}{16} \\
+    \ganttbar{\textbf{Task 3.1: Code the servers and tasks} }{11}{12} \\
+    \ganttbar{\textbf{Task 3.2: Code weighted server resource allocation} }{12}{14} \\
+    \ganttbar{\textbf{Task 3.2: Code environment auction and resource allocation} }{14}{16} \\
+    \ganttmilestone{Deliverable 3: Run the environment with random actions}{16} \\ [grid]
+
+    \ganttgroup{WP4: Code the server agents}{17}{23} \\
+    \ganttbar{\textbf{Task 4.1: Code the DQN agent} }{17}{18} \\
+    \ganttbar{\textbf{Task 4.1: Code the Double and Dueling DQN agent} }{18}{19} \\
+    \ganttbar{\textbf{Task 4.1: Code the DDPG agent} }{18}{21} \\
+    \ganttbar{\textbf{Task 4.1: Code the TD3 and Categorical DQN agent} }{21}{23} \\
+    \ganttmilestone{Deliverable 4: Be able to run and train all agents}{23} \\ [grid]
+
+    \ganttgroup{WP5: Write up Presentation}{24}{27} \\
+    \ganttbar{\textbf{Task 5.1: Writeup presentation} }{24}{26} \\
+    \ganttbar{\textbf{Task 5.1: Record presentation} }{26}{27} \\
+    \ganttmilestone{Deliverable 5: Submit presentation}{27} \\ [grid]
+
+    \ganttgroup{WP6: Testing, evaluation and finish dissertation}{24}{30} \\
+    \ganttbar{\textbf{Task 6.1: Testing of neural networks and comparison to heuristics} }{24}{26} \\
+    \ganttbar{\textbf{Task 6.2: Analysis of the neural networks and their results} }{26}{28} \\
+    \ganttbar{\textbf{Task 6.4: Finish writing the final report} }{29}{30} \\
+    \ganttmilestone{Deliverable 6: Submit full report and software submission}{30} \\ [grid]
+
+\end{ganttchart}
+\end{landscape}
+
+\end{document}
