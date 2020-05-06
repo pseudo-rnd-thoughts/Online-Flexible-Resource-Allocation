@@ -2,14 +2,15 @@
 %TC:group table 0 1
 
 \chapter{Testing and evaluation}\label{ch:testing-and-evaluation}
-Using the implemented solution from Chapter~\ref{ch:implementation-of-the-solution} to test and evaluate its
+Using the implemented solution from
+Chapter~\ref{ch:implementing-flexible-resource-allocation-environment-and-server-agents} to test and evaluate its
 effectiveness, both functional unit tests and agent training evaluation have been designed. To confirm that the
 environment and agents implemented in the previous chapter
 (section~\ref{sec:implementing-auction-and-resource-allocation-agents}) works as intended, unit testing has been added
 that detailed in Section~\ref{sec:functional-testing}. While to evaluate the effectiveness of the solution
-in Chapter~\ref{ch:proposed-solution}, a range of metric have been measured during training in order to
-test and compare implemented agents, neural network architectures and training parameters. These results are explained
-in Section~\ref{sec:agent-evaluation}.
+in Chapter~\ref{ch:optimising-resource-allocation-in-mec}, a range of metric have been measured during training in
+order to test and compare implemented agents, neural network architectures and training parameters. These results are
+explained in Section~\ref{sec:agent-evaluation}.
 
 \section{Functional testing}\label{sec:functional-testing}
 To confirm that the implementation of the agents and environment correctly, PyTest a module within Python has been used
@@ -74,7 +75,8 @@ explained in their respective tables~\ref{tab:agent_testing},~\ref{tab:env_testi
 \end{longtable}
 
 \section{Agent evaluation}\label{sec:agent-evaluation}
-In order to compare the implemented agents from Chapter~\ref{ch:implementation-of-the-solution}, a range of metric are
+In order to compare the implemented agents from
+Chapter~\ref{ch:implementing-flexible-resource-allocation-environment-and-server-agents}, a range of metric are
 used are recorded each time the agents are evaluated during training. For the auction agent the metrics are: histogram
 winning prices, number of no bids, number of failed tasks, number of completed tasks and a histogram of actions taken.
 For the resource allocation agents the metrics are a histogram of weightings, number of failed tasks and number of
@@ -101,7 +103,7 @@ dominant strategy for all agents is to bid truthfully, that is the agent's true 
 to agents not needing to learn to "out bid" each other allowing for effective self-play to be used in training.
 
 \begin{wrapfigure}{r}{0.3\textwidth}
-    \includegraphics[width=0.3\textwidth]{figures/4_test_eval_figs/env_training_fig/legend.png}
+    \includegraphics[width=0.3\textwidth]{figures/5_evaluation_figs/env_training_fig/legend.png}
     \caption{Environment training legend}
     \label{fig:env-training-legend}
 \end{wrapfigure}
@@ -113,35 +115,35 @@ environment settings to evaluate agents.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/num_completed_tasks.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/num_completed_tasks.png}
     \caption{Number of completed tasks}
     \label{fig:env_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/num_failed_tasks.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:env_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/percent_tasks.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/percent_tasks.png}
     \caption{Percentage of tasks attempted}
     \label{fig:env_percent_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/total_prices.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:env_total_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/total_winning_prices.PNG}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/total_winning_prices.PNG}
     \caption{Total winning prices}
     \label{fig:env_winning_prices}
 \end{figure}
@@ -150,13 +152,13 @@ environment settings to evaluate agents.
     \centering
     \begin{minipage}{0.75\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/single_env_num_completed_tasks.png}
+        \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/single_env_num_completed_tasks.png}
         \caption{Number of completed tasks for Single environment setting}
         \label{fig:single_env_num_completed_tasks}
     \end{minipage}\hfill
     \begin{minipage}{0.25\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/4_test_eval_figs/env_training_fig/single_env_legend.png}
+        \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/single_env_legend.png}
         \caption{Single environment results legend}
         \label{fig:single_env_legend}
     \end{minipage}
@@ -167,7 +169,7 @@ environment settings to evaluate agents.
 
 \subsection{Reinforcement learning algorithm training}\label{subsec:reinforcement-learning-algorithm-training}
 \begin{wrapfigure}{r}{0.25\textwidth}
-    \includegraphics[width=0.25\textwidth]{figures/4_test_eval_figs/algo_training_fig/legend.PNG}
+    \includegraphics[width=0.25\textwidth]{figures/5_evaluation_figs/algo_training_fig/legend.PNG}
     \caption{Environment training legend}
     \label{fig:algo-training-legend}
 \end{wrapfigure}
@@ -179,35 +181,35 @@ The evaluation environment were pre-generated as well to confirm uniform testing
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/num_completed_tasks.PNG}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:algo_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/num_failed_tasks.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:algo_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/percent_tasks.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/percent_tasks.png}
     \caption{Percent of tasks attempted}
     \label{fig:algo_percent_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/total_prices.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:algo_total_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/algo_training_fig/total_winning_prices.PNG}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/total_winning_prices.PNG}
     \caption{Winning prices}
     \label{fig:algo_winning_prices}
 \end{figure}
@@ -220,13 +222,13 @@ agent has the the auction and weighting actions separated due to their differenc
 %    \centering
 %    \begin{minipage}{0.5\textwidth}
 %        \centering
-%        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/dqn_auction_prices.png}
+%        \includegraphics[width=1.0\textwidth]{figures/5_evaluation_figs/algo_training_fig/dqn_auction_prices.png}
 %        \caption{Deep Q Network auction prices}
 %        \label{fig:dqn-auction-prices}
 %    \end{minipage}\hfill
 %    \begin{minipage}{0.5\textwidth}
 %        \centering
-%        \includegraphics[width=1.0\textwidth]{figures/4_test_eval_figs/algo_training_fig/dqn_weightings.png}
+%        \includegraphics[width=1.0\textwidth]{figures/5_evaluation_figs/algo_training_fig/dqn_weightings.png}
 %        \caption{Deep Q Network resource weightings}
 %        \label{fig:dqn-resource-weightings}
 %    \end{minipage}
@@ -235,7 +237,7 @@ agent has the the auction and weighting actions separated due to their differenc
 
 \subsection{Neural network architecture training}\label{subsec:neural-network-architecture-training}
 \begin{wrapfigure}{r}{0.25\textwidth}
-    \includegraphics[width=0.25\textwidth]{figures/4_test_eval_figs/net_arch_training_fig/legend.png}
+    \includegraphics[width=0.25\textwidth]{figures/5_evaluation_figs/net_arch_training_fig/legend.png}
     \caption{Network architecture legend}
     \label{fig:net-arch-training-legend}
 \end{wrapfigure}
@@ -247,35 +249,35 @@ LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/num_completed_tasks.PNG}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/num_completed_tasks.PNG}
     \caption{Number of completed tasks}
     \label{fig:net_arch_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/num_failed_tasks.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/num_failed_tasks.png}
     \caption{Number of failed tasks}
     \label{fig:net_arch_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/percent_tasks.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/percent_tasks.png}
     \caption{Percent of tasks attempted}
     \label{fig:net_arch_percent_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/total_prices.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/total_prices.png}
     \caption{Total prices}
     \label{fig:net_arch_total_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/4_test_eval_figs/net_arch_training_fig/total_winning_prices.png}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/total_winning_prices.png}
     \caption{Total winning prices}
     \label{fig:net_arch_total_winning_prices}
 \end{figure}

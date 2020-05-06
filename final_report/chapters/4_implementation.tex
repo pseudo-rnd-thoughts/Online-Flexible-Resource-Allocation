@@ -4,7 +4,7 @@
 % To ignore word count of agent hyperparameters
 %TC:group table 0 1
 
-\chapter{Implementing flexible resource allocation environment and server agents}\label{ch:implementation-of-the-solution}
+\chapter{Implementing Flexible Resource Allocation Environment and Server Agents}\label{ch:implementing-flexible-resource-allocation-environment-and-server-agents}
 In order to implement the solution from chapter~\ref{ch:proposed-solution}, a Mobile Edge Cloud (MEC) computing network
 must be simulated for both training and evaluation of agents. Due to the impractically of physically setting up
 such a network and to train agents offline and in parallel. This chapter splits the implementation into three sections:
@@ -34,7 +34,8 @@ from the steps taken. The reward is a dictionary of each of the servers with eit
 task or a list of tasks that have finished either because they ran out of time or completed early, depending on the
 step taken.
 
-\begin{lstlisting}[language=Python, frame=single, caption={Example code for running the environment}, captionpos=b, label={lst:example_flexible_resource_env}]
+\begin{lstlisting}[language=Python, frame=single, caption={Example code for running the environment}, captionpos=b,
+                   label={lst:example_flexible_resource_env}]
 # Load the environment with a setting
 env = OnlineFlexibleResourceAllocationEnv('settings.env')
 
@@ -152,7 +153,7 @@ agents, there is an unknown number of actions taken by the other agents before i
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=14cm]{figures/3_implementation_figs/env_server_agents_observations.pdf}
+    \includegraphics[width=14cm]{figures/4_implementation_figs/env_server_agents_observations.pdf}
     \caption{Environment server agents observations}
     \label{fig:environment-observations}
 \end{figure}
