@@ -121,35 +121,35 @@ environment settings to evaluate agents.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/num_completed_tasks.png}
-    \caption{Number of completed tasks for Environment and Agent numbers}
+    \caption{Environment and Agent numbers - Number of completed tasks}
     \label{fig:env_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/num_failed_tasks.png}
-    \caption{Number of failed tasks}
+    \caption{Environment and Agent numbers - Number of failed tasks}
     \label{fig:env_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/percent_tasks.png}
-    \caption{Percentage of tasks attempted}
+    \caption{Environment and Agent numbers - Percentage of tasks attempted}
     \label{fig:env_percent_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/total_prices.png}
-    \caption{Total prices}
+    \caption{Environment and Agent numbers - Total prices}
     \label{fig:env_total_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/total_winning_prices.PNG}
-    \caption{Total winning prices}
+    \caption{Environment and Agent numbers - Total winning prices}
     \label{fig:env_winning_prices}
 \end{figure}
 
@@ -181,6 +181,7 @@ setting with the single environment agents achieving 10\% higher than the multip
 %% TODO FINISH
 
 \subsection{Reinforcement learning algorithm training}\label{subsec:reinforcement-learning-algorithm-training}
+
 \begin{wrapfigure}{r}{0.25\textwidth}
     \includegraphics[width=0.25\textwidth]{figures/5_evaluation_figs/algo_training_fig/legend.PNG}
     \caption{Environment training legend}
@@ -257,41 +258,53 @@ agent has the the auction and weighting actions separated due to their differenc
 There are a wide-range of compatible neural network architectures that agents can use, as outlined in
 table~\ref{tab:neural_network_layers}. To compare these architectures, the DQN agents from the previous subsection is
 used due to its effectiveness and simplicity with four different network architectures: RNN~\citep{RNN},
-LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using an LSTM network. \\
+LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using an LSTM network. These networks are
+trained using the DQN agent due to it constant performance compared to the DDPG agents that get a local maxima making
+the results probably inconstant. \\
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/num_completed_tasks.PNG}
-    \caption{Number of completed tasks}
+    \caption{Network Architecture - Number of completed tasks}
     \label{fig:net_arch_num_completed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/num_failed_tasks.png}
-    \caption{Number of failed tasks}
+    \caption{Network Architecture - Number of failed tasks}
     \label{fig:net_arch_num_failed_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/percent_tasks.png}
-    \caption{Percent of tasks attempted}
+    \caption{Network Architecture - Percent of tasks attempted}
     \label{fig:net_arch_percent_tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/total_prices.png}
-    \caption{Total prices}
+    \caption{Network Architecture - Total prices}
     \label{fig:net_arch_total_prices}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/total_winning_prices.png}
-    \caption{Total winning prices}
+    \caption{Network Architecture - Total winning prices}
     \label{fig:net_arch_total_winning_prices}
 \end{figure}
 
-%% TODO FINISH
+As shown in figure~\ref{fig:net_arch_num_completed_tasks}, the LSTM, GRU and Bidirectional networks all achieved a
+similar score in the number of tasks completed while the RNN network achieves 30\% less. This is understandable due to
+the known of problem for RNNs of vanishing or exploding gradients as explained in Table~\ref{tab:neural_network_layers}.
+The Bidirectional neural network doesn't achieve a greater score that the other networks despite the network
+architecture allowing all inputs to be passed in is understandable due to the network providing a single output.
+Because of this, all tasks to the network are considered before any action is taken which is why the Bidirectional
+network didn't achieve a better score. However the Bidirectional seems more resilient to changes during training as
+shown in figure~\ref{fig:net_arch_num_failed_tasks} and~\ref{fig:net_arch_percent_tasks}. At episode 30 to 70, all
+of the network's (except Bidirectional), the number of failed tasks and number of attempted tasks suddenly drop, most
+likely to an over evaluating to not bid on any tasks by the task pricing agents.
+
