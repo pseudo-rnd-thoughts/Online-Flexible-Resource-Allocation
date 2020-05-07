@@ -254,7 +254,8 @@ class TD3Agent(DdpgAgent, ABC):
             twin_critic_state_q_values = self.twin_model_critic_network(obs)
 
             # Calculate the target using the rewards, discount factor, next q values and dones
-            next_actions = self.model_actor_network(next_states) + tf.random.normal((self.batch_size, 1), 0, 0.2)
+            next_actions = self.model_actor_network(next_states)
+            next_actions += tf.random.normal(next_actions.shape, 0, 0.2)
             clipped_next_actions = tf.clip_by_value(next_actions, 0, self.upper_action_bound)
             next_state_q_values = tf.reduce_min([self.target_critic_network([next_states, clipped_next_actions]),
                                                  self.twin_target_critic_network([next_states, clipped_next_actions])],

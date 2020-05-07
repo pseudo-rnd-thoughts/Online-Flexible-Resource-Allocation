@@ -89,8 +89,6 @@ def test_resource_allocation_training():
                                    save_folder='tmp'),
         ResourceWeightingTD3Agent(5, create_lstm_actor_network(16), create_lstm_critic_network(16),
                                   create_lstm_critic_network(16), batch_size=4, save_folder='tmp'),
-        ResourceWeightingSeq2SeqAgent(6, create_seq2seq_actor_network(), create_seq2seq_critic_network(),
-                                      create_seq2seq_critic_network(), batch_size=1, save_folder='tmp')
     ]
 
     # Load the environment
@@ -123,4 +121,36 @@ def test_resource_allocation_training():
 
         agent.train()
 
+    agent = ResourceWeightingSeq2SeqAgent(6, create_seq2seq_actor_network(), create_seq2seq_critic_network(),
+                                          create_seq2seq_critic_network(), batch_size=2, save_folder='tmp')
+    agent.resource_allocation_obs(resource_state, actions[server], next_resource_state, rewards[server])
+    agent.resource_allocation_obs(resource_state, actions[server], next_resource_state, rewards[server])
+    agent.train()
+
     print(f'Rewards: {[trajectory[3] for trajectory in agents[0].replay_buffer]}')
+
+
+def test_seq2seq_training():
+    print()
+    env, state = OnlineFlexibleResourceAllocationEnv.load_env('training/settings/resource_allocation.env')
+
+    agent = ResourceWeightingSeq2SeqAgent(0, create_seq2seq_actor_network(), create_seq2seq_critic_network(),
+                                          create_seq2seq_critic_network(), batch_size=1, save_folder='tmp')
+    for _ in range(4):
+        actions = {
+            server: agent.weight(tasks, server, state.time_step, training=True)
+            for server, tasks in state.server_tasks.items()
+        }
+
+        next_state, rewards, done, _ = env.step(actions)
+
+        for server in state.server_tasks.keys():
+            resource_state = ResourceAllocationState(state.server_tasks[server], server, state.time_step)
+            next_resource_state = ResourceAllocationState(next_state.server_tasks[server], server, next_state.time_step)
+            agent.resource_allocation_obs(resource_state, actions[server], next_resource_state, rewards[server])
+
+        state = next_state
+
+    agent.batch_size = len(agent.replay_buffer)
+    print(f'Batch size: {agent.batch_size}')
+    agent.train()
