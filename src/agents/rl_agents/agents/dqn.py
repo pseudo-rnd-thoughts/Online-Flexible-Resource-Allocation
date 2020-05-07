@@ -313,12 +313,12 @@ class CategoricalDqnAgent(DqnAgent, ABC):
             tape.watch(network_variables)
 
             # Q(s_t, a_t)
-            q_logits = self.model_net(states)
+            q_logits = self.model_network(states)
             action_indexes = tf.stack([tf.range(self.batch_size, dtype=tf.int32), actions], axis=-1)
             action_q_logits = tf.gather_nd(q_logits, action_indexes)
 
             # Q(s_t+1, a_t+1)
-            next_distribution = tf.nn.softmax(self.target_net(next_states))
+            next_distribution = tf.nn.softmax(self.target_network(next_states))
             next_target_q_values = tf.reduce_sum(next_distribution * self.z_values, axis=2)
             next_actions = tf.math.argmax(next_target_q_values, axis=1, output_type=tf.int32)
             next_action_indexes = tf.stack([tf.range(self.batch_size), next_actions], axis=1)
@@ -335,9 +335,9 @@ class CategoricalDqnAgent(DqnAgent, ABC):
             quotient = tf.clip_by_value(1 - tf.abs(expanded_q_value - tf.transpose([self.z_values])) / self.delta_z, 0, 1)
             target_distribution = tf.stop_gradient(tf.reduce_sum(quotient * expanded_next_distribution, axis=2))
 
-            loss = self.error_fn(target_distribution, action_q_logits)
-            if self.model_net.losses:
-                loss += tf.reduce_mean(self.model_net.losses)
+            loss = self.error_loss_fn(target_distribution, action_q_logits)
+            if self.model_network.losses:
+                loss += tf.reduce_mean(self.model_network.losses)
 
         gradients = tape.gradient(loss, network_variables)
         self.optimiser.apply_gradients(zip(gradients, network_variables))
