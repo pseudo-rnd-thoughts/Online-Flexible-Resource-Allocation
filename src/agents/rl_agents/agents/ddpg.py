@@ -24,7 +24,7 @@ class DdpgAgent(ReinforcementLearningAgent, ABC):
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
                  actor_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0001),
                  critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.RMSprop(lr=0.0005),
-                 initial_epsilon_std: float = 4.5, final_epsilon_std: float = 0.5, epsilon_steps: int = 20000,
+                 initial_epsilon_std: float = 4, final_epsilon_std: float = 0.5, epsilon_steps: int = 20000,
                  epsilon_update_freq: int = 250, epsilon_log_freq: int = 2000, min_value: float = -15.0,
                  max_value: float = 15.0, target_update_tau: float = 0.01, actor_target_update_freq: int = 1,
                  critic_target_update_freq: int = 1, upper_action_bound: float = 30.0, **kwargs):
