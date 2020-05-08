@@ -199,16 +199,18 @@ agent that have learnt to maximise profit over more environments.
 \subsection{Reinforcement learning algorithm training}
 \label{subsec:reinforcement-learning-algorithm-training}
 
-\begin{wrapfigure}{r}{0.25\textwidth}
-    \includegraphics[width=0.25\textwidth]{figures/5_evaluation_figs/algo_training_fig/legend.png}
+\begin{wrapfigure}{r}{0.2\textwidth}
+    \includegraphics[width=0.2\textwidth]{figures/5_evaluation_figs/algo_training_fig/legend.png}
     \caption{Reinforcement learning algorithm Legend}
     \label{fig:algo-training-legend}
 \end{wrapfigure}
 
 In table~\ref{tab:reinforcement_learning_algorithms}, a range of reinforcement learning algorithms implemented,
-therefore compare the effectiveness of the algorithms, agents for each were trained. Using the analysis from the
-previous subsections, during training agents were trained on multiple environment settings with multiple task pricing
-agents and a single resource weighting agents.
+to compare the effectiveness of the algorithms, each were trained. This was done using three task pricing agents with
+a single resource weighting on multiple environment settings for training due the reasoning given in
+Subsection~\ref{subsec:environment-and-agent-number-training}. Due to time limits, the policy gradients agents were
+only trained for 24 hours however during this time were only about to complete 300 to 400 episodes of training while
+the Dqn agents were able to train in 15 hours for 600 episodes.
 
 \begin{figure}[H]
     \centering
@@ -231,7 +233,16 @@ agents and a single resource weighting agents.
     \label{fig:algo_percent_tasks}
 \end{figure}
 
-%% FIXME Analyse
+The results did not match expectation due to the heuristic Dqn agents (Double Dqn and Dueling Dqn) achieved a fewer
+number of completed tasks (figure~\ref{fig:algo_num_completed_tasks}) than the simpler Dqn agents despite no changes
+being made to the agents except to the heuristic modifications. Another surprise were how badly the Ddpg agents did
+in comparison to the Dqn agents, particularly with regards to the percentage of tasks attempted
+(figure~\ref{fig:algo_percent_tasks}) where it appears that Ddpg agents attempted every task resulting in the agents
+being unable successfully complete as many tasks. However the Td3 Central critic (where the critic was the same network
+shared by all task pricing agents) did achieve results that are on par with the Dqn agent but due to training time
+limits this can't be known if this relationship will continue. The Categorical Dqn agent implemented, while could
+completed much simpler reinforcement learning problem, the agent struggles with the environment however this problem
+is believed to be a problem with the implementation rather than the algorithm not being effective.
 
 \subsection{Neural network architecture training}
 \label{subsec:neural-network-architecture-training}
