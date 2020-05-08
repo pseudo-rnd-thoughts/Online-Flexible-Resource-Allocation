@@ -16,7 +16,8 @@ allocation agents (section~\ref{sec:implementing-auction-and-resource-allocation
 The implementation discussed below as written in Python and available to download from
 Github~\footnote{\url{https://github.com/stringtheorys/Online-Flexible-Resource-Allocation}}.
 
-\section{Simulating MEC networks} \label{sec:simulating-mec-networks}
+\section{Simulating MEC networks}
+\label{sec:simulating-mec-networks}
 While the aim of the environment is to accurately simulate MEC servers, the implementation of the environment must
 allow agents to interact and train on the environment efficiently. Therefore it has been implemented
 as an OpenAI gym~\citep{openaigym}, the de facto standard for implementing reinforcement learning environments by
@@ -209,5 +210,5 @@ half of the actions added a negative value to the action while the action space 
 distribution~\citep{gamma-distribution} was used with a constant shape parameter of 1 with the scale parameter changing
 over time from 4.5 to 0.5 over 100k actions.
 
-A table of agent hyperparameters can be found in \hyperref[app:agent-hyperparameter]{Appendix C}.
+A table of agent hyperparameters used in training can be found in \hyperref[app:agent-hyperparameter]{Appendix C}.
 
