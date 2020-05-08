@@ -1,4 +1,4 @@
-% Texcount ignores the longtables
+% Texcount to include the tables
 %TC:group table 0 1
 
 \chapter{Testing and evaluation}\label{ch:testing-and-evaluation}
@@ -90,6 +90,7 @@ respectively.
 
 \subsection{Heuristics}\label{subsec:heuristics}
 
+%% Add prices change over time
 
 \subsection{Environment and Agent number training}\label{subsec:environment-and-agent-number-training}
 The analysis of the different Reinforcement Learning algorithms and neural network architectures in
@@ -141,20 +142,6 @@ environment settings to evaluate agents.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/total_prices.png}
-    \caption{Environment and Agent numbers - Total prices}
-    \label{fig:env_total_prices}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/total_winning_prices.PNG}
-    \caption{Environment and Agent numbers - Total winning prices}
-    \label{fig:env_winning_prices}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
     \begin{minipage}{0.75\linewidth}
         \centering
         \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_training_fig/single_env_num_completed_tasks.png}
@@ -177,8 +164,9 @@ Surprisingly, the final number of tasks allocated after 600 episodes of training
 results within 6\% of each other. Despite agents being evaluated on environments not directly trained for meaning that
 either agents are able to generalised efficiently to unknown environments or that the different synthetic environment
 used where not different enough to affect the agents. The agents were simultaneously evaluated on the single environment
-setting with the single environment agents achieving 10\% higher than the multiple environment agents interesting.
-%% TODO FINISH
+setting with the single environment agents achieving 10\% higher than the multiple environment agents. This is
+understandable due to single environment being more "specialised" in the single environment allowing the agent to
+maximise profit compared to the multi-environment agent.
 
 \subsection{Reinforcement learning algorithm training}\label{subsec:reinforcement-learning-algorithm-training}
 
@@ -214,39 +202,26 @@ The evaluation environment were pre-generated as well to confirm uniform testing
     \label{fig:algo_percent_tasks}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/total_prices.png}
-    \caption{Total prices}
-    \label{fig:algo_total_prices}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/total_winning_prices.PNG}
-    \caption{Winning prices}
-    \label{fig:algo_winning_prices}
-\end{figure}
-
 With the agents, an action histogram is recorded for all of the actions taken every 100 episodes to analyse the change
 of actions taken over time and to investigate the difference is how algorithms evaluate the value of a position. Each
 agent has the the auction and weighting actions separated due to their difference in policy. \\
 
-%\begin{figure}[H]
-%    \centering
-%    \begin{minipage}{0.5\textwidth}
-%        \centering
-%        \includegraphics[width=1.0\textwidth]{figures/5_evaluation_figs/algo_training_fig/dqn_auction_prices.png}
-%        \caption{Deep Q Network auction prices}
-%        \label{fig:dqn-auction-prices}
-%    \end{minipage}\hfill
-%    \begin{minipage}{0.5\textwidth}
-%        \centering
-%        \includegraphics[width=1.0\textwidth]{figures/5_evaluation_figs/algo_training_fig/dqn_weightings.png}
-%        \caption{Deep Q Network resource weightings}
-%        \label{fig:dqn-resource-weightings}
-%    \end{minipage}
-%\end{figure}
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=1.0\textwidth]{figures/5_evaluation_figs/algo_training_fig/dqn_auction_prices.png}
+        \caption{Deep Q Network auction prices}
+        \label{fig:dqn-auction-prices}
+    \end{minipage}\hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width=1.0\textwidth]{figures/5_evaluation_figs/algo_training_fig/dqn_weightings.png}
+        \caption{Deep Q Network resource weightings}
+        \label{fig:dqn-resource-weightings}
+    \end{minipage}
+\end{figure}
+
 
 \subsection{Neural network architecture training}\label{subsec:neural-network-architecture-training}
 \begin{wrapfigure}{r}{0.25\textwidth}
@@ -281,20 +256,6 @@ the results probably inconstant. \\
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/percent_tasks.png}
     \caption{Network Architecture - Percent of tasks attempted}
     \label{fig:net_arch_percent_tasks}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/total_prices.png}
-    \caption{Network Architecture - Total prices}
-    \label{fig:net_arch_total_prices}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/total_winning_prices.png}
-    \caption{Network Architecture - Total winning prices}
-    \label{fig:net_arch_total_winning_prices}
 \end{figure}
 
 As shown in figure~\ref{fig:net_arch_num_completed_tasks}, the LSTM, GRU and Bidirectional networks all achieved a
