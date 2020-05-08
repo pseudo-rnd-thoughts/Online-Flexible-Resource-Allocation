@@ -21,33 +21,33 @@ Number of math inlines: 1
 Number of math displayed: 1
 Subcounts:
   text+headers+captions (#headers/#floats/#inlines/#displayed)
-  76+2+0 (1/0/0/0) Chapter: Literature Review}\label{ch:literature-review
-  676+7+0 (1/0/1/0) Section: Resource allocation and pricing in Cloud Computing}\label{sec:resource-allocation-and-pricing-in-cloud-computing
-  720+2+8 (1/1/0/1) Section: Reinforcement Learning}\label{sec:reinforcement-learning
+  76+2+0 (1/0/0/0) Chapter: Literature Review
+  676+7+0 (1/0/1/0) Section: Resource allocation and pricing in Cloud Computing
+  720+2+8 (1/1/0/1) Section: Reinforcement Learning
 
 File: chapters/3_solution.tex
 Encoding: ascii
-Sum count: 2662
-Words in text: 2559
-Words in headers: 24
-Words outside text (captions, etc.): 46
+Sum count: 2856
+Words in text: 2746
+Words in headers: 19
+Words outside text (captions, etc.): 58
 Number of headers: 6
-Number of floats/tables/figures: 3
+Number of floats/tables/figures: 4
 Number of math inlines: 29
 Number of math displayed: 4
 Subcounts:
   text+headers+captions (#headers/#floats/#inlines/#displayed)
-  99+5+0 (1/0/0/0) Chapter: Optimising resource allocation in MEC}\label{ch:optimising-resource-allocation-in-mec
-  650+4+2 (1/0/29/4) Section: Resource allocation optimisation problem}\label{sec:optimisation-problem
-  695+3+21 (1/0/0/0) Section: Auctioning of Tasks}\label{sec:auctioning-of-tasks
-  773+5+15 (1/1/0/0) Section: Auction and resource allocation agents}\label{sec:proposed-agents
-  141+3+4 (1/1/0/0) Subsection: Proposed auction agents}\label{subsec:proposed-auction-agents
-  201+4+4 (1/1/0/0) Subsection: Proposed resource allocation agents}\label{subsec:proposed-resource-allocation-agents
+  99+5+0 (1/0/0/0) Chapter: Optimising resource allocation in MEC
+  650+4+2 (1/0/29/4) Section: Resource allocation optimisation problem
+  695+3+21 (1/0/0/0) Section: Auctioning of Tasks
+  829+2+15 (1/1/0/0) Section: Server agents
+  141+2+4 (1/1/0/0) Subsection: Auction agents
+  332+3+16 (1/2/0/0) Subsection: Resource allocation agents
 
 File: chapters/4_implementation.tex
 Encoding: ascii
-Sum count: 2105
-Words in text: 2068
+Sum count: 2079
+Words in text: 2042
 Words in headers: 29
 Words outside text (captions, etc.): 8
 Number of headers: 7
@@ -56,38 +56,38 @@ Number of math inlines: 0
 Number of math displayed: 0
 Subcounts:
   text+headers+captions (#headers/#floats/#inlines/#displayed)
-  84+8+4 (1/0/0/0) Chapter: Implementing Flexible Resource Allocation Environment and Server Agents}\label{ch:implementing-flexible-resource-allocation-environment-and-server-agents
-  353+3+0 (1/0/0/0) Section: Simulating MEC networks}\label{sec:simulating-mec-networks
-  384+4+0 (1/0/0/0) Subsection: Weighted server resource allocation}\label{subsec:weighted-server-resource-allocation
-  300+6+0 (1/0/0/0) Section: Server auction and resource allocation agents}\label{sec:implementing-auction-and-resource-allocation-agents
-  427+3+0 (1/0/0/0) Subsection: Agent Rewards Functions}\label{subsec:agent-rewards-functions
-  306+3+4 (1/1/0/0) Subsection: Agent Training Observations}\label{subsec:agent-training-observations
-  214+2+0 (1/0/0/0) Section: Training agents}\label{sec:training-agents
+  84+8+4 (1/0/0/0) Chapter: Implementing Flexible Resource Allocation Environment and Server Agents
+  164+3+0 (1/0/0/0) Section: Simulating MEC networks} \label{sec:simulating-mec-networks
+  384+4+0 (1/0/0/0) Subsection: Weighted server resource allocation
+  310+6+0 (1/0/0/0) Section: Server auction and resource allocation agents
+  427+3+0 (1/0/0/0) Subsection: Agent Rewards Functions
+  306+3+4 (1/1/0/0) Subsection: Agent Training Observations
+  367+2+0 (1/0/0/0) Section: Training agents
 
 File: chapters/5_evaluation.tex
 Encoding: ascii
-Sum count: 1574
-Words in text: 1431
-Words in headers: 21
+Sum count: 1589
+Words in text: 1444
+Words in headers: 23
 Words outside text (captions, etc.): 122
 Number of headers: 7
-Number of floats/tables/figures: 16
+Number of floats/tables/figures: 10
 Number of math inlines: 0
 Number of math displayed: 0
 Subcounts:
   text+headers+captions (#headers/#floats/#inlines/#displayed)
-  87+3+0 (1/0/0/0) Chapter: Testing and evaluation}\label{ch:testing-and-evaluation
-  487+2+21 (1/0/0/0) Section: Functional testing}\label{sec:functional-testing
-  107+2+0 (1/0/0/0) Section: Agent evaluation}\label{sec:agent-evaluation
-  0+1+0 (1/0/0/0) Subsection: Heuristics}\label{subsec:heuristics
-  392+5+52 (1/6/0/0) Subsection: Environment and Agent number training}\label{subsec:environment-and-agent-number-training
-  115+4+19 (1/5/0/0) Subsection: Reinforcement learning algorithm training}\label{subsec:reinforcement-learning-algorithm-training
-  243+4+30 (1/5/0/0) Subsection: Neural network architecture training}\label{subsec:neural-network-architecture-training
+  87+3+0 (1/0/0/0) Chapter: Testing and evaluation
+  487+2+21 (1/0/0/0) Section: Functional testing
+  113+2+0 (1/0/0/0) Section: Agent evaluation
+  0+3+0 (1/0/0/0) Subsection: Fixed resource Heuristics
+  437+5+55 (1/4/0/0) Subsection: Environment and Agent number training
+  50+4+25 (1/3/0/0) Subsection: Reinforcement learning algorithm training
+  270+4+21 (1/3/0/0) Subsection: Neural network architecture training
 
 File: chapters/6_conclusion.tex
 Encoding: ascii
-Sum count: 277
-Words in text: 273
+Sum count: 282
+Words in text: 278
 Words in headers: 4
 Words outside text (captions, etc.): 0
 Number of headers: 1
@@ -95,41 +95,22 @@ Number of floats/tables/figures: 0
 Number of math inlines: 0
 Number of math displayed: 0
 
-File: chapters/7_appendix.tex
-Encoding: ascii
-Sum count: 800
-Words in text: 778
-Words in headers: 15
-Words outside text (captions, etc.): 7
-Number of headers: 4
-Number of floats/tables/figures: 1
-Number of math inlines: 0
-Number of math displayed: 0
-Subcounts:
-  text+headers+captions (#headers/#floats/#inlines/#displayed)
-  2+0+0 (0/0/0/0) _top_
-  49+3+0 (1/0/0/0) Section: Appendix A: Paper} \label{app:paper
-  53+4+0 (1/0/0/0) Section: Appendix B: SPIE Presentation} \label{app:spie-presentation
-  662+4+2 (1/0/0/0) Section: Appendix C: Agent hyperparameters} \label{app:agent-hyperparameters
-  12+4+5 (1/1/0/0) Section: Appendix D: Project management} \label{app:project-management
-
 Total
-Sum count: 9985
-Words in text: 9584
-Words in headers: 105
-Words outside text (captions, etc.): 261
-Number of headers: 29
-Number of floats/tables/figures: 22
+Sum count: 9373
+Words in text: 8985
+Words in headers: 87
+Words outside text (captions, etc.): 266
+Number of headers: 25
+Number of floats/tables/figures: 16
 Number of math inlines: 30
 Number of math displayed: 5
-Files: 7
+Files: 6
 Subcounts:
   text+headers+captions (#headers/#floats/#inlines/#displayed)
   1003+1+70 (1/0/0/0) File(s) total: chapters/1_introduction.tex
   1472+11+8 (3/1/1/1) File(s) total: chapters/2_background_lit.tex
-  2559+24+46 (6/3/29/4) File(s) total: chapters/3_solution.tex
-  2068+29+8 (7/1/0/0) File(s) total: chapters/4_implementation.tex
-  1431+21+122 (7/16/0/0) File(s) total: chapters/5_evaluation.tex
-  273+4+0 (1/0/0/0) File(s) total: chapters/6_conclusion.tex
-  778+15+7 (4/1/0/0) File(s) total: chapters/7_appendix.tex
+  2746+19+58 (6/4/29/4) File(s) total: chapters/3_solution.tex
+  2042+29+8 (7/1/0/0) File(s) total: chapters/4_implementation.tex
+  1444+23+122 (7/10/0/0) File(s) total: chapters/5_evaluation.tex
+  278+4+0 (1/0/0/0) File(s) total: chapters/6_conclusion.tex
 
