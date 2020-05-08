@@ -82,23 +82,37 @@ an explanation for the values for each hyperparameter used in the project.
 \end{longtable}
 
 \section*{Appendix D: Project management} \label{app:project-management}
-%% Outstanding planning, progress, time management, and contingency planning
+To management this project has been difficult due to having to split my time between writing the academic paper at the
+start of the year (plus creating the recorded presentation) and the programming and write up the expanded research.
+Because of this, a risk assessment (Table~\ref{tab:risk_assessment}) to understand possible risks during the project.
+The project was also planned using a grantt chart (figure~\ref{fig:progress_grant_chart}) to understand the progress of
+the project over time and to plan how the project would run. The project brief is submitted in October 2019
+is included at the end of this report as well. The word count of the project is
 
+\subsection*{Risk assessment}
 \begin{table}[h]
     \centering
     \begin{tabular}{|p{3cm}|c|c|p{7cm}|} \hline
         \textbf{Risk}  & \textbf{Severity} & \textbf{Possibility} & \textbf{Explanation} \\ \hline
-        % FIXME
-        Iridis failure & 5 & 1 & \\ \hline
-        Agent Training time & 4 & 2 & \\ \hline
-        Personal Illness or Injury & 4 & 1 & \\ \hline
-        Pandemic & 5 & 1 & While Pandemic will not prevent the project due to all work being digital, it would prevent
-            meeting with my supervisor. \\ \hline
+        Rejected paper submission & 1 & 4 & The paper (Appendix A) was submitted to the AAMAS 2020 conference in
+            December that could be rejected. While this was be disappointing if this happened, the paper can still be
+            submitted to another conference at a later time. \\ \hline
+        Iridis failure & 5 & 1 & In order to train the agent in this project, the University of Southampton supercomputer,
+            Iridis 5 was utilised so if this could not be used anymore. This was cause massive issues to be able to
+            train all of the agents for both long enough. \\ \hline
+        Agent Training time & 4 & 2 & Reinforcement learning agents can take several million actions to achieve
+            effective results which takes days or weeks to learn. This project doesn't have such resources or time to
+            spend training agents to do this therefore making it a large problem. \\ \hline
+        Personal Illness or Injury & 4 & 1 & Physical illness or injury could prevent the project from being both
+            programmed or written. \\ \hline
+        Pandemic & 4 & 1 & While Pandemic will not prevent the project from being completed due to all work being
+            digital, it would prevent talking with my supervisor in person or for University to be open. \\ \hline
     \end{tabular}
     \caption{Risk Assessment}
     \label{tab:risk_assessment}
 \end{table}
 
+\subsection*{Progress Grantt Chart}
 \begin{figure}[h]
     \centering
     \includegraphics[width=\linewidth]{extra/progress_grantt_chart.pdf}
@@ -106,6 +120,8 @@ an explanation for the values for each hyperparameter used in the project.
     \label{fig:progress_grant_chart}
 \end{figure}
 
-Progress report submitted on the 10th of December 2019.
+\subsection*{Project brief}
+\includepdf[pages=-, offset=25mm -20mm]{extra/project_brief}
 
-\includepdf[pages=-, offset=25mm -20mm]{extra/progress_report}
+\subsection*{Word count}
+\wordcount
