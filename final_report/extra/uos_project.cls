@@ -223,7 +223,7 @@
       {\large award of \par \degreename \par}
       \vfill
       {\normalsize Supervisor\supplural: \supname \par}
-      \ifthenelse{\isempty{\examname}}
+      % \ifthenelse{\isempty{\examname}}
       {\normalsize Examiner\examplural: \examname \par}{}
       \vfill
       \hspace{6mm}\parbox[t][51mm][s]{89mm}{
