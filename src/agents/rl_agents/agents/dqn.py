@@ -292,7 +292,7 @@ class CategoricalDqnAgent(DqnAgent, ABC):
     """
 
     def __init__(self, network: tf.keras.Model, min_value: float = -25.0, max_value: float = 20.0,
-                 error_loss_fn=tf.keras.losses.CategoricalCrossentropy(from_logits=True), **kwargs):
+                 error_loss_fn=tf.nn.softmax_cross_entropy_with_logits, **kwargs):
         DqnAgent.__init__(self, network, error_loss_fn=error_loss_fn, **kwargs)
 
         self.v_min = min_value
@@ -327,15 +327,15 @@ class CategoricalDqnAgent(DqnAgent, ABC):
                                                     [self.batch_size, self.num_atoms, self.num_atoms])
 
             # Bellman projection update
-            next_value_term = dones * self.z_values * tf.ones((self.batch_size, self.num_atoms))
-            target_q_value = rewards + self.discount_factor * next_value_term
+            next_value_term = self.z_values * tf.ones((self.batch_size, self.num_atoms))
+            target_q_value = rewards + self.discount_factor * next_value_term * dones
             clipped_q_value = tf.clip_by_value(target_q_value, self.v_min, self.v_max)
             expanded_q_value = tf.reshape(tf.tile(clipped_q_value, [1, self.num_atoms]),
                                           [self.batch_size, self.num_atoms, self.num_atoms])
             quotient = tf.clip_by_value(1 - tf.abs(expanded_q_value - tf.transpose([self.z_values])) / self.delta_z, 0, 1)
             target_distribution = tf.stop_gradient(tf.reduce_sum(quotient * expanded_next_distribution, axis=2))
 
-            loss = self.error_loss_fn(target_distribution, action_q_logits)
+            loss = tf.reduce_mean(self.error_loss_fn(target_distribution, action_q_logits))
             if self.model_network.losses:
                 loss += tf.reduce_mean(self.model_network.losses)
 
@@ -379,7 +379,7 @@ class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightin
     Resource weighting categorical DQN agent
     """
 
-    def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=100000, min_value: float = -10.0,
+    def __init__(self, agent_num: int, network: tf.keras.Model, epsilon_steps=100000, min_value: float = -15.0,
                  max_value: float = 12.0, **kwargs):
         CategoricalDqnAgent.__init__(self, network, epsilon_steps=epsilon_steps, min_value=min_value,
                                      max_value=max_value, **kwargs)
