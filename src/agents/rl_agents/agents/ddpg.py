@@ -204,7 +204,7 @@ class TD3Agent(DdpgAgent, ABC):
     def __init__(self, actor_network: tf.keras.Model, critic_network: tf.keras.Model,
                  twin_critic_network: tf.keras.Model,
                  twin_critic_optimiser: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
-                 actor_update_frequency: int = 3, actor_target_update_frequency: int = 3, **kwargs):
+                 actor_update_frequency: int = 2, actor_target_update_frequency: int = 2, **kwargs):
         DdpgAgent.__init__(self, actor_network, critic_network,
                            actor_target_update_frequency=actor_target_update_frequency, **kwargs)
 
