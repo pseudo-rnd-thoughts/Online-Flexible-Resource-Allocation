@@ -3,17 +3,19 @@
 % Add word count of words
 %TC:group table 0 1
 
-\chapter{Optimising resource allocation in MEC}\label{ch:optimising-resource-allocation-in-mec}
+\chapter{Optimising resource allocation in MEC}
+\label{ch:optimising-resource-allocation-in-mec}
 In chapter~\ref{ch:introduction}, the problem that this project aims to address was outlined along with a short
 description of the proposed solution. This chapter builds upon that, giving a formal mathematical model for the problem
 in section~\ref{sec:optimisation-problem}. Section~\ref{sec:auctioning-of-tasks} proposes an auction mechanism in order
 to pay servers for their resources in order to deal with self-interested users and as server are normally payed for
 use of their services. \\
 Using the optimisation problem and auction mechanism from the previous sections, agents for both auction and resource
-allocation are proposed, in section~\ref{sec:proposed-agents}, that learns together to maximise a server's profits
+allocation are proposed, in section~\ref{sec:server-agents}, that learns together to maximise a server's profits
 over time.
 
-\section{Resource allocation optimisation problem}\label{sec:optimisation-problem}
+\section{Resource allocation optimisation problem}
+\label{sec:optimisation-problem}
 Using the flexible resource principle, the time taken for a operation to occur, e.g.\ loading of data, computing
 a program and sending back results, etc, is proportional to the amount of resources allocated to complete the operation.
 A modified version of a resource allocation optimisation model can be designed by building upon the formulation
@@ -56,7 +58,7 @@ at any point in time.
 \end{align}
 
 As the task must complete each stage in series, additional variables are required to track the progress of
-each task stage. $\hat{s}_{j,t}$ denotes the loading progress (equation~\eqref{eq:loading_progress}), $\hat{w}_{j,t}$
+each task stage. $\hat{s}_{j,t}$ denotes the loading progress (equation \eqref{eq:loading_progress}), $\hat{w}_{j,t}$
 denotes the compute progress (equation~\eqref{eq:compute_progress}) and $\hat{r}_{j,t}$ denotes the sending progress
 (equation~\eqref{eq:sending_progress}) of the task. Each of these variables are updated recursively depending
 on the progress at the previous time step with the resources allocation. In the compute and sending
@@ -96,7 +98,8 @@ by all allocated tasks.
     \sum_{j \in J} (s^{'}_{j,t} + r^{'}_{j,t}) x_{i,j} \leq R_i && \forall{i \in I, t \in T} \label{eq:server_bandwidth_capacity}
 \end{align}
 
-\section{Auctioning of Tasks}\label{sec:auctioning-of-tasks}
+\section{Auctioning of Tasks}
+\label{sec:auctioning-of-tasks}
 While the mathematically description of the problem presented in the previous section doesn't consider any auctions
 occurring. In real life servers are normally paid for the use of their resources through auctions as discussed in
 Section~\ref{sec:resource-allocation-and-pricing-in-cloud-computing}. However due to the modifications
@@ -165,14 +168,15 @@ wins the task instead of the maximum price. The auction therefore works by allow
 a task with the winner being the server with the lowest price, but as this is a Vickrey auction, the server actually
 gains second lowest price.
 
-\section{Auction and resource allocation agents}\label{sec:proposed-agents}
+\section{Server agents}
+\label{sec:server-agents}
 Using the optimisation formulation and auction mechanism from the previous two sections, the problem can be modelled as
 Markov Decision Process~\citep{Bel} in figure~\ref{fig:mdp_system_model}. This has the advantage of separating out the
 auction and resource allocation parts of the problem with separate agents acting for each.
-Subsection~\ref{subsec:proposed-auction-agents} and~\ref{subsec:proposed-resource-allocation-agents} proposes agents
+Subsection~\ref{subsec:auction-agents} and~\ref{subsec:resource-allocation-agents} proposes agents
 for each of the auction and resource allocation environments respectively.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=14cm]{figures/3_solution_figs/flexible_resource_allocation_env.pdf}
     \caption{Markov Decision process system model}
@@ -182,14 +186,16 @@ for each of the auction and resource allocation environments respectively.
 Due to the exploratory nature of the project, a range of reinforcement learning algorithm and neural network
 architectures will be implemented and compared to evaluate the effectiveness of each. These are outlined in
 Table~\ref{tab:reinforcement_learning_algorithms} for proposed algorithms and Table~\ref{tab:neural_network_layers} for
-networks layers.
+networks layers. \\
 
 \begin{longtable}{|p{5cm}|p{10cm}|} \hline
     \textbf{Algorithm} & \textbf{Description} \\ \hline
-    Dqn~\citep{mnih2015humanlevel} & A standard deep Q network (DQN) agent that discretizes the action space with a
+    Dqn~\citep{mnih2015humanlevel} & A standard deep Q network (Dqn) agent that discretizes the action space with a
         target neural network and experience replay buffer. \\ \hline
-    Double Dueling DQN~\citep{doubledqn, duelingdqn} & A combination of two heuristics for the DQN agent that modify
-        the loss function and modify the networks to separate the state's value and the action advantage. \\ \hline
+    Double Dqn~\citep{doubledqn} & A heuristic for the Dqn that modifies the loss function using the target network
+        actions index but the model network value. \\ \hline
+    Dueling Dqn~\citep{duelingdqn} & A heuristic for the Dqn that modifies the network to separates the state value
+        and action advantages that can help understand the environment. \\ \hline
     Categorical Dqn~\citep{distributional_dqn} & DQN represents the Q value as a scalar value, the Categorical DQN agent
         outputs probability distribution over values which is helpful for environments that are stochastic. \\ \hline
     Deep Deterministic Policy Gradient~\citep{ddpg} & Deep Deterministic Policy Gradient (DDPG) allows for continuous
@@ -199,6 +205,9 @@ networks layers.
         heuristics for the DDPG algorithm. A critic twin is used to prevent the actor network from tricking the critic
         network in evaluating a state's Q value. Another heuristic is the delaying the updates for actor network
         compared to the critic network to allow the critic to out learn the actor to prevent being tricked.\\ \hline
+    Td3 Central critic & As there are multiple agents working together, the critic used for all of the agents can be
+        same, this is inspired by~\cite{maddpg} which the critic only evaluates the agents private observation not the
+        complete information. \\ \hline
     \caption{Table of the Reinforcement Learning algorithms}
     \label{tab:reinforcement_learning_algorithms}
 \end{longtable}
@@ -239,7 +248,7 @@ networks layers.
     Differentiable neural computer~\citep{DNC} & An expansion to the Neural Turing Machine that allows the memory
         module to be scalable in size allowing for additional memory to be added if needed. \\ \hline
 
-    Sequence to Sequence networks~\cite{seq2seq} & All networks considered above allow for sequences to be passed in
+    Sequence to Sequence networks~\citep{seq2seq} & All networks considered above allow for sequences to be passed in
         while outputting a single output vector. Sequence to sequence network utilise two sub-networks; an encoder and
         decoder. The encoder takes a sequence that is encoded which is outputted to the decoder that then outputs
         another sequence by continually passing in the decoders last input. \\ \hline
@@ -247,7 +256,8 @@ networks layers.
     \label{tab:neural_network_layers}
 \end{longtable}
 
-\subsection{Proposed auction agents}\label{subsec:proposed-auction-agents}
+\subsection{Auction agents}
+\label{subsec:auction-agents}
 Traditionally pricing mechanisms~\citep{al2013cloud} rely on mixture of metrics: resource availability, resource demand,
 quality of service, task resource allocation quantity, etc to determine a price. However
 these values are difficult to approximate during the auction for this project. So, due to the complexity of
@@ -266,29 +276,51 @@ auctioned. Because of this, a recurrent network must be used like the RNN, GRU, 
 of tasks allocated to a server is unknown. For the DDPG, a single ReLU output will be used while a linear Q value output
 for DQN agent must be used as shown in Figure~\ref{fig:task_pricing_network_architecture}.
 
-\subsection{Proposed resource allocation agents}\label{subsec:proposed-resource-allocation-agents}
+\subsection{Resource allocation agents}
+\label{subsec:resource-allocation-agents}
 When a new task is allocated to the server or a task completes a stage, server resource need to be redistributed
-to the task. As the problem of how to allocation resources isn't as complex as the agent pricing in
-section~\ref{subsec:proposed-auction-agents}, both simple heuristics and reinforcement learning agents will be
-implemented in order to compare effectiveness.
+to the task. While the problem of how to allocation resources isn't as complex as the agent pricing in
+section~\ref{subsec:auction-agents}, heuristics are not obvious due knowing how to balance resources usage
+between all allocated tasks. Because of this, reinforcement learning agents are proposed to learn this with two
+different network structures with a heuristic to simplify the optimal function for agents.
 
-%% TODO Possible add Seq2Seq network
-However a similar problem exists as with the proposed auction agents (in subsection~\ref{subsec:proposed-auction-agents}).
-Due to allocating resources to a single task requires being aware of the resource requirements of other
-tasks. Therefore a similar network is proposed to allow for the other tasks
-to be passed into the network at the same time it is weighting a task. This is shown in
-figure~\ref{fig:resource_weighting_network_architecture}
-
-A weighting heuristic is proposed for the network output as well, such that the network doesn't output the raw
+The heuristic is proposed for the network output, such that the network doesn't output the raw
 resources allocated for a task but rather a weighted value for the resources needing to allocated for the task.
-This has the advantage of being a simpler function to approximate for agents but with a similar expressiveness as an
-exact resource usage function. This also avoids the problem of the network either over allocating the resources to tasks
-or severely under allocating resources.
+This has the advantage of being a simpler function to approximate for agents as it is a single positive value but with a
+similar expressiveness as an exact resource usage function due to the other values be able to known by the server. This
+also avoids the problem of the network either over allocating the resources to tasks or severely under allocating
+resources.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/3_solution_figs/multi_task_actor_weighting_network_architecture.png}
+        \caption{Multi-task Seq2Seq actor network architecture}
+        \label{fig:seq2seq_actor_network_architecture}
+    \end{minipage}\hfill
+    \begin{minipage}{0.55\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/3_solution_figs/single_task_critic_weighting_network_architecture.png}
+        \caption{Multi-task Seq2Seq critic network architecture}
+        \label{fig:seq2seq_critic_network_architecture}
+    \end{minipage}
+\end{figure}
+
+Due to allocating resources to a single task requires being aware of the resource requirements of other tasks, this
+effects the network input shape. Two different network structures will be compared, one using a Seq2Seq network such
+all tasks are passed in to be encoded with the decode having all of the tasks passed in again generating a sequence of
+task weightings. This network architecture is shown in figure~\ref{fig:seq2seq_actor_network_architecture} for the actor
+network and figure~\ref{fig:seq2seq_critic_network_architecture} for the critic network. The other network is similar
+such that a single task is weighted at a time through passing the single task and the other allocated tasks through the
+network as shown in figure~\ref{fig:resource_weighting_network_architecture}. But this requires for each allocated task
+for the task to passed through the network however the network can be trained with both deep Q learning and policy
+gradient algorithms while the Seq2Seq network must be trained through policy gradient algorithms.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{figures/3_solution_figs/resource_weighting_network_architecture.png}
-    \caption{Resource weighting network architecture}
+    \includegraphics[width=0.5\textwidth]{figures/3_solution_figs/single_task_weighting_network_architecture.png}
+    \caption{Single task resource weighting network architecture}
     \label{fig:resource_weighting_network_architecture}
 \end{figure}
 
