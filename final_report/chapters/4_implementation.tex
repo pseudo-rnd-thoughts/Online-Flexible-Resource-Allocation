@@ -4,7 +4,8 @@
 % To include word count of tables
 %TC:group table 0 1
 
-\chapter{Implementing Flexible Resource Allocation Environment and Server Agents}\label{ch:implementing-flexible-resource-allocation-environment-and-server-agents}
+\chapter{Implementing Flexible Resource Allocation Environment and Server Agents}
+\label{ch:implementing-flexible-resource-allocation-environment-and-server-agents}
 In order to implement the solution from chapter~\ref{ch:proposed-solution}, a Mobile Edge Cloud (MEC) computing network
 must be simulated for both training and evaluation of agents. Due to the impractically of physically setting up
 such a network and to train agents offline and in parallel. This chapter splits the implementation into three sections:
@@ -15,7 +16,7 @@ allocation agents (section~\ref{sec:implementing-auction-and-resource-allocation
 The implementation discussed below as written in Python and available to download from
 Github~\footnote{\url{https://github.com/stringtheorys/Online-Flexible-Resource-Allocation}}.
 
-\section{Simulating MEC networks}\label{sec:simulating-mec-networks}
+\section{Simulating MEC networks} \label{sec:simulating-mec-networks}
 While the aim of the environment is to accurately simulate MEC servers, the implementation of the environment must
 allow agents to interact and train on the environment efficiently. Therefore it has been implemented
 as an OpenAI gym~\citep{openaigym}, the de facto standard for implementing reinforcement learning environments by
@@ -64,7 +65,8 @@ for _ in range(1000):
         server_state = env.reset()
 \end{lstlisting}
 
-\subsection{Weighted server resource allocation}\label{subsec:weighted-server-resource-allocation}
+\subsection{Weighted server resource allocation}
+\label{subsec:weighted-server-resource-allocation}
 A particular complication of the environment is to distribute server resources due to the fact that the resource
 allocation agents provide a resource weighting rather than the actual task resource usage. Because of this, a novel
 algorithm was implemented to convert the weighting to the actual resources of each task.
@@ -91,17 +93,17 @@ available storage for the new data to be added. For any remaining task, this pro
 available resources are allocated in the time step. As a results, using this algorithm, the converting between
 weightings to the actual resources usage allows for near maximum allocation of a server's available resources.
 
-\section{Server auction and resource allocation agents}\label{sec:implementing-auction-and-resource-allocation-agents}
-%% FIXME
-%% Outline the task pricing and resource allocation agents
+\section{Server auction and resource allocation agents}
+\label{sec:server-auction-and-resource-allocation-agents}
+For the server, they require two policies, one for bidding on auction tasks and the other being allocating resources.
+Subsections~\ref{subsec:auction-agents} and~\ref{subsec:resource-allocation-agents} propose server agents that use
+any of reinforcement learning algorithms (Table~\ref{tab:reinforcement_learning_algorithms}) and with neural networks
+to learn the policy.
 
-A range of different reinforcement learning techniques have been implemented, outlined in
-Table~\ref{tab:reinforcement_learning_algorithms}, in order to explore the different options that a server would have
-available to learn its policies. These policies were originally attempted to be implemented using
-Tf-Agent~\citep{tf-agent} and a range of other frameworks with algorithm pre-programmed however due to numerous issues
-that was not possible to do. Therefore all of the algorithm have been handcrafted using
-tensorflow~\citep{tensorflow2015-whitepaper}, a Python module developed by Google, that gives the ability to construct
-neural networks, backpropagation with custom loss functions and more.
+These policies were originally attempted to be implemented using Tf-Agent~\citep{tf-agent} and a range of other
+frameworks with algorithm pre-programmed however due to numerous issues that was not possible to do. Therefore all of
+the algorithm have been handcrafted using tensorflow~\citep{tensorflow2015-whitepaper}, a Python module developed by
+Google, that gives the ability to construct neural networks, backpropagation with custom loss functions and more.
 
 Both deep Q networks and policy gradient algorithms are based on the Q function (explained in
 section~\ref{sec:reinforcement-learning})) which tries to approximate the reward at the next time step. To do
@@ -118,7 +120,8 @@ over 500 episodes. Because of this, a solution was found by padding all the inpu
 tensorflow preprocessing module with the sequence.pad\_sequence function. As a result, training became significantly
 faster making large scale testing practical within a more reasonable time period of 16 hours for 600 episodes.
 
-\subsection{Agent Rewards Functions}\label{subsec:agent-rewards-functions}
+\subsection{Agent Rewards Functions}
+\label{subsec:agent-rewards-functions}
 As explained in the background review for reinforcement learning (section~\ref{sec:reinforcement-learning}),
 the Q values is the estimated discounted reward in the future for an action given a particular state. Therefore the
 rewards that an agent receives for taking an action is extremely important to enable the agent to learn a predictable
@@ -146,7 +149,8 @@ on a particular task. These rewards don't consider the price payed for the task 
 the aim of finish all tasks not just the valuable ones. Using this information,
 the reward function is simply the sum of the rewards of the finished tasks in the next time step.
 
-\subsection{Agent Training Observations}\label{subsec:agent-training-observations}
+\subsection{Agent Training Observations}
+\label{subsec:agent-training-observations}
 In order to update both DQN and DDPG critic networks, the Q learning equation is used (equation~\eqref{eq:q_learning})
 requires the next observation to evaluate the next Q value. However the next observation for an
 agent is not clear as shown in figure~\ref{fig:environment-observations}. For both the auction and resource allocation
@@ -176,7 +180,8 @@ A possible solution that has not been implement in this project is n step predic
 agent doesn't predict the Q value of the next environment, but the value in n steps time. This approach could help
 reduce the amount of randomness in the server's observations and improve bidding performance.
 
-\section{Training agents}\label{sec:training-agents}
+\section{Training agents}
+\label{sec:training-agents}
 The first section of this chapter allowed for simulating MEC servers
 (section~\ref{sec:simulating-mec-networks}) as a reinforcement learning environment. While the second
 section implements auction and resource allocation agents that can interact with the proposed environment in order
@@ -193,6 +198,16 @@ buffers after each actions that were chosen epsilon greedily.
 After every 5 episodes, the agents would be evaluated using a set of environment that were pre-generated and
 saved at the beginning of training. This allowed the same environments to be used over training in order to have a
 consistent basis in order to compare the agents over time.
+
+To ensure that agents explored the state space as much as possible some of the actions were taken randomly to allow the
+agents to "explore". This is a key problem within Reinforcement learning of Exploration vs
+Exploitation dilemma~\citep{Sutton1998}. For the Dqn agents, including Double Dqn, Dueling Dqn and Categorical Dqn,
+epsilon greedy actions were taken such that epsilon percent of the actions taken were random with epsilon initially set
+at 1 and ending at 0.1 over 100 thousand actions. For the Ddpg and Td3 agents, originally the agents used Gaussian
+distribution to generate actions which has been used in~\cite{ddpg}. However this was found to be ineffective, due to
+half of the actions added a negative value to the action while the action space is of positive number. Therefore Gamma
+distribution~\citep{gamma-distribution} was used with a constant shape parameter of 1 with the scale parameter changing
+over time from 4.5 to 0.5 over 100k actions.
 
 A table of agent hyperparameters can be found in \hyperref[app:agent-hyperparameter]{Appendix C}.
 
