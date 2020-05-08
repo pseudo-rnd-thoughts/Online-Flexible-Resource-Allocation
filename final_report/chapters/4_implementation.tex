@@ -21,18 +21,19 @@ allow agents to interact and train on the environment efficiently. Therefore it 
 as an OpenAI gym~\citep{openaigym}, the de facto standard for implementing reinforcement learning environments by
 researchers. However the standard specification must be modified due to the problem being multi-agent and multi-step.
 
-An example of running the environment is in listing~\ref{lst:example_flexible_resource_env}. There are three
-sections to the code: the first is the construction of an environment where the environment settings
-are passed to determine the number of servers, tasks and their attributes. These attributes are determined using
-uniform random numbers generator for values between maximum and minimum value for each variable. The second step is to
-create the environment using the reset function returning a new environment state.
-The state contains a task if one needs to be auctioned and a dictionary of servers to their current
-allocated tasks. Using these states, each server can generate actions either using the auction agent or resource
-allocation agent depending on if a task needs auctioning. The final part is to take a step using the server actions
-that returns an updated server state, the rewards for the actions, if the environment is finished and extra information
-from the steps taken. The reward is a dictionary of each of the servers with either the winning price for the auctioned
-task or a list of tasks that have finished either because they ran out of time or completed early, depending on the
-step taken.
+An example of running the environment is in listing~\ref{lst:example_flexible_resource_env}.
+%There are three
+%sections to the code: the first is the construction of an environment where the environment settings
+%are passed to determine the number of servers, tasks and their attributes. These attributes are determined using
+%uniform random numbers generator for values between maximum and minimum value for each variable. The second step is to
+%create the environment using the reset function returning a new environment state.
+%The state contains a task if one needs to be auctioned and a dictionary of servers to their current
+%allocated tasks. Using these states, each server can generate actions either using the auction agent or resource
+%allocation agent depending on if a task needs auctioning. The final part is to take a step using the server actions
+%that returns an updated server state, the rewards for the actions, if the environment is finished and extra information
+%from the steps taken. The reward is a dictionary of each of the servers with either the winning price for the auctioned
+%task or a list of tasks that have finished either because they ran out of time or completed early, depending on the
+%step taken.
 
 \begin{lstlisting}[language=Python, frame=single, caption={Example code for running the environment}, captionpos=b,
                    label={lst:example_flexible_resource_env}]
