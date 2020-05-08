@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH --partition=lyceum
-#SBATCH --time=24:00:00
+#SBATCH --time=48:00:00
 
 cd ~/Online-Flexible-Resource-Allocation/src/
 
