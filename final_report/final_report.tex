@@ -6,19 +6,17 @@
 \usepackage{bibentry}                % Use bibentry for prepublished works
 \usepackage{pdfpages}                % Use pdfpages to enables pdf's to be inserted into the project
 \usepackage{wrapfig}                 % Use wrapfig for wrapped figures
-\nobibliography*                     % Use bibentry for prepublished works
+\usepackage{float}                   % Use for locating figure and table locations
+\usepackage{verbatim}                % use for word count
 \usepackage{attrib}                  % Use the attrib package for quotations
+
+\nobibliography*                     % Use bibentry for prepublished works
 \hypersetup{colorlinks=true}         % Set to false for black/white printing
 \input{extra/definitions}            % Include your abbreviations
 \pdfminorversion=7                   % Fixes warnings for importing pdf documents
-\hyphenpenalty=10000
-\exhyphenpenalty=10000
-\usepackage{float}
-\usepackage{verbatim}
+\newcommand\wordcount{\verbatiminput{extra/wordcount.sum}}  % For word count command in appendix
 
-\newcommand\wordcount{\verbatiminput{extra/wordcount.sum}}
-
-\lstloadlanguages{Python}
+\lstloadlanguages{Python}  % Used for lstlisting
 \lstset{
   language=Python,
   basicstyle=\scriptsize\sffamily,
