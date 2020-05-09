@@ -95,7 +95,7 @@ def fixed_resource_allocation_model(env: OnlineFlexibleResourceAllocationEnv, st
 
     model.maximize(sum(server_task_allocation[(server, task)] for server in servers for task in fixed_tasks))
 
-    model_solution = model.solve(log_output=None, TimeLimit=300)
+    model_solution = model.solve(log_output=None, TimeLimit=150)
     total_tasks_completed = sum(model_solution.get_value(server_task_allocation[(server, task)])
                                 for server in servers for task in fixed_tasks)
 
