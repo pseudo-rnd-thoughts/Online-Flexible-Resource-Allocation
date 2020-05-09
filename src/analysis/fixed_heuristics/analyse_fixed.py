@@ -1,6 +1,7 @@
 """
 Analyses fixed vs flexible resource allocation
 """
+import os
 
 from agents.rl_agents.agents.dqn import TaskPricingDqnAgent, ResourceWeightingDqnAgent
 from agents.rl_agents.neural_networks.dqn_networks import create_lstm_dqn_network
@@ -47,7 +48,14 @@ if __name__ == "__main__":
         './analysis/fixed_heuristics/settings/limited_resources.env',
         './analysis/fixed_heuristics/settings/mixture_tasks_servers.env'
     ])
-    eval_envs = generate_eval_envs(eval_env, 12, f'./analysis/fixed_heuristics/eval_envs/')
+
+    eval_pos = 0
+    while True:
+        if not os.path.exists(f'./analysis/fixed_heuristics/eval_envs_{eval_pos}/'):
+            eval_envs = generate_eval_envs(eval_env, 20, f'./analysis/fixed_heuristics/eval_envs_{eval_pos}/')
+            break
+        else:
+            eval_pos += 1
 
     task_pricing_agents, resource_weighting_agents = load_agents()
     agent_results = eval_agent(eval_envs, 0, task_pricing_agents, resource_weighting_agents)

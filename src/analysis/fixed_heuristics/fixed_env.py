@@ -39,7 +39,7 @@ def convert_fixed_task(tasks: List[Task]):
                   (task.required_computation / compute_speed) +
                   (task.required_results_data / sending_speed) <= (task.deadline - task.auction_time))
 
-        model.minimize(2 ** loading_speed + 2 ** compute_speed + 2 ** sending_speed)
+        model.minimize(1.2 ** loading_speed + 1.2 ** compute_speed + 1.2 ** sending_speed)
 
         model_solution = model.solve(log_output=None, TimeLimit=3)
 
