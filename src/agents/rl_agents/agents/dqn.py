@@ -9,7 +9,7 @@ import random as rnd
 from abc import ABC
 from typing import List, Union, Dict
 
-import gin.tf
+import gin
 import tensorflow as tf
 
 from agents.rl_agents.rl_agents import ReinforcementLearningAgent, ResourceWeightingRLAgent, TaskPricingRLAgent
