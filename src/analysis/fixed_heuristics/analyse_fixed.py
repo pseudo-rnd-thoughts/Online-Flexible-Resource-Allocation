@@ -14,7 +14,11 @@ def eval_fixed_env(eval_envs_filename):
     for eval_env_filename in eval_envs_filename:
         env, state = OnlineFlexibleResourceAllocationEnv.load_env(eval_env_filename)
 
-        total_completed_tasks.append(fixed_resource_allocation_model(env, state))
+        try:
+            fixed_completed_tasks = fixed_resource_allocation_model(env, state)
+        except Exception as e:
+            fixed_completed_tasks = -1
+        total_completed_tasks.append(fixed_completed_tasks)
 
     return total_completed_tasks
 
