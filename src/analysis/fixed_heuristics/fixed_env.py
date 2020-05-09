@@ -84,17 +84,18 @@ def fixed_resource_allocation_model(env: OnlineFlexibleResourceAllocationEnv, st
 
     for server in servers:
         for time in range(env._total_time_steps):
-            model.add(sum(min(task.required_storage, task.fixed_loading_speed * (time + 1 - task.auction_time))
-                          for task in fixed_tasks if task.auction_time <= time <= task.deadline))
+            time_tasks = [task for task in fixed_tasks if task.auction_time <= time <= task.deadline]
+
+            model.add(sum(min(task.required_storage, task.fixed_loading_speed * (time + 1 - task.auction_time)) * server_task_allocation[(server, task)]
+                          for task in time_tasks) <= server.storage_cap)
             model.add(sum(task.fixed_compute_speed * server_task_allocation[(server, task)]
-                          for task in fixed_tasks if task.auction_time <= time <= task.deadline))
+                          for task in time_tasks) <= server.computational_cap)
             model.add(sum((task.fixed_loading_speed + task.fixed_sending_speed) * server_task_allocation[(server, task)]
-                          for task in fixed_tasks if task.auction_time <= time <= task.deadline))
+                          for task in time_tasks) <= server.bandwidth_cap)
 
     model.maximize(sum(server_task_allocation[(server, task)] for server in servers for task in tasks))
 
     model_solution = model.solve(log_output=None, TimeLimit=300)
-
     total_tasks_completed = sum(model_solution.get_value(server_task_allocation[(server, task)])
                                 for server in servers for task in fixed_tasks)
 
