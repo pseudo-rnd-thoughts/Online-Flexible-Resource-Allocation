@@ -85,6 +85,8 @@ def eval_agent(env_filenames: List[str], episode: int, pricing_agents: List[Task
                 state, rewards, done, info = eval_env.step(weighting_actions)
                 results.resource_allocation(weighting_actions, rewards)
 
+        results.finished_env()
+
     results.save(episode)
     return results
 

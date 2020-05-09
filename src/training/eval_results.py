@@ -28,6 +28,10 @@ class EvalResults:
         self.num_resource_allocations: int = 0
         self.weighting_actions: List[float] = []
 
+        self.env_attempted_tasks: List[int] = [0]
+        self.env_completed_tasks: List[int] = [0]
+        self.env_failed_tasks: List[int] = [0]
+
     def auction(self, actions, rewards):
         """
         Auction case
@@ -42,6 +46,7 @@ class EvalResults:
         for server, action in actions.items():
             self.auction_actions.append(action)
         self.num_auctions += 1
+        self.env_attempted_tasks[-1] += 1
 
     def resource_allocation(self, actions, rewards):
         """
@@ -55,9 +60,11 @@ class EvalResults:
             for task in tasks:
                 if task.stage is TaskStage.COMPLETED:
                     self.num_completed_tasks += 1
+                    self.env_completed_tasks[-1] += 1
                     self.total_prices += task.price
                 elif task.stage is TaskStage.FAILED:
                     self.num_failed_tasks += 1
+                    self.env_failed_tasks[-1] += 1
                     self.total_prices -= task.price
                 else:
                     raise Exception(f'Unexpected task stage: {task.stage}, {str(task)}')
@@ -65,6 +72,11 @@ class EvalResults:
             for task, action in task_actions.items():
                 self.weighting_actions.append(action)
         self.num_resource_allocations += 1
+
+    def finished_env(self):
+        self.env_attempted_tasks.append(0)
+        self.env_completed_tasks.append(0)
+        self.env_failed_tasks.append(0)
 
     def save(self, episode):
         """
