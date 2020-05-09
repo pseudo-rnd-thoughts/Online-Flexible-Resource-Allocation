@@ -8,7 +8,7 @@ cd ~/Online-Flexible-Resource-Allocation/src/
 module load conda
 source activate py37env
 
-module load
+module load cplex/12.7.1
 
 echo 'Running Fixed env analysis'
 python -m analysis.fixed_heuristics.analyse_fixed
