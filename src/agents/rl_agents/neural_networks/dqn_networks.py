@@ -4,11 +4,9 @@ Dqn networks using variations on the recurrent network
 
 from __future__ import annotations
 
-import gin.tf
 import tensorflow as tf
 
 
-@gin.configurable
 def create_bidirectional_dqn_network(input_width: int, num_actions: int, lstm_width: int = 32, relu_width: int = 32):
     """
     Creates a bidirectional lstm dqn network
@@ -32,7 +30,6 @@ def create_bidirectional_dqn_network(input_width: int, num_actions: int, lstm_wi
     return tf.keras.Model(name='Bidirectional_LSTM_Dqn', inputs=input_layer, outputs=q_layer)
 
 
-@gin.configurable
 def create_lstm_dqn_network(input_width: int, num_actions: int, lstm_width: int = 32, relu_width: int = 32):
     """
     Creates a lstm dqn network
@@ -55,7 +52,6 @@ def create_lstm_dqn_network(input_width: int, num_actions: int, lstm_width: int 
     return tf.keras.Model(name='LSTM_Dqn', inputs=input_layer, outputs=q_layer)
 
 
-@gin.configurable
 def create_gru_dqn_network(input_width: int, num_actions: int, gru_width: int = 32, relu_width: int = 32):
     """
     Creates a gru dqn network
@@ -78,7 +74,6 @@ def create_gru_dqn_network(input_width: int, num_actions: int, gru_width: int = 
     return tf.keras.Model(name='GRU_Dqn', inputs=input_layer, outputs=q_layer)
 
 
-@gin.configurable
 def create_rnn_dqn_network(input_width: int, num_actions: int, rnn_width: int = 32, relu_width: int = 32):
     """
     Creates a rnn dqn network
@@ -101,7 +96,6 @@ def create_rnn_dqn_network(input_width: int, num_actions: int, rnn_width: int = 
     return tf.keras.Model(name='RNN_Dqn', inputs=input_layer, outputs=q_layer)
 
 
-@gin.configurable
 def create_lstm_dueling_dqn_network(input_width: int, num_actions: int,
                                     lstm_width: int = 32, relu_width: int = 32, combiner: str = 'avg'):
     """
@@ -133,7 +127,6 @@ def create_lstm_dueling_dqn_network(input_width: int, num_actions: int,
     return tf.keras.Model(name='LSTM_Dueling_Dqn', inputs=input_layer, outputs=dueling_q_layer)
 
 
-@gin.configurable
 def create_lstm_categorical_dqn_network(input_width: int, num_actions: int,
                                         lstm_width: int = 32, relu_width: int = 32, num_atoms: int = 51):
     """

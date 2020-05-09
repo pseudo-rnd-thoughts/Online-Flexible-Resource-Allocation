@@ -9,7 +9,6 @@ import random as rnd
 from abc import ABC
 from typing import List, Union, Dict
 
-import gin
 import tensorflow as tf
 
 from agents.rl_agents.rl_agents import ReinforcementLearningAgent, ResourceWeightingRLAgent, TaskPricingRLAgent
@@ -17,7 +16,6 @@ from env.server import Server
 from env.task import Task
 
 
-@gin.configurable
 class DqnAgent(ReinforcementLearningAgent, ABC):
     """
     Deep Q network Agent based on the paper by Deepmind
@@ -73,6 +71,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
                                self.final_epsilon)
 
             if self.total_actions % self.epsilon_log_freq == 0:
+                # noinspection PyUnresolvedReferences
                 tf.summary.scalar(f'{self.name} agent epsilon', self.epsilon, self.total_actions)
                 tf.summary.scalar(f'Epsilon', self.epsilon, self.total_actions)
 
@@ -89,6 +88,7 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
             os.makedirs(path)
 
         # Save the model network weights to the path
+        # noinspection PyUnresolvedReferences
         self.model_network.save_weights(f'{path}/{self.name.replace(" ", "_")}/update_{self.total_updates}')
 
     def _train(self, states: tf.Tensor, actions: tf.Tensor,
@@ -134,7 +134,6 @@ class DqnAgent(ReinforcementLearningAgent, ABC):
         return tf.gather_nd(next_state_q_values, next_state_action_indexes)
 
 
-@gin.configurable
 class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
     """
     Task Pricing DQN agent
@@ -162,7 +161,6 @@ class TaskPricingDqnAgent(DqnAgent, TaskPricingRLAgent):
         return action
 
 
-@gin.configurable
 class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
     """
     Resource weighting DQN agent
@@ -196,7 +194,6 @@ class ResourceWeightingDqnAgent(DqnAgent, ResourceWeightingRLAgent):
             return {task: float(action) for task, action in zip(tasks, actions)}
 
 
-@gin.configurable
 class DdqnAgent(DqnAgent, ABC):
     """
     Implementation of a double deep q network agent based on the following paper
@@ -216,7 +213,6 @@ class DdqnAgent(DqnAgent, ABC):
         return tf.gather_nd(model_q_values, target_action_indexes)
 
 
-@gin.configurable
 class TaskPricingDdqnAgent(DdqnAgent, TaskPricingDqnAgent):
     """
     Task pricing double dqn agent
@@ -227,7 +223,6 @@ class TaskPricingDdqnAgent(DdqnAgent, TaskPricingDqnAgent):
         TaskPricingDqnAgent.__init__(self, f'Task pricing Double Dqn agent {agent_num}', network, **kwargs)
 
 
-@gin.configurable
 class ResourceWeightingDdqnAgent(DdqnAgent, ResourceWeightingDqnAgent):
     """
     Resource weighting double dqn agent
@@ -238,7 +233,6 @@ class ResourceWeightingDdqnAgent(DdqnAgent, ResourceWeightingDqnAgent):
         ResourceWeightingDqnAgent.__init__(self, f'Resource weighting Double Dqn agent {agent_num}', network, **kwargs)
 
 
-@gin.configurable
 class DuelingDQN(DdqnAgent, ABC):
     """
     Implementations of a dueling DQN agent based on the following papers
@@ -263,7 +257,6 @@ class DuelingDQN(DdqnAgent, ABC):
         return tf.gather_nd(next_state_q_values, action_indexes)
 
 
-@gin.configurable
 class TaskPricingDuelingDqnAgent(DuelingDQN, TaskPricingDqnAgent):
     """
     Task pricing dueling DQN agent
@@ -274,7 +267,6 @@ class TaskPricingDuelingDqnAgent(DuelingDQN, TaskPricingDqnAgent):
         TaskPricingDqnAgent.__init__(self, f'Task pricing Dueling Dqn agent {agent_num}', network, **kwargs)
 
 
-@gin.configurable
 class ResourceWeightingDuelingDqnAgent(DuelingDQN, ResourceWeightingDqnAgent):
     """
     Resource Weighting Dueling DQN agent
@@ -285,7 +277,6 @@ class ResourceWeightingDuelingDqnAgent(DuelingDQN, ResourceWeightingDqnAgent):
         ResourceWeightingDqnAgent.__init__(self, f'Resource weighting Dueling Dqn agent {agent_num}', network, **kwargs)
 
 
-@gin.configurable
 class CategoricalDqnAgent(DqnAgent, ABC):
     """
     Categorical DQN agent
@@ -349,7 +340,6 @@ class CategoricalDqnAgent(DqnAgent, ABC):
         return loss
 
 
-@gin.configurable
 class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
     """
     Task pricing Categorical DQN agent
@@ -373,7 +363,6 @@ class TaskPricingCategoricalDqnAgent(CategoricalDqnAgent, TaskPricingRLAgent):
         return tf.math.argmax(q_values, axis=1, output_type=tf.int32)
 
 
-@gin.configurable
 class ResourceWeightingCategoricalDqnAgent(CategoricalDqnAgent, ResourceWeightingRLAgent):
     """
     Resource weighting categorical DQN agent

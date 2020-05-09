@@ -4,11 +4,9 @@ Ddpg networks using variations on the recurrent network
 
 from __future__ import annotations
 
-import gin.tf
 import tensorflow as tf
 
 
-@gin.configurable
 def create_lstm_actor_network(input_width: int, lstm_width: int = 32, relu_width: int = 32):
     """
     Creates the LSTM actor network
@@ -28,7 +26,6 @@ def create_lstm_actor_network(input_width: int, lstm_width: int = 32, relu_width
     return tf.keras.Model(name='LSTM_Actor', inputs=input_layer, outputs=action)
 
 
-@gin.configurable
 def create_lstm_critic_network(input_width: int, lstm_width: int = 32, relu_width: int = 32):
     """
     Creates the LSTM critic network
@@ -50,7 +47,6 @@ def create_lstm_critic_network(input_width: int, lstm_width: int = 32, relu_widt
     return tf.keras.Model(name='LSTM_Critic', inputs=[input_layer, action_input_layer], outputs=q_values)
 
 
-@gin.configurable
 def create_seq2seq_actor_network(lstm_width: int = 32):
     """
     Create Seq2Seq actor network
@@ -70,7 +66,6 @@ def create_seq2seq_actor_network(lstm_width: int = 32):
     return tf.keras.Model(name='Seq2Seq_actor', inputs=input_layer, outputs=actor_layer)
 
 
-@gin.configurable
 def create_seq2seq_critic_network(lstm_width: int = 32, relu_width: int = 32):
     """
     Create Seq2Seq critic network

@@ -9,7 +9,6 @@ from abc import ABC, abstractmethod
 from collections import deque
 from typing import List, Optional, NamedTuple, Dict
 
-import gin.tf
 import numpy as np
 import tensorflow as tf
 
@@ -39,7 +38,6 @@ class ResourceAllocationState(NamedTuple):
     time_step: int
 
 
-@gin.configurable
 class ReinforcementLearningAgent(ABC):
     """
     The reinforcement learning base class that is used for DQN and DDPG classes
@@ -126,6 +124,7 @@ class ReinforcementLearningAgent(ABC):
 
         training_loss = self._train(states, actions, next_states, rewards, dones)
         if self.total_updates % self.training_loss_log_freq == 0:
+            # noinspection PyUnresolvedReferences
             tf.summary.scalar(f'{self.name} agent training loss', training_loss, self.total_observations)
             tf.summary.scalar(f'Training loss', training_loss, self.total_observations)
         if self.total_updates % self.save_frequency == 0:
@@ -175,7 +174,6 @@ class ReinforcementLearningAgent(ABC):
                 target_variable.assign(tau * model_variable + (1 - tau) * target_variable)
 
 
-@gin.configurable
 class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
     """
     Task Pricing reinforcement learning agent
@@ -255,7 +253,7 @@ class TaskPricingRLAgent(TaskPricingAgent, ReinforcementLearningAgent, ABC):
         self._add_trajectory(obs, action, next_obs, 0 if action == 0 else self.failed_auction_reward)
 
 
-@gin.configurable
+
 class ResourceWeightingRLAgent(ResourceWeightingAgent, ReinforcementLearningAgent, ABC):
     """
     The reinforcement learning base class that is used for DQN and DDPG classes

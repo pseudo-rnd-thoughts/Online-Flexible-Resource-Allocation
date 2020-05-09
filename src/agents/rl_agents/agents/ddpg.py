@@ -16,6 +16,7 @@ from env.task import Task
 from env.task_stage import TaskStage
 
 
+# noinspection PyUnresolvedReferences
 class DdpgAgent(ReinforcementLearningAgent, ABC):
     """
     Deep deterministic policy gradient agent
@@ -196,6 +197,7 @@ class ResourceWeightingDdpgAgent(DdpgAgent, ResourceWeightingRLAgent):
         return {task: float(action) for task, action in zip(tasks, clipped_actions)}
 
 
+# noinspection PyUnresolvedReferences
 class TD3Agent(DdpgAgent, ABC):
     """
     Twin-delayed ddpg agent
