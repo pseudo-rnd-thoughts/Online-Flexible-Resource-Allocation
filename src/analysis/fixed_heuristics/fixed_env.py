@@ -43,7 +43,7 @@ def convert_fixed_task(tasks: List[Task]):
 
         model_solution = model.solve(log_output=None, TimeLimit=3)
 
-        if model_solution.get_solve_status() != SOLVE_STATUS_FEASIBLE and model_solution.get_solve_status() != SOLVE_STATUS_OPTIMAL:
+        if model_solution.get_solve_status() != SOLVE_STATUS_FEASIBLE or model_solution.get_solve_status() != SOLVE_STATUS_OPTIMAL:
             fixed_tasks.append(FixedTask(name=task.name, auction_time=task.auction_time, deadline=task.deadline,
                                          required_storage=task.required_storage, required_computation=task.required_computation,
                                          required_results_data=task.required_results_data,
@@ -93,7 +93,7 @@ def fixed_resource_allocation_model(env: OnlineFlexibleResourceAllocationEnv, st
             model.add(sum((task.fixed_loading_speed + task.fixed_sending_speed) * server_task_allocation[(server, task)]
                           for task in time_tasks) <= server.bandwidth_cap)
 
-    model.maximize(sum(server_task_allocation[(server, task)] for server in servers for task in tasks))
+    model.maximize(sum(server_task_allocation[(server, task)] for server in servers for task in fixed_tasks))
 
     model_solution = model.solve(log_output=None, TimeLimit=300)
     total_tasks_completed = sum(model_solution.get_value(server_task_allocation[(server, task)])
