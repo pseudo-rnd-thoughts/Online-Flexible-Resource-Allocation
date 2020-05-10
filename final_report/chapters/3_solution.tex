@@ -3,33 +3,34 @@
 % Add word count of words
 %TC:group table 0 1
 
-\chapter{Optimising resource allocation in MEC}
+\chapter{Optimising Resource Allocation in MEC}
 \label{ch:optimising-resource-allocation-in-mec}
-In chapter~\ref{ch:introduction}, the problem that this project aims to address was outlined along with a short
+In Chapter~\ref{ch:introduction}, the problem that this project aims to address was outlined along with a short
 description of the proposed solution. This chapter builds upon that, giving a formal mathematical model for the problem
-in section~\ref{sec:optimisation-problem}. Section~\ref{sec:auctioning-of-tasks} proposes an auction mechanism in order
-to pay servers for their resources in order to deal with self-interested users and as server are normally payed for
-use of their services. \\
+in Section~\ref{sec:resource-allocation-optimisation-problem}. Section~\ref{sec:auctioning-of-tasks} proposes an
+auction mechanism in order to pay servers for their resources in order to deal with self-interested users and as servers
+are normally paid for use of their services.
+
 Using the optimisation problem and auction mechanism from the previous sections, agents for both auction and resource
-allocation are proposed, in section~\ref{sec:server-agents}, that learns together to maximise a server's profits
+allocation are proposed, in Section~\ref{sec:server-agents}, that learn together to maximise a server's profits
 over time.
 
-\section{Resource allocation optimisation problem}
-\label{sec:optimisation-problem}
+\section{Resource Allocation Optimisation Problem}
+\label{sec:resource-allocation-optimisation-problem}
 Using the flexible resource principle, the time taken for a operation to occur, e.g.\ loading of data, computing
 a program and sending back results, etc, is proportional to the amount of resources allocated to complete the operation.
 A modified version of a resource allocation optimisation model can be designed by building upon the formulation
 in~\cite{FlexibleResourceAllocation}.
 
-A sketch of the whole system is shown in figure~\ref{fig:system_model}.
+A sketch of the whole system is in Figure~\ref{fig:system_model}.
 The system is assumed to contain a set of $I = \{1,2,\ldots,\left|I\right|\}$ servers that are heterogeneous in all
-characteristics. Each server has a fixed resource capacity: storage for the code/data needed to run a task
-(e.g., measured in GB), computation capacity in terms of CPU cycles per time interval (e.g., measured in GHz),
+characteristics. Each server has a fixed resource capacity: storage for the code/data needed to run a task,
+measured in GB, computation capacity in terms of CPU cycles per time interval, measured in GHz,
 and communication bandwidth to receive the data and to send back the results of the task after execution
-(e.g., measured in Mbit/s). An example of task could be the analyse of CCTV cameras with 2GB of data, 5GHz of CPU
-cycles and 5MB of results. The resources for server $i$ are denoted: $S_i$ for storage capacity, $W_i$ for computation
-capacity, and $R_i$ for communication capacity. The system occurs over discrete time steps that are defined as the set
-$T = \{1,2,\ldots,\left|T\right|\}$.
+measured in Mbit/s. An example of a task could be the analysis of CCTV images with 2GB of data, 5GHz of CPU
+cycles and 5MB of results data. The resources for a server $i$ are denoted: $S_i$ for storage capacity, $W_i$ for
+computation capacity, and $R_i$ for communication capacity. The system occurs over discrete time steps that are defined
+as the set $T = \{1,2,\ldots,\left|T\right|\}$.
 
 \begin{wrapfigure}{l}{0.5\textwidth}
     \centering
@@ -38,23 +39,23 @@ $T = \{1,2,\ldots,\left|T\right|\}$.
     \label{fig:system_model}
 \end{wrapfigure}
 
-The system is also assumed to contain a set of $J = \{1,2,\ldots,\left| J \right|\}$ heterogeneous tasks that require
+The system is assumed to contain a set of $J = \{1,2,\ldots,\left| J \right|\}$ heterogeneous tasks that require
 services from one of the servers in set $I$. To run any of these tasks on a server requires storing the appropriate
-code/data on the same server. This could be, for example, a set of images, videos or Convolutional neural network
-layers used in identification tasks.\\
+code/data on the same server. This could be, for example, a set of images, videos or neural network layers used in
+identification tasks. \\
 The storage size of task $j$ is denoted as $s_j$ with the rate at which the program is transferred to a server at time
 $t$ being $s^{'}_{j,t}$. For a task to be computed successfully, it must fetch and execute instructions
 on a CPU. We consider the total number of CPU cycles required for the program to be $w_j$, where the number of
 CPU cycles assigned to the task at time $t$ is $w^{'}_{j,t}$. Finally, after the task is run and
-the results obtained, the latter needs to be sent back to the user. The size of the results for task $j$ is denoted with
+the results obtained, the latter needs to be sent back to the user. The size of the results for task $j$ is denoted by
 $r_j$, and the rate at which they are sent back to the user is $r^{'}_{j,t}$ on a server at time $t$. \\
 The allocation of tasks to server is denoted by $x_{i,j}$ for each task, $j \in J$, and server, $i \in I$. This is
 constrained by equation~\eqref{eq:server_task_allocation} meaning that a task can only be allocated to a single server
 at any point in time.
 
 \begin{align}
-    \sum_{i \in I} x_{i,j} \leq 1 && \forall{j \in J} \label{eq:server_task_allocation} \\
-    x_{i,j} \in \{0, 1\} && \forall{i \in I, j \in J} \label{eq:server_task_binary}
+    & \sum_{i \in I} x_{i,j} \leq 1 && \forall{j \in J} \label{eq:server_task_allocation} \\
+    & x_{i,j} \in \{0, 1\} && \forall{i \in I, j \in J} \label{eq:server_task_binary}
 \end{align}
 
 As the task must complete each stage in series, additional variables are required to track the progress of
@@ -68,77 +69,76 @@ allocation in constraints~\eqref{eq:loading_progress_limit},~\eqref{eq:compute_p
 and~\eqref{eq:sending_progress_limit}.
 
 \begin{align}
-    \hat{s}_{j,t+1} = \hat{s}_{j,t} + s^{'}_{j,t} && \forall{j \in J, t \in T } \label{eq:loading_progress} \\
-    \hat{w}_{j,t+1} = \hat{w}_{j,t} + w^{'}_{j,t} \lfloor{\frac{\hat{s}_{j,t}}{s_j}}\rfloor && \forall{j \in J, t \in T } \label{eq:compute_progress} \\
-    \hat{r}_{j,t+1} = \hat{r}_{j,t} + r^{'}_{j,t} \lfloor{\frac{\hat{w}_{j,t}}{w_j}}\rfloor && \forall{j \in J, t \in T } \label{eq:sending_progress} \\
-    \hat{s}_{j,t} \leq s_j && \forall{j \in J, t \in T} \label{eq:loading_progress_limit} \\
-    \hat{w}_{j,t} \leq w_j && \forall{j \in J, t \in T} \label{eq:compute_progress_limit} \\
-    \hat{r}_{j,t} \leq r_j && \forall{j \in J, t \in T} \label{eq:sending_progress_limit}
+    & \hat{s}_{j,t+1} = \hat{s}_{j,t} + s^{'}_{j,t} && \forall{j \in J, t \in T } \label{eq:loading_progress} \\
+    & \hat{w}_{j,t+1} = \hat{w}_{j,t} + w^{'}_{j,t} \lfloor{\frac{\hat{s}_{j,t}}{s_j}}\rfloor && \forall{j \in J, t \in T } \label{eq:compute_progress} \\
+    & \hat{r}_{j,t+1} = \hat{r}_{j,t} + r^{'}_{j,t} \lfloor{\frac{\hat{w}_{j,t}}{w_j}}\rfloor && \forall{j \in J, t \in T } \label{eq:sending_progress} \\
+    & \hat{s}_{j,t} \leq s_j && \forall{j \in J, t \in T} \label{eq:loading_progress_limit} \\
+    & \hat{w}_{j,t} \leq w_j && \forall{j \in J, t \in T} \label{eq:compute_progress_limit} \\
+    & \hat{r}_{j,t} \leq r_j && \forall{j \in J, t \in T} \label{eq:sending_progress_limit}
 \end{align}
 
 Every task has an auction time, denoted by $a_j$ and a deadline, denoted by $d_j$. This is the time step when the task
 is auctioned and the last time for which the task can be completed successfully. Using this deadline constraint can be
-constructed such that the sending results progress is finished by at least the deadline time step
+constructed such that the sending results progress is equal to the required results data at the deadline time step
 (equation~\eqref{eq:deadline}).
 
 \begin{align}
-    \hat{r}_{j, d_j} = r_j && \forall{j \in J} \label{eq:deadline}
+    & \hat{r}_{j, d_j} = r_j && \forall{j \in J} \label{eq:deadline}
 \end{align}
 
 As servers have limited capacity, the total resource usage for all tasks running on a server must be capped.
-The storage constraint (equation~\eqref{eq:server_storage_capacity}) is unique as the sum of the loading progress for
+The storage constraint (equation~\eqref{eq:server_storage_capacity}) is the sum of the loading progress for
 each task allocated to the server. While the computation capacity (equation~\eqref{eq:server_computation_capacity}) is
 the sum of compute resources used by all of the tasks on a server $i$ at time $t$ and the bandwidth capacity
 (equation~\eqref{eq:server_bandwidth_capacity}) being less than the sum of resources used to load and send results back
 by all allocated tasks.
 
 \begin{align}
-    \sum_{j \in J} \hat{s}_{j,t} x_{i,j} \leq S_i && \forall{i \in I, t \in T} \label{eq:server_storage_capacity} \\
-    \sum_{j \in J} w^{'}_{j,t} x_{i,j} \leq W_i && \forall{i \in I, t \in T} \label{eq:server_computation_capacity} \\
-    \sum_{j \in J} (s^{'}_{j,t} + r^{'}_{j,t}) x_{i,j} \leq R_i && \forall{i \in I, t \in T} \label{eq:server_bandwidth_capacity}
+    & \sum_{j \in J} \hat{s}_{j,t} x_{i,j} \leq S_i && \forall{i \in I, t \in T} \label{eq:server_storage_capacity} \\
+    & \sum_{j \in J} w^{'}_{j,t} x_{i,j} \leq W_i && \forall{i \in I, t \in T} \label{eq:server_computation_capacity} \\
+    & \sum_{j \in J} (s^{'}_{j,t} + r^{'}_{j,t}) x_{i,j} \leq R_i && \forall{i \in I, t \in T} \label{eq:server_bandwidth_capacity}
 \end{align}
 
 \section{Auctioning of Tasks}
 \label{sec:auctioning-of-tasks}
 While the mathematically description of the problem presented in the previous section doesn't consider any auctions
 occurring. In real life servers are normally paid for the use of their resources through auctions as discussed in
-Section~\ref{sec:resource-allocation-and-pricing-in-cloud-computing}. However due to the modifications
-that this project has to make to the optimisation problems, all of the auction mechanisms discussed are incompatible
+Section~\ref{sec:resource-allocation-and-pricing-in-cloud-computing}. However the modifications
+that this project has made, all of the auction mechanisms discussed in the previous Chapter are incompatible
 due to users not requesting a fixed amount of resources. Nor can the available resources be easily computed as this is
-dynamic, depending on the different stages of tasks allocated to a server. Also the modifications effect the algorithms
-presented in~\cite{FlexibleResourceAllocation} as they assume that all of the task stages can occur concurrently. This
-means that a novel or modified auction mechanism must be used to deal with these changes. Due to the complexities of
-devising a new auction mechanism and the large corpus of research on auctions already, an outline of the most common
-auctions is presented in table~\ref{tab:auctions_descriptions} with their respective properties in
-table~\ref{tab:auction_properties}.
+dynamic, depending on the different stages of tasks allocated to a server. The modifications also effect the algorithms
+presented in~\cite{FlexibleResourceAllocation} as they assume that all of the task stages can occur concurrently that
+this project does not. Because of this, an outline of the most common auctions is presented in
+Table~\ref{tab:auctions_descriptions} with their respective properties in Table~\ref{tab:auction_properties} for
+selecting an auction mechanism to use.
 
 \begin{longtable}{|p{3.5cm}|p{11cm}|} \hline
     \textbf{Auction type} & \textbf{Description} \\ \hline
-    English auction & A traditional auction where all participants can bid on a single item with the price slowly
+    English Auction & A traditional auction where all participants can bid on a single item with the price slowly
         ascending till only a single participant is left who pays the final bid price. Due to the number of rounds,
         this requires a large amount of communication. \\ \hline
 
-    Dutch auction & The reverse of the English auction, where the starting price is higher than anyone is willing to
+    Dutch Auction & The reverse of the English auction, where the starting price is higher than anyone is willing to
         pay with the price slowly dropping till the first participant "jumps in". This can result in sub-optimal pricing
         if the starting price is not high enough or possibly a large number of rounds until anyone bids. Plus due
         the auctions occurring over the internet, latency can have a large effect on the winner. \\ \hline
 
-    Japanese auction & Similar to the English auction, the Japanese auction is instead over a set period of time lets
+    Japanese Auction & Similar to the English auction, the Japanese auction is instead over a set period of time lets
         bids increasing with the last bid being the winner. Because of this, there is no guarantee that the price will
         converge to the maximum price like the English but the auction has a fixed time length. However factors like
         latency can have a large effect on the winner and resulting price like the Dutch auction. \\ \hline
 
-    Blind auction & Also known as a First-price sealed-bid auction, all participants submit a single secret bid for an
+    Blind Auction & Also known as a First-price sealed-bid auction, all participants submit a single secret bid for an
         item with the highest bid winning. As a result, no dominant strategy exist as an agent would wish to bid only a
         small amount more than the next highest price in order to not overpay for an item. But due to there being only
         a single round of biding, latency doesn't affect the winner and can occur over a fixed period of time. \\ \hline
 
-    Vickrey auction~\citep{vickrey} & Also known as a second-price sealed-bid auction, participants each submit
+    Vickrey Auction~\citep{vickrey} & Also known as a second-price sealed-bid auction, participants each submit
         a single secret bid for an item with the highest bid winning like the blind auction. However the winner only
         pays the price of the second highest bid. Because of this, the dominant strategy (referred to as incentive
         compatibility) for an agent to bid its true value as even if the bid is much higher than all other participants
         its doesn't matter as they pay the minimum required for them to win. \\ \hline
-    \caption{Descriptions of feasible auctions for the project: English, Dutch, Japanese, Blind and Vickrey auction}
+    \caption{Table of Auction mechanisms}
     \label{tab:auctions_descriptions}
 \end{longtable}
 
@@ -152,26 +152,26 @@ table~\ref{tab:auction_properties}.
         Blind             & False                         & True             \\ \hline
         Vickrey           & True                          & True             \\ \hline
     \end{tabular}
-    \caption{Properties of the auctions described in Table~\ref{tab:auctions_descriptions}}
+    \caption{Table of Auction Properties}
     \label{tab:auction_properties}
 \end{table}
 
-The auction properties that this project considers most important in the auction are if it a fixed time length as it is
-an Online Auction and Incentive Compatibility such that an optimal strategy actually exists. Because of these two
-properties, the Vickrey auction~\citep{vickrey} has been chosen. An additional advantage of incentive compatibility,
-is that agents don't need to learn how to outbid another agents, they only needs learn to accurately evaluate each
-task allowing agents to learn purely through self-play.
+The auction properties that this project considers most important are if fixed time length, for fast auctions to
+process large numbers of tasks quickly, and Incentive Compatibility such that an optimal strategy actually exists.
+Because of these two properties, the Vickrey Auction~\citep{vickrey} is selected over the alternatives. An additional
+advantage of incentive compatibility, is that agents don't need to learn how to outbid another agents, they only needs
+learn to accurately evaluate each task allowing agents to learn purely through self-play.
 
-However a modification must be made to the auction due to servers generate the prices for tasks rather than task
+However a modification must be made to the auction as servers generate the prices for tasks rather than task
 suggesting a price to the servers. Because of this, the auction is reversed, such that the bid with the minimum price
 wins the task instead of the maximum price. The auction therefore works by allowing all servers to submit their bids for
 a task with the winner being the server with the lowest price, but as this is a Vickrey auction, the server actually
 gains second lowest price.
 
-\section{Server agents}
+\section{Server Agents}
 \label{sec:server-agents}
 Using the optimisation formulation and auction mechanism from the previous two sections, the problem can be modelled as
-Markov Decision Process~\citep{Bel} in figure~\ref{fig:mdp_system_model}. This has the advantage of separating out the
+Markov Decision Process~\citep{Bel} in Figure~\ref{fig:mdp_system_model}. This has the advantage of separating out the
 auction and resource allocation parts of the problem with separate agents acting for each.
 Subsection~\ref{subsec:auction-agents} and~\ref{subsec:resource-allocation-agents} proposes agents
 for each of the auction and resource allocation environments respectively.
@@ -183,10 +183,10 @@ for each of the auction and resource allocation environments respectively.
     \label{fig:mdp_system_model}
 \end{figure}
 
-Due to the exploratory nature of the project, a range of reinforcement learning algorithm and neural network
+Due to the exploratory nature of the project, a range of reinforcement learning algorithms and neural network
 architectures will be implemented and compared to evaluate the effectiveness of each. These are outlined in
 Table~\ref{tab:reinforcement_learning_algorithms} for proposed algorithms and Table~\ref{tab:neural_network_layers} for
-networks layers. \\
+networks layers.
 
 \begin{longtable}{|p{5cm}|p{10cm}|} \hline
     \textbf{Algorithm} & \textbf{Description} \\ \hline
@@ -206,8 +206,8 @@ networks layers. \\
         network in evaluating a state's Q value. Another heuristic is the delaying the updates for actor network
         compared to the critic network to allow the critic to out learn the actor to prevent being tricked.\\ \hline
     Td3 Central critic & As there are multiple agents working together, the critic used for all of the agents can be
-        same, this is inspired by~\cite{maddpg} which the critic only evaluates the agents private observation not the
-        complete information. \\ \hline
+        same, this is inspired by~\cite{maddpg} which the critic only evaluates the agents private observation not with
+        complete information of all agents. \\ \hline
     \caption{Table of the Reinforcement Learning algorithms}
     \label{tab:reinforcement_learning_algorithms}
 \end{longtable}
@@ -220,8 +220,8 @@ networks layers. \\
         normally be too difficult for a human to specify the exact function, neural networks can be used to find a
         close approximation to the true function through gradient descent. \\ \hline
 
-    Recurrent neural network~\citep{RNN} & A major weakness of artificial neural networks is its use of a fixed
-        number of inputs and outputs making it unusable with text, sound or video where previous inputs are important
+    Recurrent neural network~\citep{RNN} & A major weakness of artificial neural networks is in its use of a fixed
+        number of inputs and outputs making them unusable with text, sound or video where previous inputs are important
         for understanding a current input. Therefore recurrent neural network's (RNN) extend artificial neural networks
         to allow for connections to previous neurons to "pass on" information. However this was found to struggle from
         vanishing or exploding gradient during training such that gradients would tended either to zero or infinity
@@ -245,14 +245,14 @@ networks layers. \\
         by using an external memory module instead of memory being inbuilt to the network. This allows for external
         observers to understand what is going on much better than other networks due to their black-box nature. \\ \hline
 
-    Differentiable neural computer~\citep{DNC} & An expansion to the Neural Turing Machine that allows the memory
+    Differentiable Neural Computer~\citep{DNC} & An expansion to the Neural Turing Machine that allows the memory
         module to be scalable in size allowing for additional memory to be added if needed. \\ \hline
 
-    Sequence to Sequence networks~\citep{seq2seq} & All networks considered above allow for sequences to be passed in
-        while outputting a single output vector. Sequence to sequence network utilise two sub-networks; an encoder and
-        decoder. The encoder takes a sequence that is encoded which is outputted to the decoder that then outputs
-        another sequence by continually passing in the decoders last input. \\ \hline
-    \caption{Neural network layer descriptions}
+    Sequence to Sequence networks \citep{seq2seq} & All networks considered above allow for sequences to be passed in
+        while outputting a single output vector. Sequence to sequence (Seq2Seq) networks utilise two sub-networks; an
+        encoder and decoder. The encoder takes a sequence that is encoded which is outputted to the decoder that then
+        outputs another sequence by continually passing in the decoders last input. \\ \hline
+    \caption{Table of Neural network layers}
     \label{tab:neural_network_layers}
 \end{longtable}
 
@@ -272,24 +272,23 @@ profits over time.
 \end{figure}
 
 The network used for the auction must take into account a server's current tasks and the attributes of the task being
-auctioned. Because of this, a recurrent network must be used like the RNN, GRU, LSTM and Bidirectional due to the number
+auctioned. Because of this, a recurrent network must be used like the RNN, GRU, LSTM and Bidirectional as the number
 of tasks allocated to a server is unknown. For the DDPG, a single ReLU output will be used while a linear Q value output
 for DQN agent must be used as shown in Figure~\ref{fig:task_pricing_network_architecture}.
 
 \subsection{Resource allocation agents}
 \label{subsec:resource-allocation-agents}
-When a new task is allocated to the server or a task completes a stage, server resource need to be redistributed
-to the task. While the problem of how to allocation resources isn't as complex as the agent pricing in
-section~\ref{subsec:auction-agents}, heuristics are not obvious due knowing how to balance resources usage
-between all allocated tasks. Because of this, reinforcement learning agents are proposed to learn this with two
-different network structures with a heuristic to simplify the optimal function for agents.
+When a new task is allocated to the server or a task completes a stage, the server will need to redistributed its
+resources to its tasks. But while the problem of how to allocation resources isn't as complex as the task pricing policy
+in Section~\ref{subsec:auction-agents}, no obvious heuristics exist. This is as when allocating resources to a single
+task, to must take into account the other tasks that will affect and to balance resources usage between all
+allocated tasks. Because of this, reinforcement learning agents are proposed to learn this with two
+different network structures and a weighting heuristic to simplify the optimal function for agents.
 
-The heuristic is proposed for the network output, such that the network doesn't output the raw
-resources allocated for a task but rather a weighted value for the resources needing to allocated for the task.
-This has the advantage of being a simpler function to approximate for agents as it is a single positive value but with a
-similar expressiveness as an exact resource usage function due to the other values be able to known by the server. This
-also avoids the problem of the network either over allocating the resources to tasks or severely under allocating
-resources.
+The heuristic proposed is for the network output, such that instead of outputting the raw resources to be allocated
+for each task, rather a weighted value for the resources to be allocated for the task at its current stage is output.
+While simpler, this approach still has the same expressiveness as the exact resource usage output while avoiding
+the problem of either over or under allocating resources to tasks.
 
 \begin{figure}[H]
     \centering
@@ -307,15 +306,19 @@ resources.
     \end{minipage}
 \end{figure}
 
-Due to allocating resources to a single task requires being aware of the resource requirements of other tasks, this
-effects the network input shape. Two different network structures will be compared, one using a Seq2Seq network such
-all tasks are passed in to be encoded with the decode having all of the tasks passed in again generating a sequence of
-task weightings. This network architecture is shown in figure~\ref{fig:seq2seq_actor_network_architecture} for the actor
-network and figure~\ref{fig:seq2seq_critic_network_architecture} for the critic network. The other network is similar
-such that a single task is weighted at a time through passing the single task and the other allocated tasks through the
-network as shown in figure~\ref{fig:resource_weighting_network_architecture}. But this requires for each allocated task
-for the task to passed through the network however the network can be trained with both deep Q learning and policy
-gradient algorithms while the Seq2Seq network must be trained through policy gradient algorithms.
+To allocate resources to a single task requires also being aware of the resource requirements of other tasks. Because
+of this, two different neural network structure are proposed, one using a Sequence to Sequence network to allow
+an output for each of the tasks input and the other structure being to weight a single task at a time. For the sequence
+to sequence network, all tasks are passed in to be encoded with the decode having all of the tasks passed in again
+generating a sequence of task weightings as shown in Figure~\ref{fig:seq2seq_actor_network_architecture}. However to
+train such a network cannot be done using Dqn therefore a critic network,
+Figure~\ref{fig:seq2seq_critic_network_architecture} is required for policy gradient training. This has the advantage of
+evaluation all of the actions together for all of the task. \\
+The alternative network used, is a simple recurrent neural networks but due to having to output a fixed shape, only a
+single task can be weighted at a time, as shown in Figure~\ref{fig:resource_weighting_network_architecture}. Because of
+this, for each task is required to passed through the network however the network structure can be trained with both
+Dqn and policy gradient algorithms unlike the Sequence to Sequence network. The Neural Machine Machine and
+Differentiable Neural Computer were not implemented due to there complexity.
 
 \begin{figure}[h]
     \centering

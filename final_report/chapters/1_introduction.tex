@@ -9,17 +9,17 @@ interchangeable to refer to the same idea of a computer programs that has a fixe
 compute.} that can be run on servers simultaneously.
 
 For Google Cloud Services (GCP), Microsoft Azure or Amazon Web Services, their cloud computing facilities contain huge
-server nodes limiting the probability that such a bottleneck occurs. But if such an event does occur, users
-have a range of data centres across the global to use if a single data centre does becomes overloaded with requests.
+server nodes limiting the probability that such a bottleneck occurs.
 Therefore this work considers a developing paradigm~\citep{mobile_edge_survey} called Mobile Edge
-Computing~\citep{hu2015mobile} referred to as MEC. MEC aim to provide users with the ability to run their
-tasks closer to them in the network, reducing latency, network congestion and providing better application performance.
+Computing~\citep{hu2015mobile} referred to as MEC. MEC aims to provide users with the ability to run their
+tasks with greater proximity to them in the network, reducing latency, network congestion and providing better
+application performance.
 
 Currently Disaster Response~\citep{mobile_edge_disaster}, Smart Cities~\citep{smart_disaster_management} and the
 Internet-of-Things~\citep{mobile_edge_IoT} are all areas that utilise MECs due to its ability
 to process computationally small tasks locally with low latency. For example, in Smart Cities, this
-allows for smart intersection systems using road-side sensors or smart traffic lights to minimise cars waiting times
-at traffic lights and reduce traffic congestion~\citep{smart_cities_traffic_lights}. Or for the
+allows smart intersection systems with road-side sensors or smart traffic lights to minimise cars waiting times
+at traffic lights and reduce overall congestion~\citep{smart_cities_traffic_lights}. Or for the
 police to analyse CCTV footage to spot suspicious behaviour and to track people between cameras~\citep{Sreenu2019}.
 In the case of Disaster Response, maps can be produced using data from autonomous vehicles' sensors that can support in
 the search for potential victims and support responders in planning rescues~\citep{smart_disaster_management}.
@@ -27,25 +27,25 @@ the search for potential victims and support responders in planning rescues~\cit
 With MECs, the problem of bottlenecks is of particular relevant as instead of large server
 farms that can be geographically distant from the users. Servers are significantly smaller, possibly
 just high powered desktop computers or single server nodes. This results in greater demand on individual server
-resources, meaning that efficient allocation of these resources is of growing importance as the technology continues to
-grow and be utilised by new technologies.
+resources, meaning that efficient allocation of these resources is of growing importance, particularly as more
+technologies begin to utilise MECs.
 
 However it is believed that there are shortcomings in existing research about resource allocation within
 MEC~\citep{vaji_infocom, Bi2019} due to the nature of how task resource usage is determined. Traditionally,
 a user would submit a request for a fixed amount of resources, i.e.\ 2 CPU cores, 8GB of RAM, 20GB of storage, that
-would be allocated for the user. As a result, these resources can't be redistributed until the user finishes with them.
-The reason that this form of resource allocation is used and effective within cloud computing is due to its simplicity
-for the user to decide resource requirements. The utilisation of simple linear pricing mechanisms and it being rare for
-servers with large resource capacity to have bottlenecks. However it is believed that the problem of bottlenecks within
-MEC systems, warrant the investigation of an alternative resource allocation mechanisms.
+would be allocated to the user. As a result, these resources can't be redistributed until the user finishes with them.
+But there are good reasons for this form of resource allocation to be used and effective within cloud computing.
+Primarily, it is simple for the user to decide resource requirements, company can use simple linear pricing mechanisms
+and because it is rare for servers with large resource capacity to have bottlenecks. However it is believed that the
+problem of bottlenecks within MEC systems, warrant the investigation of an alternative resource allocation mechanisms.
 
 In previous work a novel resource allocation mechanism was proposed~\citep{FlexibleResourceAllocation} to allow for
 significantly more flexibility in determining resource usage with the aims of reducing possible
 bottlenecks. The mechanism is based on the principle that the time taken for an operation to complete is generally
 proportional to the resources provided for the operation. An example for this is downloading an image, the time taken
 is proportional to the bandwidth allocated. This sort of flexibility is similarly true for computing of most
-tasks~\footnote{It is well known that some algorithm are not linearly scalable making this principle incompatible with
-those tasks. Therefore in this work consider the case for algorithms that can be scalable linearly and leaves case of
+tasks~\footnote{It is well known that some algorithms are not linearly scalable making this principle incompatible with
+those tasks. Therefore this work considers the case for algorithms that can be scalable linearly and leaves case of
 non-linearly scalable tasks to future research.} or sending back results to the user. \\
 Based on this principle, a modified resource allocation mechanism can be
 reconstructed such that the users provide the task's total resource usage over its lifetime instead of the task's
@@ -56,23 +56,24 @@ investigated by~\cite{FlexibleResourceAllocation}. This is due to the ability of
 task resources, preventing bottlenecks occurring as often, which in turn allowed for more tasks to run simultaneously
 and to reduce the price.
 
-However that work only considered the proposed mechanism within a one-shot case where all tasks were presented
-at the first time step, where in all tasks would be auctioned and resource allocated. As a result, practically the proposed
+However that work only considered the proposed mechanism within a one-shot case where all tasks were presented at the
+first time step, where in all tasks would be auctioned and resource allocated. As a result, practically th proposed
 algorithms would require tasks to be processed in batches, such that servers would bid on all tasks submitted every 5
 minutes for example. This also meant that while resources could be dynamically allocated at the first time step, they
-would not change during the next batches until the task was completed. This work aims to address these problems.
+would not change during future batches until the task was completed. This work aims to address these problems.
 
-This was achieved by introducing time into the optimisation problem (outlined in section~\ref{sec:optimisation-problem}).
-As a result, task now arrive over time and servers can redistribute resources at each time step. However, all
-previous mechanisms proposed in~\cite{FlexibleResourceAllocation} are incompatible with this modified online flexible
-optimisation problem. Therefore this work investigates Reinforcement Learning methods that train agents to optimally
-bid on tasks based on their resource requirements and efficiently allocate resources to tasks running on a server.
+This was achieved by introducing time into the optimisation problem (outlined in
+Section~\ref{sec:resource-allocation-optimisation-problem}). As a result, tasks now arrive over time and servers can
+redistribute resources at each time step. However, all previous mechanisms proposed in~\cite{FlexibleResourceAllocation}
+are incompatible with this modified online flexible optimisation problem. Therefore this work investigates Reinforcement
+Learning methods that train agents to optimally bid on tasks based on their resource requirements and efficiently
+allocate resources to tasks running on a server.
 
 This report is set out in the following chapters. Chapter~\ref{ch:literature-review} investigates previous research
 that this project builds upon within both resource allocation in Cloud Computing and Reinforcement Learning.
 Chapter~\ref{ch:optimising-resource-allocation-in-mec} proposes a solution to the problem outline in
 Chapter~\ref{ch:introduction}.
-The solution is implemented in chapter~\ref{ch:implementing-flexible-resource-allocation-environment-and-server-agents}
+The solution is implemented in Chapter~\ref{ch:implementing-flexible-resource-allocation-environment-and-server-agents}
 with testing and evaluation in Chapter~\ref{ch:testing-and-evaluation}. Chapter~\ref{ch:conclusion-and-future-work}
 presents the conclusion along with future work for the project.
 

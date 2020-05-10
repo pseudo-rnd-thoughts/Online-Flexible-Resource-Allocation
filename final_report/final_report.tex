@@ -16,6 +16,10 @@
 \pdfminorversion=7                   % Fixes warnings for importing pdf documents
 \newcommand\wordcount{\verbatiminput{extra/wordcount.sum}}  % For word count command in appendix
 
+\hyphenpenalty=10000
+\tolerance=5000
+\emergencystretch=2.5em
+
 \lstloadlanguages{Python}  % Used for lstlisting
 \lstset{
   language=Python,
@@ -50,7 +54,7 @@
 \date       {\today}
 \supervisor {Dr Timothy Norman}
 \examiner   {Dr Nicholas Harris}
-\degree     {Masters of Engineering}
+\degree     {MEng Computer Science}
 %% \qualifications{}
 \subject    {}
 \keywords   {Edge Cloud Computing, Auctions, Resource Allocation, Reinforcement Learning}
@@ -89,22 +93,16 @@ agents trained using reinforcement learning.
 %% \authorshipdeclaration{}
 %% -----------------------
 \acknowledgements{
-I want to thank my parents for all of the support they have given me because I would not be where I am now
-without them. Also to my housemates for surviving with me pestering them about proof reading badly written papers and
-for dealing with me stressing about this project.
+  I want to thank my family (especially Maggie, the cat) for all their support over the years as I would not be where I
+  am now without them. \\
+  To my housemates for surviving with me pestering them about proof reading badly written papers and for dealing with me
+  stressing about this project.
 
-This project wouldn't have started without Dr Sebastian Stein, Professor Tim Norman and a team of Pennsylvania State
-University that has produced a paper investigating the static case of this problem. Thank to all of them for sharing
-ideas and support for that paper and this project.
-
-Also to Professor Tim Norman for this constant guidance over the project and the wisdom to know what for me
-to investigate and implement.
+  This project wouldn't have started without Dr Sebastian Stein, Professor Tim Norman and a team of Pennsylvania State
+  University that has produced a paper investigating the static case of this problem. Thank to all of them for sharing
+  ideas and support for that paper and this project. \\
+  To Professor Timothy Norman for this constant guidance over the project and for surviving my bad spelling and grammar.
 }
-
-% \dedicatory{To \dots}
-%%Lightweight Definitions and Abbreviations see package:nomencl for alternative
-%% Include if relevant to discipline
-% \listofsymbols{ll}{$w$ & The weight vector\\$\S$ & If relevant to discipline}
 
 \mainmatter
 %% ------------------ MAIN MATTER (CONTENT) --------------------

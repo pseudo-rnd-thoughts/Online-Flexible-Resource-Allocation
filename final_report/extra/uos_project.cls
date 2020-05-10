@@ -100,7 +100,8 @@
 \if@twocolumn\hbox{}\newpage\fi\fi\fi}
 %% -------------------- Figure/Table/Eq/Listing Stying --------------------
 %% Set the styling for non text elements of the document
-\usepackage{amsmath,amsfonts,amssymb,amscd,amsthm,xspace}
+\usepackage[fleqn]{amsmath}
+\usepackage{amsfonts,amssymb,amscd,amsthm,xspace}
 \theoremstyle{plain}
 \newtheorem{example}{Example}[chapter]
 \newtheorem{theorem}{Theorem}[chapter]

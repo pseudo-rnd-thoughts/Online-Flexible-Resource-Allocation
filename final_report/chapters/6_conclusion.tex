@@ -1,21 +1,22 @@
 \chapter{Conclusion and future work}
 \label{ch:conclusion-and-future-work}
-The aim of this project was to expand previous research to fix perceived flaws in the formulation by introducing the
-notion of time into the resource allocation optimisation model. As a result, a new optimisation problem was presented
-in Section~\ref{sec:optimisation-problem} with an auction mechanism proposed as well to deal with self-interested
-users and to distribute tasks to self-interested servers. To know how to efficiently bid and allocation resources to
-tasks, reinforcement learning agents were proposed that aimed to learn these policies. An implementation of an MEC
-environment was developed and numerous reinforcement learning algorithms were used to train both auction and resource
-weighting agent. These agents were found to efficiently learn an optimal policy however were found to not produce
-optimal policies such that \~5\% of all tasks were no completed within there time frame. A range of reasons why this
-may have occurred in Chapter~\ref{ch:testing-and-evaluation} as a well as policy gradient agents being unable to
-escape local maxima prevent them from achieving results close to that of the deep Q learning agents. Therefore this
-project has been viewed as a success however this author believes have more research and analysis of agents is required
-before such agents can be implemented into real-life systems. \\
-For future work into this project, this author believes that several additions to the agents proposed could greatly
-improve their performance like n-step rewards~\citep{multi-step-dqn} and distributional agents~\citep{distributional_dqn}
-that would improve Q value estimation within stochastic environment. An additional heuristic for the policy gradient,
-would be use a centralised critic~\citep{maddpg} that has been proposed in mix competitive-cooperative environment to
-help agents work together.
+The aim of this project was to expand previous research to fix perceived flaws in the optimisation problem for
+Mobile Edge Computing resource allocation. This was achieved by introducing the notion of time into the optimisation
+model. As a result, a new optimisation problem presented in Section~\ref{sec:resource-allocation-optimisation-problem}
+along with an auction mechanism proposed to deal with self-interested users (Section~\ref{sec:auctioning-of-tasks}). \\
+To efficiently bid on auction tasks and allocation resources for a server's allocated tasks, Reinforcement Learning
+agents were proposed that aimed to learn these policies. An implementation of an MEC environment was developed and
+numerous Reinforcement Learning algorithms were implemented to train both auction and resource weighting agent. \\
+The evaluation and testing of the implementation in Chapter~\ref{ch:testing-and-evaluation} found that agents could
+efficiently learn the policy achieving significantly better than Fixed Resource Allocation mechanisms.
+However it was found that \sim 5\% of all tasks were not completed within their time frame. \\
+This project has been viewed as a success but this author believes that more research and analysis of agents is
+required before such systems can be implemented into real-life environments.
 
-The word count of the Project can be found in \hyperref[app:project-management]{Appendix D}.
+For future work into this project, this author believes that several additions to the proposed agents could greatly
+improve their performance like n-step rewards~\citep{multi-step-dqn} and distributional
+agents~\citep{distributional_dqn} that would improve Q value estimation within stochastic environment. An additional
+heuristic for the policy gradient, would be use a centralised critic~\citep{maddpg} that has been proposed in mix
+competitive-cooperative environment to help agents work together.
+
+The word count of the Project can be found in \hyperref[app:project-management]{Appendix E}.

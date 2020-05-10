@@ -1,18 +1,20 @@
 %! Suppress = LabelConvention
 \setboolean{@twoside}{false}
 
-\section*{Appendix A: Paper} \label{app:paper}
+\section*{Appendix A: Paper}
+label{app:paper}
 This paper was been produced with the authors being myself, Dr Sebastian Stein, Professor Tim Norman from Southampton
 University, Dr Fidan Mehmeti, Professor Tom La Porta, Caroline Rubein from Pennsylvania State University and Dr Geeth
 Demel from IBM and within this project is referred to as~\cite{FlexibleResourceAllocation}.
 
 \includepdf[pages=-, offset=25mm -20mm]{extra/aamas_2020}
 
-\section*{Appendix B: SPIE Presentation} \label{app:spie-presentation}
+\section*{Appendix B: SPIE Presentation}
+\label{app:spie-presentation}
 The research of~\cite{FlexibleResourceAllocation} was presented at SPIE Defense + Commercial Sensing to the conference
 on Artificial Intelligence and Machine Learning for Multi-Domain Operations Applications II under the title
-"Analytical agility at the edge of the network through auction mechanisms". The
-\href{https://spie.org/SI/conferencedetails/artificial-intelligence-and-machine-learning-for-multi-domain-battle-applications#2560056}{link}
+"Analytical agility at the edge of the network through auction mechanisms".
+\href{https://spie.org/SI/conferencedetails/artificial-intelligence-and-machine-learning-for-multi-domain-battle-applications#2560056}{Link}
 to the recorded presentation.
 
 \includepdf[pages=-, offset=25mm -25mm, landscape=True, scale=0.95]{extra/spie_presentation}
@@ -81,7 +83,41 @@ an explanation for the values for each hyperparameter used in the project.
     \label{tab:agent_hyperparameters}
 \end{longtable}
 
-\section*{Appendix D: Project management} \label{app:project-management}
+\section*{Appendix D: Fixed Resource Allocation Optimisation Problem}
+\label{app:fixed-resource-allocation-optimisation-problem}
+Using the Flexible Resource Allocation Optimisation problem from Section~\ref{sec:resource-allocation-optimisation-problem},
+to convert the problem to a Fixed Resource Allocation Optimisation problem requires two stages. \\
+The first of these is to convert the flexible task specification to a fixed task specification, by solving the linear
+programming equations~\ref{eq:fixed-task-objective} and~\ref{eq:fixed-task-deadline}. The equations forces the resource
+usage speeds ($s^{'}_j$, $w^{'}_j$ and $r^{'}_j$) to be within the deadline (equation~\ref{eq:fixed-task-deadline}) and
+that the objective function is to minimise the total resources used. The reason for speeds being raise to the power is
+to prevent over use of a single resources (e.g. 5 loading speeds, 3 compute speed, 10 sending speed).
+
+\begin{align}
+    \text{min} & 1.2^{s^{'}_j} + 1.2^{w^{'}_j} + 1.2^{r^{'}_j} \label{eq:fixed-task-objective} \\
+    \mbox{s.t.} \nonumber \\
+    & \frac{s_j}{s^{'}_j} + \frac{w_j}{w^{'}_j} + \frac{r_j}{r^{'}_j} \leq d_j - a_j \label{eq:fixed-task-deadline} \\
+\end{align}
+
+The second stage is using the Fixed task specifications, to construct the server resource allocation optimisation
+problem. The objective function (equation~\ref{eq:fixed-env-objective}) is to maximise the number of tasks that are
+completed. The updated fixed tasks are denoted $J^{'}$. Due to there being a fixed resource allocation, the server
+allocates all of the required resources over the tasks whole lifetime. As a result, the server computational and
+bandwidth capacity constraints (equations~\ref{eq:fixed-server-computation-capacity}
+and~\ref{eq:fixed-server-bandwidth-capacity}) allocates a task's resources over its whole lifetime. The server's storage
+constraint is similar except with a task's storage increasing till the whole task's required storage is included.
+
+\begin{align}
+    \text{max} & \sum_{i \in I, j \in J^{'}} x_{i,j} \label{eq:fixed-env-objective} \\
+    \mbox{s.t.} \nonumber \\
+    & \sum_{\{j \in J^{'} | a_j \leq t \leq d_j\}} \text{min}(s_j, s^{'}_j \cdot (t + 1 - a_j)) \cdot x_{i,j} \leq S_i && \forall{i \in I} \label{eq:fixed-server-storage-capacity} \\
+    & \sum_{\{j \in J^{'} | a_j \leq t \leq d_j\}} w^{'}_j x_{i,j} \leq W_i && \forall{i \in I} \label{eq:fixed-server-computation-capacity} \\
+    & \sum_{\{j \in J^{'} | a_j \leq t \leq d_j\}} (s^{'}_j + r^{'}_j) \cdot x_{i,j} \leq R_i && \forall{i \in I} \label{eq:fixed-server-bandwidth-capacity} \\
+    & \sum_{i \in I} x_{i,j} \leq 1 && \forall{j \in J^{'}} \label{eq:fixed-env-allocation-limit} \\
+    & x_{i,j} \in \{0, 1\} && \forall{i \in I, j \in J^{'}} \label{eq:fixed-env-allocation-set}
+\end{align}
+
+\section*{Appendix E: Project management} \label{app:project-management}
 To management this project has been difficult due to having to split my time between writing the academic paper at the
 start of the year (plus creating the recorded presentation) and the programming and write up the expanded research.
 Because of this, a risk assessment (Table~\ref{tab:risk_assessment}) to understand possible risks during the project.

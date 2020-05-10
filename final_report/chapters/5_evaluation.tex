@@ -1,23 +1,24 @@
 % Texcount to include the tables
 %TC:group table 0 1
+%TC:group longtable 0 1
 
-\chapter{Testing and evaluation}
+\chapter{Testing and Evaluation}
 \label{ch:testing-and-evaluation}
-Using the implemented solution from
-Chapter~\ref{ch:implementing-flexible-resource-allocation-environment-and-server-agents} to test and evaluate its
-effectiveness, both functional unit tests and agent training evaluation have been designed. To confirm that the
-environment and agents implemented in the previous chapter
-(section~\ref{sec:server-auction-and-resource-allocation-agents}) works as intended, unit testing has been added
-that detailed in Section~\ref{sec:functional-testing}. While to evaluate the effectiveness of the solution
-in Chapter~\ref{ch:optimising-resource-allocation-in-mec}, a range of metric have been measured during training in
-order to test and compare implemented agents, neural network architectures and training parameters. These results are
-explained in Section~\ref{sec:agent-evaluation}.
+To test and evaluate the effectiveness of the implementation from
+Chapter~\ref{ch:implementing-flexible-resource-allocation-environment-and-server-agents}, both functional unit tests
+and agent training evaluation have been designed. To confirm that the environment, agents and training, from the
+previous chapter (section~\ref{sec:server-auction-and-resource-allocation-agents}) works as intended, unit testing has
+been added that are detailed in Section~\ref{sec:functional-testing}. While to evaluate the effectiveness of the
+optimisation problem in Chapter~\ref{ch:optimising-resource-allocation-in-mec} compared to a fixed resource allocation
+environment. Also a range of metric have been measured during the training of agents in compare reinforcement learning
+algorithms, neural network architectures and training parameters. These results are explained in
+Section~\ref{sec:agent-evaluation}.
 
-\section{Functional testing}
+\section{Functional Testing}
 \label{sec:functional-testing}
 To confirm that the implementation of the agents and environment correctly, PyTest a module within Python has been used
-to design to check functions. These tests are split into three families: agent, environment and training that are
-explained in their respective tables~\ref{tab:agent_testing},~\ref{tab:env_testing} and~\ref{tab:training_testing}.
+to check functions. These tests are split into three families: agent, environment and training that are
+explained in their respective Tables~\ref{tab:agent_testing},~\ref{tab:env_testing} and~\ref{tab:training_testing}.
 
 \begin{longtable}{|p{3cm}|p{11cm}|} \hline
     \textbf{Test name} & \textbf{Description} \\ \hline
@@ -32,8 +33,9 @@ explained in their respective tables~\ref{tab:agent_testing},~\ref{tab:env_testi
     Building networks & Constructs all of the neural networks to confirm that the network return a valid output
         and can accept valid inputs. \\ \hline
     Agent epsilon policy & While training, agent randomly select actions in order to explore the state space.
-        This tests that the random actions selected are valid and reduce a valid linear rate. \\ \hline
-    \caption{Table of test functions of the agents}
+        This tests that the random actions selected are valid and that epsilon reduces at a linear rate over time
+        correctly. \\ \hline
+    \caption{Table of Unit tests for Auction and Resource Allocation Agents}
     \label{tab:agent_testing}
 \end{longtable}
 
@@ -56,7 +58,7 @@ explained in their respective tables~\ref{tab:agent_testing},~\ref{tab:env_testi
         bandwidth resources to allocated tasks. \\ \hline
     Allocation of all resources & Checks that resources are allocated by the server correctly for all of the
         resources. \\ \hline
-    \caption{Table of test functions of the environment}
+    \caption{Table of Unit tests for the Online Flexible Resource Allocation Environment}
     \label{tab:env_testing}
 \end{longtable}
 
@@ -70,35 +72,190 @@ explained in their respective tables~\ref{tab:agent_testing},~\ref{tab:env_testi
         information due to the actions taken. \\ \hline
     Agent training & Tests that agents can be correctly trained over an environment with different actions and
         observations. \\ \hline
-    Random actions training & Tests random actions agent to quickly using the environment training function to confirm
+    Random actions training & Tests random actions agent using the environment training function to confirm
         that the function work as intended. \\ \hline
-    \caption{Table of test functions of agent training}
+    \caption{Table of Unit tests for Agent training}
     \label{tab:training_testing}
 \end{longtable}
 
 \section{Agent evaluation}
 \label{sec:agent-evaluation}
 In order to compare the implemented agents from
-Chapter~\ref{ch:implementing-flexible-resource-allocation-environment-and-server-agents}, a range of metric are
-recorded each time the agents are evaluated during training. These metrics are: number of failed tasks, number of
-completed tasks, percentage of tasks attempted and a histogram of actions taken which together are used to compare the
-performance between different agents. These agents are compared in Subsection~\ref{subsec:fixed-resource-heuristics} to
-fixed resource heuristics in order to evaluate the effectiveness of the proposed optimisation problem compared to the
-fixed resource allocation optimisation problem. \\
-The evaluation also analyses three different families of solutions that agents could take: environment settings and
-agent num, algorithms and network architecture that are analysed in Subsections~\ref{subsec:environment-and-agent-number-training}
-,~\ref{subsec:reinforcement-learning-algorithm-training} and~\ref{subsec:neural-network-architecture-training}
+Chapter~\ref{ch:implementing-flexible-resource-allocation-environment-and-server-agents}, a range of performance metrics
+are recorded each time the agents are evaluated during training. These metrics are: number of failed tasks, number
+of completed tasks, percentage of tasks attempted and a histogram of actions taken which together are used to compare the
+performance between different agents. Subsection~\ref{subsec:fixed-vs-flexible-resource-allocation-optimisation-problems},
+compares the proposed Online Flexible Resource Allocation environment to an Online Fixed Resource Allocation environment
+to evaluate the effectiveness of the proposed optimisation problem. \\
+To evaluate the effectiveness of different Server Agents, the training environment settings and
+number of agents, reinforcement learning algorithms and network architectures that are analysed in
+Subsections~\ref{subsec:environment-and-agent-number-training}
+,~\ref{subsec:training-reinforcement-learning-algorithms} and~\ref{subsec:neural-network-architecture-training}
 respectively.
 
-\subsection{Fixed resource Heuristics}
-\label{subsec:fixed-resource-heuristics}
-%% FIXME
-%% Add prices change over time
+\subsection{Fixed Vs Flexible Resource Allocation Optimisation Problems}
+\label{subsec:fixed-vs-flexible-resource-allocation-optimisation-problems}
+Due to tasks containing only the required resources for their lifetime instead of the proposed resource usage as in a
+fixed resource allocation scheme, it is difficult to convert the Flexible Resource Allocation Optimisation problem from
+Section~\ref{sec:resource-allocation-optimisation-problem}.
+\hyperref[app:fixed-resource-allocation-optimisation-problem]{Appendix D} describes the conversation process for tasks
+and the Fixed Resource Allocation Optimisation problem that solved using an integer programming solver with a time
+limit. This allows for comparison over the number of tasks completed for identical environments, solved optimally for
+the fixed environment. For the flexible environment, a Dqn agent for both auctions and resource allocation were used.
 
-%With the agents, an action histogram is recorded for all of the actions taken every 100 episodes to analyse the change
-%of actions taken over time and to investigate the difference is how algorithms evaluate the value of a position. Each
-%agent has the the auction and weighting actions separated due to their difference in policy. \\
-%
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/5_evaluation_figs/fixed_flexible_completed_tasks.png}
+    \caption{Number of Tasks completed with Fixed and Flexible resource allocation}
+    \label{fig:number-task-completed-fixed-flexible}
+\end{figure}
+
+Using Analysis of Variance, the variance of groups is .. %% TODO Finish
+
+\subsection{Environment and Agent number training}
+\label{subsec:environment-and-agent-number-training}
+This subsection analyses two qualities used by the following two subsections when training agents with different
+Reinforcement Learning algorithms and neural network architectures. These are the training and evaluation environments
+and number of agents trained concurrently.
+
+Agents trained must able to adapt to a range of environment settings due to the unpredictability of real-life
+environments. Agent generality is therefore an important measure and for agents to not overfit to particular
+environments used during training. \\
+An advantage of the Vickrey auction, over alternative auctions is incentive compatible, meaning that the dominant
+strategy for all agents is to bid truthfully. Agents do not need to learn how to "out bid" each other and can train
+through purely self-play, to learn the optimal strategy.
+
+%% TODO maybe change format
+\begin{wrapfigure}{r}{0.3\textwidth}
+    \includegraphics[width=0.3\textwidth]{figures/5_evaluation_figs/env_agent_num_training_fig/legend.png}
+    \caption{Environment and number of Agents Legend}
+    \label{fig:env-training-legend}
+\end{wrapfigure}
+
+This subsection compares the results of agents that are trained on a single environment setting and those
+trained on multi-environment settings and when multiple or single agents are trained together as shown in the legend,
+Figure~\ref{fig:env-training-legend}. These are compared using a set of pre-generated environments, 5 from the single
+environment setting in Figure~\ref{fig:single_env_num_completed_tasks} and 20 from the multiple environment settings to
+evaluate all agents, in Figures~\ref{fig:env-num-completed-tasks},~\ref{fig:env-num-failed-tasks}
+and~\ref{fig:env-percent-tasks}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/num_completed_tasks.png}
+    \caption{Environment and number of Agents - Number of completed tasks (Multi-env settings)}
+    \label{fig:env-num-completed-tasks}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/num_failed_tasks.png}
+    \caption{Environment and number of Agents - Number of failed tasks (Multi-env settings)}
+    \label{fig:env-num-failed-tasks}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/percent_tasks.png}
+    \caption{Environment and number of Agents - Percentage of tasks attempted (Multi-env settings)}
+    \label{fig:env-percent-tasks}
+\end{figure}
+
+%% Maybe change up the format
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.75\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/single_env_num_completed_tasks.png}
+        \caption{Environment and number of Agents - Number of completed tasks (Single env settings)}
+        \label{fig:single_env_num_completed_tasks}
+    \end{minipage}\hfill
+    \begin{minipage}{0.25\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/single_env_legend.png}
+        \caption{Single environment agent legend}
+        \label{fig:single_env_legend}
+    \end{minipage}
+\end{figure}
+
+In Figure~\ref{fig:env-num-completed-tasks}, agents training using only a single environment settings, both single and
+multiple agents variations took a relatively long time (150 and 350 episodes) for the agents to achieve 25\% of its
+final total tasks completed. In comparison, both multi-environment agents achieved similar results within 50 episodes.
+
+Despite the training speed of the single environment agents, after 600 episodes of training time, all agents no matter
+the training environments or number of agents trained together achieve very similar results; in number of tasks
+completed (Figure~\ref{fig:env-num-completed-tasks}), number of tasks failed (Figure~\ref{fig:env-num-failed-tasks})
+and number of task attempted (Figure~\ref{fig:env-percent-tasks}). This is surprising that despite single environment
+agents not being trained on the multi-environment settings, they achieve similar results as multi-environment agents.
+This means agents are able to generalised to unknown environment effectively however this is difficult to confirm will
+hold true for real-life environment settings as well.
+
+During training, all agents were simultaneously evaluated on the single environment setting. For the single environment
+agents, they achieve 10\% higher than the multiple environment agents which is understandable due to single environment
+being more "specialised" in the single environment. This allows the single environment agents to maximise profit in
+specialised environments compared to the multi-environment agents that have learnt to maximise profit over more
+environments.
+
+\subsection{Training Reinforcement Learning Algorithms}
+\label{subsec:training-reinforcement-learning-algorithms}
+
+\begin{wrapfigure}{r}{0.2\textwidth}
+    \includegraphics[width=0.2\textwidth]{figures/5_evaluation_figs/algo_training_fig/legend.png}
+    \caption{Reinforcement Learning algorithms Legend}
+    \label{fig:algo-training-legend}
+\end{wrapfigure}
+
+A range of reinforcement learning algorithms implemented as set out in Table~\ref{tab:reinforcement_learning_algorithms},
+to compare the effectiveness of the algorithms. This was done using three task pricing agents with
+a single resource weighting on multiple environment settings for training due the reasoning given in
+Subsection~\ref{subsec:environment-and-agent-number-training}. Due to time limits, the policy gradients agents were
+only trained for 24 hours however during this time were only about to complete 300 to 400 episodes of training while
+the Dqn agents were able to train in 15 hours for 600 episodes.
+%% TODO add more text
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/num_completed_tasks.PNG}
+    \caption{Reinforcement Learning algorithms - Number of completed tasks}
+    \label{fig:algo-num-completed_tasks}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/num_failed_tasks.png}
+    \caption{Reinforcement Learning algorithms - Number of failed tasks}
+    \label{fig:algo-num-failed-tasks}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/percent_tasks.png}
+    \caption{Reinforcement Learning algorithms - Percentage of tasks attempted}
+    \label{fig:algo-percent-tasks}
+\end{figure}
+
+The results did not match expectation as the heuristic Dqn agents that have been
+found~\citep{doubledqn, duelingdqn, rainbow} to achieve better results than the standard Dqn. However during training,
+it is found that both heuristic Dqn agents (Double Dqn and Dueling Dqn) achieved fewer completed tasks
+(figure~\ref{fig:algo-num-completed_tasks}) than the simpler Dqn agents despite no changes
+being made to the agents hyperparameters. Possible reasons for this is incorrect implementation,
+training time or initial network weights. While it is possible to be an incorrect implementation, this is unlikely
+due to the matching code of other implementation. The initial network weights could be a problem,
+as when the best action is not the optimal actions, this can cause the network to be trained incorrect at the start but
+will self-correct given enough time. Therefore training time is believed to be the primary reason for the heuristic Dqn
+agents achieving worse result. \\
+The Categorical Dqn agent struggled to achieving over 50 completed tasks during evaluation after 600 episodes of
+training. The reason for this is believed due to the implementation rather than the algorithm not being effective.
+However the implementation was tested on simple Reinforcement Learning in which it worked effectively. Therefore
+further research is required to explore Categorical Dqn agents fully and understand why they have no worked in this
+work.
+
+Ddpg agents (Ddpg, Td3, Td3 Central Critic) in comparison to the Dqn agents achieved significantly worse results in
+terms of completed tasks and failed tasks. Figure~\ref{fig:algo-percent-tasks} shows that the Ddpg agents attempt over
+80\% of the tasks in the environment compared to the Dqn agents with only 60\%, as a result, an agent's resources can't
+be distributed to each of its tasks meaning that a major fail. However the Td3 Central critic (where all task pricing
+agents use the same critic and twin critic) did achieve results that are on a par with the Dqn agent but due to
+training time limits this can't be known if this relationship will continue after more training.
+
 %\begin{figure}[H]
 %    \centering
 %    \begin{minipage}{0.5\textwidth}
@@ -115,136 +272,7 @@ respectively.
 %    \end{minipage}
 %\end{figure}
 
-\subsection{Environment and Agent number training}
-\label{subsec:environment-and-agent-number-training}
-The analysis of the different Reinforcement Learning algorithms and neural network architectures in
-Subsection~\ref{subsec:reinforcement-learning-algorithm-training} and~\ref{subsec:neural-network-architecture-training}
-respectively assume two qualities that this subsection analyses. These are that the training and evaluation environments
-used and the number of agents used during training.
-
-As there are huge ranges of possible environment settings that agents could be trained, investigating agent environment
-generality is a challenge and an important measure within machine learning. This is of particular importance for this
-work, as in real-life, the environment that agents experiences can be unpredictable and different from those
-trained on. This means that agents should learn to generalise and not overfit to particular environments used during
-training.
-
-The other assume quality is due an advantage of the Vickrey auction over alternative auctions, explored in
-Section~\ref{sec:auctioning-of-tasks}, that is it's Incentive Compatibility. This auction property means that the
-dominant strategy for all agents is to bid truthfully, that is the agent's true evaluation of the task. Therefore due
-to agents not needing to learn to "out bid" each other, this allows for the possibility to learn through self-play.
-
-\begin{wrapfigure}{r}{0.3\textwidth}
-    \includegraphics[width=0.3\textwidth]{figures/5_evaluation_figs/env_agent_num_training_fig/legend.png}
-    \caption{Environment and number of Agents Legend}
-    \label{fig:env-training-legend}
-\end{wrapfigure}
-
-Therefore this subsection compare the results of agents that are trained on a single environment setting and those
-trained on multiple environment settings and when multiple or single agents are trained together. These are compared
-using a set of pre-generated environments, 5 from the single environment setting and 20 from the multiple
-environment settings to evaluate agents.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/num_completed_tasks.png}
-    \caption{Environment and number of Agents - Number of completed tasks (Multi-env settings)}
-    \label{fig:env_num_completed_tasks}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/num_failed_tasks.png}
-    \caption{Environment and number of Agents - Number of failed tasks (Multi-env settings)}
-    \label{fig:env_num_failed_tasks}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/percent_tasks.png}
-    \caption{Environment and number of Agents - Percentage of tasks attempted (Multi-env settings)}
-    \label{fig:env_percent_tasks}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.75\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/single_env_num_completed_tasks.png}
-        \caption{Environment and number of Agents - Number of completed tasks (Single env settings)}
-        \label{fig:single_env_num_completed_tasks}
-    \end{minipage}\hfill
-    \begin{minipage}{0.25\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/single_env_legend.png}
-        \caption{Single environment results legend}
-        \label{fig:single_env_legend}
-    \end{minipage}
-\end{figure}
-
-Figure~\ref{fig:env_num_completed_tasks} shows that for the agents trained using only a single environment, took
-over 150 episodes for the single agent and 350 episodes for the multiple agents to achieve over 25\% of the final total
-tasks allocated. This is in comparison to both the single and multiple agents that were trained with multiple
-environments that were able to achieve better results faster than the single environment agents. \\
-Surprisingly, the number of tasks allocated by all agents after 600 episodes are within 6\% of each other. This being
-despite the single environment agents not being trained on the multi-environment settings that it is being evaluated on.
-This means agents are able to generalised efficiently to unknown environments however this is difficult to confirm in
-real-life due to the multi-environment trained are only a small subset of the possible environment will experience in
-real-life.
-
-The agents were simultaneously evaluated on the single environment setting with the single environment agents
-achieving 10\% higher than the multiple environment agents. This is understandable due to single environment being
-more "specialised" in the single environment allowing the agent to maximise profit compared to the multi-environment
-agent that have learnt to maximise profit over more environments.
-
-\subsection{Reinforcement learning algorithm training}
-\label{subsec:reinforcement-learning-algorithm-training}
-
-\begin{wrapfigure}{r}{0.2\textwidth}
-    \includegraphics[width=0.2\textwidth]{figures/5_evaluation_figs/algo_training_fig/legend.png}
-    \caption{Reinforcement learning algorithm Legend}
-    \label{fig:algo-training-legend}
-\end{wrapfigure}
-
-In table~\ref{tab:reinforcement_learning_algorithms}, a range of reinforcement learning algorithms implemented,
-to compare the effectiveness of the algorithms, each were trained. This was done using three task pricing agents with
-a single resource weighting on multiple environment settings for training due the reasoning given in
-Subsection~\ref{subsec:environment-and-agent-number-training}. Due to time limits, the policy gradients agents were
-only trained for 24 hours however during this time were only about to complete 300 to 400 episodes of training while
-the Dqn agents were able to train in 15 hours for 600 episodes.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/num_completed_tasks.PNG}
-    \caption{Reinforcement learning algorithms - Number of completed tasks}
-    \label{fig:algo_num_completed_tasks}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/num_failed_tasks.png}
-    \caption{Reinforcement learning algorithms - Number of failed tasks}
-    \label{fig:algo_num_failed_tasks}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/percent_tasks.png}
-    \caption{Reinforcement learning algorithms - Percentage of tasks attempted}
-    \label{fig:algo_percent_tasks}
-\end{figure}
-
-The results did not match expectation due to the heuristic Dqn agents (Double Dqn and Dueling Dqn) achieved a fewer
-number of completed tasks (figure~\ref{fig:algo_num_completed_tasks}) than the simpler Dqn agents despite no changes
-being made to the agents except to the heuristic modifications. Another surprise were how badly the Ddpg agents did
-in comparison to the Dqn agents, particularly with regards to the percentage of tasks attempted
-(figure~\ref{fig:algo_percent_tasks}) where it appears that Ddpg agents attempted every task resulting in the agents
-being unable successfully complete as many tasks. However the Td3 Central critic (where the critic was the same network
-shared by all task pricing agents) did achieve results that are on par with the Dqn agent but due to training time
-limits this can't be known if this relationship will continue. The Categorical Dqn agent implemented, while could
-completed much simpler reinforcement learning problem, the agent struggles with the environment however this problem
-is believed to be a problem with the implementation rather than the algorithm not being effective.
-
-\subsection{Neural network architecture training}
+\subsection{Training Neural Network Architectures}
 \label{subsec:neural-network-architecture-training}
 \begin{wrapfigure}{r}{0.25\textwidth}
     \includegraphics[width=0.25\textwidth]{figures/5_evaluation_figs/net_arch_training_fig/legend.png}
@@ -253,12 +281,12 @@ is believed to be a problem with the implementation rather than the algorithm no
 \end{wrapfigure}
 
 There are a wide-range of compatible neural network architectures that agents can use, as outlined in
-table~\ref{tab:neural_network_layers}. To compare these architectures, four different network architectures are trained:
-RNN~\citep{RNN}, LSTM~\citep{LSTM}, GRU~\citep{GRU} and Bidirectional~\citep{Bidirectional} using an LSTM network.
-These networks are trained using the DQN algorithm due to it constant performance compared to the DDPG agents that can
-get stuck in a local maxima making the results probably inconstant as shown in the previous section. A Seq2Seq agent
-was also implemented as an experimental agent with a LSTM Dqn Agent for the task pricing agent and the Seq2Seq Policy
-Gradient agent acting only for the resource weighting. \\
+Table~\ref{tab:neural_network_layers}. To compare these architectures, five different network architectures are trained:
+RNN~\citep{RNN}, LSTM~\citep{LSTM}, GRU~\citep{GRU}, Bidirectional~\citep{Bidirectional} using an LSTM network and
+a Seq2Seq network. These networks are trained using the Dqn algorithm due to its constant performance compared to the
+Ddpg agents as shown in the previous section. The Seq2Seq network used a LSTM Dqn Agent for the task pricing agent and
+a Seq2Seq Td3 agent for resource allocation as the network architecture is only applicable for the resource weighting
+agent. \\
 
 \begin{figure}[H]
     \centering
@@ -282,12 +310,11 @@ Gradient agent acting only for the resource weighting. \\
 \end{figure}
 
 As shown in figure~\ref{fig:net_arch_num_completed_tasks}, the LSTM, GRU and Bidirectional networks all achieved a
-similar score in the number of tasks completed while the RNN network achieves 30\% less. This is understandable due to
-the known of problem for RNNs of vanishing or exploding gradients as explained in Table~\ref{tab:neural_network_layers}.
-The Bidirectional neural network doesn't achieve a greater score that the other networks despite the network
-architecture allowing all inputs to be passed in is understandable due to the network providing a single output.
-Because of this, all tasks to the network are considered before any action is taken which is why the Bidirectional
-network didn't achieve a better score. However the Bidirectional seems more resilient to changes during training as
-shown in figure~\ref{fig:net_arch_num_failed_tasks} and~\ref{fig:net_arch_percent_tasks}. At episode 30 to 70, all
-of the network's (except Bidirectional), the number of failed tasks and number of attempted tasks suddenly drop, most
-likely to an over evaluating to not bid on any tasks by the task pricing agents.
+similar score in the number of tasks completed while the RNN network achieves 30\% less. This is a known problem for
+RNNs of vanishing or exploding gradients as explained in Table~\ref{tab:neural_network_layers}. \\
+The Bidirectional neural network doesn't achieve better results that the other networks meaning that the network's
+ability to understand the context around a text. However the Bidirectional seem more resilient to changes during
+training as shown in Figure~\ref{fig:net_arch_num_failed_tasks} and~\ref{fig:net_arch_percent_tasks} thus meaning the
+network is less likely to overfit. At episode 30 to 70, in all of the network's (except Bidirectional), the number of
+failed tasks and the number of attempted tasks suddenly drop, most likely due to over evaluating of not bidding for any
+tasks by the task pricing agents.
