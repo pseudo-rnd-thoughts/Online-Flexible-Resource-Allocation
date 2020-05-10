@@ -1,5 +1,0 @@
-Bidirection -> bidirection_agents_05-03_04-37-31
-GRU -> gru_agents_05-03_22-38-42
-LSTM -> lstm_agents_05-03_03-21-05
-RNN -> rnn_agents_05-03_22_28_42
-Seq2Seq -> seq2seq_resource_weighting_05-05_16-07-31

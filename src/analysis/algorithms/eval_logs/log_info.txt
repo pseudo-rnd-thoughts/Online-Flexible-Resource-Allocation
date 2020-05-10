@@ -1,8 +1,0 @@
-
-DDPG - ddpg_agents_05-06_15-46-09
-DDQN - ddqn_agents_05-03_22-38-42
-DQN - dqn_agents_05-07_14-50-10
-Dueling - dueling_dqn_agents_05-03_22-50-42
-td3 - td3_agent_05-06_15-46-09
-td3 central - td3_central_critic_agent_05-06_15-52-30
-c51 - c51_agents_05-07_15-46-53

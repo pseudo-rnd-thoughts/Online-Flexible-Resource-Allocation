@@ -4,9 +4,13 @@
 # Compiled python files
 *.pyc
 
+# Jupyter notebook
+*/.ipynb_checkpoints/
+
 # Agent training results and evaluation environments
 /src/analysis/*/logs/
 /src/analysis/*/checkpoints/
+/src/analysis/*/eval_checkpoints/
 /src/analysis/new_results/
 
 # Additional Latex files

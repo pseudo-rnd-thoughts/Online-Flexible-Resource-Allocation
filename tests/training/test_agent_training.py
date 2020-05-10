@@ -22,7 +22,7 @@ from training.train_agents import setup_tensorboard
 
 def test_task_price_training():
     print()
-    setup_tensorboard('training/tmp/results/', 'price_training')
+    setup_tensorboard('/tmp/results/', 'price_training')
 
     # List of agents
     agents: List[TaskPricingRLAgent] = [
@@ -76,7 +76,7 @@ def test_task_price_training():
 
 def test_resource_allocation_training():
     print()
-    setup_tensorboard('training/tmp/results/', 'resource_allocation_training')
+    setup_tensorboard('/tmp/results/', 'resource_allocation_training')
 
     # List of agents
     agents: List[ResourceWeightingRLAgent] = [

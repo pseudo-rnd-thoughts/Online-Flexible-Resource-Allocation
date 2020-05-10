@@ -125,84 +125,76 @@ An advantage of the Vickrey auction, over alternative auctions is incentive comp
 strategy for all agents is to bid truthfully. Agents do not need to learn how to "out bid" each other and can train
 through purely self-play, to learn the optimal strategy.
 
-%% TODO maybe change format
-\begin{wrapfigure}{r}{0.3\textwidth}
-    \includegraphics[width=0.3\textwidth]{figures/5_evaluation_figs/env_agent_num_training_fig/legend.png}
-    \caption{Environment and number of Agents Legend}
-    \label{fig:env-training-legend}
-\end{wrapfigure}
-
-This subsection compares the results of agents that are trained on a single environment setting and those
-trained on multi-environment settings and when multiple or single agents are trained together as shown in the legend,
-Figure~\ref{fig:env-training-legend}. These are compared using a set of pre-generated environments, 5 from the single
-environment setting in Figure~\ref{fig:single_env_num_completed_tasks} and 20 from the multiple environment settings to
-evaluate all agents, in Figures~\ref{fig:env-num-completed-tasks},~\ref{fig:env-num-failed-tasks}
-and~\ref{fig:env-percent-tasks}.
+This subsection compares the results of agents that are trained on a single environment setting and those trained on
+multi-environment settings and when multiple or single agents are trained together. These are compared using a set of
+pre-generated environments, 5 from the single environment setting in Figures~\ref{fig:single-env-num-completed-tasks},
+~\ref{fig:single-env-num-failed-tasks} and~\ref{fig:single-env-percent-tasks} and 20 from the multiple environment
+settings to evaluate all agents, in Figures~\ref{fig:multi-env-num-completed-tasks},~\ref{fig:multi-env-num-failed-tasks}
+and~\ref{fig:multi-env-percent-tasks}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/num_completed_tasks.png}
     \caption{Environment and number of Agents - Number of completed tasks (Multi-env settings)}
-    \label{fig:env-num-completed-tasks}
+    \label{fig:multi-env-num-completed-tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/num_failed_tasks.png}
     \caption{Environment and number of Agents - Number of failed tasks (Multi-env settings)}
-    \label{fig:env-num-failed-tasks}
+    \label{fig:multi-env-num-failed-tasks}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/percent_tasks.png}
     \caption{Environment and number of Agents - Percentage of tasks attempted (Multi-env settings)}
-    \label{fig:env-percent-tasks}
+    \label{fig:multi-env-percent-tasks}
 \end{figure}
 
-%% Maybe change up the format
-\begin{figure}[H]
-    \centering
-    \begin{minipage}{0.75\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/single_env_num_completed_tasks.png}
-        \caption{Environment and number of Agents - Number of completed tasks (Single env settings)}
-        \label{fig:single_env_num_completed_tasks}
-    \end{minipage}\hfill
-    \begin{minipage}{0.25\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/single_env_legend.png}
-        \caption{Single environment agent legend}
-        \label{fig:single_env_legend}
-    \end{minipage}
-\end{figure}
-
-In Figure~\ref{fig:env-num-completed-tasks}, agents training using only a single environment settings, both single and
-multiple agents variations took a relatively long time (150 and 350 episodes) for the agents to achieve 25\% of its
-final total tasks completed. In comparison, both multi-environment agents achieved similar results within 50 episodes.
+In Figure~\ref{fig:multi-env-num-completed-tasks}, agents training using only a single environment settings, both
+single and multiple agents variations took a relatively long time (150 and 350 episodes) for the agents to achieve 25\%
+of its final total tasks completed. In comparison, both multi-environment agents achieved similar results within 50
+episodes.
 
 Despite the training speed of the single environment agents, after 600 episodes of training time, all agents no matter
 the training environments or number of agents trained together achieve very similar results; in number of tasks
-completed (Figure~\ref{fig:env-num-completed-tasks}), number of tasks failed (Figure~\ref{fig:env-num-failed-tasks})
-and number of task attempted (Figure~\ref{fig:env-percent-tasks}). This is surprising that despite single environment
-agents not being trained on the multi-environment settings, they achieve similar results as multi-environment agents.
-This means agents are able to generalised to unknown environment effectively however this is difficult to confirm will
-hold true for real-life environment settings as well.
+completed (Figure~\ref{fig:multi-env-num-completed-tasks}), number of tasks failed
+(Figure~\ref{fig:multi-env-num-failed-tasks}) and number of task attempted (Figure~\ref{fig:multi-env-percent-tasks}).
+This is surprising that despite single environment agents not being trained on the multi-environment settings, they
+achieve similar results as multi-environment agents. This means agents are able to generalised to unknown environment
+effectively however this is difficult to confirm will hold true for real-life environment settings as well.
 
-During training, all agents were simultaneously evaluated on the single environment setting. For the single environment
-agents, they achieve 10\% higher than the multiple environment agents which is understandable due to single environment
-being more "specialised" in the single environment. This allows the single environment agents to maximise profit in
-specialised environments compared to the multi-environment agents that have learnt to maximise profit over more
-environments.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/single_env_num_completed_tasks.png}
+    \caption{Environment and number of Agents - Number of completed tasks (Single-env settings)}
+    \label{fig:single-env-num-completed-tasks}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/single_env_num_failed_tasks.png}
+    \caption{Environment and number of Agents - Number of failed tasks (Single env settings)}
+    \label{fig:single-env-num-failed-tasks}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/env_agent_num_training_fig/single_env_percent_tasks.png}
+    \caption{Environment and number of Agents - Percentage of tasks attempted (Single env settings)}
+    \label{fig:single-env-percent-tasks}
+\end{figure}
+
+During training, all agents were simultaneously evaluated on the single environment setting, shown in
+Figure~\ref{fig:single-env-num-completed-tasks}. For the single environment agents, they achieve 10\% higher than the
+multiple environment agents which is understandable due to single environment being more "specialised" in the single
+environment. This allows the single environment agents to maximise profit in specialised environments compared to the
+multi-environment agents that have learnt to maximise profit over more environments.
 
 \subsection{Training Reinforcement Learning Algorithms}
 \label{subsec:training-reinforcement-learning-algorithms}
-
-\begin{wrapfigure}{r}{0.2\textwidth}
-    \includegraphics[width=0.2\textwidth]{figures/5_evaluation_figs/algo_training_fig/legend.png}
-    \caption{Reinforcement Learning algorithms Legend}
-    \label{fig:algo-training-legend}
-\end{wrapfigure}
 
 A range of reinforcement learning algorithms implemented as set out in Table~\ref{tab:reinforcement_learning_algorithms},
 to compare the effectiveness of the algorithms. This was done using three task pricing agents with
@@ -214,7 +206,7 @@ the Dqn agents were able to train in 15 hours for 600 episodes.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/num_completed_tasks.PNG}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/algo_training_fig/num_completed_tasks.png}
     \caption{Reinforcement Learning algorithms - Number of completed tasks}
     \label{fig:algo-num-completed_tasks}
 \end{figure}
@@ -274,23 +266,17 @@ training time limits this can't be known if this relationship will continue afte
 
 \subsection{Training Neural Network Architectures}
 \label{subsec:neural-network-architecture-training}
-\begin{wrapfigure}{r}{0.25\textwidth}
-    \includegraphics[width=0.25\textwidth]{figures/5_evaluation_figs/net_arch_training_fig/legend.png}
-    \caption{Network architecture legend}
-    \label{fig:net-arch-training-legend}
-\end{wrapfigure}
-
 There are a wide-range of compatible neural network architectures that agents can use, as outlined in
 Table~\ref{tab:neural_network_layers}. To compare these architectures, five different network architectures are trained:
 RNN~\citep{RNN}, LSTM~\citep{LSTM}, GRU~\citep{GRU}, Bidirectional~\citep{Bidirectional} using an LSTM network and
 a Seq2Seq network. These networks are trained using the Dqn algorithm due to its constant performance compared to the
 Ddpg agents as shown in the previous section. The Seq2Seq network used a LSTM Dqn Agent for the task pricing agent and
 a Seq2Seq Td3 agent for resource allocation as the network architecture is only applicable for the resource weighting
-agent. \\
+agent.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/num_completed_tasks.PNG}
+    \includegraphics[width=\linewidth]{figures/5_evaluation_figs/net_arch_training_fig/num_completed_tasks.png}
     \caption{Network Architecture - Number of completed tasks}
     \label{fig:net_arch_num_completed_tasks}
 \end{figure}
