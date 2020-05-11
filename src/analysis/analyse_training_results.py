@@ -12,6 +12,7 @@ Eval for Algorithms
     dueling dqn - 05-03_22-50-42
     td3 - 05-08_01-16-31
     td3 central critic - 05-08_02-32-54
+    resource_weighting_c51 - 05-10_21-43-21
     
 Eval for Environment settings and number of agents
     multi agents multi envs - 05-02_18-20-28
@@ -56,7 +57,8 @@ def graph_results(graph_name: str, save_filename: str, names: Sequence[str], win
 
 if __name__ == "__main__":
     # Algo
-    algo_names = ['c51', 'ddpg', 'ddqn', 'dqn', 'dueling_dqn', 'td3', 'td3_central_critic']
+    algo_names = ['dqn', 'double_dqn', 'dueling_dqn', 'categorical_dqn', 'resource_weighting_c51',
+                  'ddpg', 'td3', 'td3_central_critic']
     for results_name in ['num_completed_tasks', 'num_failed_tasks', 'percent_tasks']:
         graph_results(f'algorithms/{results_name}', f'algo_training_fig/{results_name}', algo_names)
 

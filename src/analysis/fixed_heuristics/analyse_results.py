@@ -4,6 +4,7 @@ Analyse fixed vs flexible results
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.stats
 
 agent_completed_tasks = [
     90,  73,  55,  43,  41,  59,  80,  87,  120, 46,  166, 174,  # 420261
@@ -64,9 +65,9 @@ fixed_completed_tasks = [
 
 def graph_results():
     plt.figure(figsize=(8, 3))
-    plt.hist(agent_completed_tasks, label='Flexible completed tasks')
+    plt.hist(agent_completed_tasks, label='Flexible Resource Allocation')
     plt.axvline(agent_completed_tasks.mean(), linewidth=1, color='blue')
-    plt.hist(fixed_completed_tasks, label='Fixed completed tasks')
+    plt.hist(fixed_completed_tasks, label='Fixed Resource Allocation')
     plt.axvline(fixed_completed_tasks.mean(), linewidth=1, color='orange')
     plt.legend()
     plt.xlabel('Number of completed tasks')
@@ -77,20 +78,26 @@ def graph_results():
     plt.show()
 
     task_difference = np.subtract(agent_completed_tasks, fixed_completed_tasks)
+    plt.figure(figsize=(8, 4))
     plt.hist(task_difference)
+    plt.axvline(task_difference.mean(), linewidth=1, color='blue')
 
     plt.savefig(f'../../../final_report/figures/5_evaluation_figs/fixed_flexible_tasks_difference.png')
     plt.show()
 
+    print(f'Percent difference: {np.divide(agent_failed_tasks, agent_completed_tasks).mean()}')
+
 
 def statistical_results():
-    mean_fixed_completed = np.mean(fixed_completed_tasks)
-    mean_agent_completed = np.mean(agent_completed_tasks)
-    print(f'Mean - fixed: {mean_fixed_completed}, agent: {mean_agent_completed}')
+    zscore_agent = scipy.stats.zscore(agent_completed_tasks)
+    zscore_fixed = scipy.stats.zscore(fixed_completed_tasks)
 
-    task_difference = np.subtract(agent_completed_tasks, fixed_completed_tasks)
+    fixed_ks = scipy.stats.kstest(agent_completed_tasks, 'norm')
+    agent_ks = scipy.stats.kstest(fixed_completed_tasks, 'norm')
+    print(f'KS - fixed: {fixed_ks}, agent: {agent_ks}')
 
-    f_test = np.mean()
+    f_test = scipy.stats.f_oneway(zscore_agent, zscore_fixed)
+    print(f'f test: {f_test}')
 
 
 if __name__ == "__main__":
@@ -105,5 +112,5 @@ if __name__ == "__main__":
     assert len(agent_completed_tasks) == len(agent_failed_tasks) == len(agent_attempted_tasks) == len(
         fixed_completed_tasks)
 
-    # graph_results()
+    graph_results()
     statistical_results()

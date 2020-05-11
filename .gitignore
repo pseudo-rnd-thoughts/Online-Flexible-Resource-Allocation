@@ -12,6 +12,7 @@
 /src/analysis/*/checkpoints/
 /src/analysis/*/eval_checkpoints/
 /src/analysis/new_results/
+/src/analysis/algorithms/new_c51/
 
 # Additional Latex files
 /final_report/chapters/*.aux

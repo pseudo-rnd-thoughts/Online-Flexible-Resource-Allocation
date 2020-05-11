@@ -110,7 +110,19 @@ the fixed environment. For the flexible environment, a Dqn agent for both auctio
     \label{fig:number-task-completed-fixed-flexible}
 \end{figure}
 
-Using Analysis of Variance, the variance of groups is .. %% TODO Finish
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{figures/5_evaluation_figs/fixed_flexible_tasks_difference.png}
+    \caption{Difference in number of tasks completed in environment by Fixed and Flexible resource allocation}
+    \label{fig:difference-number-task-completed-fixed-flexible}
+\end{figure}
+
+A histogram of the number of tasks completed by the fixed and flexible resource allocation in
+Figure~\ref{fig:number-task-completed-fixed-flexible} that shows that using flexible resource allocation on average,
+over twice the number of tasks can be completed per environment.
+Figure~\ref{fig:difference-number-task-completed-fixed-flexible} shows the difference in the number of tasks that are
+completed per environment by the flexible and fixed resource allocation. On average 51 more tasks can be completed
+which accounts for an average 10\% per environment increase in the number of tasks that are completed each environment.
 
 \subsection{Environment and Agent number training}
 \label{subsec:environment-and-agent-number-training}
@@ -199,10 +211,7 @@ multi-environment agents that have learnt to maximise profit over more environme
 A range of reinforcement learning algorithms implemented as set out in Table~\ref{tab:reinforcement_learning_algorithms},
 to compare the effectiveness of the algorithms. This was done using three task pricing agents with
 a single resource weighting on multiple environment settings for training due the reasoning given in
-Subsection~\ref{subsec:environment-and-agent-number-training}. Due to time limits, the policy gradients agents were
-only trained for 24 hours however during this time were only about to complete 300 to 400 episodes of training while
-the Dqn agents were able to train in 15 hours for 600 episodes.
-%% TODO add more text
+Subsection~\ref{subsec:environment-and-agent-number-training}.
 
 \begin{figure}[H]
     \centering
@@ -234,19 +243,22 @@ training time or initial network weights. While it is possible to be an incorrec
 due to the matching code of other implementation. The initial network weights could be a problem,
 as when the best action is not the optimal actions, this can cause the network to be trained incorrect at the start but
 will self-correct given enough time. Therefore training time is believed to be the primary reason for the heuristic Dqn
-agents achieving worse result. \\
+agents achieving worse result.
+
 The Categorical Dqn agent struggled to achieving over 50 completed tasks during evaluation after 600 episodes of
 training. The reason for this is believed due to the implementation rather than the algorithm not being effective.
-However the implementation was tested on simple Reinforcement Learning in which it worked effectively. Therefore
-further research is required to explore Categorical Dqn agents fully and understand why they have no worked in this
-work.
+However a testing variant using a Dqn agent as the task pricing agent and a Categorical Dqn as resource allocation
+agent was able to achieve similar resources to the Dqn agents. As a result, the problem is not believed to be an
+implementation problem but rather a hyperparameter issue with the min and max values. Further research is required to
+explore Categorical Dqn agents fully and understand why they have no worked.
 
-Ddpg agents (Ddpg, Td3, Td3 Central Critic) in comparison to the Dqn agents achieved significantly worse results in
-terms of completed tasks and failed tasks. Figure~\ref{fig:algo-percent-tasks} shows that the Ddpg agents attempt over
-80\% of the tasks in the environment compared to the Dqn agents with only 60\%, as a result, an agent's resources can't
-be distributed to each of its tasks meaning that a major fail. However the Td3 Central critic (where all task pricing
-agents use the same critic and twin critic) did achieve results that are on a par with the Dqn agent but due to
-training time limits this can't be known if this relationship will continue after more training.
+Figure~\ref{fig:algo-percent-tasks} shows that the Ddpg agents (Ddpg, Td3, Td3 Central critic) attempted over 80\% of
+auctioned tasks compared to the Dqn agents with only 60\%, as a result, agent's can't distributed resource to
+each of its tasks. This means that each of the agents have a significant number of failed tasks
+(Figure~\ref{fig:algo-num-failed-tasks}) in comparison to Dqn agent. In terms of completed tasks, the Td3 and Td3
+central critic (where all task pricing agents use the same critic and twin critic) are able to achieve results as good
+as the Dqn agent while the Ddpg agent struggles to complete 25\% of the amount achieved by the other agents showing
+that the twin critic heuristic is effective.
 
 %\begin{figure}[H]
 %    \centering
@@ -295,9 +307,11 @@ agent.
     \label{fig:net_arch_percent_tasks}
 \end{figure}
 
-As shown in figure~\ref{fig:net_arch_num_completed_tasks}, the LSTM, GRU and Bidirectional networks all achieved a
-similar score in the number of tasks completed while the RNN network achieves 30\% less. This is a known problem for
-RNNs of vanishing or exploding gradients as explained in Table~\ref{tab:neural_network_layers}. \\
+As shown in figure~\ref{fig:net_arch_num_completed_tasks}, the LSTM, GRU, Bidirectional and Seq2Seq networks all
+achieved a similar score in the number of tasks completed while the RNN network achieves 30\% less. This is a known
+problem for RNNs of vanishing or exploding gradients as explained in Table~\ref{tab:neural_network_layers} meaning that
+the network struggle to be trained stably.
+The Seq2Seq network is the most successful due to its experimental nature, achieving the highest results in the end. \\
 The Bidirectional neural network doesn't achieve better results that the other networks meaning that the network's
 ability to understand the context around a text. However the Bidirectional seem more resilient to changes during
 training as shown in Figure~\ref{fig:net_arch_num_failed_tasks} and~\ref{fig:net_arch_percent_tasks} thus meaning the
