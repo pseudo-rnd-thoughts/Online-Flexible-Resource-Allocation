@@ -1,7 +1,7 @@
 File: chapters/1_introduction.tex
 Encoding: ascii
-Sum count: 1044
-Words in text: 974
+Sum count: 1047
+Words in text: 977
 Words in headers: 1
 Words outside text (captions, etc.): 69
 Number of headers: 1
@@ -11,8 +11,8 @@ Number of math displayed: 0
 
 File: chapters/2_background_lit.tex
 Encoding: ascii
-Sum count: 1499
-Words in text: 1477
+Sum count: 1489
+Words in text: 1467
 Words in headers: 12
 Words outside text (captions, etc.): 8
 Number of headers: 3
@@ -22,8 +22,8 @@ Number of math displayed: 1
 Subcounts:
   text+headers+captions (#headers/#floats/#inlines/#displayed)
   76+2+0 (1/0/0/0) Chapter: Literature Review
-  675+8+0 (1/0/1/0) Section: Resource Allocation and Pricing Mechanisms in Cloud Computing
-  726+2+8 (1/1/0/1) Section: Reinforcement Learning
+  667+8+0 (1/0/1/0) Section: Resource Allocation and Pricing Mechanisms in Cloud Computing
+  724+2+8 (1/1/0/1) Section: Reinforcement Learning
 
 File: chapters/3_solution.tex
 Encoding: ascii
@@ -66,28 +66,28 @@ Subcounts:
 
 File: chapters/5_evaluation.tex
 Encoding: ascii
-Sum count: 2105
-Words in text: 1919
+Sum count: 2347
+Words in text: 2147
 Words in headers: 27
-Words outside text (captions, etc.): 159
+Words outside text (captions, etc.): 173
 Number of headers: 7
-Number of floats/tables/figures: 14
+Number of floats/tables/figures: 15
 Number of math inlines: 0
 Number of math displayed: 0
 Subcounts:
   text+headers+captions (#headers/#floats/#inlines/#displayed)
-  96+3+0 (1/0/0/0) Chapter: Testing and Evaluation
-  488+2+28 (1/0/0/0) Section: Functional Testing
-  110+2+0 (1/0/0/0) Section: Agent evaluation
-  182+7+24 (1/2/0/0) Subsection: Fixed Vs Flexible Resource Allocation Optimisation Problems
-  397+5+68 (1/6/0/0) Subsection: Environment and Agent number training
-  416+4+21 (1/3/0/0) Subsection: Training Reinforcement Learning Algorithms
-  230+4+18 (1/3/0/0) Subsection: Training Neural Network Architectures
+  69+3+0 (1/0/0/0) Chapter: Testing and Evaluation
+  514+2+28 (1/0/0/0) Section: Functional Testing
+  111+2+0 (1/0/0/0) Section: Agent evaluation
+  273+7+37 (1/3/0/0) Subsection: Fixed Vs Flexible Resource Allocation Optimisation Problems
+  503+5+69 (1/6/0/0) Subsection: Environment and Agent number training
+  444+4+21 (1/3/0/0) Subsection: Training Reinforcement Learning Algorithms
+  233+4+18 (1/3/0/0) Subsection: Training Neural Network Architectures
 
 File: chapters/6_conclusion.tex
 Encoding: ascii
-Sum count: 259
-Words in text: 254
+Sum count: 266
+Words in text: 261
 Words in headers: 4
 Words outside text (captions, etc.): 0
 Number of headers: 1
@@ -96,21 +96,21 @@ Number of math inlines: 1
 Number of math displayed: 0
 
 Total
-Sum count: 9731
-Words in text: 9312
+Sum count: 9973
+Words in text: 9540
 Words in headers: 92
-Words outside text (captions, etc.): 290
+Words outside text (captions, etc.): 304
 Number of headers: 25
-Number of floats/tables/figures: 20
+Number of floats/tables/figures: 21
 Number of math inlines: 31
 Number of math displayed: 6
 Files: 6
 Subcounts:
   text+headers+captions (#headers/#floats/#inlines/#displayed)
-  974+1+69 (1/0/0/0) File(s) total: chapters/1_introduction.tex
-  1477+12+8 (3/1/1/1) File(s) total: chapters/2_background_lit.tex
+  977+1+69 (1/0/0/0) File(s) total: chapters/1_introduction.tex
+  1467+12+8 (3/1/1/1) File(s) total: chapters/2_background_lit.tex
   2779+19+46 (6/4/29/4) File(s) total: chapters/3_solution.tex
   1909+29+8 (7/1/0/1) File(s) total: chapters/4_implementation.tex
-  1919+27+159 (7/14/0/0) File(s) total: chapters/5_evaluation.tex
-  254+4+0 (1/0/1/0) File(s) total: chapters/6_conclusion.tex
+  2147+27+173 (7/15/0/0) File(s) total: chapters/5_evaluation.tex
+  261+4+0 (1/0/1/0) File(s) total: chapters/6_conclusion.tex
 

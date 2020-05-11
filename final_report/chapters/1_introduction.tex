@@ -35,9 +35,10 @@ MEC~\citep{vaji_infocom, Bi2019} due to the nature of how task resource usage is
 a user would submit a request for a fixed amount of resources, i.e.\ 2 CPU cores, 8GB of RAM, 20GB of storage, that
 would be allocated to the user. As a result, these resources can't be redistributed until the user finishes with them.
 But there are good reasons for this form of resource allocation to be used and effective within cloud computing.
-Primarily, it is simple for the user to decide resource requirements, company can use simple linear pricing mechanisms
-and because it is rare for servers with large resource capacity to have bottlenecks. However it is believed that the
-problem of bottlenecks within MEC systems, warrant the investigation of an alternative resource allocation mechanisms.
+Primarily, it is simple for the user to decide resource requirements, Cloud Computing companies can use simple linear
+pricing mechanisms and as it is rare for servers with large resource capacity to have bottlenecks. However it is
+believed that the problem of bottlenecks within MEC systems, warrant the investigation of an alternative resource
+allocation mechanisms.
 
 In previous work a novel resource allocation mechanism was proposed~\citep{FlexibleResourceAllocation} to allow for
 significantly more flexibility in determining resource usage with the aims of reducing possible
@@ -57,7 +58,7 @@ task resources, preventing bottlenecks occurring as often, which in turn allowed
 and to reduce the price.
 
 However that work only considered the proposed mechanism within a one-shot case where all tasks were presented at the
-first time step, where in all tasks would be auctioned and resource allocated. As a result, practically th proposed
+first time step, where in all tasks would be auctioned and resource allocated. As a result, in practice the proposed
 algorithms would require tasks to be processed in batches, such that servers would bid on all tasks submitted every 5
 minutes for example. This also meant that while resources could be dynamically allocated at the first time step, they
 would not change during future batches until the task was completed. This work aims to address these problems.

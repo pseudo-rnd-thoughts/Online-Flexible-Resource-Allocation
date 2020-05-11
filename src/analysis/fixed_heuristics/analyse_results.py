@@ -74,15 +74,28 @@ def graph_results():
     plt.ylabel('Frequency')
     plt.tight_layout()
 
-    plt.savefig(f'../../../final_report/figures/5_evaluation_figs/fixed_flexible_completed_tasks.png')
+    plt.savefig('../../../final_report/figures/5_evaluation_figs/fixed_flexible_completed_tasks.png')
     plt.show()
 
     task_difference = np.subtract(agent_completed_tasks, fixed_completed_tasks)
-    plt.figure(figsize=(8, 4))
+    plt.figure(figsize=(8, 3))
     plt.hist(task_difference)
+    plt.xlabel('Difference in Tasks completed')
+    plt.ylabel('Frequency')
+    plt.tight_layout()
     plt.axvline(task_difference.mean(), linewidth=1, color='blue')
 
-    plt.savefig(f'../../../final_report/figures/5_evaluation_figs/fixed_flexible_tasks_difference.png')
+    plt.savefig('../../../final_report/figures/5_evaluation_figs/fixed_flexible_tasks_difference.png')
+    plt.show()
+
+    plt.figure(figsize=(8, 3))
+    plt.hist(agent_failed_tasks, 50)
+    plt.xlabel('Number of tasks failed')
+    plt.ylabel('Frequency')
+    plt.tight_layout()
+    plt.axvline(agent_failed_tasks.mean(), linewidth=1, color='blue')
+
+    plt.savefig('../../../final_report/figures/5_evaluation_figs/flexible_failed_tasks.png')
     plt.show()
 
     print(f'Percent difference: {np.divide(agent_failed_tasks, agent_completed_tasks).mean()}')

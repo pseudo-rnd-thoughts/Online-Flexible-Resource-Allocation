@@ -31,10 +31,9 @@ cloud resource allocation and task pricing algorithms that had significantly bet
 online mechanisms with that profit made and number of users accepted. The system considered both the pricing and
 placement of virtual machines in the system to maximise the profits of cloud providers through the use of Deep
 Deterministic Policy Gradient~\citep{ddpg} to train agents. Users would request a type of virtual machine from the
-system that a server would allocate to a user where the price and placement of the virtual machine with a known fixed
-resource requirements where the price and server to be allocated is chosen by neural network agents. The deep
-Reinforcement Learning models were trained using real-world cloud workloads and achieved significantly high profit even
-in worst-case scenarios.
+system that a server would allocate to a user. The price and placement of the virtual machine is determined by
+agents with neural networks. To train the agent, real-world Cloud Computing workloads were utilised and allow it to
+achieve significantly high profits even in worst-case scenarios compared to previous research.
 
 Some approaches have been taken to increase flexibility within Fog Cloud Computing \citep{Bi2019} through efficient
 distribution of data centers and connections to maximise social welfare. A truthful online mechanism was
@@ -87,8 +86,8 @@ called the Q value, that forms the basis of modern Reinforcement Learning algori
 estimated discounted reward in the future given an action in a particular state. Equation~\eqref{eq:q_value} gives a
 mathematically description where rewards in the future are discounted. A recursive version of this equation can be
 formulated as equation~\eqref{eq:q_learning_recursive} where the next state is the max Q value of the next state-action.
-Agents can be trained to approximate the Q value using equation~\eqref{eq:q_learning} through the used of a table
-of state action pairs by finding the difference of the best next action and the current Q value.
+Agents can be trained to approximate the Q value using equation~\eqref{eq:q_learning} through the use of a table
+of state-action pairs by finding the difference of the best next action and the current Q value.
 
 \begin{align}
     & Q(s_t, a_t) = \mathbb{E} \left[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+2} + \cdots \right] \label{eq:q_value} \\
@@ -96,7 +95,7 @@ of state action pairs by finding the difference of the best next action and the 
     & Q(s_t, a_t) = Q(s_t, a_t) + \alpha \cdot \big( r_t + \gamma \cdot \text{max}_a Q(s_{t+1} , a) - Q(s_t, a_t) \big) \label{eq:q_learning}
 \end{align}
 
-However the curse of dimensionally was found to be a major problem for using Q learning as the number of states
+However the curse of dimensionally was found to be a major problem for using Q-learning as the number of states
 or actions increase, the table of state-action pairs grows exponentially. This makes the method
 impractical for problems with large state spaces due to both the table size and the required training time for agents.
 
