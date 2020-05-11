@@ -63,22 +63,24 @@ fixed_completed_tasks = [
 
 
 def graph_results():
+    plt.figure(figsize=(8, 3))
     plt.hist(agent_completed_tasks, label='Flexible completed tasks')
-    plt.axvline(agent_completed_tasks.mean(), linewidth=1)
+    plt.axvline(agent_completed_tasks.mean(), linewidth=1, color='blue')
     plt.hist(fixed_completed_tasks, label='Fixed completed tasks')
-    plt.axvline(fixed_completed_tasks.mean(), linewidth=1)
+    plt.axvline(fixed_completed_tasks.mean(), linewidth=1, color='orange')
     plt.legend()
     plt.xlabel('Number of completed tasks')
     plt.ylabel('Frequency')
-    plt.show()
+    plt.tight_layout()
 
     plt.savefig(f'../../../final_report/figures/5_evaluation_figs/fixed_flexible_completed_tasks.png')
+    plt.show()
 
     task_difference = np.subtract(agent_completed_tasks, fixed_completed_tasks)
     plt.hist(task_difference)
-    plt.show()
 
     plt.savefig(f'../../../final_report/figures/5_evaluation_figs/fixed_flexible_tasks_difference.png')
+    plt.show()
 
 
 def statistical_results():
@@ -103,5 +105,5 @@ if __name__ == "__main__":
     assert len(agent_completed_tasks) == len(agent_failed_tasks) == len(agent_attempted_tasks) == len(
         fixed_completed_tasks)
 
-    graph_results()
+    # graph_results()
     statistical_results()
