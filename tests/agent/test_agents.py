@@ -180,6 +180,16 @@ def test_c51_actions():
     print(f'Greedy actions: {list(auction_actions.values())}')
     assert any(0 < action for server, action in auction_actions.items())
 
+    server, tasks = next((server, tasks) for server, tasks in state.server_tasks.items())
+    observation = tf.expand_dims(pricing_agent._network_obs(state.auction_task, tasks, server, state.time_step), axis=0)
+    network_output = pricing_agent.model_network(observation)
+    probabilities = tf.nn.softmax(network_output)
+    probability_value = probabilities * pricing_agent.z_values
+    q_values = tf.reduce_sum(probability_value, axis=2)
+    argmax_q_values = tf.math.argmax(q_values, axis=1, output_type=tf.int32)
+    print(f'Network output: {network_output}\nProbabilities: {probabilities}\nProbability value: {probability_value}\n'
+          f'Q value: {q_values}\nArgmax Q value: {argmax_q_values}')
+
     auction_actions = {
         server: pricing_agent.bid(state.auction_task, tasks, server, state.time_step, training=True)
         for server, tasks in state.server_tasks.items()
