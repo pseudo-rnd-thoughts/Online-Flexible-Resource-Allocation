@@ -46,7 +46,7 @@ def graph_results(graph_name: str, save_filename: str, names: Sequence[str], win
         for name in names
     }
 
-    plt.figure(figsize=(8, 4))
+    plt.figure(figsize=(8, 3.3))
     for name, _df in df.items():
         plt.plot(_df['Step'], _df['Value'].rolling(window=window).mean(), label=name.replace('_', ' ').title())
     plt.legend()
