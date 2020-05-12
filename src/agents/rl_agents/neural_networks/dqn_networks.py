@@ -113,10 +113,11 @@ def create_lstm_dueling_dqn_network(input_width: int, num_actions: int,
     """
     input_layer = tf.keras.layers.Input(shape=(None, input_width))
     lstm_layer = tf.keras.layers.LSTM(lstm_width)(input_layer)
-    relu_layer = tf.keras.layers.Dense(relu_width, activation='relu',
-                                       kernel_regularizer=tf.keras.regularizers.l1())(lstm_layer)
-    value = tf.keras.layers.Dense(1, activation='linear')(relu_layer)
-    advantage = tf.keras.layers.Dense(num_actions, activation='linear')(relu_layer)
+    relu_layer = tf.keras.layers.Dense(relu_width, activation='relu')(lstm_layer)
+    value = tf.keras.layers.Dense(1, activation='linear',
+                                  kernel_regularizer=tf.keras.regularizers.l1())(relu_layer)
+    advantage = tf.keras.layers.Dense(num_actions, activation='linear',
+                                      kernel_regularizer=tf.keras.regularizers.l1())(relu_layer)
     if combiner == 'avg':
         dueling_q_layer = value + (advantage - tf.reduce_mean(advantage, axis=1, keepdims=True))
     elif combiner == 'max':

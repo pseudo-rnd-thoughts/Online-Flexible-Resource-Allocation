@@ -1,5 +1,5 @@
 \documentclass[11pt]{amsart}
-\usepackage[paperwidth=11in,paperheight=18in]{geometry}
+\usepackage[paperwidth=10in,paperheight=18in]{geometry}
 
 %\usepackage{rcstd}
 \renewcommand{\familydefault}{\sfdefault}
@@ -123,42 +123,36 @@
     \gantttitlelist{2,...,30}{1} \\
 
     \ganttgroup{WP1: AAMAS Paper}{1}{6} \\
-    \ganttbar{\textbf{Task 1.1: Generate algorithm results} }{1}{2} \\
-    \ganttbar{\textbf{Task 1.2: Implement critical value auction} }{2}{3} \\
-    \ganttbar{\textbf{Task 1.3: Write up algorithms} }{3}{5} \\
-    \ganttbar{\textbf{Task 1.4: Write up results} }{5}{6} \\
-    \ganttmilestone{Deliverable 1: Paper submission}{6} \\ [grid]
+    \ganttbar{\textbf{Task 1.1: Generate algorithm results}}{1}{2} \\
+    \ganttbar{\textbf{Task 1.2: Implement critical value auction}}{2}{3} \\
+    \ganttbar{\textbf{Task 1.3: Write up algorithms}}{3}{5} \\
+    \ganttbar{\textbf{Task 1.4: Write up results}}{5}{6} \\
+    \ganttmilestone{Deliverable 1: AAMAS paper submission}{6} \\ [grid]
 
     \ganttgroup{WP2: Progress report}{7}{10} \\
-    \ganttbar{\textbf{Task 2.1: Read background reading} }{7}{7} \\
-    \ganttbar{\textbf{Task 2.2: Write up background reading} }{8}{8} \\
-    \ganttbar{\textbf{Task 2.3: Write up proposed solution} }{9}{9} \\
-    \ganttbar{\textbf{Task 2.4: Write up justification of solution} }{10}{10} \\
-    \ganttmilestone{Deliverable 2: Progress report submission}{10} \\ [grid]
+    \ganttbar{\textbf{Task 2.1: Read background reading}}{7}{7} \\
+    \ganttbar{\textbf{Task 2.2: Write up background reading}}{8}{8} \\
+    \ganttbar{\textbf{Task 2.3: Write up proposed solution}}{9}{9} \\
+    \ganttbar{\textbf{Task 2.4: Write up justification of solution}}{10}{10} \\
+    \ganttmilestone{Deliverable 2: Progress report submission}{10} \ganttnewline
 
-    \ganttgroup{WP3: Code the environment}{11}{16} \\
-    \ganttbar{\textbf{Task 3.1: Code the servers and tasks} }{11}{12} \\
-    \ganttbar{\textbf{Task 3.2: Code weighted server resource allocation} }{12}{14} \\
-    \ganttbar{\textbf{Task 3.2: Code environment auction and resource allocation} }{14}{16} \\
-    \ganttmilestone{Deliverable 3: Run the environment with random actions}{16} \\ [grid]
+    \ganttgroup{WP3: Code the framework}{10}{18} \\
+    \ganttbar{\textbf{Task 1.1: Code the servers and tasks} }{10}{14} \\
+    \ganttbar{\textbf{Task 1.2: Code simple heuristics for the pricing and resource allocation}}{14}{18} \\
+    \ganttmilestone{Deliverable 1: Run an example with simple heuristics}{18} \\ [grid]
 
-    \ganttgroup{WP4: Code the server agents}{17}{23} \\
-    \ganttbar{\textbf{Task 4.1: Code the DQN agent} }{17}{18} \\
-    \ganttbar{\textbf{Task 4.1: Code the Double and Dueling DQN agent} }{18}{19} \\
-    \ganttbar{\textbf{Task 4.1: Code the DDPG agent} }{18}{21} \\
-    \ganttbar{\textbf{Task 4.1: Code the TD3 and Categorical DQN agent} }{21}{23} \\
-    \ganttmilestone{Deliverable 4: Be able to run and train all agents}{23} \\ [grid]
+    \ganttgroup{WP4: Code the pricing and resource allocation neural networks}{18}{26} \\
+    \ganttbar{\textbf{Task 2.1: Code the pricing neural network}}{18}{22} \\
+    \ganttbar{\textbf{Task 2.2: Code the resource allocation neural network}}{18}{22} \\
+    \ganttbar{\textbf{Task 2.2: Train the networks on example settings} }{22}{26} \\
+    \ganttmilestone[name=d1]{Deliverable 2: Test with the neural networks}{26} \\ [grid]
 
-    \ganttgroup{WP5: Write up Presentation}{24}{27} \\
-    \ganttbar{\textbf{Task 5.1: Writeup presentation} }{24}{26} \\
-    \ganttbar{\textbf{Task 5.1: Record presentation} }{26}{27} \\
-    \ganttmilestone{Deliverable 5: Submit presentation}{27} \\ [grid]
-
-    \ganttgroup{WP6: Testing, evaluation and finish dissertation}{24}{30} \\
-    \ganttbar{\textbf{Task 6.1: Testing of neural networks and comparison to heuristics} }{24}{26} \\
-    \ganttbar{\textbf{Task 6.2: Analysis of the neural networks and their results} }{26}{28} \\
-    \ganttbar{\textbf{Task 6.4: Finish writing the final report} }{29}{30} \\
-    \ganttmilestone{Deliverable 6: Submit full report and software submission}{30} [grid]
+    \ganttgroup{WP3: Testing and evaluation of heuristics and neural networks}{26}{30} \\
+    \ganttbar{\textbf{Task 3.1: Testing of neural networks and comparison to heuristics} }{26}{30} \\
+    \ganttbar{\textbf{Task 3.2: Analysis of the neural networks and their results} }{26}{30} \\
+    \ganttbar{\textbf{Task 3.3: Performance testing} }{26}{30} \\
+    \ganttbar{\textbf{Task 3.4: Finish writing the final report}}{26}{30} \\
+    \ganttmilestone{Deliverable 4: Final report and software submission}{30}
 
 \end{ganttchart}
 \end{landscape}

@@ -29,19 +29,19 @@ an explanation for the values for each hyperparameter used in the project.
         RL Agent & batch\_size & 32 & The number of trajectories from the experience replay buffer that are used each
             time to train an agent. \\ \hline
         RL Agent & error\_loss\_fn & tf.losses. huber\_loss & The loss function used in calculating a network's error. \\ \hline
-        RL Agent & initial\_training replay\_size & 5000 & The number of trajectories in the experience replay buffer
+        RL Agent & initial\_training\_ replay\_size & 5000 & The number of trajectories in the experience replay buffer
             required before the agent begins training. \\ \hline
         RL Agent & training\_freq & 2 & For every trajectory added to the experience replay buffer, for each 2, the
             agent tries to be trained. \\ \hline
         RL Agent & discount\_factor & 0.9 & Within the Q learning function (equation~\eqref{eq:q_learning}), the
             discount factor determines how important the rewards in the future impact the Q value. \\ \hline
-        RL Agent & replay\_buffer length & 25000 & The length of the circular experience replay buffer. \\ \hline
+        RL Agent & replay\_buffer\_ length & 25000 & The length of the circular experience replay buffer. \\ \hline
         RL Agent & save\_frequency & 25000 & The agent networks are saved after 25000 time that agent has been trained
             \\ \hline
-        RL Agent & training\_loss log\_freq & 250 & Tensorboard allows for data to be saved using training, after every
+        RL Agent & training\_loss\_ log\_freq & 250 & Tensorboard allows for data to be saved using training, after every
             the agent has been trained 250 time, the agents loss is logged for future analysis. \\ \hline
         Task Pricing RL Agent & reward\_scaling & 1 & \\ \hline
-        Task Pricing RL Agent & failed\_auction reward & -0.05 & The reward for when the agent bids on a task but fails
+        Task Pricing RL Agent & failed\_auction\_ reward & -0.05 & The reward for when the agent bids on a task but fails
             to win the auctioned task. \\ \hline
         Task Pricing RL Agent & failed\_multiplier & -1.5 & A multiplier applied to the winning price is the task fails
             to be computed within its deadline. \\ \hline
@@ -68,9 +68,9 @@ an explanation for the values for each hyperparameter used in the project.
             used  during training \\ \hline
         Ddpg Agent & final\_epsilon\_std & 0.05 & The final exploration standard deviation of the normal distribution
             used  during training \\ \hline
-        Ddpg Agent & actor\_target update\_freq & 3000 & The actor target network update frequency \\ \hline
-        Ddpg Agent & critic\_target update\_freq & 1500 & The critic target network update frequency \\ \hline
-        Ddpg Agent & upper\_action bound & 30.0 & The upper action bound for the actor network \\ \hline
+        Ddpg Agent & actor\_target\_ update\_freq & 3000 & The actor target network update frequency \\ \hline
+        Ddpg Agent & critic\_target\_ update\_freq & 1500 & The critic target network update frequency \\ \hline
+        Ddpg Agent & upper\_action\_ bound & 30.0 & The upper action bound for the actor network \\ \hline
         Task pricing Ddpg Agent & min\_value & -100.0 & The minimum value for the critic network to estimate for an
             action \\ \hline
         Task pricing Ddpg Agent & max\_value & 100.0 & The maximum value for the critic network to estimate for an
@@ -95,7 +95,7 @@ that the objective function is to minimise the total resources used. The reason 
 to prevent over use of a single resources (e.g. 5 loading speeds, 3 compute speed, 10 sending speed).
 
 \begin{align}
-    \text{min} & 1.2^{s^{'}_j} + 1.2^{w^{'}_j} + 1.2^{r^{'}_j} \label{eq:fixed-task-objective} \\
+    \text{minimise  } & 1.2^{s^{'}_j} + 1.2^{w^{'}_j} + 1.2^{r^{'}_j} \label{eq:fixed-task-objective} \\
     \mbox{s.t.} \nonumber \\
     & \frac{s_j}{s^{'}_j} + \frac{w_j}{w^{'}_j} + \frac{r_j}{r^{'}_j} \leq d_j - a_j \label{eq:fixed-task-deadline} \\
 \end{align}
@@ -111,7 +111,7 @@ constraint is similar except with a task's storage increasing till the whole tas
 \begin{align}
     \text{max} & \sum_{i \in I, j \in J^{'}} x_{i,j} \label{eq:fixed-env-objective} \\
     \mbox{s.t.} \nonumber \\
-    & \sum_{\{j \in J^{'} | a_j \leq t \leq d_j\}} \text{min}(s_j, s^{'}_j \cdot (t + 1 - a_j)) \cdot x_{i,j} \leq S_i && \forall{i \in I} \label{eq:fixed-server-storage-capacity} \\
+    & \sum_{\{j \in J^{'} | a_j \leq t \leq d_j\}} \text{min}(s_j \text{, } s^{'}_j \cdot (t + 1 - a_j)) \cdot x_{i,j} \leq S_i && \forall{i \in I} \label{eq:fixed-server-storage-capacity} \\
     & \sum_{\{j \in J^{'} | a_j \leq t \leq d_j\}} w^{'}_j x_{i,j} \leq W_i && \forall{i \in I} \label{eq:fixed-server-computation-capacity} \\
     & \sum_{\{j \in J^{'} | a_j \leq t \leq d_j\}} (s^{'}_j + r^{'}_j) \cdot x_{i,j} \leq R_i && \forall{i \in I} \label{eq:fixed-server-bandwidth-capacity} \\
     & \sum_{i \in I} x_{i,j} \leq 1 && \forall{j \in J^{'}} \label{eq:fixed-env-allocation-limit} \\
@@ -120,13 +120,16 @@ constraint is similar except with a task's storage increasing till the whole tas
 
 \section*{Appendix E: Project management}
 \label{app:project-management}
-To management this project has been difficult due to having to split my time between writing the academic paper at the
+To management this project has been difficult due to splitting my time between writing the academic paper at the
 start of the year (plus creating the recorded presentation) and the programming and write up the expanded research.
 Because of this, a risk assessment (Table~\ref{tab:risk_assessment}) to understand possible risks during the project.
-The project was also planned using a grantt chart (figure~\ref{fig:progress_grant_chart}) to understand the progress of
+The project was also planned using a grantt chart (figure~\ref{fig:progress-grant-chart}) to understand the progress of
 the project over time and to plan how the project would run. The project brief is submitted in October 2019
 is included at the end of this report as well. The word count of the project generated by texcount for chapters 1 to 6
 is included.
+
+The general plan for the project in the project briefing was kept to with very small changed like the real-world data
+from the Google data center was found to be incompatible with the resource requirements therefore dropped.
 
 \subsection*{Risk assessment}
 \begin{table}[H]
@@ -152,12 +155,24 @@ is included.
 \end{table}
 
 \subsection*{Progress Grantt Chart}
-%% TODO compare project brief and progress report to actual report
+For the expected progress grantt chart (figure~\ref{fig:expected-progress-grantt-chart}), most of the time scales are
+accurate expect didn't allocate enough time to write the report. However this was realised during the project and so
+report was started another month early due to the required work to rewrite the background literature and write the
+solution and implementation. This is shown in the updated actual progress grantt chart in
+Figure~\ref{fig:progress-grant-chart}.
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\linewidth]{extra/progress_grantt_chart.pdf}
-    \caption{Progress Grantt chart}
-    \label{fig:progress_grant_chart}
+    \includegraphics[width=13cm]{extra/expected_progress_grantt_chart.pdf}
+    \caption{Expected Progress Grantt chart}
+    \label{fig:expected-progress-grantt-chart}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=14cm]{extra/progress_grantt_chart.pdf}
+    \caption{Actual Progress Grantt chart}
+    \label{fig:progress-grant-chart}
 \end{figure}
 
 \includepdf[pages=-, offset=25mm -20mm]{extra/project_brief}

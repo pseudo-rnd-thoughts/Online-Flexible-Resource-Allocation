@@ -3,20 +3,20 @@
 The aim of this project was to expand previous research to fix flaws in the elastic resource allocation optimisation
 problems for Mobile Edge Computing. This was achieved by introducing the notion of time into the optimisation
 model. As a result, a new optimisation problem was presented in Section~\ref{sec:resource-allocation-optimisation-problem}
-along with an auction mechanism proposed to deal with self-interested users (Section~\ref{sec:auctioning-of-tasks}). \\
+along with an auction mechanism to deal with self-interested users (Section~\ref{sec:auctioning-of-tasks}). \\
 Due to the complexity of the problem, Reinforcement learning was applied to learn how to bid on auctioned tasks and
 allocation the server's resources. By implementing an MEC environment and numerous Reinforcement Learning algorithms,
 agents were able to be train that learnt the optimal strategy for both task pricing and resource allocation. \\
 The evaluation and testing of the implementation, in Chapter~\ref{ch:testing-and-evaluation}, found that agents could
-efficiently learn the policy achieving significantly better than Fixed Resource Allocation mechanisms.
+efficiently learn the policy achieving significantly more tasks completed than the Fixed Resource Allocation mechanisms.
 However around $\sim$ 5\% of all tasks were not completed within their time frame. As a result, this project has been
-viewed as a success but this author believes that more research and analysis of agents are required before such systems
+viewed as a success however more research and analysis of agents are required before such systems
 can be implemented into real-life environments.
 
 For future work into this project, this author believes that several additions to the proposed agents could greatly
 improve their performance like n-step rewards~\citep{multi-step-dqn} and distributional ddpg
-agents~\citep{distributional_dqn, d4pg} would improve agents within environment due to its stochastic nature. An
+agents~\citep{distributional_dqn, d4pg} that would improve agents due to the environment stochastic nature for agents. An
 additional heuristic for the policy gradient, would be to use a centralised critic~\citep{maddpg} that has been proposed
-in mix competitive-cooperative environment to help multiple agents work together.
+in mix competitive-cooperative environment to help multiple agents working together.
 
 The word count of the Project can be found in \hyperref[app:project-management]{Appendix E}.
